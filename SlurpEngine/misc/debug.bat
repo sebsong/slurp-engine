@@ -1,5 +1,5 @@
 @echo off
 
 pushd %slurp_dir%\build
-devenv Engine.exe
+devenv WinEngine.exe
 popd
