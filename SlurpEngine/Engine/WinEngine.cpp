@@ -1,12 +1,59 @@
 #include <iostream>
 #include <windows.h>
 
-LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
+static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
+
+static bool Running;
+static BITMAPINFO BitmapInfo;
+static void* BitmapMemory;
+static HBITMAP BitmapHandle;
+static HDC DeviceContextHandle;
+
+static void WinResizeDIBSection(int Width, int Height)
+{
+    if (BitmapHandle)
+    {
+        DeleteObject(BitmapHandle);
+    }
+
+    if (!DeviceContextHandle)
+    {
+        DeviceContextHandle = CreateCompatibleDC(nullptr);
+    }
+
+    BitmapInfo.bmiHeader.biSize = sizeof(BitmapInfo.bmiHeader);
+    BitmapInfo.bmiHeader.biWidth = Width;
+    BitmapInfo.bmiHeader.biHeight = Height;
+    BitmapInfo.bmiHeader.biPlanes = 1;
+    BitmapInfo.bmiHeader.biBitCount = 32;
+    BitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+    BitmapHandle = CreateDIBSection(
+        DeviceContextHandle,
+        &BitmapInfo,
+        DIB_RGB_COLORS,
+        &BitmapMemory,
+        NULL,
+        NULL
+    );
+}
+
+static void WinUpdateWindow(HDC DeviceContextHandle, int X, int Y, int Width, int Height)
+{
+    StretchDIBits(
+        DeviceContextHandle,
+        X, Y, Width, Height,
+        X, Y, Width, Height,
+        BitmapMemory,
+        &BitmapInfo,
+        DIB_RGB_COLORS,
+        SRCCOPY
+    );
+};
 
 LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPARAM lParam)
 {
     LRESULT Result = 0;
-    
 
     switch (Message)
     {
@@ -17,18 +64,18 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
         break;
     case WM_SIZE:
         {
+            RECT Rect;
+            GetClientRect(WindowHandle, &Rect);
+            int Width = Rect.right - Rect.left;
+            int Height = Rect.bottom - Rect.top;
+            WinResizeDIBSection(Width, Height);
             OutputDebugStringA("SIZE\n");
         }
         break;
     case WM_DESTROY:
-        {
-            OutputDebugStringA("DESTROY\n");
-        }
-        break;
     case WM_CLOSE:
         {
-            OutputDebugStringA("CLOSE\n");
-            Result = DefWindowProcA(WindowHandle, Message, wParam, lParam);
+            Running = false;
         }
         break;
     case WM_PAINT:
@@ -36,15 +83,20 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
             PAINTSTRUCT PaintStruct;
             HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
             RECT PaintRect = PaintStruct.rcPaint;
+            int X = PaintRect.left;
+            int Y = PaintRect.top;
+            int Width = PaintRect.right - PaintRect.left;
+            int Height = PaintRect.bottom - PaintRect.top;
             PatBlt(
                 DeviceContext,
-                PaintRect.left,
-                PaintRect.top,
-                PaintRect.right - PaintRect.left,
-                PaintRect.bottom - PaintRect.top,
+                X,
+                Y,
+                Width,
+                Height,
                 BLACKNESS
             );
             EndPaint(WindowHandle, &PaintStruct);
+            WinUpdateWindow(DeviceContext, X, Y, Width, Height);
             OutputDebugStringA("PAINT\n");
         }
         break;
@@ -93,8 +145,10 @@ int WINAPI WinMain(
         return 0;
     }
 
+    Running = true;
+
     MSG Message;
-    while (GetMessageA(&Message, nullptr, 0, 0))
+    while (Running && GetMessageA(&Message, nullptr, 0, 0))
     {
         TranslateMessage(&Message);
         DispatchMessageA(&Message);
