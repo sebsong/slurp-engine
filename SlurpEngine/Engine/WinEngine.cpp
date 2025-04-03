@@ -10,6 +10,38 @@ static void* BitmapMemory;
 static int BitmapWidthPixels;
 static int BitmapHeightPixels;
 
+static void RenderCoolGraphics(int XOffset, int YOffset)
+{
+    int RandBound = 20;
+    
+    int PitchBytes = BitmapWidthPixels * BYTES_PER_PIXEL;
+    byte* BitmapBytes = static_cast<byte*>(BitmapMemory);
+    for (int Y = 0; Y < BitmapHeightPixels; Y++)
+    {
+        byte* RowBytes = BitmapBytes;
+        for (int X = 0; X < BitmapWidthPixels; X++)
+        {
+            // Blue
+            *RowBytes = static_cast<byte>(X + XOffset + rand() % RandBound);
+            RowBytes++;
+
+            // Green
+            *RowBytes = static_cast<byte>((X + XOffset) - (Y + YOffset) + rand() % RandBound);
+            RowBytes++;
+
+            // Red
+            *RowBytes = static_cast<byte>(Y + YOffset + rand() % RandBound);
+            RowBytes++;
+
+            // Padding
+            *RowBytes = 0;
+            RowBytes++;
+        }
+
+        BitmapBytes += PitchBytes;
+    }
+}
+
 static void WinResizeDIBSection(int Width, int Height)
 {
     if (BitmapMemory)
@@ -30,32 +62,7 @@ static void WinResizeDIBSection(int Width, int Height)
     int BitmapSizeBytes = BitmapWidthPixels * BitmapHeightPixels * BYTES_PER_PIXEL;
     BitmapMemory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
 
-    int PitchBytes = BitmapWidthPixels * BYTES_PER_PIXEL;
-    byte* BitmapBytes = static_cast<byte*>(BitmapMemory);
-    for (int Y = 0; Y < BitmapHeightPixels; Y++)
-    {
-        byte* RowBytes = BitmapBytes;
-        for (int X = 0; X < BitmapWidthPixels; X++)
-        {
-            // Blue
-            *RowBytes = static_cast<byte>(X);
-            RowBytes++;
-
-            // Green
-            *RowBytes = static_cast<byte>(X-Y);
-            RowBytes++;
-
-            // Red
-            *RowBytes = static_cast<byte>(Y);
-            RowBytes++;
-
-            // Padding
-            *RowBytes = 0;
-            RowBytes++;
-        }
-
-        BitmapBytes += PitchBytes;
-    }
+    RenderCoolGraphics(128, 128);
 }
 
 static void WinUpdateWindow(HDC DeviceContextHandle, RECT* WindowRect)
@@ -74,6 +81,19 @@ static void WinUpdateWindow(HDC DeviceContextHandle, RECT* WindowRect)
         SRCCOPY
     );
 };
+
+static void Paint(HWND WindowHandle)
+{
+    PAINTSTRUCT PaintStruct;
+    RECT Rect;
+
+    HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
+    GetClientRect(WindowHandle, &Rect);
+    EndPaint(WindowHandle, &PaintStruct);
+    WinUpdateWindow(DeviceContext, &Rect);
+    ReleaseDC(WindowHandle, DeviceContext);
+}
+
 
 LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -104,26 +124,7 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
         break;
     case WM_PAINT:
         {
-            PAINTSTRUCT PaintStruct;
-            HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
-            RECT PaintRect = PaintStruct.rcPaint;
-            int X = PaintRect.left;
-            int Y = PaintRect.top;
-            int Width = PaintRect.right - PaintRect.left;
-            int Height = PaintRect.bottom - PaintRect.top;
-            PatBlt(
-                DeviceContext,
-                X,
-                Y,
-                Width,
-                Height,
-                BLACKNESS
-            );
-            EndPaint(WindowHandle, &PaintStruct);
-
-            RECT Rect;
-            GetClientRect(WindowHandle, &Rect);
-            WinUpdateWindow(DeviceContext, &Rect);
+            Paint(WindowHandle);
             OutputDebugStringA("PAINT\n");
         }
         break;
@@ -175,10 +176,24 @@ int WINAPI WinMain(
     Running = true;
 
     MSG Message;
-    while (Running && GetMessageA(&Message, nullptr, 0, 0))
+    while (Running)
     {
-        TranslateMessage(&Message);
-        DispatchMessageA(&Message);
+        if (PeekMessageA(&Message, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (Message.message == WM_QUIT)
+            {
+                Running = false;
+            }
+            TranslateMessage(&Message);
+            DispatchMessageA(&Message);
+        }
+        else
+        {
+            static int dX = 0;
+            static int dY = 0;
+            RenderCoolGraphics(dX++ +(rand()%10), dY++ +(rand()%10));
+            Paint(WindowHandle);
+        }
     }
 
     return 0;
