@@ -13,29 +13,20 @@ static int BitmapHeightPixels;
 static void RenderCoolGraphics(int XOffset, int YOffset)
 {
     int RandBound = 20;
-    
+
     int PitchBytes = BitmapWidthPixels * BYTES_PER_PIXEL;
     byte* BitmapBytes = static_cast<byte*>(BitmapMemory);
     for (int Y = 0; Y < BitmapHeightPixels; Y++)
     {
-        byte* RowBytes = BitmapBytes;
+        uint32_t* RowPixels = reinterpret_cast<uint32_t*>(BitmapBytes);
         for (int X = 0; X < BitmapWidthPixels; X++)
         {
-            // Blue
-            *RowBytes = static_cast<byte>(X + XOffset + rand() % RandBound);
-            RowBytes++;
+            uint8_t R = Y + YOffset + rand() % RandBound;
+            uint8_t G = (X + XOffset) - (Y + YOffset) + rand() % RandBound;
+            uint8_t B = X + XOffset + rand() % RandBound;
 
-            // Green
-            *RowBytes = static_cast<byte>((X + XOffset) - (Y + YOffset) + rand() % RandBound);
-            RowBytes++;
-
-            // Red
-            *RowBytes = static_cast<byte>(Y + YOffset + rand() % RandBound);
-            RowBytes++;
-
-            // Padding
-            *RowBytes = 0;
-            RowBytes++;
+            uint32_t Pixel = (R << 16) | (G << 8) | B;
+            *RowPixels++ = Pixel;
         }
 
         BitmapBytes += PitchBytes;
@@ -130,7 +121,6 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
         break;
     default:
         {
-            // OutputDebugStringA("DEFAULT\n");
             Result = DefWindowProcA(WindowHandle, Message, wParam, lParam);
         }
         break;
@@ -191,7 +181,7 @@ int WINAPI WinMain(
         {
             static int dX = 0;
             static int dY = 0;
-            RenderCoolGraphics(dX++ +(rand()%10), dY++ +(rand()%10));
+            RenderCoolGraphics(dX++ + (rand() % 10), dY++ + (rand() % 10));
             Paint(WindowHandle);
         }
     }
