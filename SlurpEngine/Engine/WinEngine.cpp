@@ -2,24 +2,30 @@
 #include <windows.h>
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
-static const int BYTES_PER_PIXEL = 4;
 
 static bool Running;
-static BITMAPINFO BitmapInfo;
-static void* BitmapMemory;
-static int BitmapWidthPixels;
-static int BitmapHeightPixels;
 
-static void RenderCoolGraphics(int XOffset, int YOffset)
+struct WinGraphicsBuffer
+{
+    BITMAPINFO Info;
+    void* Memory;
+    int WidthPixels;
+    int HeightPixels;
+    int BytesPerPixel = 4;
+};
+
+static WinGraphicsBuffer GlobalBackBuffer;
+
+static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int YOffset)
 {
     int RandBound = 20;
 
-    int PitchBytes = BitmapWidthPixels * BYTES_PER_PIXEL;
-    byte* BitmapBytes = static_cast<byte*>(BitmapMemory);
-    for (int Y = 0; Y < BitmapHeightPixels; Y++)
+    int PitchBytes = Buffer.WidthPixels * Buffer.BytesPerPixel;
+    byte* BitmapBytes = static_cast<byte*>(Buffer.Memory);
+    for (int Y = 0; Y < Buffer.HeightPixels; Y++)
     {
         uint32_t* RowPixels = reinterpret_cast<uint32_t*>(BitmapBytes);
-        for (int X = 0; X < BitmapWidthPixels; X++)
+        for (int X = 0; X < Buffer.WidthPixels; X++)
         {
             uint8_t R = Y + YOffset + rand() % RandBound;
             uint8_t G = (X + XOffset) - (Y + YOffset) + rand() % RandBound;
@@ -33,47 +39,45 @@ static void RenderCoolGraphics(int XOffset, int YOffset)
     }
 }
 
-static void WinResizeDIBSection(int Width, int Height)
+static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Height)
 {
-    if (BitmapMemory)
+    if (OutBuffer->Memory)
     {
-        VirtualFree(BitmapMemory, 0, MEM_RELEASE);
+        VirtualFree(OutBuffer->Memory, 0, MEM_RELEASE);
     }
 
-    BitmapWidthPixels = Width;
-    BitmapHeightPixels = Height;
+    OutBuffer->WidthPixels = Width;
+    OutBuffer->HeightPixels = Height;
 
-    BitmapInfo.bmiHeader.biSize = sizeof(BitmapInfo.bmiHeader);
-    BitmapInfo.bmiHeader.biWidth = BitmapWidthPixels;
-    BitmapInfo.bmiHeader.biHeight = -BitmapHeightPixels;
-    BitmapInfo.bmiHeader.biPlanes = 1;
-    BitmapInfo.bmiHeader.biBitCount = BYTES_PER_PIXEL * 8;
-    BitmapInfo.bmiHeader.biCompression = BI_RGB;
+    OutBuffer->Info.bmiHeader.biSize = sizeof(OutBuffer->Info.bmiHeader);
+    OutBuffer->Info.bmiHeader.biWidth = OutBuffer->WidthPixels;
+    OutBuffer->Info.bmiHeader.biHeight = -OutBuffer->HeightPixels;
+    OutBuffer->Info.bmiHeader.biPlanes = 1;
+    OutBuffer->Info.bmiHeader.biBitCount = OutBuffer->BytesPerPixel * 8;
+    OutBuffer->Info.bmiHeader.biCompression = BI_RGB;
 
-    int BitmapSizeBytes = BitmapWidthPixels * BitmapHeightPixels * BYTES_PER_PIXEL;
-    BitmapMemory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
-
-    RenderCoolGraphics(128, 128);
+    int BitmapSizeBytes = OutBuffer->WidthPixels * OutBuffer->HeightPixels * OutBuffer->BytesPerPixel;
+    OutBuffer->Memory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
 }
 
-static void WinUpdateWindow(HDC DeviceContextHandle, RECT* WindowRect)
+static void WinUpdateWindow(HDC DeviceContextHandle, RECT WindowRect, const WinGraphicsBuffer Buffer)
 {
-    int WindowX = WindowRect->left;
-    int WindowY = WindowRect->top;
-    int WindowWidth = WindowRect->right - WindowRect->left;
-    int WindowHeight = WindowRect->bottom - WindowRect->top;
+    int WindowX = WindowRect.left;
+    int WindowY = WindowRect.top;
+    int WindowWidth = WindowRect.right - WindowRect.left;
+    int WindowHeight = WindowRect.bottom - WindowRect.top;
     StretchDIBits(
         DeviceContextHandle,
         WindowX, WindowY, WindowWidth, WindowHeight,
-        0, 0, BitmapWidthPixels, BitmapHeightPixels,
-        BitmapMemory,
-        &BitmapInfo,
+        0, 0, Buffer.WidthPixels, Buffer.HeightPixels,
+        Buffer.Memory,
+        &Buffer.Info,
         DIB_RGB_COLORS,
         SRCCOPY
     );
 };
 
-static void Paint(HWND WindowHandle)
+static void WinPaint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
 {
     PAINTSTRUCT PaintStruct;
     RECT Rect;
@@ -81,7 +85,7 @@ static void Paint(HWND WindowHandle)
     HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
     GetClientRect(WindowHandle, &Rect);
     EndPaint(WindowHandle, &PaintStruct);
-    WinUpdateWindow(DeviceContext, &Rect);
+    WinUpdateWindow(DeviceContext, Rect, Buffer);
     ReleaseDC(WindowHandle, DeviceContext);
 }
 
@@ -103,7 +107,7 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
             GetClientRect(WindowHandle, &Rect);
             int Width = Rect.right - Rect.left;
             int Height = Rect.bottom - Rect.top;
-            WinResizeDIBSection(Width, Height);
+            WinResizeDIBSection(&GlobalBackBuffer, Width, Height);
             OutputDebugStringA("SIZE\n");
         }
         break;
@@ -115,7 +119,7 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
         break;
     case WM_PAINT:
         {
-            Paint(WindowHandle);
+            WinPaint(WindowHandle, GlobalBackBuffer);
             OutputDebugStringA("PAINT\n");
         }
         break;
@@ -137,8 +141,7 @@ int WINAPI WinMain(
 )
 {
     WNDCLASSA WindowClass = {};
-
-    WindowClass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+    WindowClass.style = CS_OWNDC | CS_HREDRAW;
     WindowClass.lpfnWndProc = WindowProc;
     WindowClass.hInstance = hInstance;
     WindowClass.lpszClassName = WINDOW_CLASS_NAME;
@@ -181,8 +184,8 @@ int WINAPI WinMain(
         {
             static int dX = 0;
             static int dY = 0;
-            RenderCoolGraphics(dX++ + (rand() % 10), dY++ + (rand() % 10));
-            Paint(WindowHandle);
+            RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
+            WinPaint(WindowHandle, GlobalBackBuffer);
         }
     }
 
