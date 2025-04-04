@@ -16,6 +16,27 @@ struct WinGraphicsBuffer
 
 static WinGraphicsBuffer GlobalBackBuffer;
 
+struct WinScreenDimensions
+{
+    int X;
+    int Y;
+    int Width;
+    int Height;
+};
+
+static WinScreenDimensions WinGetScreenDimensions(HWND WindowHandle)
+{
+    RECT Rect;
+    GetClientRect(WindowHandle, &Rect);
+    return WinScreenDimensions
+    {
+        Rect.left,
+        Rect.top,
+        Rect.right - Rect.left,
+        Rect.bottom - Rect.top,
+    };
+};
+
 static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int YOffset)
 {
     int RandBound = 20;
@@ -61,15 +82,19 @@ static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Hei
     OutBuffer->Memory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
 }
 
-static void WinUpdateWindow(HDC DeviceContextHandle, RECT WindowRect, const WinGraphicsBuffer Buffer)
+static void WinUpdateWindow(
+    HDC DeviceContextHandle,
+    const WinGraphicsBuffer Buffer,
+    int ScreenX,
+    int ScreenY,
+    int ScreenWidth,
+    int ScreenHeight
+)
 {
-    int WindowX = WindowRect.left;
-    int WindowY = WindowRect.top;
-    int WindowWidth = WindowRect.right - WindowRect.left;
-    int WindowHeight = WindowRect.bottom - WindowRect.top;
+    // TODO: aspect ratio correction
     StretchDIBits(
         DeviceContextHandle,
-        WindowX, WindowY, WindowWidth, WindowHeight,
+        ScreenX, ScreenY, ScreenWidth, ScreenHeight,
         0, 0, Buffer.WidthPixels, Buffer.HeightPixels,
         Buffer.Memory,
         &Buffer.Info,
@@ -81,12 +106,13 @@ static void WinUpdateWindow(HDC DeviceContextHandle, RECT WindowRect, const WinG
 static void WinPaint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
 {
     PAINTSTRUCT PaintStruct;
-    RECT Rect;
-
     HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
-    GetClientRect(WindowHandle, &Rect);
     EndPaint(WindowHandle, &PaintStruct);
-    WinUpdateWindow(DeviceContext, Rect, Buffer);
+    // HDC DeviceContext = GetDC(WindowHandle);
+
+    WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
+    WinUpdateWindow(DeviceContext, Buffer, Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
+
     ReleaseDC(WindowHandle, DeviceContext);
 }
 
@@ -104,11 +130,6 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
         break;
     case WM_SIZE:
         {
-            RECT Rect;
-            GetClientRect(WindowHandle, &Rect);
-            int Width = Rect.right - Rect.left;
-            int Height = Rect.bottom - Rect.top;
-            WinResizeDIBSection(&GlobalBackBuffer, Width, Height);
             OutputDebugStringA("SIZE\n");
         }
         break;
@@ -148,6 +169,8 @@ int WINAPI WinMain(
     WindowClass.lpszClassName = WINDOW_CLASS_NAME;
 
     RegisterClassA(&WindowClass);
+    
+    WinResizeDIBSection(&GlobalBackBuffer, 1280, 720);
 
     HWND WindowHandle = CreateWindowExA(
         0,
