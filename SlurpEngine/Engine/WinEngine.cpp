@@ -11,7 +11,7 @@ struct WinGraphicsBuffer
     void* Memory;
     int WidthPixels;
     int HeightPixels;
-    int BytesPerPixel;
+    int PitchBytes;
 };
 
 static WinGraphicsBuffer GlobalBackBuffer;
@@ -41,7 +41,6 @@ static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int 
 {
     int RandBound = 20;
 
-    int PitchBytes = Buffer.WidthPixels * Buffer.BytesPerPixel;
     byte* BitmapBytes = static_cast<byte*>(Buffer.Memory);
     for (int Y = 0; Y < Buffer.HeightPixels; Y++)
     {
@@ -56,7 +55,7 @@ static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int 
             *RowPixels++ = Pixel;
         }
 
-        BitmapBytes += PitchBytes;
+        BitmapBytes += Buffer.PitchBytes;
     }
 }
 
@@ -67,18 +66,19 @@ static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Hei
         VirtualFree(OutBuffer->Memory, 0, MEM_RELEASE);
     }
 
+    int BytesPerPixel = 4;
     OutBuffer->WidthPixels = Width;
     OutBuffer->HeightPixels = Height;
-    OutBuffer->BytesPerPixel = 4;
+    OutBuffer->PitchBytes = Width * BytesPerPixel;
 
     OutBuffer->Info.bmiHeader.biSize = sizeof(OutBuffer->Info.bmiHeader);
     OutBuffer->Info.bmiHeader.biWidth = OutBuffer->WidthPixels;
     OutBuffer->Info.bmiHeader.biHeight = -OutBuffer->HeightPixels;
     OutBuffer->Info.bmiHeader.biPlanes = 1;
-    OutBuffer->Info.bmiHeader.biBitCount = OutBuffer->BytesPerPixel * 8;
+    OutBuffer->Info.bmiHeader.biBitCount = BytesPerPixel * 8;
     OutBuffer->Info.bmiHeader.biCompression = BI_RGB;
 
-    int BitmapSizeBytes = OutBuffer->WidthPixels * OutBuffer->HeightPixels * OutBuffer->BytesPerPixel;
+    int BitmapSizeBytes = OutBuffer->WidthPixels * OutBuffer->HeightPixels * BytesPerPixel;
     OutBuffer->Memory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
 }
 
