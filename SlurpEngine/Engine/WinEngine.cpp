@@ -11,7 +11,7 @@ struct WinGraphicsBuffer
     void* Memory;
     int WidthPixels;
     int HeightPixels;
-    int BytesPerPixel = 4;
+    int BytesPerPixel;
 };
 
 static WinGraphicsBuffer GlobalBackBuffer;
@@ -48,6 +48,7 @@ static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Hei
 
     OutBuffer->WidthPixels = Width;
     OutBuffer->HeightPixels = Height;
+    OutBuffer->BytesPerPixel = 4;
 
     OutBuffer->Info.bmiHeader.biSize = sizeof(OutBuffer->Info.bmiHeader);
     OutBuffer->Info.bmiHeader.biWidth = OutBuffer->WidthPixels;
