@@ -107,17 +107,14 @@ static void WinPaint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
 {
     PAINTSTRUCT PaintStruct;
     HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
-    EndPaint(WindowHandle, &PaintStruct);
-    // HDC DeviceContext = GetDC(WindowHandle);
-
     WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
     WinUpdateWindow(DeviceContext, Buffer, Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
-
+    EndPaint(WindowHandle, &PaintStruct);
     ReleaseDC(WindowHandle, DeviceContext);
 }
 
 
-LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wParam, LPARAM lParam)
 {
     LRESULT Result = 0;
 
@@ -164,7 +161,7 @@ int WINAPI WinMain(
 {
     WNDCLASSA WindowClass = {};
     WindowClass.style = CS_OWNDC | CS_HREDRAW;
-    WindowClass.lpfnWndProc = WindowProc;
+    WindowClass.lpfnWndProc = WinMessageHandler;
     WindowClass.hInstance = hInstance;
     WindowClass.lpszClassName = WINDOW_CLASS_NAME;
 
@@ -176,7 +173,7 @@ int WINAPI WinMain(
         0,
         WindowClass.lpszClassName,
         "Slurp's Up!",
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+        WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         nullptr,
         nullptr,
@@ -191,7 +188,8 @@ int WINAPI WinMain(
     }
 
     Running = true;
-
+    
+    HDC DeviceContext = GetDC(WindowHandle);
     MSG Message;
     while (Running)
     {
@@ -209,7 +207,9 @@ int WINAPI WinMain(
             static int dX = 0;
             static int dY = 0;
             RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
-            WinPaint(WindowHandle, GlobalBackBuffer);
+            WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
+            WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
+            ReleaseDC(WindowHandle, DeviceContext);
         }
     }
 
