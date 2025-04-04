@@ -85,8 +85,6 @@ static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Hei
 static void WinUpdateWindow(
     HDC DeviceContextHandle,
     const WinGraphicsBuffer Buffer,
-    int ScreenX,
-    int ScreenY,
     int ScreenWidth,
     int ScreenHeight
 )
@@ -94,7 +92,7 @@ static void WinUpdateWindow(
     // TODO: aspect ratio correction
     StretchDIBits(
         DeviceContextHandle,
-        ScreenX, ScreenY, ScreenWidth, ScreenHeight,
+        0, 0, ScreenWidth, ScreenHeight,
         0, 0, Buffer.WidthPixels, Buffer.HeightPixels,
         Buffer.Memory,
         &Buffer.Info,
@@ -108,7 +106,7 @@ static void WinPaint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
     PAINTSTRUCT PaintStruct;
     HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
     WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
-    WinUpdateWindow(DeviceContext, Buffer, Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
+    WinUpdateWindow(DeviceContext, Buffer, Dimensions.Width, Dimensions.Height);
     EndPaint(WindowHandle, &PaintStruct);
     ReleaseDC(WindowHandle, DeviceContext);
 }
@@ -208,7 +206,7 @@ int WINAPI WinMain(
             static int dY = 0;
             RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
             WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
-            WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
+            WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.Width, Dimensions.Height);
             ReleaseDC(WindowHandle, DeviceContext);
         }
     }
