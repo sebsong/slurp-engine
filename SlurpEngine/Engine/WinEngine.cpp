@@ -14,6 +14,8 @@ struct WinGraphicsBuffer
     int BytesPerPixel = 4;
 };
 
+static WinGraphicsBuffer GlobalBackBuffer;
+
 static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int YOffset)
 {
     int RandBound = 20;
@@ -37,27 +39,25 @@ static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int 
     }
 }
 
-static void WinResizeDIBSection(int Width, int Height)
+static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Height)
 {
-    if (Memory)
+    if (OutBuffer->Memory)
     {
-        VirtualFree(Memory, 0, MEM_RELEASE);
+        VirtualFree(OutBuffer->Memory, 0, MEM_RELEASE);
     }
 
-    WidthPixels = Width;
-    HeightPixels = Height;
+    OutBuffer->WidthPixels = Width;
+    OutBuffer->HeightPixels = Height;
 
-    Info.bmiHeader.biSize = sizeof(Info.bmiHeader);
-    Info.bmiHeader.biWidth = WidthPixels;
-    Info.bmiHeader.biHeight = -HeightPixels;
-    Info.bmiHeader.biPlanes = 1;
-    Info.bmiHeader.biBitCount = BYTES_PER_PIXEL * 8;
-    Info.bmiHeader.biCompression = BI_RGB;
+    OutBuffer->Info.bmiHeader.biSize = sizeof(OutBuffer->Info.bmiHeader);
+    OutBuffer->Info.bmiHeader.biWidth = OutBuffer->WidthPixels;
+    OutBuffer->Info.bmiHeader.biHeight = -OutBuffer->HeightPixels;
+    OutBuffer->Info.bmiHeader.biPlanes = 1;
+    OutBuffer->Info.bmiHeader.biBitCount = OutBuffer->BytesPerPixel * 8;
+    OutBuffer->Info.bmiHeader.biCompression = BI_RGB;
 
-    int BitmapSizeBytes = WidthPixels * HeightPixels * BYTES_PER_PIXEL;
-    Memory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
-
-    RenderCoolGraphics(128, 128);
+    int BitmapSizeBytes = OutBuffer->WidthPixels * OutBuffer->HeightPixels * OutBuffer->BytesPerPixel;
+    OutBuffer->Memory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
 }
 
 static void WinUpdateWindow(HDC DeviceContextHandle, RECT WindowRect, const WinGraphicsBuffer Buffer)
@@ -77,7 +77,7 @@ static void WinUpdateWindow(HDC DeviceContextHandle, RECT WindowRect, const WinG
     );
 };
 
-static void Paint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
+static void WinPaint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
 {
     PAINTSTRUCT PaintStruct;
     RECT Rect;
@@ -107,7 +107,7 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
             GetClientRect(WindowHandle, &Rect);
             int Width = Rect.right - Rect.left;
             int Height = Rect.bottom - Rect.top;
-            WinResizeDIBSection(Width, Height);
+            WinResizeDIBSection(&GlobalBackBuffer, Width, Height);
             OutputDebugStringA("SIZE\n");
         }
         break;
@@ -119,7 +119,7 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, UINT Message, WPARAM wParam, LPAR
         break;
     case WM_PAINT:
         {
-            Paint(WindowHandle);
+            WinPaint(WindowHandle, GlobalBackBuffer);
             OutputDebugStringA("PAINT\n");
         }
         break;
@@ -184,8 +184,8 @@ int WINAPI WinMain(
         {
             static int dX = 0;
             static int dY = 0;
-            RenderCoolGraphics(dX++ + (rand() % 10), dY++ + (rand() % 10));
-            Paint(WindowHandle);
+            RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
+            WinPaint(WindowHandle, GlobalBackBuffer);
         }
     }
 
