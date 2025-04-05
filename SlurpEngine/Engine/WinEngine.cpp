@@ -5,6 +5,8 @@
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool Running;
+static float dX = 0;
+static float dY = 0;
 
 struct WinGraphicsBuffer
 {
@@ -38,19 +40,17 @@ static WinScreenDimensions WinGetScreenDimensions(HWND WindowHandle)
     };
 };
 
-static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, int XOffset, int YOffset)
+static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, float XOffset, float YOffset)
 {
-    int RandBound = 20;
-
     byte* BitmapBytes = static_cast<byte*>(Buffer.Memory);
     for (int Y = 0; Y < Buffer.HeightPixels; Y++)
     {
         uint32_t* RowPixels = reinterpret_cast<uint32_t*>(BitmapBytes);
         for (int X = 0; X < Buffer.WidthPixels; X++)
         {
-            uint8_t R = Y + YOffset + rand() % RandBound;
-            uint8_t G = (X + XOffset) - (Y + YOffset) + rand() % RandBound;
-            uint8_t B = X + XOffset + rand() % RandBound;
+            uint8_t R = Y + YOffset;
+            uint8_t G = (X + XOffset) - (Y + YOffset);
+            uint8_t B = X + XOffset;
 
             uint32_t Pixel = (R << 16) | (G << 8) | B;
             *RowPixels++ = Pixel;
@@ -165,16 +165,90 @@ void WinDrainMessages()
     }
 }
 
-void HandleInput()
+#define X_INPUT_GET_STATE(fnName) DWORD WINAPI fnName(DWORD dwUserIndex, XINPUT_STATE* pState)
+typedef X_INPUT_GET_STATE(x_input_get_state);
+X_INPUT_GET_STATE(XInputGetStateStub)
 {
-    for (DWORD ControllerIdx=0; ControllerIdx< XUSER_MAX_COUNT; ControllerIdx++ )
-    {
+    return 0;
+}
 
+static x_input_get_state* XInputGetState_ = XInputGetStateStub;
+#define XInputGetState XInputGetState_
+
+#define X_INPUT_SET_STATE(fnName) DWORD WINAPI fnName(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
+typedef X_INPUT_SET_STATE(x_input_set_state);
+X_INPUT_SET_STATE(XInputSetStateStub)
+{
+    return 0;
+}
+
+static x_input_set_state* XInputSetState_ = XInputSetStateStub;
+#define XInputSetState XInputSetState_
+
+static void WinLoadXInput()
+{
+    HMODULE XInputLib = LoadLibraryA("xinput1_3.dll");
+    if (XInputLib)
+    {
+        XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(XInputLib, "XInputGetState"));
+        XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(XInputLib, "XInputSetState"));
+    }
+}
+
+void HandleGamepadInput()
+{
+    for (DWORD ControllerIdx = 0; ControllerIdx < XUSER_MAX_COUNT; ControllerIdx++)
+    {
         XINPUT_STATE State;
         DWORD Result = XInputGetState(ControllerIdx, &State);
-        if( Result == ERROR_SUCCESS )
+        if (Result == ERROR_SUCCESS)
         {
-            // Controller is connected
+            XINPUT_GAMEPAD Gamepad = State.Gamepad;
+            bool DPadUp = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
+            bool DPadDown = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
+            bool DPadLeft = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+            bool DPadRight = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
+            bool Start = Gamepad.wButtons & XINPUT_GAMEPAD_START;
+            bool Back = Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
+            bool LeftThumb = Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
+            bool RightThumb = Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
+            bool LeftShoulder = Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+            bool RightShoulder = Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+            bool AButton = Gamepad.wButtons & XINPUT_GAMEPAD_A;
+            bool BButton = Gamepad.wButtons & XINPUT_GAMEPAD_B;
+            bool XButton = Gamepad.wButtons & XINPUT_GAMEPAD_X;
+            bool YButton = Gamepad.wButtons & XINPUT_GAMEPAD_Y;
+
+            uint8_t LeftTrigger = Gamepad.bLeftTrigger;
+            uint8_t RightTrigger = Gamepad.bRightTrigger;
+            int16_t LeftStickX = Gamepad.sThumbLX;
+            int16_t LeftStickY = Gamepad.sThumbLY;
+            int16_t RightStickX = Gamepad.sThumbRX;
+            int16_t RightStickY = Gamepad.sThumbRY;
+
+            if (BButton || Start)
+            {
+                Running = false;
+            }
+
+            int ScrollSpeed = 1;
+            if (LeftShoulder || RightShoulder)
+            {
+                ScrollSpeed *= 5;
+            }
+            dX += (float)(LeftStickX * ScrollSpeed) / 20000;
+            dY -= (float)(LeftStickY * ScrollSpeed) / 20000;
+
+            uint16_t LeftMotorSpeed = (uint32_t)(LeftTrigger * 65535) / 255;
+            uint16_t RightMotorSpeed = (uint32_t)(RightTrigger * 65535) / 255;
+            char buf[50];
+            sprintf_s(buf , "Left Trigger: %d\n", LeftMotorSpeed);
+            OutputDebugStringA(buf);
+            XINPUT_VIBRATION Vibration{
+                LeftMotorSpeed,
+                RightMotorSpeed
+            };
+            XInputSetState(ControllerIdx, &Vibration);
         }
         else
         {
@@ -183,24 +257,20 @@ void HandleInput()
     }
 };
 
-int WINAPI WinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    PSTR lpCmdLine,
-    int nCmdShow
-)
+static bool WinInitialize(HINSTANCE Instance, HWND* OutWindowHandle)
 {
+    WinLoadXInput();
+    
     WNDCLASSA WindowClass = {};
     WindowClass.style = CS_OWNDC | CS_HREDRAW;
     WindowClass.lpfnWndProc = WinMessageHandler;
-    WindowClass.hInstance = hInstance;
+    WindowClass.hInstance = Instance;
     WindowClass.lpszClassName = WINDOW_CLASS_NAME;
-
     RegisterClassA(&WindowClass);
-    
+
     WinResizeDIBSection(&GlobalBackBuffer, 1280, 720);
 
-    HWND WindowHandle = CreateWindowExA(
+    *OutWindowHandle = CreateWindowExA(
         0,
         WindowClass.lpszClassName,
         "Slurp's Up!",
@@ -208,28 +278,39 @@ int WINAPI WinMain(
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         nullptr,
         nullptr,
-        hInstance,
+        Instance,
         nullptr
     );
 
-    if (!WindowHandle)
+    if (!*OutWindowHandle)
     {
         OutputDebugStringA("FAILED");
-        return 0;
+        return false;
     }
 
     Running = true;
-    
+
+    return true;
+}
+
+int WINAPI WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    PSTR lpCmdLine,
+    int nCmdShow
+)
+{
+    HWND WindowHandle;
+    WinInitialize(hInstance, &WindowHandle);
+
     HDC DeviceContext = GetDC(WindowHandle);
     while (Running)
     {
         WinDrainMessages();
-        
-        HandleInput();
-        
-        static int dX = 0;
-        static int dY = 0;
-        RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
+
+        HandleGamepadInput();
+
+        RenderCoolGraphics(GlobalBackBuffer, dX, dY);
         WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
         WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.Width, Dimensions.Height);
         ReleaseDC(WindowHandle, DeviceContext);
