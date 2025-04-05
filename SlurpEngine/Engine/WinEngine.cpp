@@ -1,5 +1,6 @@
 #include <iostream>
 #include <windows.h>
+#include <Xinput.h>
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
@@ -150,6 +151,38 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
     return Result;
 };
 
+void WinDrainMessages()
+{
+    MSG Message;
+    while (PeekMessageA(&Message, nullptr, 0, 0, PM_REMOVE))
+    {
+        if (Message.message == WM_QUIT)
+        {
+            Running = false;
+        }
+        TranslateMessage(&Message);
+        DispatchMessageA(&Message);
+    }
+}
+
+void HandleInput()
+{
+    for (DWORD ControllerIdx=0; ControllerIdx< XUSER_MAX_COUNT; ControllerIdx++ )
+    {
+
+        XINPUT_STATE State;
+        DWORD Result = XInputGetState(ControllerIdx, &State);
+        if( Result == ERROR_SUCCESS )
+        {
+            // Controller is connected
+        }
+        else
+        {
+            // Controller is not connected
+        }
+    }
+};
+
 int WINAPI WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -188,27 +221,18 @@ int WINAPI WinMain(
     Running = true;
     
     HDC DeviceContext = GetDC(WindowHandle);
-    MSG Message;
     while (Running)
     {
-        if (PeekMessageA(&Message, nullptr, 0, 0, PM_REMOVE))
-        {
-            if (Message.message == WM_QUIT)
-            {
-                Running = false;
-            }
-            TranslateMessage(&Message);
-            DispatchMessageA(&Message);
-        }
-        else
-        {
-            static int dX = 0;
-            static int dY = 0;
-            RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
-            WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
-            WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.Width, Dimensions.Height);
-            ReleaseDC(WindowHandle, DeviceContext);
-        }
+        WinDrainMessages();
+        
+        HandleInput();
+        
+        static int dX = 0;
+        static int dY = 0;
+        RenderCoolGraphics(GlobalBackBuffer, dX++ + (rand() % 10), dY++ + (rand() % 10));
+        WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
+        WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.Width, Dimensions.Height);
+        ReleaseDC(WindowHandle, DeviceContext);
     }
 
     return 0;
