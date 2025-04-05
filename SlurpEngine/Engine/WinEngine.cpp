@@ -121,12 +121,10 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
     {
     case WM_ACTIVATEAPP:
         {
-            OutputDebugStringA("ACTIVATE\n");
         }
         break;
     case WM_SIZE:
         {
-            OutputDebugStringA("SIZE\n");
         }
         break;
     case WM_DESTROY:
@@ -138,7 +136,73 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
     case WM_PAINT:
         {
             WinPaint(WindowHandle, GlobalBackBuffer);
-            OutputDebugStringA("PAINT\n");
+        }
+        break;
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+        {
+            WPARAM VirtualKeyCode = wParam;
+            bool WasDown = ((1 << 30) & lParam) != 0;
+            bool IsDown = ((1 << 31) & lParam) == 0;
+
+            if (WasDown == IsDown)
+            {
+                break;
+            }
+
+            bool WKey = VirtualKeyCode == 'W';
+            bool AKey = VirtualKeyCode == 'A';
+            bool SKey = VirtualKeyCode == 'S';
+            bool DKey = VirtualKeyCode == 'D';
+            bool Escape = VirtualKeyCode == VK_ESCAPE;
+            bool Space = VirtualKeyCode == VK_SPACE;
+
+            int ScrollSpeed = 255;
+
+            switch (VirtualKeyCode)
+            {
+            case 'W':
+                {
+                }
+                break;
+            case 'A':
+                {
+                }
+                break;
+            case 'S':
+                {
+                }
+                break;
+            case 'D':
+                {
+                }
+                break;
+            case VK_ESCAPE:
+                {
+                    Running = false;
+                }
+                break;
+            case VK_SPACE:
+                {
+                    ScrollSpeed *= 5;
+                    if (IsDown)
+                    {
+                        OutputDebugStringA("SPACE DOWN\n");
+                    }
+                    else
+                    {
+                        OutputDebugStringA("SPACE UP\n");
+                    }
+                }
+                break;
+            }
+
+            dX += (float)(WKey * ScrollSpeed) / 20000;
+            dX -= (float)(SKey * ScrollSpeed) / 20000;
+            dY -= (float)(AKey * ScrollSpeed) / 20000;
+            dY += (float)(DKey * ScrollSpeed) / 20000;
         }
         break;
     default:
@@ -241,9 +305,6 @@ void HandleGamepadInput()
 
             uint16_t LeftMotorSpeed = (uint32_t)(LeftTrigger * 65535) / 255;
             uint16_t RightMotorSpeed = (uint32_t)(RightTrigger * 65535) / 255;
-            char buf[50];
-            sprintf_s(buf , "Left Trigger: %d\n", LeftMotorSpeed);
-            OutputDebugStringA(buf);
             XINPUT_VIBRATION Vibration{
                 LeftMotorSpeed,
                 RightMotorSpeed
@@ -260,7 +321,7 @@ void HandleGamepadInput()
 static bool WinInitialize(HINSTANCE Instance, HWND* OutWindowHandle)
 {
     WinLoadXInput();
-    
+
     WNDCLASSA WindowClass = {};
     WindowClass.style = CS_OWNDC | CS_HREDRAW;
     WindowClass.lpfnWndProc = WinMessageHandler;
