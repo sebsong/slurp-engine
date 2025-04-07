@@ -4,120 +4,120 @@
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
-static bool Running;
+static bool GlobalRunning;
 static float dX = 0;
 static float dY = 0;
 
 struct WinGraphicsBuffer
 {
-    BITMAPINFO Info;
-    void* Memory;
-    int WidthPixels;
-    int HeightPixels;
-    int PitchBytes;
+    BITMAPINFO info;
+    void* memory;
+    int widthPixels;
+    int heightPixels;
+    int pitchBytes;
 };
 
 static WinGraphicsBuffer GlobalBackBuffer;
 
 struct WinScreenDimensions
 {
-    int X;
-    int Y;
-    int Width;
-    int Height;
+    int x;
+    int y;
+    int width;
+    int height;
 };
 
-static WinScreenDimensions WinGetScreenDimensions(HWND WindowHandle)
+static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
-    RECT Rect;
-    GetClientRect(WindowHandle, &Rect);
+    RECT rect;
+    GetClientRect(windowHandle, &rect);
     return WinScreenDimensions
     {
-        Rect.left,
-        Rect.top,
-        Rect.right - Rect.left,
-        Rect.bottom - Rect.top,
+        rect.left,
+        rect.top,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
     };
 };
 
-static void RenderCoolGraphics(const WinGraphicsBuffer Buffer, float XOffset, float YOffset)
+static void renderCoolGraphics(const WinGraphicsBuffer buffer, float xOffset, float yOffset)
 {
-    byte* BitmapBytes = static_cast<byte*>(Buffer.Memory);
-    for (int Y = 0; Y < Buffer.HeightPixels; Y++)
+    byte* bitmapBytes = static_cast<byte*>(buffer.memory);
+    for (int y = 0; y < buffer.heightPixels; y++)
     {
-        uint32_t* RowPixels = reinterpret_cast<uint32_t*>(BitmapBytes);
-        for (int X = 0; X < Buffer.WidthPixels; X++)
+        uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
+        for (int x = 0; x < buffer.widthPixels; x++)
         {
-            uint8_t R = Y + YOffset;
-            uint8_t G = (X + XOffset) - (Y + YOffset);
-            uint8_t B = X + XOffset;
+            uint8_t r = y + yOffset;
+            uint8_t g = (x + xOffset) - (y + yOffset);
+            uint8_t b = x + xOffset;
 
-            uint32_t Pixel = (R << 16) | (G << 8) | B;
-            *RowPixels++ = Pixel;
+            uint32_t pixel = (r << 16) | (g << 8) | b;
+            *rowPixels++ = pixel;
         }
 
-        BitmapBytes += Buffer.PitchBytes;
+        bitmapBytes += buffer.pitchBytes;
     }
 }
 
-static void WinResizeDIBSection(WinGraphicsBuffer* OutBuffer, int Width, int Height)
+static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int height)
 {
-    if (OutBuffer->Memory)
+    if (outBuffer->memory)
     {
-        VirtualFree(OutBuffer->Memory, 0, MEM_RELEASE);
+        VirtualFree(outBuffer->memory, 0, MEM_RELEASE);
     }
 
-    int BytesPerPixel = 4;
-    OutBuffer->WidthPixels = Width;
-    OutBuffer->HeightPixels = Height;
-    OutBuffer->PitchBytes = Width * BytesPerPixel;
+    int bytesPerPixel = 4;
+    outBuffer->widthPixels = width;
+    outBuffer->heightPixels = height;
+    outBuffer->pitchBytes = width * bytesPerPixel;
 
-    OutBuffer->Info.bmiHeader.biSize = sizeof(OutBuffer->Info.bmiHeader);
-    OutBuffer->Info.bmiHeader.biWidth = OutBuffer->WidthPixels;
-    OutBuffer->Info.bmiHeader.biHeight = -OutBuffer->HeightPixels;
-    OutBuffer->Info.bmiHeader.biPlanes = 1;
-    OutBuffer->Info.bmiHeader.biBitCount = BytesPerPixel * 8;
-    OutBuffer->Info.bmiHeader.biCompression = BI_RGB;
+    outBuffer->info.bmiHeader.biSize = sizeof(outBuffer->info.bmiHeader);
+    outBuffer->info.bmiHeader.biWidth = outBuffer->widthPixels;
+    outBuffer->info.bmiHeader.biHeight = -outBuffer->heightPixels;
+    outBuffer->info.bmiHeader.biPlanes = 1;
+    outBuffer->info.bmiHeader.biBitCount = bytesPerPixel * 8;
+    outBuffer->info.bmiHeader.biCompression = BI_RGB;
 
-    int BitmapSizeBytes = OutBuffer->WidthPixels * OutBuffer->HeightPixels * BytesPerPixel;
-    OutBuffer->Memory = VirtualAlloc(nullptr, BitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
+    int bitmapSizeBytes = outBuffer->widthPixels * outBuffer->heightPixels * bytesPerPixel;
+    outBuffer->memory = VirtualAlloc(nullptr, bitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
 }
 
-static void WinUpdateWindow(
-    HDC DeviceContextHandle,
-    const WinGraphicsBuffer Buffer,
-    int ScreenWidth,
-    int ScreenHeight
+static void winUpdateWindow(
+    HDC deviceContextHandle,
+    const WinGraphicsBuffer buffer,
+    int screenWidth,
+    int screenHeight
 )
 {
     // TODO: aspect ratio correction
     StretchDIBits(
-        DeviceContextHandle,
-        0, 0, ScreenWidth, ScreenHeight,
-        0, 0, Buffer.WidthPixels, Buffer.HeightPixels,
-        Buffer.Memory,
-        &Buffer.Info,
+        deviceContextHandle,
+        0, 0, screenWidth, screenHeight,
+        0, 0, buffer.widthPixels, buffer.heightPixels,
+        buffer.memory,
+        &buffer.info,
         DIB_RGB_COLORS,
         SRCCOPY
     );
 };
 
-static void WinPaint(HWND WindowHandle, const WinGraphicsBuffer Buffer)
+static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer)
 {
-    PAINTSTRUCT PaintStruct;
-    HDC DeviceContext = BeginPaint(WindowHandle, &PaintStruct);
-    WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
-    WinUpdateWindow(DeviceContext, Buffer, Dimensions.Width, Dimensions.Height);
-    EndPaint(WindowHandle, &PaintStruct);
-    ReleaseDC(WindowHandle, DeviceContext);
+    PAINTSTRUCT paintStruct;
+    HDC deviceContext = BeginPaint(windowHandle, &paintStruct);
+    WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
+    winUpdateWindow(deviceContext, buffer, dimensions.width, dimensions.height);
+    EndPaint(windowHandle, &paintStruct);
+    ReleaseDC(windowHandle, deviceContext);
 }
 
 
-LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LRESULT Result = 0;
+    LRESULT result = 0;
 
-    switch (Message)
+    switch (message)
     {
     case WM_ACTIVATEAPP:
         {
@@ -130,12 +130,12 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
     case WM_DESTROY:
     case WM_CLOSE:
         {
-            Running = false;
+            GlobalRunning = false;
         }
         break;
     case WM_PAINT:
         {
-            WinPaint(WindowHandle, GlobalBackBuffer);
+            winPaint(windowHandle, GlobalBackBuffer);
         }
         break;
     case WM_SYSKEYDOWN:
@@ -143,27 +143,27 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
     case WM_KEYDOWN:
     case WM_KEYUP:
         {
-            WPARAM VirtualKeyCode = wParam;
-            bool WasDown = ((1 << 30) & lParam) != 0;
-            bool IsDown = ((1 << 31) & lParam) == 0;
+            WPARAM virtualKeyCode = wParam;
+            bool wasDown = ((1 << 30) & lParam) != 0;
+            bool isDown = ((1 << 31) & lParam) == 0;
 
-            static float ScrollSpeed = 255;
+            static float scrollSpeed = 255;
             static float ddX = 0;
             static float ddY = 0;
 
-            dX += ScrollSpeed * ddX / 50;
-            dY += ScrollSpeed * ddY / 50;
+            dX += scrollSpeed * ddX / 50;
+            dY += scrollSpeed * ddY / 50;
 
-            if (WasDown == IsDown)
+            if (wasDown == isDown)
             {
                 break;
             }
 
-            switch (VirtualKeyCode)
+            switch (virtualKeyCode)
             {
             case 'W':
                 {
-                    if (IsDown)
+                    if (isDown)
                     {
                         ddY -= 1;
                     }
@@ -175,7 +175,7 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
                 break;
             case 'A':
                 {
-                    if (IsDown)
+                    if (isDown)
                     {
                         ddX -= 1;
                     }
@@ -187,7 +187,7 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
                 break;
             case 'S':
                 {
-                    if (IsDown)
+                    if (isDown)
                     {
                         ddY += 1;
                     }
@@ -199,7 +199,7 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
                 break;
             case 'D':
                 {
-                    if (IsDown)
+                    if (isDown)
                     {
                         ddX += 1;
                     }
@@ -211,18 +211,18 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
                 break;
             case VK_ESCAPE:
                 {
-                    Running = false;
+                    GlobalRunning = false;
                 }
                 break;
             case VK_SPACE:
                 {
-                    if (IsDown)
+                    if (isDown)
                     {
-                        ScrollSpeed *= 5;
+                        scrollSpeed *= 5;
                     }
                     else
                     {
-                        ScrollSpeed /= 5;
+                        scrollSpeed /= 5;
                     }
                 }
                 break;
@@ -235,25 +235,25 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
         break;
     default:
         {
-            Result = DefWindowProcA(WindowHandle, Message, wParam, lParam);
+            result = DefWindowProcA(windowHandle, message, wParam, lParam);
         }
         break;
     }
 
-    return Result;
+    return result;
 };
 
-void WinDrainMessages()
+void winDrainMessages()
 {
-    MSG Message;
-    while (PeekMessageA(&Message, nullptr, 0, 0, PM_REMOVE))
+    MSG message;
+    while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE))
     {
-        if (Message.message == WM_QUIT)
+        if (message.message == WM_QUIT)
         {
-            Running = false;
+            GlobalRunning = false;
         }
-        TranslateMessage(&Message);
-        DispatchMessageA(&Message);
+        TranslateMessage(&message);
+        DispatchMessageA(&message);
     }
 }
 
@@ -277,67 +277,67 @@ X_INPUT_SET_STATE(XInputSetStateStub)
 static x_input_set_state* XInputSetState_ = XInputSetStateStub;
 #define XInputSetState XInputSetState_
 
-static void WinLoadXInput()
+static void winLoadXInput()
 {
-    HMODULE XInputLib = LoadLibraryA("xinput1_3.dll");
-    if (XInputLib)
+    HMODULE xInputLib = LoadLibraryA("xinput1_3.dll");
+    if (xInputLib)
     {
-        XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(XInputLib, "XInputGetState"));
-        XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(XInputLib, "XInputSetState"));
+        XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
+        XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(xInputLib, "XInputSetState"));
     }
 }
 
-void HandleGamepadInput()
+void handleGamepadInput()
 {
-    for (DWORD ControllerIdx = 0; ControllerIdx < XUSER_MAX_COUNT; ControllerIdx++)
+    for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++)
     {
-        XINPUT_STATE State;
-        DWORD Result = XInputGetState(ControllerIdx, &State);
-        if (Result == ERROR_SUCCESS)
+        XINPUT_STATE state;
+        DWORD result = XInputGetState(controllerIdx, &state);
+        if (result == ERROR_SUCCESS)
         {
-            XINPUT_GAMEPAD Gamepad = State.Gamepad;
-            bool DPadUp = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
-            bool DPadDown = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
-            bool DPadLeft = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
-            bool DPadRight = Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
-            bool Start = Gamepad.wButtons & XINPUT_GAMEPAD_START;
-            bool Back = Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
-            bool LeftThumb = Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
-            bool RightThumb = Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
-            bool LeftShoulder = Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
-            bool RightShoulder = Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
-            bool AButton = Gamepad.wButtons & XINPUT_GAMEPAD_A;
-            bool BButton = Gamepad.wButtons & XINPUT_GAMEPAD_B;
-            bool XButton = Gamepad.wButtons & XINPUT_GAMEPAD_X;
-            bool YButton = Gamepad.wButtons & XINPUT_GAMEPAD_Y;
+            XINPUT_GAMEPAD gamepad = state.Gamepad;
+            bool dPadUp = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
+            bool dPadDown = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
+            bool dPadLeft = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+            bool dPadRight = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
+            bool start = gamepad.wButtons & XINPUT_GAMEPAD_START;
+            bool back = gamepad.wButtons & XINPUT_GAMEPAD_BACK;
+            bool leftThumb = gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
+            bool rightThumb = gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
+            bool leftShoulder = gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+            bool rightShoulder = gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+            bool aButton = gamepad.wButtons & XINPUT_GAMEPAD_A;
+            bool bButton = gamepad.wButtons & XINPUT_GAMEPAD_B;
+            bool xButton = gamepad.wButtons & XINPUT_GAMEPAD_X;
+            bool yButton = gamepad.wButtons & XINPUT_GAMEPAD_Y;
 
-            uint8_t LeftTrigger = Gamepad.bLeftTrigger;
-            uint8_t RightTrigger = Gamepad.bRightTrigger;
-            int16_t LeftStickX = Gamepad.sThumbLX;
-            int16_t LeftStickY = Gamepad.sThumbLY;
-            int16_t RightStickX = Gamepad.sThumbRX;
-            int16_t RightStickY = Gamepad.sThumbRY;
+            uint8_t leftTrigger = gamepad.bLeftTrigger;
+            uint8_t rightTrigger = gamepad.bRightTrigger;
+            int16_t leftStickX = gamepad.sThumbLX;
+            int16_t leftStickY = gamepad.sThumbLY;
+            int16_t rightStickX = gamepad.sThumbRX;
+            int16_t rightStickY = gamepad.sThumbRY;
 
-            if (BButton || Start)
+            if (bButton || start)
             {
-                Running = false;
+                GlobalRunning = false;
             }
 
-            int ScrollSpeed = 1;
-            if (LeftShoulder || RightShoulder)
+            int scrollSpeed = 1;
+            if (leftShoulder || rightShoulder)
             {
-                ScrollSpeed *= 5;
+                scrollSpeed *= 5;
             }
-            dX += (float)(LeftStickX * ScrollSpeed) / 20000;
-            dY -= (float)(LeftStickY * ScrollSpeed) / 20000;
+            dX += (float)(leftStickX * scrollSpeed) / 20000;
+            dY -= (float)(leftStickY * scrollSpeed) / 20000;
 
-            uint16_t LeftMotorSpeed = (uint32_t)(LeftTrigger * 65535) / 255;
-            uint16_t RightMotorSpeed = (uint32_t)(RightTrigger * 65535) / 255;
-            XINPUT_VIBRATION Vibration{
-                LeftMotorSpeed,
-                RightMotorSpeed
+            uint16_t leftMotorSpeed = (uint32_t)(leftTrigger * 65535) / 255;
+            uint16_t rightMotorSpeed = (uint32_t)(rightTrigger * 65535) / 255;
+            XINPUT_VIBRATION vibration{
+                leftMotorSpeed,
+                rightMotorSpeed
             };
-            XInputSetState(ControllerIdx, &Vibration);
+            XInputSetState(controllerIdx, &vibration);
         }
         else
         {
@@ -346,38 +346,38 @@ void HandleGamepadInput()
     }
 };
 
-static bool WinInitialize(HINSTANCE Instance, HWND* OutWindowHandle)
+static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 {
-    WinLoadXInput();
+    winLoadXInput();
 
-    WNDCLASSA WindowClass = {};
-    WindowClass.style = CS_OWNDC | CS_HREDRAW;
-    WindowClass.lpfnWndProc = WinMessageHandler;
-    WindowClass.hInstance = Instance;
-    WindowClass.lpszClassName = WINDOW_CLASS_NAME;
-    RegisterClassA(&WindowClass);
+    WNDCLASSA windowClass = {};
+    windowClass.style = CS_OWNDC | CS_HREDRAW;
+    windowClass.lpfnWndProc = winMessageHandler;
+    windowClass.hInstance = instance;
+    windowClass.lpszClassName = WINDOW_CLASS_NAME;
+    RegisterClassA(&windowClass);
 
-    WinResizeDIBSection(&GlobalBackBuffer, 1280, 720);
+    winResizeDIBSection(&GlobalBackBuffer, 1280, 720);
 
-    *OutWindowHandle = CreateWindowExA(
+    *outWindowHandle = CreateWindowExA(
         0,
-        WindowClass.lpszClassName,
+        windowClass.lpszClassName,
         "Slurp's Up!",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         nullptr,
         nullptr,
-        Instance,
+        instance,
         nullptr
     );
 
-    if (!*OutWindowHandle)
+    if (!*outWindowHandle)
     {
         OutputDebugStringA("FAILED");
         return false;
     }
 
-    Running = true;
+    GlobalRunning = true;
 
     return true;
 }
@@ -389,20 +389,20 @@ int WINAPI WinMain(
     int nCmdShow
 )
 {
-    HWND WindowHandle;
-    WinInitialize(hInstance, &WindowHandle);
+    HWND windowHandle;
+    winInitialize(hInstance, &windowHandle);
 
-    HDC DeviceContext = GetDC(WindowHandle);
-    while (Running)
+    HDC deviceContext = GetDC(windowHandle);
+    while (GlobalRunning)
     {
-        WinDrainMessages();
+        winDrainMessages();
 
-        HandleGamepadInput();
+        handleGamepadInput();
 
-        RenderCoolGraphics(GlobalBackBuffer, dX, dY);
-        WinScreenDimensions Dimensions = WinGetScreenDimensions(WindowHandle);
-        WinUpdateWindow(DeviceContext, GlobalBackBuffer, Dimensions.Width, Dimensions.Height);
-        ReleaseDC(WindowHandle, DeviceContext);
+        renderCoolGraphics(GlobalBackBuffer, dX, dY);
+        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
+        winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
+        ReleaseDC(windowHandle, deviceContext);
     }
 
     return 0;
