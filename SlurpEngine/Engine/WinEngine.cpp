@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <Xinput.h>
 
+typedef int32_t bool32;
+
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool GlobalRunning;
@@ -144,8 +146,14 @@ LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wPara
     case WM_KEYUP:
         {
             WPARAM virtualKeyCode = wParam;
-            bool wasDown = ((1 << 30) & lParam) != 0;
-            bool isDown = ((1 << 31) & lParam) == 0;
+            bool32 wasDown = (1 << 30) & lParam;
+            bool32 isDown = (1 << 31) & lParam;
+
+            bool32 alt = (1 << 29) & lParam;
+            if (alt && isDown && virtualKeyCode == VK_F4)
+            {
+                GlobalRunning = false;
+            }
 
             static float scrollSpeed = 255;
             static float ddX = 0;
@@ -261,7 +269,7 @@ void winDrainMessages()
 typedef X_INPUT_GET_STATE(x_input_get_state);
 X_INPUT_GET_STATE(XInputGetStateStub)
 {
-    return 0;
+    return ERROR_DEVICE_NOT_CONNECTED;
 }
 
 static x_input_get_state* XInputGetState_ = XInputGetStateStub;
@@ -271,7 +279,7 @@ static x_input_get_state* XInputGetState_ = XInputGetStateStub;
 typedef X_INPUT_SET_STATE(x_input_set_state);
 X_INPUT_SET_STATE(XInputSetStateStub)
 {
-    return 0;
+    return ERROR_DEVICE_NOT_CONNECTED;
 }
 
 static x_input_set_state* XInputSetState_ = XInputSetStateStub;
@@ -279,7 +287,11 @@ static x_input_set_state* XInputSetState_ = XInputSetStateStub;
 
 static void winLoadXInput()
 {
-    HMODULE xInputLib = LoadLibraryA("xinput1_3.dll");
+    HMODULE xInputLib = LoadLibraryA("xinput1_4.dll");
+    if (!xInputLib)
+    {
+        xInputLib = LoadLibraryA("xinput1_3.dll");
+    }
     if (xInputLib)
     {
         XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
