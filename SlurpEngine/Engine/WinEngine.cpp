@@ -147,36 +147,66 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
             bool WasDown = ((1 << 30) & lParam) != 0;
             bool IsDown = ((1 << 31) & lParam) == 0;
 
+            static float ScrollSpeed = 255;
+            static float ddX = 0;
+            static float ddY = 0;
+
+            dX += ScrollSpeed * ddX / 50;
+            dY += ScrollSpeed * ddY / 50;
+
             if (WasDown == IsDown)
             {
                 break;
             }
 
-            bool WKey = VirtualKeyCode == 'W';
-            bool AKey = VirtualKeyCode == 'A';
-            bool SKey = VirtualKeyCode == 'S';
-            bool DKey = VirtualKeyCode == 'D';
-            bool Escape = VirtualKeyCode == VK_ESCAPE;
-            bool Space = VirtualKeyCode == VK_SPACE;
-
-            int ScrollSpeed = 255;
-
             switch (VirtualKeyCode)
             {
             case 'W':
                 {
+                    if (IsDown)
+                    {
+                        ddY -= 1;
+                    }
+                    else
+                    {
+                        ddY += 1;
+                    }
                 }
                 break;
             case 'A':
                 {
+                    if (IsDown)
+                    {
+                        ddX -= 1;
+                    }
+                    else
+                    {
+                        ddX += 1;
+                    }
                 }
                 break;
             case 'S':
                 {
+                    if (IsDown)
+                    {
+                        ddY += 1;
+                    }
+                    else
+                    {
+                        ddY -= 1;
+                    }
                 }
                 break;
             case 'D':
                 {
+                    if (IsDown)
+                    {
+                        ddX += 1;
+                    }
+                    else
+                    {
+                        ddX -= 1;
+                    }
                 }
                 break;
             case VK_ESCAPE:
@@ -186,23 +216,21 @@ LRESULT CALLBACK WinMessageHandler(HWND WindowHandle, UINT Message, WPARAM wPara
                 break;
             case VK_SPACE:
                 {
-                    ScrollSpeed *= 5;
                     if (IsDown)
                     {
-                        OutputDebugStringA("SPACE DOWN\n");
+                        ScrollSpeed *= 5;
                     }
                     else
                     {
-                        OutputDebugStringA("SPACE UP\n");
+                        ScrollSpeed /= 5;
                     }
                 }
                 break;
+            default:
+                {
+                }
+                break;
             }
-
-            dX += (float)(WKey * ScrollSpeed) / 20000;
-            dX -= (float)(SKey * ScrollSpeed) / 20000;
-            dY -= (float)(AKey * ScrollSpeed) / 20000;
-            dY += (float)(DKey * ScrollSpeed) / 20000;
         }
         break;
     default:
