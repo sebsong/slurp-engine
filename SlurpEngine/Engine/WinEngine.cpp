@@ -379,37 +379,44 @@ static void winInitDirectSound(HWND windowHandle, int bufferSizeBytes, int sampl
         if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &DirectSound, nullptr)))
         {
             DirectSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
-            
+
+            WAVEFORMATEX waveFormat = {};
+            waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+            waveFormat.nChannels = 2;
+            waveFormat.nSamplesPerSec = samplesPerSec;
+            waveFormat.wBitsPerSample = 16;
+            waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
+            waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+            waveFormat.cbSize = 0;
+
+            // Primary Buffer
             DSBUFFERDESC dsBufferDescription = {};
             dsBufferDescription.dwSize = sizeof(dsBufferDescription);
             dsBufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
             LPDIRECTSOUNDBUFFER dsPrimaryBuffer;
             if (SUCCEEDED(DirectSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr)))
             {
-                WAVEFORMATEX waveFormat = {};
-                waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-                waveFormat.nChannels = 2;
-                waveFormat.nSamplesPerSec = samplesPerSec;
-                waveFormat.wBitsPerSample = 16;
-                waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
-                waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
-                waveFormat.cbSize = 0;
-                // WORD        wFormatTag;         /* format type */
-                // WORD        nChannels;          /* number of channels (i.e. mono, stereo...) */
-                // DWORD       nSamplesPerSec;     /* sample rate */
-                // DWORD       nAvgBytesPerSec;    /* for buffer estimation */
-                // WORD        nBlockAlign;        /* block size of data */
-                // WORD        wBitsPerSample;     /* number of bits per sample of mono data */
-                // WORD        cbSize;             /* the count in bytes of the size of */
                 if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat)))
                 {
-                    // TODO: create secondary buffer
+                    OutputDebugStringA("PRIMARY CREATED");
+                }
+                else
+                {
+                    // TODO: log
                 }
             }
-        }
-        else
-        {
-            // TODO: log
+
+            // Secondary Buffer
+            DSBUFFERDESC dsSecBufferDescription = {};
+            dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
+            dsSecBufferDescription.dwFlags = 0;
+            dsSecBufferDescription.dwBufferBytes = bufferSizeBytes; //TODO
+            dsSecBufferDescription.lpwfxFormat = &waveFormat;
+            LPDIRECTSOUNDBUFFER dsSecondaryBuffer;
+            if (SUCCEEDED(DirectSound->CreateSoundBuffer(&dsSecBufferDescription, &dsSecondaryBuffer, nullptr)))
+            {
+                OutputDebugStringA("SECONDARY CREATED");
+            }
         }
     }
 }
@@ -464,7 +471,7 @@ int WINAPI WinMain(
         return 1;
     }
 
-    winInitDirectSound(windowHandle);
+    winInitDirectSound(windowHandle, 48000 * sizeof(int16_t) * 2, 48000);
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
