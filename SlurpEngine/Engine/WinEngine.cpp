@@ -1,6 +1,7 @@
 #include <iostream>
 #include <windows.h>
 #include <Xinput.h>
+#include <dsound.h>
 
 typedef int32_t bool32;
 
@@ -295,12 +296,17 @@ static void winLoadXInput()
     HMODULE xInputLib = LoadLibraryA("xinput1_4.dll");
     if (!xInputLib)
     {
+        // TODO: log
         xInputLib = LoadLibraryA("xinput1_3.dll");
     }
     if (xInputLib)
     {
         XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
         XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(xInputLib, "XInputSetState"));
+    }
+    else
+    {
+        // TODO: log
     }
 }
 
@@ -359,9 +365,71 @@ void handleGamepadInput()
         else
         {
             // Controller is not connected
+            // TODO: log
         }
     }
 };
+
+#define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter)
+typedef DIRECT_SOUND_CREATE(direct_sound_create);
+
+static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferSizeBytes)
+{
+    HMODULE dSoundLib = LoadLibraryA("dsound.dll");
+    if (dSoundLib)
+    {
+        direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
+            dSoundLib, "DirectSoundCreate"));
+        LPDIRECTSOUND directSound;
+        if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr)))
+        {
+            directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
+            
+            WAVEFORMATEX waveFormat;
+            waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+            waveFormat.nChannels = 2;
+            waveFormat.nSamplesPerSec = samplesPerSec;
+            waveFormat.wBitsPerSample = 16;
+            waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
+            waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+            waveFormat.cbSize = 0;
+
+            // Primary Buffer
+            DSBUFFERDESC dsBufferDescription = {};
+            dsBufferDescription.dwSize = sizeof(dsBufferDescription);
+            dsBufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
+            LPDIRECTSOUNDBUFFER dsPrimaryBuffer;
+            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr)))
+            {
+                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat)))
+                {
+                    OutputDebugStringA("PRIMARY CREATED");
+                }
+                else
+                {
+                    // TODO: log
+                }
+            }
+
+            // Secondary Buffer
+            DSBUFFERDESC dsSecBufferDescription;
+            dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
+            dsSecBufferDescription.dwFlags = 0;
+            dsSecBufferDescription.dwBufferBytes = bufferSizeBytes;
+            dsSecBufferDescription.lpwfxFormat = &waveFormat;
+            LPDIRECTSOUNDBUFFER dsSecondaryBuffer;
+            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsSecBufferDescription, &dsSecondaryBuffer, nullptr)))
+            {
+                OutputDebugStringA("SECONDARY CREATED");
+            }
+            else
+            {
+                //TODO: log
+            }
+        }
+    }
+}
+
 
 static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 {
@@ -407,13 +475,17 @@ int WINAPI WinMain(
 )
 {
     HWND windowHandle;
-    winInitialize(hInstance, &windowHandle);
+    if (!winInitialize(hInstance, &windowHandle))
+    {
+        return 1;
+    }
+
+    winInitDirectSound(windowHandle, 48000, 48000 * sizeof(int16_t) * 2);
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
     {
         winDrainMessages();
-
         handleGamepadInput();
 
         renderCoolGraphics(GlobalBackBuffer, dX, dY);
