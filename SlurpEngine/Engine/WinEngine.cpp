@@ -82,7 +82,12 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
     outBuffer->info.bmiHeader.biCompression = BI_RGB;
 
     int bitmapSizeBytes = outBuffer->widthPixels * outBuffer->heightPixels * bytesPerPixel;
-    outBuffer->memory = VirtualAlloc(nullptr, bitmapSizeBytes, MEM_COMMIT, PAGE_READWRITE);
+    outBuffer->memory = VirtualAlloc(
+        nullptr,
+        bitmapSizeBytes,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
+    );
 }
 
 static void winUpdateWindow(
