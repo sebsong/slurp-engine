@@ -380,7 +380,7 @@ static void winInitDirectSound(HWND windowHandle, int bufferSizeBytes, int sampl
         {
             DirectSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
 
-            WAVEFORMATEX waveFormat = {};
+            WAVEFORMATEX waveFormat;
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
             waveFormat.nChannels = 2;
             waveFormat.nSamplesPerSec = samplesPerSec;
@@ -407,7 +407,7 @@ static void winInitDirectSound(HWND windowHandle, int bufferSizeBytes, int sampl
             }
 
             // Secondary Buffer
-            DSBUFFERDESC dsSecBufferDescription = {};
+            DSBUFFERDESC dsSecBufferDescription;
             dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
             dsSecBufferDescription.dwFlags = 0;
             dsSecBufferDescription.dwBufferBytes = bufferSizeBytes; //TODO
@@ -415,7 +415,16 @@ static void winInitDirectSound(HWND windowHandle, int bufferSizeBytes, int sampl
             LPDIRECTSOUNDBUFFER dsSecondaryBuffer;
             if (SUCCEEDED(DirectSound->CreateSoundBuffer(&dsSecBufferDescription, &dsSecondaryBuffer, nullptr)))
             {
-                OutputDebugStringA("SECONDARY CREATED");
+                HRESULT hr = dsSecondaryBuffer->SetFormat(&waveFormat);
+                if (SUCCEEDED(hr))
+                {
+                    // TODO: this should be called but isn't
+                    OutputDebugStringA("SECONDARY CREATED");
+                }
+                else
+                {
+                    // TODO: log
+                }
             }
         }
     }
