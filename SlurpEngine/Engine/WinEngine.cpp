@@ -7,10 +7,6 @@ typedef int32_t bool32;
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
-static bool GlobalRunning;
-static float dX = 0;
-static float dY = 0;
-
 struct WinGraphicsBuffer
 {
     BITMAPINFO info;
@@ -20,8 +16,6 @@ struct WinGraphicsBuffer
     int pitchBytes;
 };
 
-static WinGraphicsBuffer GlobalBackBuffer;
-
 struct WinScreenDimensions
 {
     int x;
@@ -29,6 +23,12 @@ struct WinScreenDimensions
     int width;
     int height;
 };
+
+static bool GlobalRunning;
+static WinGraphicsBuffer GlobalBackBuffer;
+static LPDIRECTSOUNDBUFFER GlobalSecondarySoundBuffer;
+static float dX = 0;
+static float dY = 0;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -417,8 +417,7 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
             dsSecBufferDescription.dwFlags = 0;
             dsSecBufferDescription.dwBufferBytes = bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
-            LPDIRECTSOUNDBUFFER dsSecondaryBuffer;
-            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsSecBufferDescription, &dsSecondaryBuffer, nullptr)))
+            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalSecondarySoundBuffer, nullptr)))
             {
                 OutputDebugStringA("SECONDARY CREATED");
             }
@@ -430,6 +429,10 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
     }
 }
 
+static void playCoolAudio()
+{
+    // TODO: GlobalSecondarySoundBuffer->Lock();
+}
 
 static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 {
@@ -489,6 +492,8 @@ int WINAPI WinMain(
         handleGamepadInput();
 
         renderCoolGraphics(GlobalBackBuffer, dX, dY);
+        playCoolAudio();
+        
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
