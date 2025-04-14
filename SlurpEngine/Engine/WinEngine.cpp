@@ -384,7 +384,7 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
         if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr)))
         {
             directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
-            
+
             WAVEFORMATEX waveFormat;
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
             waveFormat.nChannels = 2;
@@ -417,7 +417,8 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
             dsSecBufferDescription.dwFlags = 0;
             dsSecBufferDescription.dwBufferBytes = bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
-            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalSecondarySoundBuffer, nullptr)))
+            if (SUCCEEDED(
+                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalSecondarySoundBuffer, nullptr)))
             {
                 OutputDebugStringA("SECONDARY CREATED");
             }
@@ -429,9 +430,79 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
     }
 }
 
-static void playCoolAudio()
+static void playCoolAudio(float frequencyHz, int volumePercent, int samplesPerSecond, int bytesPerSample, int soundBufferSizeBytes)
 {
     // TODO: GlobalSecondarySoundBuffer->Lock();
+    static uint32_t writeSampleIndex = 0;
+    DWORD playCursor;
+    DWORD writeCursor;
+    if (!SUCCEEDED(GlobalSecondarySoundBuffer->GetCurrentPosition(&playCursor,&writeCursor)))
+    {
+        OutputDebugStringA("Get sound buffer position failed.\n");
+        return;
+    }
+
+
+    DWORD writeByteOffset = (writeSampleIndex * bytesPerSample) % soundBufferSizeBytes;
+    DWORD numBytesToWrite;
+    if (writeByteOffset > playCursor)
+    {
+        numBytesToWrite = soundBufferSizeBytes - writeByteOffset + playCursor;
+    }
+    else
+    {
+        numBytesToWrite = playCursor - writeByteOffset;
+    }
+    void* audioRegion1Ptr;
+    DWORD audioRegion1Bytes;
+    void* audioRegion2Ptr;
+    DWORD audioRegion2Bytes;
+    HRESULT r = GlobalSecondarySoundBuffer->Lock(
+        writeByteOffset,
+        numBytesToWrite,
+        &audioRegion1Ptr,
+        &audioRegion1Bytes,
+        &audioRegion2Ptr,
+        &audioRegion2Bytes,
+        0
+    );
+    if (!SUCCEEDED(r))
+    {
+        OutputDebugStringA("Sound buffer lock failed.\n");
+        return;
+    }
+
+    int squareWavePeriod = samplesPerSecond / frequencyHz;
+
+    DWORD region1NumSamples = audioRegion1Bytes / bytesPerSample;
+    int16_t* region1SubSamples = reinterpret_cast<int16_t*>(audioRegion1Ptr);
+    int16_t volume = 32000 * volumePercent / 100;
+    for (int regionSampleIndex = 0; regionSampleIndex < region1NumSamples; regionSampleIndex++)
+    {
+        int16_t sampleData = (writeSampleIndex / (squareWavePeriod / 2) % 2 == 0) ? volume : -volume;
+        *region1SubSamples++ = sampleData;
+        *region1SubSamples++ = sampleData;
+
+        writeSampleIndex++;
+    }
+
+    DWORD region2NumSamples = audioRegion2Bytes / bytesPerSample;
+    int16_t* region2SubSamples = reinterpret_cast<int16_t*>(audioRegion2Ptr);
+    for (int regionSampleIndex = 0; regionSampleIndex < region2NumSamples; regionSampleIndex++)
+    {
+        int16_t sampleData = (writeSampleIndex / (squareWavePeriod / 2) % 2 == 0) ? volume : -volume;
+        *region2SubSamples++ = sampleData;
+        *region2SubSamples++ = sampleData;
+
+        writeSampleIndex++;
+    }
+
+    GlobalSecondarySoundBuffer->Unlock(
+        audioRegion1Ptr,
+        audioRegion1Bytes,
+        audioRegion2Ptr,
+        audioRegion2Bytes
+    );
 }
 
 static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
@@ -483,7 +554,11 @@ int WINAPI WinMain(
         return 1;
     }
 
-    winInitDirectSound(windowHandle, 48000, 48000 * sizeof(int16_t) * 2);
+    int samplesPerSec = 48000;
+    int bytesPerSample = sizeof(int16_t) * 2;
+    int soundBufferSizeBytes = samplesPerSec * bytesPerSample;
+    winInitDirectSound(windowHandle, samplesPerSec, soundBufferSizeBytes);
+    GlobalSecondarySoundBuffer->Play(NULL, NULL, DSBPLAY_LOOPING);
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
@@ -492,8 +567,11 @@ int WINAPI WinMain(
         handleGamepadInput();
 
         renderCoolGraphics(GlobalBackBuffer, dX, dY);
-        playCoolAudio();
-        
+
+        float frequencyHz = 220;
+        int volumePercent = 3;
+        playCoolAudio(frequencyHz, volumePercent, samplesPerSec, bytesPerSample, soundBufferSizeBytes);
+
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
