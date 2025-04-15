@@ -2,8 +2,10 @@
 #include <windows.h>
 #include <Xinput.h>
 #include <dsound.h>
+#include <math.h>
 
 typedef int32_t bool32;
+#define PI 3.14159265359f
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
@@ -29,6 +31,7 @@ static WinGraphicsBuffer GlobalBackBuffer;
 static LPDIRECTSOUNDBUFFER GlobalSecondarySoundBuffer;
 static float dX = 0;
 static float dY = 0;
+static float frequencyHz = 300;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -361,6 +364,8 @@ void handleGamepadInput()
                 rightMotorSpeed
             };
             XInputSetState(controllerIdx, &vibration);
+            
+            frequencyHz = 360 + (leftStickX / 65535.f) * 220;
         }
         else
         {
@@ -430,9 +435,73 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
     }
 }
 
-static void playCoolAudio(float frequencyHz, int volumePercent, int samplesPerSecond, int bytesPerSample, int soundBufferSizeBytes)
+static void writeSquareWave(
+    float frequencyHz,
+    int volumePercent,
+    int samplesPerSecond,
+    int bytesPerSample,
+    void* audioRegionPtr,
+    DWORD numRegionBytes,
+    uint32_t& writeSampleIndex
+)
 {
-    // TODO: GlobalSecondarySoundBuffer->Lock();
+    static float tSquare = 0;
+    float squareWavePeriod = samplesPerSecond / frequencyHz;
+
+    DWORD regionNumSamples = numRegionBytes / bytesPerSample;
+    int16_t* regionSubSamples = reinterpret_cast<int16_t*>(audioRegionPtr);
+    int16_t volume = 32000 * volumePercent / 100 / 2; // artificially lower volume
+    for (int regionSampleIndex = 0; regionSampleIndex < regionNumSamples; regionSampleIndex++)
+    {
+        
+        int16_t square = ((int)tSquare % 2 == 0) ? 1 : -1;
+        int16_t sampleData = square * volume;
+        *regionSubSamples++ = sampleData;
+        *regionSubSamples++ = sampleData;
+
+        tSquare += 1 / (squareWavePeriod / 2.f);
+        writeSampleIndex++;
+    }
+}
+
+static void writeSineWave(
+    float frequencyHz,
+    int volumePercent,
+    int samplesPerSecond,
+    int bytesPerSample,
+    void* audioRegionPtr,
+    DWORD numRegionBytes,
+    uint32_t& writeSampleIndex
+)
+{
+    static float tSine = 0;
+    float sineWavePeriod = samplesPerSecond / frequencyHz;
+
+    DWORD regionNumSamples = numRegionBytes / bytesPerSample;
+    int16_t* regionSubSamples = reinterpret_cast<int16_t*>(audioRegionPtr);
+    int16_t volume = 32000 * volumePercent / 100;
+    for (int regionSampleIndex = 0; regionSampleIndex < regionNumSamples; regionSampleIndex++)
+    {
+        // int16_t sampleData = ((int)(writeSampleIndex / (sineWavePeriod / 2)) % 2 == 0) ? volume : -volume;
+        int16_t sampleData = sinf(tSine) * volume;
+        *regionSubSamples++ = sampleData;
+        *regionSubSamples++ = sampleData;
+
+        tSine += 2 * PI / sineWavePeriod;
+        writeSampleIndex++;
+    }
+}
+
+static void loadCoolAudio(
+    float frequencyHz,
+    int volumePercent,
+    int samplesPerSecond,
+    int sampleWriteAheadCount,
+    int bytesPerSample,
+    int soundBufferSizeBytes,
+    bool isInitialLoad
+)
+{
     static uint32_t writeSampleIndex = 0;
     DWORD playCursor;
     DWORD writeCursor;
@@ -442,22 +511,29 @@ static void playCoolAudio(float frequencyHz, int volumePercent, int samplesPerSe
         return;
     }
 
-
     DWORD writeByteOffset = (writeSampleIndex * bytesPerSample) % soundBufferSizeBytes;
-    DWORD numBytesToWrite;
-    if (writeByteOffset > playCursor)
+    DWORD numBytesToWrite = 0;
+    DWORD targetCursor = (playCursor + sampleWriteAheadCount * bytesPerSample) % soundBufferSizeBytes;
+    if (writeByteOffset == targetCursor)
     {
-        numBytesToWrite = soundBufferSizeBytes - writeByteOffset + playCursor;
+        if (isInitialLoad)
+        {
+            numBytesToWrite = sampleWriteAheadCount;
+        }
+    }
+    else if (writeByteOffset > targetCursor)
+    {
+        numBytesToWrite = soundBufferSizeBytes - writeByteOffset + targetCursor;
     }
     else
     {
-        numBytesToWrite = playCursor - writeByteOffset;
+        numBytesToWrite = targetCursor - writeByteOffset;
     }
     void* audioRegion1Ptr;
     DWORD audioRegion1Bytes;
     void* audioRegion2Ptr;
     DWORD audioRegion2Bytes;
-    HRESULT r = GlobalSecondarySoundBuffer->Lock(
+    if (!SUCCEEDED(GlobalSecondarySoundBuffer->Lock(
         writeByteOffset,
         numBytesToWrite,
         &audioRegion1Ptr,
@@ -465,37 +541,48 @@ static void playCoolAudio(float frequencyHz, int volumePercent, int samplesPerSe
         &audioRegion2Ptr,
         &audioRegion2Bytes,
         0
-    );
-    if (!SUCCEEDED(r))
+    )))
     {
         OutputDebugStringA("Sound buffer lock failed.\n");
         return;
     }
 
-    int squareWavePeriod = samplesPerSecond / frequencyHz;
-
-    DWORD region1NumSamples = audioRegion1Bytes / bytesPerSample;
-    int16_t* region1SubSamples = reinterpret_cast<int16_t*>(audioRegion1Ptr);
-    int16_t volume = 32000 * volumePercent / 100;
-    for (int regionSampleIndex = 0; regionSampleIndex < region1NumSamples; regionSampleIndex++)
-    {
-        int16_t sampleData = (writeSampleIndex / (squareWavePeriod / 2) % 2 == 0) ? volume : -volume;
-        *region1SubSamples++ = sampleData;
-        *region1SubSamples++ = sampleData;
-
-        writeSampleIndex++;
-    }
-
-    DWORD region2NumSamples = audioRegion2Bytes / bytesPerSample;
-    int16_t* region2SubSamples = reinterpret_cast<int16_t*>(audioRegion2Ptr);
-    for (int regionSampleIndex = 0; regionSampleIndex < region2NumSamples; regionSampleIndex++)
-    {
-        int16_t sampleData = (writeSampleIndex / (squareWavePeriod / 2) % 2 == 0) ? volume : -volume;
-        *region2SubSamples++ = sampleData;
-        *region2SubSamples++ = sampleData;
-
-        writeSampleIndex++;
-    }
+    writeSineWave(
+        frequencyHz,
+        volumePercent,
+        samplesPerSecond,
+        bytesPerSample,
+        audioRegion1Ptr,
+        audioRegion1Bytes,
+        writeSampleIndex
+    );
+    writeSineWave(
+        frequencyHz,
+        volumePercent,
+        samplesPerSecond,
+        bytesPerSample,
+        audioRegion2Ptr,
+        audioRegion2Bytes,
+        writeSampleIndex
+    );
+    // writeSquareWave(
+    //     frequencyHz,
+    //     volumePercent,
+    //     samplesPerSecond,
+    //     bytesPerSample,
+    //     audioRegion1Ptr,
+    //     audioRegion1Bytes,
+    //     writeSampleIndex
+    // );
+    // writeSquareWave(
+    //     frequencyHz,
+    //     volumePercent,
+    //     samplesPerSecond,
+    //     bytesPerSample,
+    //     audioRegion2Ptr,
+    //     audioRegion2Bytes,
+    //     writeSampleIndex
+    // );
 
     GlobalSecondarySoundBuffer->Unlock(
         audioRegion1Ptr,
@@ -532,7 +619,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 
     if (!*outWindowHandle)
     {
-        OutputDebugStringA("FAILED");
+        OutputDebugStringA("Failed to create window.\n");
         return false;
     }
 
@@ -557,8 +644,9 @@ int WINAPI WinMain(
     int samplesPerSec = 48000;
     int bytesPerSample = sizeof(int16_t) * 2;
     int soundBufferSizeBytes = samplesPerSec * bytesPerSample;
+    int sampleWriteAheadCount = samplesPerSec / 20;
     winInitDirectSound(windowHandle, samplesPerSec, soundBufferSizeBytes);
-    GlobalSecondarySoundBuffer->Play(NULL, NULL, DSBPLAY_LOOPING);
+    bool isPlayingAudio = false;
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
@@ -568,9 +656,13 @@ int WINAPI WinMain(
 
         renderCoolGraphics(GlobalBackBuffer, dX, dY);
 
-        float frequencyHz = 220;
-        int volumePercent = 3;
-        playCoolAudio(frequencyHz, volumePercent, samplesPerSec, bytesPerSample, soundBufferSizeBytes);
+        int volumePercent = 10;
+        loadCoolAudio(frequencyHz, volumePercent, samplesPerSec, sampleWriteAheadCount, bytesPerSample, soundBufferSizeBytes, !isPlayingAudio);
+        if (!isPlayingAudio)
+        {
+            GlobalSecondarySoundBuffer->Play(NULL, NULL, DSBPLAY_LOOPING);
+            isPlayingAudio = true;
+        }
 
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
