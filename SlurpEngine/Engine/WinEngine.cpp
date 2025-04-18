@@ -364,7 +364,7 @@ void handleGamepadInput()
                 rightMotorSpeed
             };
             XInputSetState(controllerIdx, &vibration);
-            
+
             frequencyHz = 360 + (leftStickX / 65535.f) * 220;
         }
         else
@@ -390,7 +390,7 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
         {
             directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
 
-            WAVEFORMATEX waveFormat;
+            WAVEFORMATEX waveFormat = {};
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
             waveFormat.nChannels = 2;
             waveFormat.nSamplesPerSec = samplesPerSec;
@@ -417,7 +417,7 @@ static void winInitDirectSound(HWND windowHandle, int samplesPerSec, int bufferS
             }
 
             // Secondary Buffer
-            DSBUFFERDESC dsSecBufferDescription;
+            DSBUFFERDESC dsSecBufferDescription = {};
             dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
             dsSecBufferDescription.dwFlags = 0;
             dsSecBufferDescription.dwBufferBytes = bufferSizeBytes;
@@ -453,7 +453,6 @@ static void writeSquareWave(
     int16_t volume = 32000 * volumePercent / 100 / 2; // artificially lower volume
     for (int regionSampleIndex = 0; regionSampleIndex < regionNumSamples; regionSampleIndex++)
     {
-        
         int16_t square = ((int)tSquare % 2 == 0) ? 1 : -1;
         int16_t sampleData = square * volume;
         *regionSubSamples++ = sampleData;
@@ -529,6 +528,12 @@ static void loadCoolAudio(
     {
         numBytesToWrite = targetCursor - writeByteOffset;
     }
+
+    if (numBytesToWrite == 0)
+    {
+        return;
+    }
+    
     void* audioRegion1Ptr;
     DWORD audioRegion1Bytes;
     void* audioRegion2Ptr;
@@ -647,6 +652,12 @@ int WINAPI WinMain(
     int sampleWriteAheadCount = samplesPerSec / 20;
     winInitDirectSound(windowHandle, samplesPerSec, soundBufferSizeBytes);
     bool isPlayingAudio = false;
+    
+    uint64_t processorCycle = __rdtsc();
+    LARGE_INTEGER performanceFrequency;
+    QueryPerformanceFrequency(&performanceFrequency);
+    LARGE_INTEGER performanceCounter;
+    QueryPerformanceCounter(&performanceCounter);
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
@@ -657,7 +668,8 @@ int WINAPI WinMain(
         renderCoolGraphics(GlobalBackBuffer, dX, dY);
 
         int volumePercent = 10;
-        loadCoolAudio(frequencyHz, volumePercent, samplesPerSec, sampleWriteAheadCount, bytesPerSample, soundBufferSizeBytes, !isPlayingAudio);
+        loadCoolAudio(frequencyHz, volumePercent, samplesPerSec, sampleWriteAheadCount, bytesPerSample,
+                      soundBufferSizeBytes, !isPlayingAudio);
         if (!isPlayingAudio)
         {
             GlobalSecondarySoundBuffer->Play(NULL, NULL, DSBPLAY_LOOPING);
@@ -667,6 +679,20 @@ int WINAPI WinMain(
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
+
+        uint64_t processorCycleEnd = __rdtsc();
+        LARGE_INTEGER performanceCounterEnd;
+        QueryPerformanceCounter(&performanceCounterEnd);
+
+        int frameProcessorMCycles = (processorCycleEnd - processorCycle) / 1000 / 1000;
+        char buf[256];
+        float frameMillis = (performanceCounterEnd.QuadPart - performanceCounter.QuadPart) * 1000.f / performanceFrequency.QuadPart;
+        int fps = 1000 / frameMillis;
+        sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+        OutputDebugStringA(buf);
+
+        processorCycle = processorCycleEnd;
+        performanceCounter = performanceCounterEnd;
     }
 
     return 0;
