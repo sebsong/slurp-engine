@@ -1,10 +1,10 @@
+#include <SlurpEngine.cpp>
+
 #include <iostream>
 #include <windows.h>
 #include <Xinput.h>
 #include <dsound.h>
 #include <math.h>
-
-#include <SlurpEngine.cpp>
 
 typedef int32_t bool32;
 #define PI 3.14159265359f

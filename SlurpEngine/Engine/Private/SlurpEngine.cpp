@@ -1,17 +1,12 @@
-﻿#include <iostream>
+﻿#include <SlurpEngine.hpp>
+
+#include <iostream>
+
+typedef unsigned char byte;
 
 void main()
 {
-    std::cout << "Hello World!" <<std::endl;
 }
-
-struct GraphicsBuffer
-{
-    void* memory;
-    int widthPixels;
-    int heightPixels;
-    int pitchBytes;
-};
 
 static void renderCoolGraphics(const GraphicsBuffer buffer, float xOffset, float yOffset)
 {
@@ -33,9 +28,7 @@ static void renderCoolGraphics(const GraphicsBuffer buffer, float xOffset, float
     }
 }
 
-
 void update(const GraphicsBuffer buffer, float xOffset, float yOffset)
 {
     renderCoolGraphics(buffer, xOffset, yOffset);
-    
-};
+}
