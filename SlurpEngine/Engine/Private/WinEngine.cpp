@@ -622,7 +622,7 @@ int WINAPI WinMain(
     int nCmdShow
 )
 {
-    main();
+    slurpMain();
     HWND windowHandle;
     if (!winInitialize(hInstance, &windowHandle))
     {

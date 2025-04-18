@@ -4,7 +4,7 @@
 
 typedef unsigned char byte;
 
-void main()
+void slurpMain()
 {
 }
 

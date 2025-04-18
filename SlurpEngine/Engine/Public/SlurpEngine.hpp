@@ -10,4 +10,4 @@ struct GraphicsBuffer
 
 void main();
 
-void update(const GraphicsBuffer buffer, float xOffset, float yOffset);
+void update(GraphicsBuffer buffer, float xOffset, float yOffset);
