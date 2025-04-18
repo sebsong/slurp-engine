@@ -4,6 +4,8 @@
 #include <dsound.h>
 #include <math.h>
 
+#include <SlurpEngine.cpp>
+
 typedef int32_t bool32;
 #define PI 3.14159265359f
 
@@ -45,26 +47,6 @@ static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
         rect.bottom - rect.top,
     };
 };
-
-static void renderCoolGraphics(const WinGraphicsBuffer buffer, float xOffset, float yOffset)
-{
-    byte* bitmapBytes = static_cast<byte*>(buffer.memory);
-    for (int y = 0; y < buffer.heightPixels; y++)
-    {
-        uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
-        for (int x = 0; x < buffer.widthPixels; x++)
-        {
-            uint8_t r = y + yOffset;
-            uint8_t g = (x + xOffset) - (y + yOffset);
-            uint8_t b = x + xOffset;
-
-            uint32_t pixel = (r << 16) | (g << 8) | b;
-            *rowPixels++ = pixel;
-        }
-
-        bitmapBytes += buffer.pitchBytes;
-    }
-}
 
 static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int height)
 {
@@ -640,6 +622,7 @@ int WINAPI WinMain(
     int nCmdShow
 )
 {
+    main();
     HWND windowHandle;
     if (!winInitialize(hInstance, &windowHandle))
     {
@@ -665,7 +648,12 @@ int WINAPI WinMain(
         winDrainMessages();
         handleGamepadInput();
 
-        renderCoolGraphics(GlobalBackBuffer, dX, dY);
+        GraphicsBuffer graphicsBuffer = {};
+        graphicsBuffer.memory = GlobalBackBuffer.memory;
+        graphicsBuffer.widthPixels = GlobalBackBuffer.widthPixels;
+        graphicsBuffer.heightPixels = GlobalBackBuffer.heightPixels;
+        graphicsBuffer.pitchBytes = GlobalBackBuffer.pitchBytes;
+        update(graphicsBuffer, dX, dY);
 
         int volumePercent = 10;
         loadCoolAudio(frequencyHz, volumePercent, samplesPerSec, sampleWriteAheadCount, bytesPerSample,
