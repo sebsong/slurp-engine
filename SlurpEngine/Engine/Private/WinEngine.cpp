@@ -463,7 +463,6 @@ static void writeSineWave(
     int16_t volume = 32000 * volumePercent / 100;
     for (int regionSampleIndex = 0; regionSampleIndex < regionNumSamples; regionSampleIndex++)
     {
-        // int16_t sampleData = ((int)(writeSampleIndex / (sineWavePeriod / 2)) % 2 == 0) ? volume : -volume;
         int16_t sampleData = sinf(tSine) * volume;
         *regionSubSamples++ = sampleData;
         *regionSubSamples++ = sampleData;
@@ -534,24 +533,39 @@ static void loadCoolAudio(
         return;
     }
 
-    writeSineWave(
-        frequencyHz,
-        volumePercent,
-        samplesPerSecond,
-        bytesPerSample,
-        audioRegion1Ptr,
-        audioRegion1Bytes,
-        writeSampleIndex
-    );
-    writeSineWave(
-        frequencyHz,
-        volumePercent,
-        samplesPerSecond,
-        bytesPerSample,
-        audioRegion2Ptr,
-        audioRegion2Bytes,
-        writeSampleIndex
-    );
+    AudioBuffer region1Buffer = {};
+    region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
+    region1Buffer.samplesPerSec = samplesPerSecond;
+    region1Buffer.numBytesToWrite = audioRegion1Bytes;
+    region1Buffer.bytesPerSample = bytesPerSample;
+    loadAudio(region1Buffer);
+    
+    AudioBuffer region2Buffer = {};
+    region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
+    region2Buffer.samplesPerSec = samplesPerSecond;
+    region2Buffer.numBytesToWrite = audioRegion2Bytes;
+    region2Buffer.bytesPerSample = bytesPerSample;
+    loadAudio(region2Buffer);
+    
+    writeSampleIndex += numBytesToWrite / bytesPerSample;
+    // writeSineWave(
+    //     frequencyHz,
+    //     volumePercent,
+    //     samplesPerSecond,
+    //     bytesPerSample,
+    //     audioRegion1Ptr,
+    //     audioRegion1Bytes,
+    //     writeSampleIndex
+    // );
+    // writeSineWave(
+    //     frequencyHz,
+    //     volumePercent,
+    //     samplesPerSecond,
+    //     bytesPerSample,
+    //     audioRegion2Ptr,
+    //     audioRegion2Bytes,
+    //     writeSampleIndex
+    // );
     // writeSquareWave(
     //     frequencyHz,
     //     volumePercent,
@@ -653,7 +667,7 @@ int WINAPI WinMain(
         graphicsBuffer.widthPixels = GlobalBackBuffer.widthPixels;
         graphicsBuffer.heightPixels = GlobalBackBuffer.heightPixels;
         graphicsBuffer.pitchBytes = GlobalBackBuffer.pitchBytes;
-        update(graphicsBuffer, dX, dY);
+        renderGraphics(graphicsBuffer, dX, dY);
 
         int volumePercent = 10;
         loadCoolAudio(frequencyHz, volumePercent, samplesPerSec, sampleWriteAheadCount, bytesPerSample,

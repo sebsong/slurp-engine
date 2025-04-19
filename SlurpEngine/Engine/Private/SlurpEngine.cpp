@@ -4,8 +4,36 @@
 
 typedef unsigned char byte;
 
+static constexpr float Pi = 3.14159265359f;
+
+static constexpr int GlobalVolume = 0.1 * 32000;
+static constexpr int GlobalFrequencyHz = 300;
+
 void slurpMain()
 {
+}
+
+static void loadCoolAudio(AudioBuffer buffer)
+{
+    static float tSine = 0;
+    float sineWavePeriod = buffer.samplesPerSec / GlobalFrequencyHz;
+
+    long regionNumSamples = buffer.numBytesToWrite / buffer.bytesPerSample;
+    int16_t* buf = reinterpret_cast<int16_t*>(buffer.samples);
+    for (int regionSampleIndex = 0; regionSampleIndex < regionNumSamples; regionSampleIndex++)
+    {
+        int16_t subSampleData = sinf(tSine) * GlobalVolume;
+        // *buffer.samples++ = (subSampleData << 16) | subSampleData;
+        *buf++ = subSampleData;
+        *buf++ = subSampleData;
+
+        tSine += 2 * Pi / sineWavePeriod;
+    }
+}
+
+void loadAudio(AudioBuffer buffer)
+{
+    loadCoolAudio(buffer);
 }
 
 static void renderCoolGraphics(const GraphicsBuffer buffer, float xOffset, float yOffset)
@@ -28,7 +56,7 @@ static void renderCoolGraphics(const GraphicsBuffer buffer, float xOffset, float
     }
 }
 
-void update(const GraphicsBuffer buffer, float xOffset, float yOffset)
+void renderGraphics(const GraphicsBuffer buffer, float xOffset, float yOffset)
 {
     renderCoolGraphics(buffer, xOffset, yOffset);
 }

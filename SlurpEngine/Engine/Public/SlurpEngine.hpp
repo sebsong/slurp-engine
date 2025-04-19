@@ -1,4 +1,13 @@
 #pragma once
+#include <cstdint>
+
+struct AudioBuffer
+{
+    int32_t* samples;
+    int samplesPerSec;
+    int numBytesToWrite;
+    int bytesPerSample;
+};
 
 struct GraphicsBuffer
 {
@@ -10,4 +19,6 @@ struct GraphicsBuffer
 
 void main();
 
-void update(GraphicsBuffer buffer, float xOffset, float yOffset);
+void loadAudio(int32_t* audioSampleBuffer);
+
+void renderGraphics(GraphicsBuffer buffer, float xOffset, float yOffset);
