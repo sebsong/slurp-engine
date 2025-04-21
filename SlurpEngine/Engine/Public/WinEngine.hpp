@@ -33,12 +33,12 @@ struct WinAudioBuffer
     float frequencyHz = 300;
 };
 
-static std::map<WPARAM, slurp::InputCode> winCodeToSlurpCode =
+static std::map<WPARAM, slurp::KeyboardInputCode> winCodeToSlurpCode =
 {
-    {'W', slurp::KB_W},
-    {'A', slurp::KB_A},
-    {'S', slurp::KB_S},
-    {'D', slurp::KB_D},
-    {VK_SPACE, slurp::KB_SPACE},
-    {VK_ESCAPE, slurp::KB_ESC},
+    {'W', slurp::W},
+    {'A', slurp::A},
+    {'S', slurp::S},
+    {'D', slurp::D},
+    {VK_SPACE, slurp::SPACE},
+    {VK_ESCAPE, slurp::ESC},
 };

@@ -6,8 +6,11 @@
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool GlobalRunning;
+
 static WinGraphicsBuffer GlobalBackBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
+static slurp::KeyboardInputState GlobalCurrentKeyboardState;
+
 static float dX = 0;
 static float dY = 0;
 
@@ -124,8 +127,11 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
 
             if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
             {
-                slurp::InputCode code = winCodeToSlurpCode.at(virtualKeyCode);
-                slurp::handleInput(code, isDown);
+                slurp::KeyboardInputCode code = winCodeToSlurpCode.at(virtualKeyCode);
+                // TODO: change transition count computation once we poll multiple times per frame
+                slurp::DigitalInputState *inputState = &GlobalCurrentKeyboardState.state[code];
+                inputState->transitionCount += wasDown != isDown;
+                inputState->isDown = isDown;
             }
         }
         break;
@@ -480,6 +486,8 @@ int WINAPI WinMain(
         slurp::main(GlobalRunning);
         
         winDrainMessages();
+        slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
+        GlobalCurrentKeyboardState = {};
         winHandleGamepadInput();
 
         slurp::GraphicsBuffer graphicsBuffer = {};

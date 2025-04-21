@@ -77,7 +77,7 @@ namespace slurp
         }
     }
 
-    static void handleKeyboardInput(InputCode code, bool32 isDown)
+    void handleKeyboardInput(KeyboardInputState state)
     {
         // if (alt&& isDown && virtualKeyCode
         // ==
@@ -86,90 +86,116 @@ namespace slurp
         // {
         //     GlobalRunning = false;
         // }
-        std::cout << code << ":" << isDown << std::endl;
 
-        switch (code)
+        if (state.hasInput(KeyboardInputCode::W))
         {
-        case KB_W:
+            DigitalInputState inputState = state.getInputState(KeyboardInputCode::W);
+            if (inputState.isDown)
             {
-                if (isDown)
-                {
-                    ddY -= 1;
-                }
-                else
-                {
-                    ddY += 1;
-                }
-            }
-            break;
-        case KB_A:
+                ddY -= 1;
+            } else
             {
-                if (isDown)
-                {
-                    ddX -= 1;
-                }
-                else
-                {
-                    ddX += 1;
-                }
+                ddY += 1;
             }
-            break;
-        case KB_S:
+        }
+        
+        if (state.hasInput(KeyboardInputCode::S))
+        {
+            DigitalInputState inputState = state.getInputState(KeyboardInputCode::S);
+            if (inputState.isDown)
             {
-                if (isDown)
-                {
-                    ddY += 1;
-                }
-                else
-                {
-                    ddY -= 1;
-                }
-            }
-            break;
-        case KB_D:
+                ddY += 1;
+            } else
             {
-                if (isDown)
-                {
-                    ddX += 1;
-                }
-                else
-                {
-                    ddX -= 1;
-                }
+                ddY -= 1;
             }
-            break;
-        case KB_ESC:
+        }
+        
+        if (state.hasInput(KeyboardInputCode::ESC))
+        {
+            DigitalInputState inputState = state.getInputState(KeyboardInputCode::ESC);
+            if (inputState.isDown)
             {
                 GlobalIsRunning = false;
             }
-            break;
-        case KB_SPACE:
-            {
-                if (isDown)
-                {
-                    scrollSpeed *= 5;
-                }
-                else
-                {
-                    scrollSpeed /= 5;
-                }
-            }
-            break;
-        default:
-            {
-            }
-            break;
         }
+
+        // switch (code)
+        // {
+        // case W:
+        //     {
+        //         if (isDown)
+        //         {
+        //             ddY -= 1;
+        //         }
+        //         else
+        //         {
+        //             ddY += 1;
+        //         }
+        //     }
+        //     break;
+        // case A:
+        //     {
+        //         if (isDown)
+        //         {
+        //             ddX -= 1;
+        //         }
+        //         else
+        //         {
+        //             ddX += 1;
+        //         }
+        //     }
+        //     break;
+        // case S:
+        //     {
+        //         if (isDown)
+        //         {
+        //             ddY += 1;
+        //         }
+        //         else
+        //         {
+        //             ddY -= 1;
+        //         }
+        //     }
+        //     break;
+        // case D:
+        //     {
+        //         if (isDown)
+        //         {
+        //             ddX += 1;
+        //         }
+        //         else
+        //         {
+        //             ddX -= 1;
+        //         }
+        //     }
+        //     break;
+        // case ESC:
+        //     {
+        //         GlobalIsRunning = false;
+        //     }
+        //     break;
+        // case SPACE:
+        //     {
+        //         if (isDown)
+        //         {
+        //             scrollSpeed *= 5;
+        //         }
+        //         else
+        //         {
+        //             scrollSpeed /= 5;
+        //         }
+        //     }
+        //     break;
+        // default:
+        //     {
+        //     }
+        //     break;
+        // }
     }
 
-    static void handleGamepadInput(InputCode code)
+    void handleGamepadInput(KeyboardInputCode code)
     {
-    }
-
-    void handleInput(const InputCode code, bool isDown)
-    {
-        handleKeyboardInput(code, isDown);
-        handleGamepadInput(code);
     }
 
     void loadAudio(AudioBuffer buffer)

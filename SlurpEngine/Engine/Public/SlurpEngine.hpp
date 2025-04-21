@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <map>
+#include <vector>
 
 namespace slurp
 {
@@ -19,14 +21,41 @@ namespace slurp
         int pitchBytes;
     };
     
-    enum InputCode
+    enum KeyboardInputCode: uint8_t
     {
-        KB_W,
-        KB_A,
-        KB_S,
-        KB_D,
-        KB_ESC,
-        KB_SPACE,
+        W,
+        A,
+        S,
+        D,
+        ESC,
+        SPACE,
+    };
+
+    struct DigitalInputState
+    {
+        int transitionCount;
+        bool isDown;
+    };
+    
+    struct AnalogInputState
+    {
+        std::vector<float> startXY[2];
+        std::vector<float> endXY[2];
+        std::vector<float> minXY[2];
+        std::vector<float> maxXY[2];
+    };
+
+    struct KeyboardInputState
+    {
+        std::map<KeyboardInputCode, DigitalInputState> state;
+        bool hasInput(KeyboardInputCode code) const
+        {
+            return state.count(code) > 0;
+        }
+        DigitalInputState getInputState(KeyboardInputCode code) const
+        {
+            return state.at(code);
+        }
     };
 
     void loadAudio(int32_t* audioSampleBuffer);
