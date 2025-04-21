@@ -17,8 +17,16 @@ namespace slurp
         int widthPixels;
         int heightPixels;
         int pitchBytes;
-        float dX; // TODO: don't pass this in once input control is extracted
-        float dY; // TODO: don't pass this in once input control is extracted
+    };
+    
+    enum InputCode
+    {
+        KB_W,
+        KB_A,
+        KB_S,
+        KB_D,
+        KB_ESC,
+        KB_SPACE,
     };
 
     void loadAudio(int32_t* audioSampleBuffer);

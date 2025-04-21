@@ -308,6 +308,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\SlurpEngine.hpp" />
+    <ClInclude Include="Public\WinEngine.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

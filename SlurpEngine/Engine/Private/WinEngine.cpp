@@ -1,41 +1,9 @@
 #include <SlurpEngine.cpp>
+#include <WinEngine.hpp>
 
-#include <iostream>
-#include <windows.h>
 #include <Xinput.h>
-#include <dsound.h>
-
-typedef int32_t bool32;
-#define PI 3.14159265359f
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
-
-struct WinGraphicsBuffer
-{
-    BITMAPINFO info;
-    void* memory;
-    int widthPixels;
-    int heightPixels;
-    int pitchBytes;
-};
-
-struct WinScreenDimensions
-{
-    int x;
-    int y;
-    int width;
-    int height;
-};
-
-struct WinAudioBuffer
-{
-    LPDIRECTSOUNDBUFFER buffer;
-    int samplesPerSec = 48000;
-    int bytesPerSample = sizeof(int16_t) * 2; // Stereo L + R
-    int bufferSizeBytes = samplesPerSec * bytesPerSample;
-    int writeAheadSampleCount = samplesPerSec / 20;
-    float frequencyHz = 300;
-};
 
 static bool GlobalRunning;
 static WinGraphicsBuffer GlobalBackBuffer;
@@ -114,7 +82,7 @@ static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer)
 }
 
 
-LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LRESULT result = 0;
 
@@ -149,94 +117,15 @@ LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wPara
             bool32 isDown = (1 << 31) & lParam;
 
             bool32 alt = (1 << 29) & lParam;
-            if (alt && isDown && virtualKeyCode == VK_F4)
-            {
-                GlobalRunning = false;
-            }
-
-            static float scrollSpeed = 255;
-            static float ddX = 0;
-            static float ddY = 0;
-
-            dX += scrollSpeed * ddX / 50;
-            dY += scrollSpeed * ddY / 50;
-
             if (wasDown == isDown)
             {
                 break;
             }
 
-            switch (virtualKeyCode)
+            if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
             {
-            case 'W':
-                {
-                    if (isDown)
-                    {
-                        ddY -= 1;
-                    }
-                    else
-                    {
-                        ddY += 1;
-                    }
-                }
-                break;
-            case 'A':
-                {
-                    if (isDown)
-                    {
-                        ddX -= 1;
-                    }
-                    else
-                    {
-                        ddX += 1;
-                    }
-                }
-                break;
-            case 'S':
-                {
-                    if (isDown)
-                    {
-                        ddY += 1;
-                    }
-                    else
-                    {
-                        ddY -= 1;
-                    }
-                }
-                break;
-            case 'D':
-                {
-                    if (isDown)
-                    {
-                        ddX += 1;
-                    }
-                    else
-                    {
-                        ddX -= 1;
-                    }
-                }
-                break;
-            case VK_ESCAPE:
-                {
-                    GlobalRunning = false;
-                }
-                break;
-            case VK_SPACE:
-                {
-                    if (isDown)
-                    {
-                        scrollSpeed *= 5;
-                    }
-                    else
-                    {
-                        scrollSpeed /= 5;
-                    }
-                }
-                break;
-            default:
-                {
-                }
-                break;
+                slurp::InputCode code = winCodeToSlurpCode.at(virtualKeyCode);
+                slurp::handleInput(code, isDown);
             }
         }
         break;
@@ -250,7 +139,7 @@ LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wPara
     return result;
 };
 
-void winDrainMessages()
+static void winDrainMessages()
 {
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE))
@@ -303,7 +192,7 @@ static void winLoadXInput()
     }
 }
 
-void winHandleGamepadInput()
+static void winHandleGamepadInput()
 {
     for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++)
     {
@@ -439,7 +328,7 @@ static void winLoadAudio(bool isInitialLoad)
         playCursor +
         GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
     ) % GlobalAudioBuffer.bufferSizeBytes;
-    
+
     DWORD numBytesToWrite = 0;
     if (writeCursor == targetCursor)
     {
@@ -540,7 +429,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     return true;
 }
 
-void winCaptureAndLogPerformance(
+static void winCaptureAndLogPerformance(
     uint64_t& previousProcessorCycle,
     LARGE_INTEGER& previousPerformanceCounter,
     LARGE_INTEGER performanceCounterFrequency
@@ -555,9 +444,9 @@ void winCaptureAndLogPerformance(
     int fps = 1000 / frameMillis;
     int frameProcessorMCycles = (processorCycleEnd - previousProcessorCycle) / 1000 / 1000;
 
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    // char buf[256];
+    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    // OutputDebugStringA(buf);
 
     previousProcessorCycle = processorCycleEnd;
     previousPerformanceCounter = performanceCounterEnd;
@@ -596,8 +485,6 @@ int WINAPI WinMain(
         graphicsBuffer.widthPixels = GlobalBackBuffer.widthPixels;
         graphicsBuffer.heightPixels = GlobalBackBuffer.heightPixels;
         graphicsBuffer.pitchBytes = GlobalBackBuffer.pitchBytes;
-        graphicsBuffer.dX = dX;
-        graphicsBuffer.dY = dY;
         slurp::renderGraphics(graphicsBuffer);
 
         winLoadAudio(!isPlayingAudio);
