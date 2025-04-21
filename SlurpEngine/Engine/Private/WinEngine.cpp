@@ -477,6 +477,8 @@ int WINAPI WinMain(
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
     {
+        slurp::main(GlobalRunning);
+        
         winDrainMessages();
         winHandleGamepadInput();
 

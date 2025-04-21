@@ -32,4 +32,6 @@ namespace slurp
     void loadAudio(int32_t* audioSampleBuffer);
 
     void renderGraphics(GraphicsBuffer buffer);
+    
+    void main(bool& isRunning);
 }

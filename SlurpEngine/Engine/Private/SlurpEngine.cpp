@@ -10,6 +10,8 @@ static constexpr int GlobalVolume = 0.1 * 32000;
 
 namespace slurp
 {
+    static bool GlobalIsRunning = true;
+    
     static float dX = 0;
     static float dY = 0;
     static float ddX = 0;
@@ -138,7 +140,7 @@ namespace slurp
             break;
         case KB_ESC:
             {
-                // GlobalRunning = false;
+                GlobalIsRunning = false;
             }
             break;
         case KB_SPACE:
@@ -178,5 +180,13 @@ namespace slurp
     void renderGraphics(const GraphicsBuffer buffer)
     {
         drawColorfulTriangles(buffer);
+    }
+
+    void main(bool& isRunning)
+    {
+        if (!GlobalIsRunning)
+        {
+            isRunning = false;
+        }
     }
 }
