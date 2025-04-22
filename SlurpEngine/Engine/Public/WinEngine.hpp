@@ -64,3 +64,5 @@ static const std::map<XInputCode, slurp::GamepadCode> GamepadWinCodeToSlurpCode 
     {XINPUT_GAMEPAD_X, slurp::GamepadCode::X},
     {XINPUT_GAMEPAD_Y, slurp::GamepadCode::Y},
 };
+
+void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed);

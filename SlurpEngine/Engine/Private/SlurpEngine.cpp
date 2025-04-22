@@ -101,18 +101,18 @@ namespace slurp
             graphicsDX += scrollSpeed;
         }
 
-        // DigitalInputState inputState;
-        // if (state.getState(KeyboardCode::SPACE, inputState))
-        // {
-        //     if (inputState.isDown)
-        //     {
-        //         scrollSpeed = 5;
-        //     }
-        //     else if (!inputState.isDown)
-        //     {
-        //         scrollSpeed = 1;
-        //     }
-        // }
+        DigitalInputState inputState;
+        if (state.getState(KeyboardCode::SPACE, inputState))
+        {
+            if (inputState.isDown)
+            {
+                scrollSpeed = 5;
+            }
+            else if (!inputState.isDown)
+            {
+                scrollSpeed = 1;
+            }
+        }
 
         if (state.isDown(KeyboardCode::ESC))
         {
@@ -149,16 +149,10 @@ namespace slurp
             graphicsDX += leftStickMax.x * scrollSpeed;
             graphicsDY -= leftStickMax.y * scrollSpeed;
 
-            // float leftTriggerMax = gamepadState.leftTrigger.max;
-            // float rightTriggerMax = gamepadState.rightTrigger.max;
-            // uint16_t leftMotorSpeed = (uint32_t)(leftTriggerMax * 65535) / 255;
-            // uint16_t rightMotorSpeed = (uint32_t)(rightTriggerMax * 65535) / 255;
-            // XINPUT_VIBRATION vibration{
-            //     leftMotorSpeed,
-            //     rightMotorSpeed
-            // };
-            // XInputSetState(controllerIdx, &vibration);
-            // TODO: set vibration
+            float leftTriggerMax = gamepadState.leftTrigger.max;
+            float rightTriggerMax = gamepadState.rightTrigger.max;
+            std::cout << leftTriggerMax << std::endl;
+            platformVibrateController(controllerIdx, leftTriggerMax, rightTriggerMax);
 
             XYCoord leftStickEnd = gamepadState.leftStick.endXY;
             GlobalFrequencyHz = baseFrequencyHz + leftStickEnd.x * deltaFrequencyHz;

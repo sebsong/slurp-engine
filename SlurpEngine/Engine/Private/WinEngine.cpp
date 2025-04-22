@@ -194,6 +194,7 @@ static void winLoadXInput()
 #define XINPUT_STICK_MAG_POS 32767
 #define XINPUT_STICK_MAG_NEG 32768
 #define XINPUT_TRIGGER_MAG 255
+#define XINPUT_VIBRATION_MAG 65535 //TODO: double check this value
 
 static float winGetNormalizedStickValue(int16_t stickValue)
 {
@@ -209,7 +210,7 @@ static float winGetNormalizedTriggerValue(uint8_t triggerValue)
     return static_cast<float>(triggerValue) / XINPUT_TRIGGER_MAG;
 }
 
-static void winHandleGamepadInput(slurp::GamepadState *controllerStates)
+static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
 {
     for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++)
     {
@@ -219,14 +220,14 @@ static void winHandleGamepadInput(slurp::GamepadState *controllerStates)
         {
             slurp::GamepadState* gamepadState = &controllerStates[controllerIdx];
             gamepadState->isConnected = true;
-            
+
             XINPUT_GAMEPAD gamepad = xInputState.Gamepad;
-            
+
             for (std::pair<uint8_t, slurp::GamepadCode> entry : GamepadWinCodeToSlurpCode)
             {
                 XInputCode xInputCode = entry.first;
                 bool isDown = gamepad.wButtons & xInputCode;
-                
+
                 slurp::GamepadCode gamepadCode = entry.second;
                 slurp::DigitalInputState* inputState = &gamepadState->state[gamepadCode];
                 inputState->transitionCount = inputState->isDown != isDown ? 1 : 0;
@@ -241,7 +242,7 @@ static void winHandleGamepadInput(slurp::GamepadState *controllerStates)
             leftStickState.endXY.y = leftStickYNormalized;
             leftStickState.minXY = leftStickState.endXY;
             leftStickState.maxXY = leftStickState.endXY;
-            
+
             float rightStickXNormalized = winGetNormalizedStickValue(gamepad.sThumbRX);
             float rightStickYNormalized = winGetNormalizedStickValue(gamepad.sThumbRY);
             slurp::AnalogStickInputState& rightStickState = gamepadState->rightStick;
@@ -250,29 +251,20 @@ static void winHandleGamepadInput(slurp::GamepadState *controllerStates)
             rightStickState.endXY.y = rightStickYNormalized;
             rightStickState.minXY = rightStickState.endXY;
             rightStickState.maxXY = rightStickState.endXY;
-            
+
             float leftTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bLeftTrigger);
             slurp::AnalogTriggerInputState& leftTriggerState = gamepadState->leftTrigger;
             leftTriggerState.start = leftTriggerState.end;
             leftTriggerState.end = leftTriggerNormalized;
             leftTriggerState.min = leftTriggerState.end;
             leftTriggerState.max = leftTriggerState.end;
-            
+
             float rightTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bRightTrigger);
             slurp::AnalogTriggerInputState& rightTriggerState = gamepadState->rightTrigger;
             rightTriggerState.start = rightTriggerState.end;
             rightTriggerState.end = rightTriggerNormalized;
             rightTriggerState.min = rightTriggerState.end;
             rightTriggerState.max = rightTriggerState.end;
-
-            //TODO: move to platform independent layer
-            // uint16_t leftMotorSpeed = (uint32_t)(leftTrigger * 65535) / 255;
-            // uint16_t rightMotorSpeed = (uint32_t)(rightTrigger * 65535) / 255;
-            // XINPUT_VIBRATION vibration{
-            //     leftMotorSpeed,
-            //     rightMotorSpeed
-            // };
-            // XInputSetState(controllerIdx, &vibration);
         }
         else
         {
@@ -281,6 +273,17 @@ static void winHandleGamepadInput(slurp::GamepadState *controllerStates)
         }
     }
 };
+
+void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
+{
+    uint16_t leftMotorSpeedRaw = leftMotorSpeed * XINPUT_VIBRATION_MAG;
+    uint16_t rightMotorSpeedRaw = rightMotorSpeed * XINPUT_VIBRATION_MAG;
+    XINPUT_VIBRATION vibration{
+        leftMotorSpeedRaw,
+        rightMotorSpeedRaw,
+    };
+    XInputSetState(controllerIdx, &vibration);
+}
 
 #define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter)
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
@@ -499,7 +502,7 @@ int WINAPI WinMain(
     QueryPerformanceFrequency(&performanceCounterFrequency);
     LARGE_INTEGER performanceCounter;
     QueryPerformanceCounter(&performanceCounter);
-    
+
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
     HDC deviceContext = GetDC(windowHandle);
