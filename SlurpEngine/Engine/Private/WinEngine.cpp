@@ -116,24 +116,17 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     case WM_KEYUP:
         {
             WPARAM virtualKeyCode = wParam;
-            bool32 wasDown = (1 << 30) & lParam;
-            bool32 isDown = (1 << 31) & lParam;
+            bool wasDown = (1 << 30) & lParam;
+            bool isDown = ((1 << 31) & lParam) == 0;
 
-            bool32 alt = (1 << 29) & lParam;
+            // bool32 alt = (1 << 29) & lParam;
 
             if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
             {
-                slurp::KeyboardInputCode code;
-                if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
-                {
-                    code = winCodeToSlurpCode.at(virtualKeyCode);
-                } else if (alt)
-                {
-                    code = slurp::ALT;
-                }
+                slurp::KeyboardInputCode code = winCodeToSlurpCode.at(virtualKeyCode);
                 // TODO: change transition count computation once we poll multiple times per frame
-                slurp::DigitalInputState *inputState = &GlobalCurrentKeyboardState.state[code];
-                inputState->transitionCount += wasDown != isDown;
+                slurp::DigitalInputState* inputState = &GlobalCurrentKeyboardState.state[code];
+                inputState->transitionCount = wasDown != isDown ? 1 : 0; // TODO: do we need to clear this every frame?
                 inputState->isDown = isDown;
             }
         }
@@ -487,10 +480,9 @@ int WINAPI WinMain(
     while (GlobalRunning)
     {
         slurp::main(GlobalRunning);
-        
+
         winDrainMessages();
         slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
-        GlobalCurrentKeyboardState = {};
         winHandleGamepadInput();
 
         slurp::GraphicsBuffer graphicsBuffer = {};

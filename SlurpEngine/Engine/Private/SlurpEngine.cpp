@@ -11,12 +11,12 @@ static constexpr int GlobalVolume = 0.1 * 32000;
 namespace slurp
 {
     static bool GlobalIsRunning = true;
-    
-    static float dX = 0;
-    static float dY = 0;
-    static float ddX = 0;
-    static float ddY = 0;
-    static float scrollSpeed = 255;
+
+    static float graphicsDX = 0;
+    static float graphicsDY = 0;
+    static float lowScrollSpeed = 1;
+    static float highScrollSpeed = 5;
+    static float scrollSpeed = lowScrollSpeed;
 
     static float frequencyHz;
 
@@ -56,18 +56,15 @@ namespace slurp
 
     static void drawColorfulTriangles(const GraphicsBuffer buffer)
     {
-        dX += scrollSpeed * ddX / 5000;
-        dY += scrollSpeed * ddY / 5000;
-        
         byte* bitmapBytes = static_cast<byte*>(buffer.memory);
         for (int y = 0; y < buffer.heightPixels; y++)
         {
             uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
             for (int x = 0; x < buffer.widthPixels; x++)
             {
-                uint8_t r = y + dY;
-                uint8_t g = (x + dX) - (y + dY);
-                uint8_t b = x + dX;
+                uint8_t r = y + graphicsDY;
+                uint8_t g = (x + graphicsDX) - (y + graphicsDY);
+                uint8_t b = x + graphicsDX;
 
                 uint32_t pixel = (r << 16) | (g << 8) | b;
                 *rowPixels++ = pixel;
@@ -84,70 +81,41 @@ namespace slurp
             GlobalIsRunning = false;
         }
 
+        if (state.isDown(KeyboardInputCode::W))
+        {
+            graphicsDY -= scrollSpeed;
+        }
+        if (state.isDown(KeyboardInputCode::A))
+        {
+           graphicsDX -= scrollSpeed;
+        }
+        if (state.isDown(KeyboardInputCode::S))
+        {
+            graphicsDY += scrollSpeed;
+        }
+        if (state.isDown(KeyboardInputCode::D))
+        {
+            graphicsDX += scrollSpeed;
+        }
+
         DigitalInputState inputState;
-        if (state.getState(KeyboardInputCode::W, inputState))
-        {
-            if (inputState.isDown)
-            {
-                ddY -= 1;
-            } else
-            {
-                ddY += 1;
-            }
-        }
-        if (state.getState(KeyboardInputCode::A, inputState))
-        {
-            if (inputState.isDown)
-                {
-                    ddX -= 1;
-                }
-                else
-                {
-                    ddX += 1;
-                }
-        }
-        
-        if (state.getState(KeyboardInputCode::S, inputState))
-        {
-            if (inputState.isDown)
-            {
-                ddY += 1;
-            } else
-            {
-                ddY -= 1;
-            }
-        }
-        
-        if (state.getState(KeyboardInputCode::D, inputState))
-        {
-            if (inputState.isDown)
-                {
-                    ddX += 1;
-                }
-                else
-                {
-                    ddX -= 1;
-                }
-        }
-        
         if (state.getState(KeyboardInputCode::SPACE, inputState))
         {
             if (inputState.isDown)
-                {
-                    scrollSpeed *= 5;
-                }
-                else
-                {
-                    scrollSpeed /= 5;
-                }
-        }
-        
-        if (state.getState(KeyboardInputCode::ESC, inputState))
-        {
-            if (inputState.isDown)
             {
-                GlobalIsRunning = false;
+                scrollSpeed = 5;
             }
+            else if (!inputState.isDown)
+            {
+                scrollSpeed = 1;
+            }
+        }
+
+        std::cout << "DX: " << graphicsDX << std::endl;
+
+        if (state.isDown(KeyboardInputCode::ESC))
+        {
+            GlobalIsRunning = false;
         }
     }
 

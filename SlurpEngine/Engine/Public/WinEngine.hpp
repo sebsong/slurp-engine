@@ -4,7 +4,7 @@
 #include <dsound.h>
 #include <map>
 
-typedef int32_t bool32;
+typedef uint32_t bool32;
 
 struct WinGraphicsBuffer
 {
@@ -41,5 +41,6 @@ static std::map<WPARAM, slurp::KeyboardInputCode> winCodeToSlurpCode =
     {'D', slurp::D},
     {VK_SPACE, slurp::SPACE},
     {VK_ESCAPE, slurp::ESC},
+    {VK_MENU, slurp::ALT},
     {VK_F4, slurp::F4},
 };
