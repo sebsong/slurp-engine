@@ -79,17 +79,14 @@ namespace slurp
 
     void handleKeyboardInput(KeyboardInputState state)
     {
-        // if (alt&& isDown && virtualKeyCode
-        // ==
-        // VK_F4
-        // )
-        // {
-        //     GlobalRunning = false;
-        // }
+        if (state.isDown(KeyboardInputCode::ALT) && state.isDown(KeyboardInputCode::F4))
+        {
+            GlobalIsRunning = false;
+        }
 
-        if (state.hasInput(KeyboardInputCode::W))
+        DigitalInputState inputState;
+        if (state.getState(KeyboardInputCode::W, inputState))
         {
-            DigitalInputState inputState = state.getInputState(KeyboardInputCode::W);
             if (inputState.isDown)
             {
                 ddY -= 1;
@@ -98,10 +95,20 @@ namespace slurp
                 ddY += 1;
             }
         }
-        
-        if (state.hasInput(KeyboardInputCode::S))
+        if (state.getState(KeyboardInputCode::A, inputState))
         {
-            DigitalInputState inputState = state.getInputState(KeyboardInputCode::S);
+            if (inputState.isDown)
+                {
+                    ddX -= 1;
+                }
+                else
+                {
+                    ddX += 1;
+                }
+        }
+        
+        if (state.getState(KeyboardInputCode::S, inputState))
+        {
             if (inputState.isDown)
             {
                 ddY += 1;
@@ -111,87 +118,37 @@ namespace slurp
             }
         }
         
-        if (state.hasInput(KeyboardInputCode::ESC))
+        if (state.getState(KeyboardInputCode::D, inputState))
         {
-            DigitalInputState inputState = state.getInputState(KeyboardInputCode::ESC);
+            if (inputState.isDown)
+                {
+                    ddX += 1;
+                }
+                else
+                {
+                    ddX -= 1;
+                }
+        }
+        
+        if (state.getState(KeyboardInputCode::SPACE, inputState))
+        {
+            if (inputState.isDown)
+                {
+                    scrollSpeed *= 5;
+                }
+                else
+                {
+                    scrollSpeed /= 5;
+                }
+        }
+        
+        if (state.getState(KeyboardInputCode::ESC, inputState))
+        {
             if (inputState.isDown)
             {
                 GlobalIsRunning = false;
             }
         }
-
-        // switch (code)
-        // {
-        // case W:
-        //     {
-        //         if (isDown)
-        //         {
-        //             ddY -= 1;
-        //         }
-        //         else
-        //         {
-        //             ddY += 1;
-        //         }
-        //     }
-        //     break;
-        // case A:
-        //     {
-        //         if (isDown)
-        //         {
-        //             ddX -= 1;
-        //         }
-        //         else
-        //         {
-        //             ddX += 1;
-        //         }
-        //     }
-        //     break;
-        // case S:
-        //     {
-        //         if (isDown)
-        //         {
-        //             ddY += 1;
-        //         }
-        //         else
-        //         {
-        //             ddY -= 1;
-        //         }
-        //     }
-        //     break;
-        // case D:
-        //     {
-        //         if (isDown)
-        //         {
-        //             ddX += 1;
-        //         }
-        //         else
-        //         {
-        //             ddX -= 1;
-        //         }
-        //     }
-        //     break;
-        // case ESC:
-        //     {
-        //         GlobalIsRunning = false;
-        //     }
-        //     break;
-        // case SPACE:
-        //     {
-        //         if (isDown)
-        //         {
-        //             scrollSpeed *= 5;
-        //         }
-        //         else
-        //         {
-        //             scrollSpeed /= 5;
-        //         }
-        //     }
-        //     break;
-        // default:
-        //     {
-        //     }
-        //     break;
-        // }
     }
 
     void handleGamepadInput(KeyboardInputCode code)

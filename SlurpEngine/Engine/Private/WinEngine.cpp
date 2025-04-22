@@ -120,14 +120,17 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
             bool32 isDown = (1 << 31) & lParam;
 
             bool32 alt = (1 << 29) & lParam;
-            if (wasDown == isDown)
-            {
-                break;
-            }
 
             if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
             {
-                slurp::KeyboardInputCode code = winCodeToSlurpCode.at(virtualKeyCode);
+                slurp::KeyboardInputCode code;
+                if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
+                {
+                    code = winCodeToSlurpCode.at(virtualKeyCode);
+                } else if (alt)
+                {
+                    code = slurp::ALT;
+                }
                 // TODO: change transition count computation once we poll multiple times per frame
                 slurp::DigitalInputState *inputState = &GlobalCurrentKeyboardState.state[code];
                 inputState->transitionCount += wasDown != isDown;

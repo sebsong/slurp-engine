@@ -29,6 +29,8 @@ namespace slurp
         D,
         ESC,
         SPACE,
+        ALT,
+        F4,
     };
 
     struct DigitalInputState
@@ -48,13 +50,25 @@ namespace slurp
     struct KeyboardInputState
     {
         std::map<KeyboardInputCode, DigitalInputState> state;
-        bool hasInput(KeyboardInputCode code) const
+        
+        bool getState(KeyboardInputCode code, DigitalInputState& outState) const
         {
-            return state.count(code) > 0;
+            if (state.count(code) > 0)
+            {
+                outState = state.at(code);
+                return true;
+            }
+            return false;
         }
-        DigitalInputState getInputState(KeyboardInputCode code) const
+        
+        bool isDown(KeyboardInputCode code) const
         {
-            return state.at(code);
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return inputState.isDown;
+            }
+            return false;
         }
     };
 

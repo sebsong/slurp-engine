@@ -41,4 +41,5 @@ static std::map<WPARAM, slurp::KeyboardInputCode> winCodeToSlurpCode =
     {'D', slurp::D},
     {VK_SPACE, slurp::SPACE},
     {VK_ESCAPE, slurp::ESC},
+    {VK_F4, slurp::F4},
 };
