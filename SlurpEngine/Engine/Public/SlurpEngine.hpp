@@ -1,7 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <map>
-#include <vector>
+
+#define MAX_NUM_CONTROLLERS 4
 
 namespace slurp
 {
@@ -10,7 +11,6 @@ namespace slurp
         int32_t* samples; // 16-bit Stereo L + R samples
         int samplesPerSec;
         int samplesToWrite;
-        float frequencyHz; // TODO: don't pass this in once input control is extracted
     };
 
     struct GraphicsBuffer
@@ -20,8 +20,35 @@ namespace slurp
         int heightPixels;
         int pitchBytes;
     };
-    
-    enum KeyboardInputCode: uint8_t
+
+    struct DigitalInputState
+    {
+        int transitionCount;
+        bool isDown;
+    };
+
+    struct XYCoord
+    {
+        float x;
+        float y;
+    };
+    struct AnalogStickInputState
+    {
+        XYCoord startXY = {0, 0};
+        XYCoord endXY = {0, 0};
+        XYCoord minXY = {0, 0};
+        XYCoord maxXY = {0, 0};
+    };
+
+    struct AnalogTriggerInputState
+    {
+        float start;
+        float end;
+        float min;
+        float max;
+    };
+
+    enum class KeyboardCode: uint8_t
     {
         W,
         A,
@@ -33,25 +60,59 @@ namespace slurp
         F4,
     };
 
-    struct DigitalInputState
+    struct KeyboardState
     {
-        int transitionCount;
-        bool isDown;
-    };
-    
-    struct AnalogInputState
-    {
-        std::vector<float> startXY[2];
-        std::vector<float> endXY[2];
-        std::vector<float> minXY[2];
-        std::vector<float> maxXY[2];
+        std::map<KeyboardCode, DigitalInputState> state;
+
+        bool getState(KeyboardCode code, DigitalInputState& outInputState) const
+        {
+            if (state.count(code) > 0)
+            {
+                outInputState = state.at(code);
+                return true;
+            }
+            return false;
+        }
+
+        bool isDown(KeyboardCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return inputState.isDown;
+            }
+            return false;
+        }
     };
 
-    struct KeyboardInputState
+    enum class GamepadCode: uint8_t
     {
-        std::map<KeyboardInputCode, DigitalInputState> state;
-        
-        bool getState(KeyboardInputCode code, DigitalInputState& outState) const
+        DPAD_UP,
+        DPAD_DOWN,
+        DPAD_LEFT,
+        DPAD_RIGHT,
+        START,
+        BACK,
+        LEFT_THUMB,
+        RIGHT_THUMB,
+        LEFT_SHOULDER,
+        RIGHT_SHOULDER,
+        A,
+        B,
+        X,
+        Y,
+    };
+
+    struct GamepadState
+    {
+        bool isConnected = false;
+        AnalogStickInputState leftStick;
+        AnalogStickInputState rightStick;
+        AnalogTriggerInputState leftTrigger;
+        AnalogTriggerInputState rightTrigger;
+        std::map<GamepadCode, DigitalInputState> state;
+
+        bool getState(GamepadCode code, DigitalInputState& outState) const
         {
             if (state.count(code) > 0)
             {
@@ -60,8 +121,8 @@ namespace slurp
             }
             return false;
         }
-        
-        bool isDown(KeyboardInputCode code) const
+
+        bool isDown(GamepadCode code) const
         {
             DigitalInputState inputState;
             if (getState(code, inputState))
@@ -75,6 +136,6 @@ namespace slurp
     void loadAudio(int32_t* audioSampleBuffer);
 
     void renderGraphics(GraphicsBuffer buffer);
-    
+
     void main(bool& isRunning);
 }

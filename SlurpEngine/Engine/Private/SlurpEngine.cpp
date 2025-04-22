@@ -14,16 +14,19 @@ namespace slurp
 
     static float graphicsDX = 0;
     static float graphicsDY = 0;
-    static float lowScrollSpeed = 1;
-    static float highScrollSpeed = 5;
+    
+    static const float lowScrollSpeed = 1;
+    static const float highScrollSpeed = 5;
     static float scrollSpeed = lowScrollSpeed;
 
-    static float frequencyHz;
+    static const float baseFrequencyHz = 360;
+    static const float deltaFrequencyHz = 220;
+    static float GlobalFrequencyHz = baseFrequencyHz;
 
     static void loadSineWave(AudioBuffer buffer)
     {
         static float tSine = 0;
-        float sineWavePeriod = buffer.samplesPerSec / buffer.frequencyHz;
+        float sineWavePeriod = buffer.samplesPerSec / GlobalFrequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
@@ -40,7 +43,7 @@ namespace slurp
     static void loadSquareWave(AudioBuffer buffer)
     {
         static float tSquare = 0;
-        float squareWavePeriod = buffer.samplesPerSec / buffer.frequencyHz;
+        float squareWavePeriod = buffer.samplesPerSec / GlobalFrequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
@@ -74,53 +77,92 @@ namespace slurp
         }
     }
 
-    void handleKeyboardInput(KeyboardInputState state)
+    void handleKeyboardInput(KeyboardState state)
     {
-        if (state.isDown(KeyboardInputCode::ALT) && state.isDown(KeyboardInputCode::F4))
+        if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
         {
             GlobalIsRunning = false;
         }
 
-        if (state.isDown(KeyboardInputCode::W))
+        if (state.isDown(KeyboardCode::W))
         {
             graphicsDY -= scrollSpeed;
         }
-        if (state.isDown(KeyboardInputCode::A))
+        if (state.isDown(KeyboardCode::A))
         {
-           graphicsDX -= scrollSpeed;
+            graphicsDX -= scrollSpeed;
         }
-        if (state.isDown(KeyboardInputCode::S))
+        if (state.isDown(KeyboardCode::S))
         {
             graphicsDY += scrollSpeed;
         }
-        if (state.isDown(KeyboardInputCode::D))
+        if (state.isDown(KeyboardCode::D))
         {
             graphicsDX += scrollSpeed;
         }
 
-        DigitalInputState inputState;
-        if (state.getState(KeyboardInputCode::SPACE, inputState))
-        {
-            if (inputState.isDown)
-            {
-                scrollSpeed = 5;
-            }
-            else if (!inputState.isDown)
-            {
-                scrollSpeed = 1;
-            }
-        }
+        // DigitalInputState inputState;
+        // if (state.getState(KeyboardCode::SPACE, inputState))
+        // {
+        //     if (inputState.isDown)
+        //     {
+        //         scrollSpeed = 5;
+        //     }
+        //     else if (!inputState.isDown)
+        //     {
+        //         scrollSpeed = 1;
+        //     }
+        // }
 
-        std::cout << "DX: " << graphicsDX << std::endl;
-
-        if (state.isDown(KeyboardInputCode::ESC))
+        if (state.isDown(KeyboardCode::ESC))
         {
             GlobalIsRunning = false;
         }
     }
 
-    void handleGamepadInput(KeyboardInputCode code)
+    void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS])
     {
+        for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
+        {
+            GamepadState gamepadState = controllerStates[controllerIdx];
+            if (!gamepadState.isConnected)
+            {
+                continue;
+            }
+
+            if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B))
+            {
+                GlobalIsRunning = false;
+            }
+
+            if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
+            {
+                // TODO: debug shoulders not triggering correctly
+                scrollSpeed = highScrollSpeed;
+            }
+            else
+            {
+                scrollSpeed = lowScrollSpeed;
+            }
+
+            XYCoord leftStickMax = gamepadState.leftStick.maxXY;
+            graphicsDX += leftStickMax.x * scrollSpeed;
+            graphicsDY -= leftStickMax.y * scrollSpeed;
+
+            // float leftTriggerMax = gamepadState.leftTrigger.max;
+            // float rightTriggerMax = gamepadState.rightTrigger.max;
+            // uint16_t leftMotorSpeed = (uint32_t)(leftTriggerMax * 65535) / 255;
+            // uint16_t rightMotorSpeed = (uint32_t)(rightTriggerMax * 65535) / 255;
+            // XINPUT_VIBRATION vibration{
+            //     leftMotorSpeed,
+            //     rightMotorSpeed
+            // };
+            // XInputSetState(controllerIdx, &vibration);
+            // TODO: set vibration
+
+            XYCoord leftStickEnd = gamepadState.leftStick.endXY;
+            GlobalFrequencyHz = baseFrequencyHz + leftStickEnd.x * deltaFrequencyHz;
+        }
     }
 
     void loadAudio(AudioBuffer buffer)

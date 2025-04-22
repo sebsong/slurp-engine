@@ -9,10 +9,7 @@ static bool GlobalRunning;
 
 static WinGraphicsBuffer GlobalBackBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
-static slurp::KeyboardInputState GlobalCurrentKeyboardState;
-
-static float dX = 0;
-static float dY = 0;
+static slurp::KeyboardState GlobalCurrentKeyboardState;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -121,9 +118,9 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
 
             // bool32 alt = (1 << 29) & lParam;
 
-            if (winCodeToSlurpCode.count(virtualKeyCode) > 0)
+            if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
             {
-                slurp::KeyboardInputCode code = winCodeToSlurpCode.at(virtualKeyCode);
+                slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
                 // TODO: change transition count computation once we poll multiple times per frame
                 slurp::DigitalInputState* inputState = &GlobalCurrentKeyboardState.state[code];
                 inputState->transitionCount = wasDown != isDown ? 1 : 0; // TODO: do we need to clear this every frame?
@@ -194,59 +191,88 @@ static void winLoadXInput()
     }
 }
 
-static void winHandleGamepadInput()
+#define XINPUT_STICK_MAG_POS 32767
+#define XINPUT_STICK_MAG_NEG 32768
+#define XINPUT_TRIGGER_MAG 255
+
+static float winGetNormalizedStickValue(int16_t stickValue)
+{
+    if (stickValue > 0)
+    {
+        return static_cast<float>(stickValue) / XINPUT_STICK_MAG_POS;
+    }
+    return static_cast<float>(stickValue) / XINPUT_STICK_MAG_NEG;
+}
+
+static float winGetNormalizedTriggerValue(uint8_t triggerValue)
+{
+    return static_cast<float>(triggerValue) / XINPUT_TRIGGER_MAG;
+}
+
+static void winHandleGamepadInput(slurp::GamepadState *controllerStates)
 {
     for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++)
     {
-        XINPUT_STATE state;
-        DWORD result = XInputGetState(controllerIdx, &state);
+        XINPUT_STATE xInputState;
+        DWORD result = XInputGetState(controllerIdx, &xInputState);
         if (result == ERROR_SUCCESS)
         {
-            XINPUT_GAMEPAD gamepad = state.Gamepad;
-            bool dPadUp = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
-            bool dPadDown = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
-            bool dPadLeft = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
-            bool dPadRight = gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
-            bool start = gamepad.wButtons & XINPUT_GAMEPAD_START;
-            bool back = gamepad.wButtons & XINPUT_GAMEPAD_BACK;
-            bool leftThumb = gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
-            bool rightThumb = gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
-            bool leftShoulder = gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
-            bool rightShoulder = gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
-            bool aButton = gamepad.wButtons & XINPUT_GAMEPAD_A;
-            bool bButton = gamepad.wButtons & XINPUT_GAMEPAD_B;
-            bool xButton = gamepad.wButtons & XINPUT_GAMEPAD_X;
-            bool yButton = gamepad.wButtons & XINPUT_GAMEPAD_Y;
-
-            uint8_t leftTrigger = gamepad.bLeftTrigger;
-            uint8_t rightTrigger = gamepad.bRightTrigger;
-            int16_t leftStickX = gamepad.sThumbLX;
-            int16_t leftStickY = gamepad.sThumbLY;
-            int16_t rightStickX = gamepad.sThumbRX;
-            int16_t rightStickY = gamepad.sThumbRY;
-
-            if (bButton || start)
+            slurp::GamepadState* gamepadState = &controllerStates[controllerIdx];
+            gamepadState->isConnected = true;
+            
+            XINPUT_GAMEPAD gamepad = xInputState.Gamepad;
+            
+            for (std::pair<uint8_t, slurp::GamepadCode> entry : GamepadWinCodeToSlurpCode)
             {
-                GlobalRunning = false;
+                XInputCode xInputCode = entry.first;
+                bool isDown = gamepad.wButtons & xInputCode;
+                
+                slurp::GamepadCode gamepadCode = entry.second;
+                slurp::DigitalInputState* inputState = &gamepadState->state[gamepadCode];
+                inputState->transitionCount = inputState->isDown != isDown ? 1 : 0;
+                inputState->isDown = isDown;
             }
 
-            int scrollSpeed = 1;
-            if (leftShoulder || rightShoulder)
-            {
-                scrollSpeed *= 5;
-            }
-            dX += (float)(leftStickX * scrollSpeed) / 20000;
-            dY -= (float)(leftStickY * scrollSpeed) / 20000;
+            float leftStickXNormalized = winGetNormalizedStickValue(gamepad.sThumbLX);
+            float leftStickYNormalized = winGetNormalizedStickValue(gamepad.sThumbLY);
+            slurp::AnalogStickInputState& leftStickState = gamepadState->leftStick;
+            leftStickState.startXY = leftStickState.endXY;
+            leftStickState.endXY.x = leftStickXNormalized;
+            leftStickState.endXY.y = leftStickYNormalized;
+            leftStickState.minXY = leftStickState.endXY;
+            leftStickState.maxXY = leftStickState.endXY;
+            
+            float rightStickXNormalized = winGetNormalizedStickValue(gamepad.sThumbRX);
+            float rightStickYNormalized = winGetNormalizedStickValue(gamepad.sThumbRY);
+            slurp::AnalogStickInputState& rightStickState = gamepadState->rightStick;
+            rightStickState.startXY = rightStickState.endXY;
+            rightStickState.endXY.x = rightStickXNormalized;
+            rightStickState.endXY.y = rightStickYNormalized;
+            rightStickState.minXY = rightStickState.endXY;
+            rightStickState.maxXY = rightStickState.endXY;
+            
+            float leftTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bLeftTrigger);
+            slurp::AnalogTriggerInputState& leftTriggerState = gamepadState->leftTrigger;
+            leftTriggerState.start = leftTriggerState.end;
+            leftTriggerState.end = leftTriggerNormalized;
+            leftTriggerState.min = leftTriggerState.end;
+            leftTriggerState.max = leftTriggerState.end;
+            
+            float rightTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bRightTrigger);
+            slurp::AnalogTriggerInputState& rightTriggerState = gamepadState->rightTrigger;
+            rightTriggerState.start = rightTriggerState.end;
+            rightTriggerState.end = rightTriggerNormalized;
+            rightTriggerState.min = rightTriggerState.end;
+            rightTriggerState.max = rightTriggerState.end;
 
-            uint16_t leftMotorSpeed = (uint32_t)(leftTrigger * 65535) / 255;
-            uint16_t rightMotorSpeed = (uint32_t)(rightTrigger * 65535) / 255;
-            XINPUT_VIBRATION vibration{
-                leftMotorSpeed,
-                rightMotorSpeed
-            };
-            XInputSetState(controllerIdx, &vibration);
-
-            GlobalAudioBuffer.frequencyHz = 360 + (leftStickX / 65535.f) * 220;
+            //TODO: move to platform independent layer
+            // uint16_t leftMotorSpeed = (uint32_t)(leftTrigger * 65535) / 255;
+            // uint16_t rightMotorSpeed = (uint32_t)(rightTrigger * 65535) / 255;
+            // XINPUT_VIBRATION vibration{
+            //     leftMotorSpeed,
+            //     rightMotorSpeed
+            // };
+            // XInputSetState(controllerIdx, &vibration);
         }
         else
         {
@@ -375,14 +401,12 @@ static void winLoadAudio(bool isInitialLoad)
     region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.samplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
-    region1Buffer.frequencyHz = GlobalAudioBuffer.frequencyHz;
     slurp::loadAudio(region1Buffer);
 
     slurp::AudioBuffer region2Buffer = {};
     region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
-    region2Buffer.frequencyHz = GlobalAudioBuffer.frequencyHz;
     slurp::loadAudio(region2Buffer);
 
     writeCursor = (writeCursor + numBytesToWrite) % GlobalAudioBuffer.bufferSizeBytes;
@@ -475,6 +499,8 @@ int WINAPI WinMain(
     QueryPerformanceFrequency(&performanceCounterFrequency);
     LARGE_INTEGER performanceCounter;
     QueryPerformanceCounter(&performanceCounter);
+    
+    slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
@@ -483,7 +509,8 @@ int WINAPI WinMain(
 
         winDrainMessages();
         slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
-        winHandleGamepadInput();
+        winHandleGamepadInput(controllerStates);
+        slurp::handleGamepadInput(controllerStates);
 
         slurp::GraphicsBuffer graphicsBuffer = {};
         graphicsBuffer.memory = GlobalBackBuffer.memory;
