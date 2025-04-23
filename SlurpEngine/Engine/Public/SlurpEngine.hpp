@@ -133,6 +133,32 @@ namespace slurp
         }
     };
 
+    struct MemoryBlock
+    {
+        uint64_t numBytes;
+        void* memory;
+    };
+
+    struct GameMemory
+    {
+        MemoryBlock permanentMemory;
+        MemoryBlock transientMemory;
+    };
+
+    struct GameState
+    {
+        float graphicsDX;
+        float graphicsDY;
+        float scrollSpeed;
+        float frequencyHz;
+    };
+
+    void init(GameMemory* gameMemory);
+    
+    void handleKeyboardInput(KeyboardState state);
+    
+    void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
+
     void loadAudio(int32_t* audioSampleBuffer);
 
     void renderGraphics(GraphicsBuffer buffer);

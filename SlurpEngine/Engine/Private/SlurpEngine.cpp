@@ -10,16 +10,17 @@ static constexpr int GlobalVolume = 0.1 * 32000;
 
 namespace slurp
 {
+    static GameState* GlobalGameState;
     static float graphicsDX = 0;
     static float graphicsDY = 0;
     
-    static const float lowScrollSpeed = 1;
-    static const float highScrollSpeed = 5;
-    static float scrollSpeed = lowScrollSpeed;
+    static constexpr float LowScrollSpeed = 1;
+    static constexpr float HighScrollSpeed = 5;
+    static constexpr float BaseFrequencyHz = 360;
+    static constexpr float DeltaFrequencyHz = 220;
 
-    static const float baseFrequencyHz = 360;
-    static const float deltaFrequencyHz = 220;
-    static float GlobalFrequencyHz = baseFrequencyHz;
+    static float scrollSpeed = LowScrollSpeed;
+    static float GlobalFrequencyHz = BaseFrequencyHz;
 
     static void loadSineWave(AudioBuffer buffer)
     {
@@ -73,6 +74,13 @@ namespace slurp
 
             bitmapBytes += buffer.pitchBytes;
         }
+    }
+
+    void init(GameMemory* gameMemory)
+    {
+        GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
+        GlobalGameState->scrollSpeed = LowScrollSpeed;
+        GlobalGameState->frequencyHz = BaseFrequencyHz;
     }
 
     void handleKeyboardInput(KeyboardState state)
@@ -135,11 +143,11 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
             {
-                scrollSpeed = highScrollSpeed;
+                scrollSpeed = HighScrollSpeed;
             }
             else
             {
-                scrollSpeed = lowScrollSpeed;
+                scrollSpeed = LowScrollSpeed;
             }
 
             XYCoord leftStickMax = gamepadState.leftStick.maxXY;
@@ -151,7 +159,7 @@ namespace slurp
             platformVibrateController(controllerIdx, leftTriggerMax, rightTriggerMax);
 
             XYCoord leftStickEnd = gamepadState.leftStick.endXY;
-            GlobalFrequencyHz = baseFrequencyHz + leftStickEnd.x * deltaFrequencyHz;
+            GlobalFrequencyHz = BaseFrequencyHz + leftStickEnd.x * DeltaFrequencyHz;
         }
     }
 

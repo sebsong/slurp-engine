@@ -3,6 +3,10 @@
 
 #include <Xinput.h>
 
+#define kilobytes(n) ((int64_t)n * 1024)
+#define megabytes(n) (kilobytes(n) * 1024)
+#define gigabytes(n) (megabytes(n) * 1024)
+
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool GlobalRunning;
@@ -317,7 +321,7 @@ static void winInitDirectSound(HWND windowHandle)
             {
                 if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat)))
                 {
-                    OutputDebugStringA("PRIMARY CREATED");
+                    OutputDebugStringA("Primary audio buffer created.\n");
                 }
                 else
                 {
@@ -334,7 +338,7 @@ static void winInitDirectSound(HWND windowHandle)
             if (SUCCEEDED(
                 directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr)))
             {
-                OutputDebugStringA("SECONDARY CREATED");
+                OutputDebugStringA("Secondary audio buffer created.\n");
             }
             else
             {
@@ -493,6 +497,23 @@ int WINAPI WinMain(
         return 1;
     }
 
+    slurp::GameMemory gameMemory = {};
+    gameMemory.permanentMemory.numBytes = megabytes(64);
+    gameMemory.permanentMemory.memory = VirtualAlloc(
+        nullptr,
+        gameMemory.permanentMemory.numBytes,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
+    );
+    gameMemory.transientMemory.numBytes = gigabytes(4);
+    gameMemory.transientMemory.memory = VirtualAlloc(
+        nullptr,
+        gameMemory.transientMemory.numBytes,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
+    );
+    slurp::init(&gameMemory);
+
     winInitDirectSound(windowHandle);
     bool isPlayingAudio = false;
 
@@ -544,4 +565,3 @@ void platformShutdown()
 {
     GlobalRunning = false;
 }
-
