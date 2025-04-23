@@ -137,7 +137,6 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
             {
-                // TODO: debug shoulders not triggering correctly
                 scrollSpeed = highScrollSpeed;
             }
             else

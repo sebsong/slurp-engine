@@ -194,7 +194,7 @@ static void winLoadXInput()
 #define XINPUT_STICK_MAG_POS 32767
 #define XINPUT_STICK_MAG_NEG 32768
 #define XINPUT_TRIGGER_MAG 255
-#define XINPUT_VIBRATION_MAG 65535 //TODO: double check this value
+#define XINPUT_VIBRATION_MAG 65535
 
 static float winGetNormalizedStickValue(int16_t stickValue)
 {
