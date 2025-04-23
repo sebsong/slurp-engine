@@ -151,7 +151,6 @@ namespace slurp
 
             float leftTriggerMax = gamepadState.leftTrigger.max;
             float rightTriggerMax = gamepadState.rightTrigger.max;
-            std::cout << leftTriggerMax << std::endl;
             platformVibrateController(controllerIdx, leftTriggerMax, rightTriggerMax);
 
             XYCoord leftStickEnd = gamepadState.leftStick.endXY;

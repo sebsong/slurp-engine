@@ -46,7 +46,7 @@ static const std::map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeToSlurpCode
     {VK_F4, slurp::KeyboardCode::F4},
 };
 
-typedef uint8_t XInputCode;
+typedef uint64_t XInputCode;
 static const std::map<XInputCode, slurp::GamepadCode> GamepadWinCodeToSlurpCode =
 {
     {XINPUT_GAMEPAD_DPAD_UP, slurp::GamepadCode::DPAD_UP},

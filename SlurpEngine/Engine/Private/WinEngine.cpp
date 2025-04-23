@@ -222,8 +222,7 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
             gamepadState->isConnected = true;
 
             XINPUT_GAMEPAD gamepad = xInputState.Gamepad;
-
-            for (std::pair<uint8_t, slurp::GamepadCode> entry : GamepadWinCodeToSlurpCode)
+            for (std::pair<XInputCode, slurp::GamepadCode> entry : GamepadWinCodeToSlurpCode)
             {
                 XInputCode xInputCode = entry.first;
                 bool isDown = gamepad.wButtons & xInputCode;
