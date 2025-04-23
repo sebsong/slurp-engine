@@ -10,8 +10,6 @@ static constexpr int GlobalVolume = 0.1 * 32000;
 
 namespace slurp
 {
-    static bool GlobalIsRunning = true;
-
     static float graphicsDX = 0;
     static float graphicsDY = 0;
     
@@ -81,7 +79,7 @@ namespace slurp
     {
         if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
         {
-            GlobalIsRunning = false;
+            platformShutdown();
         }
 
         if (state.isDown(KeyboardCode::W))
@@ -116,7 +114,7 @@ namespace slurp
 
         if (state.isDown(KeyboardCode::ESC))
         {
-            GlobalIsRunning = false;
+            platformShutdown();
         }
     }
 
@@ -132,7 +130,7 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B))
             {
-                GlobalIsRunning = false;
+                platformShutdown();
             }
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
@@ -165,13 +163,5 @@ namespace slurp
     void renderGraphics(const GraphicsBuffer buffer)
     {
         drawColorfulTriangles(buffer);
-    }
-
-    void main(bool& isRunning)
-    {
-        if (!GlobalIsRunning)
-        {
-            isRunning = false;
-        }
     }
 }

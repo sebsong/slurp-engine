@@ -507,8 +507,6 @@ int WINAPI WinMain(
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
     {
-        slurp::main(GlobalRunning);
-
         winDrainMessages();
         slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
         winHandleGamepadInput(controllerStates);
@@ -541,3 +539,9 @@ int WINAPI WinMain(
 
     return 0;
 }
+
+void platformShutdown()
+{
+    GlobalRunning = false;
+}
+

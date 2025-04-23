@@ -66,3 +66,5 @@ static const std::map<XInputCode, slurp::GamepadCode> GamepadWinCodeToSlurpCode 
 };
 
 void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed);
+
+void platformShutdown();
