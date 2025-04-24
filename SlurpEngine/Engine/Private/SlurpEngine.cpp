@@ -11,21 +11,16 @@ static constexpr int GlobalVolume = 0.1 * 32000;
 namespace slurp
 {
     static GameState* GlobalGameState;
-    static float graphicsDX = 0;
-    static float graphicsDY = 0;
     
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
     static constexpr float DeltaFrequencyHz = 220;
 
-    static float scrollSpeed = LowScrollSpeed;
-    static float GlobalFrequencyHz = BaseFrequencyHz;
-
     static void loadSineWave(AudioBuffer buffer)
     {
         static float tSine = 0;
-        float sineWavePeriod = buffer.samplesPerSec / GlobalFrequencyHz;
+        float sineWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
@@ -42,7 +37,7 @@ namespace slurp
     static void loadSquareWave(AudioBuffer buffer)
     {
         static float tSquare = 0;
-        float squareWavePeriod = buffer.samplesPerSec / GlobalFrequencyHz;
+        float squareWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
@@ -64,9 +59,9 @@ namespace slurp
             uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
             for (int x = 0; x < buffer.widthPixels; x++)
             {
-                uint8_t r = y + graphicsDY;
-                uint8_t g = (x + graphicsDX) - (y + graphicsDY);
-                uint8_t b = x + graphicsDX;
+                uint8_t r = y + GlobalGameState->graphicsDY;
+                uint8_t g = (x + GlobalGameState->graphicsDX) - (y + GlobalGameState->graphicsDY);
+                uint8_t b = x + GlobalGameState->graphicsDX;
 
                 uint32_t pixel = (r << 16) | (g << 8) | b;
                 *rowPixels++ = pixel;
@@ -78,6 +73,7 @@ namespace slurp
 
     void init(GameMemory* gameMemory)
     {
+        assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
@@ -92,19 +88,19 @@ namespace slurp
 
         if (state.isDown(KeyboardCode::W))
         {
-            graphicsDY -= scrollSpeed;
+            GlobalGameState->graphicsDY -= GlobalGameState->scrollSpeed;
         }
         if (state.isDown(KeyboardCode::A))
         {
-            graphicsDX -= scrollSpeed;
+            GlobalGameState->graphicsDX -= GlobalGameState->scrollSpeed;
         }
         if (state.isDown(KeyboardCode::S))
         {
-            graphicsDY += scrollSpeed;
+            GlobalGameState->graphicsDY += GlobalGameState->scrollSpeed;
         }
         if (state.isDown(KeyboardCode::D))
         {
-            graphicsDX += scrollSpeed;
+            GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
         }
 
         DigitalInputState inputState;
@@ -112,11 +108,11 @@ namespace slurp
         {
             if (inputState.isDown)
             {
-                scrollSpeed = 5;
+                GlobalGameState->scrollSpeed = 5;
             }
             else if (!inputState.isDown)
             {
-                scrollSpeed = 1;
+                GlobalGameState->scrollSpeed = 1;
             }
         }
 
@@ -143,23 +139,23 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
             {
-                scrollSpeed = HighScrollSpeed;
+                GlobalGameState->scrollSpeed = HighScrollSpeed;
             }
             else
             {
-                scrollSpeed = LowScrollSpeed;
+                GlobalGameState->scrollSpeed = LowScrollSpeed;
             }
 
             XYCoord leftStickMax = gamepadState.leftStick.maxXY;
-            graphicsDX += leftStickMax.x * scrollSpeed;
-            graphicsDY -= leftStickMax.y * scrollSpeed;
+            GlobalGameState->graphicsDX += leftStickMax.x * GlobalGameState->scrollSpeed;
+            GlobalGameState->graphicsDY -= leftStickMax.y * GlobalGameState->scrollSpeed;
 
             float leftTriggerMax = gamepadState.leftTrigger.max;
             float rightTriggerMax = gamepadState.rightTrigger.max;
             platformVibrateController(controllerIdx, leftTriggerMax, rightTriggerMax);
 
             XYCoord leftStickEnd = gamepadState.leftStick.endXY;
-            GlobalFrequencyHz = BaseFrequencyHz + leftStickEnd.x * DeltaFrequencyHz;
+            GlobalGameState->frequencyHz = BaseFrequencyHz + leftStickEnd.x * DeltaFrequencyHz;
         }
     }
 

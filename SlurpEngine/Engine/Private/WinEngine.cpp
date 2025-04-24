@@ -6,6 +6,7 @@
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
 #define gigabytes(n) (megabytes(n) * 1024)
+#define terabytes(n) (gigabytes(n) * 1024)
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
@@ -476,9 +477,9 @@ static void winCaptureAndLogPerformance(
     int fps = 1000 / frameMillis;
     int frameProcessorMCycles = (processorCycleEnd - previousProcessorCycle) / 1000 / 1000;
 
-    // char buf[256];
-    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    // OutputDebugStringA(buf);
+    char buf[256];
+    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    OutputDebugStringA(buf);
 
     previousProcessorCycle = processorCycleEnd;
     previousPerformanceCounter = performanceCounterEnd;
@@ -497,31 +498,36 @@ int WINAPI WinMain(
         return 1;
     }
 
+    uint64_t permanentMemorySizeBytes = megabytes(64);
+    uint64_t transientMemorySizeBytes = gigabytes(4);
     slurp::GameMemory gameMemory = {};
-    gameMemory.permanentMemory.numBytes = megabytes(64);
-    gameMemory.permanentMemory.memory = VirtualAlloc(
-        nullptr,
-        gameMemory.permanentMemory.numBytes,
+    gameMemory.permanentMemory.sizeBytes = permanentMemorySizeBytes;
+    gameMemory.transientMemory.sizeBytes = transientMemorySizeBytes;
+#if DEBUG
+    void* baseAddress = (void*)terabytes(2); // 
+#else
+    void* baseAddress = nullptr;
+#endif
+    void* memory = VirtualAlloc(
+        baseAddress,
+        permanentMemorySizeBytes + transientMemorySizeBytes,
         MEM_RESERVE | MEM_COMMIT,
         PAGE_READWRITE
     );
-    gameMemory.transientMemory.numBytes = gigabytes(4);
-    gameMemory.transientMemory.memory = VirtualAlloc(
-        nullptr,
-        gameMemory.transientMemory.numBytes,
-        MEM_RESERVE | MEM_COMMIT,
-        PAGE_READWRITE
-    );
+    gameMemory.permanentMemory.memory = memory;
+    gameMemory.transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
     slurp::init(&gameMemory);
 
     winInitDirectSound(windowHandle);
     bool isPlayingAudio = false;
 
+#if DEBUG
     uint64_t processorCycle = __rdtsc();
     LARGE_INTEGER performanceCounterFrequency;
     QueryPerformanceFrequency(&performanceCounterFrequency);
     LARGE_INTEGER performanceCounter;
     QueryPerformanceCounter(&performanceCounter);
+#endif
 
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
@@ -551,11 +557,13 @@ int WINAPI WinMain(
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
 
+#if DEBUG
         winCaptureAndLogPerformance(
             processorCycle,
             performanceCounter,
             performanceCounterFrequency
         );
+#endif
     }
 
     return 0;

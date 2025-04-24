@@ -3,6 +3,11 @@
 #include <map>
 
 #define MAX_NUM_CONTROLLERS 4
+#if DEBUG
+#define assert(expression) if (!(expression)) { *(int*)(nullptr) = 0; }
+#else
+#define assert(expression) 
+#endif
 
 namespace slurp
 {
@@ -135,7 +140,7 @@ namespace slurp
 
     struct MemoryBlock
     {
-        uint64_t numBytes;
+        uint64_t sizeBytes;
         void* memory;
     };
 
