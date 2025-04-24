@@ -11,8 +11,9 @@ if "%~1" == "" (
     set debug=%1
 )
 
+set macros=/D PLATFORM_WINDOWS
 if %debug% == 1 (
-    set macros=/D DEBUG
+    set macros=%macros% /D DEBUG
 )
 
 if not exist %slurp_dir%\build mkdir %slurp_dir%\build

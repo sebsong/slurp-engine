@@ -477,9 +477,9 @@ static void winCaptureAndLogPerformance(
     int fps = 1000 / frameMillis;
     int frameProcessorMCycles = (processorCycleEnd - previousProcessorCycle) / 1000 / 1000;
 
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    // char buf[256];
+    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    // OutputDebugStringA(buf);
 
     previousProcessorCycle = processorCycleEnd;
     previousPerformanceCounter = performanceCounterEnd;
@@ -504,7 +504,7 @@ int WINAPI WinMain(
     gameMemory.permanentMemory.sizeBytes = permanentMemorySizeBytes;
     gameMemory.transientMemory.sizeBytes = transientMemorySizeBytes;
 #if DEBUG
-    void* baseAddress = (void*)terabytes(2); // 
+    void* baseAddress = (void*)terabytes(1);
 #else
     void* baseAddress = nullptr;
 #endif
@@ -529,13 +529,12 @@ int WINAPI WinMain(
     QueryPerformanceCounter(&performanceCounter);
 #endif
 
-    slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
-
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
     {
         winDrainMessages();
         slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
+        slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
         winHandleGamepadInput(controllerStates);
         slurp::handleGamepadInput(controllerStates);
 

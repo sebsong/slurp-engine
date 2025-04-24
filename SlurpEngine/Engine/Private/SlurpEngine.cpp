@@ -1,7 +1,9 @@
 ﻿#include <SlurpEngine.hpp>
 #include <iostream>
 
+#if PLATFORM_WINDOWS
 #include "WinEngine.hpp"
+#endif
 
 typedef unsigned char byte;
 
