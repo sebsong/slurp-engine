@@ -20,7 +20,7 @@ if %debug% == 1 (
 
 if not exist %slurp_dir%\build mkdir %slurp_dir%\build
 pushd %slurp_dir%\build
-cl -nologo -FC -FmWinEngine.map -Z7 -EHsc -MT -Oi %includes% %warnings% %macros% %engine_dir%\Private\WinEngine.cpp %linker% %libs%
+cl -nologo -FC -FmWinEngine.map -Z7 -EHsc -MT -Od -Oi %includes% %warnings% %macros% %engine_dir%\Private\WinEngine.cpp %linker% %libs%
 popd
 
 ENDLOCAL
