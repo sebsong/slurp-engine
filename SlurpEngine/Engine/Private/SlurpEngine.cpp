@@ -77,6 +77,9 @@ namespace slurp
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
+
+        //TODO: just a test
+        platformReadFile(__FILE__, gameMemory->transientMemory.memory);
     }
 
     void handleKeyboardInput(KeyboardState state)

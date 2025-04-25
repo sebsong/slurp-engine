@@ -278,17 +278,6 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
     }
 };
 
-void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
-{
-    uint16_t leftMotorSpeedRaw = leftMotorSpeed * XINPUT_VIBRATION_MAG;
-    uint16_t rightMotorSpeedRaw = rightMotorSpeed * XINPUT_VIBRATION_MAG;
-    XINPUT_VIBRATION vibration{
-        leftMotorSpeedRaw,
-        rightMotorSpeedRaw,
-    };
-    XInputSetState(controllerIdx, &vibration);
-}
-
 #define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter)
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
 
@@ -567,6 +556,63 @@ int WINAPI WinMain(
 
     return 0;
 }
+
+void* platformReadFile(const char* fileName, void* outBuffer)
+{
+    HANDLE fileHandle = CreateFileA(
+        fileName,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+
+    if (fileHandle == INVALID_HANDLE_VALUE)
+    {
+        OutputDebugStringA("Invalid file handle.");
+    }
+
+    LARGE_INTEGER fileSize;
+    GetFileSizeEx(
+        fileHandle,
+        &fileSize
+    );
+
+    assert(fileSize.QuadPart < gigabytes(4))
+    DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
+    DWORD bytesRead;
+    bool success = ReadFile(
+        fileHandle,
+        outBuffer,
+        fileSizeTruncated,
+        &bytesRead,
+        nullptr
+    );
+    CloseHandle(fileHandle);
+    
+    if (!success || bytesRead != fileSizeTruncated)
+    {
+        OutputDebugStringA("Could not read file.");
+        //TODO: free mem
+        return nullptr;
+    }
+
+    return outBuffer;
+}
+
+void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
+{
+    uint16_t leftMotorSpeedRaw = leftMotorSpeed * XINPUT_VIBRATION_MAG;
+    uint16_t rightMotorSpeedRaw = rightMotorSpeed * XINPUT_VIBRATION_MAG;
+    XINPUT_VIBRATION vibration{
+        leftMotorSpeedRaw,
+        rightMotorSpeedRaw,
+    };
+    XInputSetState(controllerIdx, &vibration);
+}
+
 
 void platformShutdown()
 {
