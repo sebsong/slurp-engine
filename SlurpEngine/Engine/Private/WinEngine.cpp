@@ -233,6 +233,10 @@ static float winGetNormalizedStickValue(int16_t stickValue, int16_t deadZone)
 
 static float winGetNormalizedTriggerValue(uint8_t triggerValue)
 {
+    if (triggerValue < XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+    {
+        return 0.f;
+    }
     return static_cast<float>(triggerValue) / XINPUT_TRIGGER_MAG;
 }
 
