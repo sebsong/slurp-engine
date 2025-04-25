@@ -546,7 +546,6 @@ bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t 
     if (fileHandle == INVALID_HANDLE_VALUE)
     {
         OutputDebugStringA("Invalid file handle.");
-        assert(false)
         return false;
     }
 
@@ -563,7 +562,6 @@ bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t 
     if (!success || bytesWritten != sizeBytes)
     {
         OutputDebugStringA("Could not write file.");
-        assert(false)
         return false;
     }
     return true;
