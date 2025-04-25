@@ -557,8 +557,9 @@ int WINAPI WinMain(
     return 0;
 }
 
-void* platformReadFile(const char* fileName, void* outBuffer)
+DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
 {
+    DEBUG_FileReadResult result = {};
     HANDLE fileHandle = CreateFileA(
         fileName,
         GENERIC_READ,
@@ -572,6 +573,7 @@ void* platformReadFile(const char* fileName, void* outBuffer)
     if (fileHandle == INVALID_HANDLE_VALUE)
     {
         OutputDebugStringA("Invalid file handle.");
+        return result;
     }
 
     LARGE_INTEGER fileSize;
@@ -582,10 +584,16 @@ void* platformReadFile(const char* fileName, void* outBuffer)
 
     assert(fileSize.QuadPart < gigabytes(4))
     DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
+    void* buffer = VirtualAlloc(
+        nullptr,
+        fileSizeTruncated,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
+    );
     DWORD bytesRead;
     bool success = ReadFile(
         fileHandle,
-        outBuffer,
+        buffer,
         fileSizeTruncated,
         &bytesRead,
         nullptr
@@ -595,11 +603,59 @@ void* platformReadFile(const char* fileName, void* outBuffer)
     if (!success || bytesRead != fileSizeTruncated)
     {
         OutputDebugStringA("Could not read file.");
-        //TODO: free mem
-        return nullptr;
+        DEBUG_platformFreeMemory(buffer);
+        return result;
     }
 
-    return outBuffer;
+    result.fileContents = buffer;
+    result.sizeBytes = fileSizeTruncated;
+    return result;
+}
+
+bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
+{
+    HANDLE fileHandle = CreateFileA(
+        fileName,
+        GENERIC_WRITE,
+        FILE_SHARE_DELETE,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+
+    if (fileHandle == INVALID_HANDLE_VALUE)
+    {
+        OutputDebugStringA("Invalid file handle.");
+        assert(false)
+        return false;
+    }
+
+    DWORD bytesWritten;
+    bool success = WriteFile(
+        fileHandle,
+        fileContents,
+        sizeBytes,
+        &bytesWritten,
+        nullptr
+    );
+    CloseHandle(fileHandle);
+    
+    if (!success || bytesWritten != sizeBytes)
+    {
+        OutputDebugStringA("Could not write file.");
+        assert(false)
+        return false;
+    }
+    return true;
+}
+
+void DEBUG_platformFreeMemory(void* memory)
+{
+    if (memory)
+    {
+        VirtualFree(memory, 0, MEM_RELEASE);
+    }
 }
 
 void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)

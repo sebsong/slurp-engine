@@ -1,6 +1,15 @@
 #pragma once
 
-void* platformReadFile(const char* fileName, void* outBuffer);
+#if DEBUG
+struct DEBUG_FileReadResult
+{
+    void* fileContents;
+    uint32_t sizeBytes;
+};
+DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName);
+bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes);
+void DEBUG_platformFreeMemory(void* memory);
+#endif
 
 void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed);
 
