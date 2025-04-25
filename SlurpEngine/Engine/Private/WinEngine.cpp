@@ -146,6 +146,10 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState)
                 bool isDown = ((1 << 31) & message.lParam) == 0;
 
                 // bool32 alt = (1 << 29) & lParam;
+                if (isDown == wasDown)
+                {
+                    continue;
+                }
 
                 if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
                 {
@@ -479,16 +483,15 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - previousProcessorCycle) / 1000 / 1000);
 
-#if VERBOSE
     char buf[256];
     sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
     OutputDebugStringA(buf);
-#endif
 
     previousProcessorCycle = processorCycleEnd;
     previousPerformanceCounter = performanceCounterEnd;
 }
 
+#if DEBUG
 DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
 {
     DEBUG_FileReadResult result = {};
@@ -587,6 +590,7 @@ void DEBUG_platformFreeMemory(void* memory)
         VirtualFree(memory, 0, MEM_RELEASE);
     }
 }
+#endif
 
 void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
 {
@@ -641,13 +645,11 @@ int WINAPI WinMain(
     winInitDirectSound(windowHandle);
     bool isPlayingAudio = false;
 
-#if DEBUG
     uint64_t processorCycle = __rdtsc();
     LARGE_INTEGER performanceCounterFrequency;
     QueryPerformanceFrequency(&performanceCounterFrequency);
     LARGE_INTEGER performanceCounter;
     QueryPerformanceCounter(&performanceCounter);
-#endif
     
     slurp::KeyboardState keyboardState;
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
@@ -678,13 +680,11 @@ int WINAPI WinMain(
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
 
-#if DEBUG
         winCaptureAndLogPerformance(
             processorCycle,
             performanceCounter,
             performanceCounterFrequency
         );
-#endif
     }
 
     return 0;
