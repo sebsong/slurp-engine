@@ -14,7 +14,6 @@ static bool GlobalRunning;
 
 static WinGraphicsBuffer GlobalBackBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
-static slurp::KeyboardState GlobalCurrentKeyboardState;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -117,20 +116,7 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     case WM_KEYDOWN:
     case WM_KEYUP:
         {
-            WPARAM virtualKeyCode = wParam;
-            bool wasDown = (1 << 30) & lParam;
-            bool isDown = ((1 << 31) & lParam) == 0;
-
-            // bool32 alt = (1 << 29) & lParam;
-
-            if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
-            {
-                slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
-                // TODO: change transition count computation once we poll multiple times per frame
-                slurp::DigitalInputState* inputState = &GlobalCurrentKeyboardState.state[code];
-                inputState->transitionCount = wasDown != isDown ? 1 : 0; // TODO: do we need to clear this every frame?
-                inputState->isDown = isDown;
-            }
+            assert(!"Keyboard event should not be handled in Windows handler.")
         }
         break;
     default:
@@ -143,17 +129,44 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     return result;
 };
 
-static void winDrainMessages()
+static void winHandleMessages(slurp::KeyboardState* keyboardState)
 {
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE))
     {
-        if (message.message == WM_QUIT)
+        switch (message.message)
         {
-            GlobalRunning = false;
+        case WM_SYSKEYDOWN:
+        case WM_SYSKEYUP:
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+            {
+                WPARAM virtualKeyCode = message.wParam;
+                bool wasDown = (1 << 30) & message.lParam;
+                bool isDown = ((1 << 31) & message.lParam) == 0;
+
+                // bool32 alt = (1 << 29) & lParam;
+
+                if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
+                {
+                    slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
+                    // TODO: change transition count computation once we poll multiple times per frame
+                    slurp::DigitalInputState* inputState = &keyboardState->state[code];
+                    inputState->transitionCount = wasDown != isDown ? 1 : 0;
+                    // TODO: do we need to clear this every frame?
+                    inputState->isDown = isDown;
+                }
+            }
+            break;
+        case WM_QUIT:
+            {
+                GlobalRunning = false;
+            }
+            break;
+        default:
+            TranslateMessage(&message);
+            DispatchMessageA(&message);
         }
-        TranslateMessage(&message);
-        DispatchMessageA(&message);
     }
 }
 
@@ -518,7 +531,7 @@ DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
         nullptr
     );
     CloseHandle(fileHandle);
-    
+
     if (!success || bytesRead != fileSizeTruncated)
     {
         OutputDebugStringA("Could not read file.");
@@ -558,7 +571,7 @@ bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t 
         nullptr
     );
     CloseHandle(fileHandle);
-    
+
     if (!success || bytesWritten != sizeBytes)
     {
         OutputDebugStringA("Could not write file.");
@@ -635,13 +648,15 @@ int WINAPI WinMain(
     LARGE_INTEGER performanceCounter;
     QueryPerformanceCounter(&performanceCounter);
 #endif
+    
+    slurp::KeyboardState keyboardState;
+    slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
     HDC deviceContext = GetDC(windowHandle);
     while (GlobalRunning)
     {
-        winDrainMessages();
-        slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
-        slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
+        winHandleMessages(&keyboardState);
+        slurp::handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
         slurp::handleGamepadInput(controllerStates);
 
