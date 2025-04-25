@@ -6,7 +6,7 @@
 typedef unsigned char byte;
 
 static constexpr float Pi = 3.14159265359f;
-static constexpr int GlobalVolume = 0.1 * 32000;
+static constexpr float GlobalVolume = 0.1f * 32000;
 
 namespace slurp
 {
@@ -25,7 +25,7 @@ namespace slurp
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
-            int16_t subSampleData = sinf(tSine) * GlobalVolume;
+            int16_t subSampleData = static_cast<int16_t>(sinf(tSine) * GlobalVolume);
             // *buffer.samples++ = (subSampleData << 16) | subSampleData;
             *subSamples++ = subSampleData;
             *subSamples++ = subSampleData;
@@ -43,7 +43,7 @@ namespace slurp
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
             int16_t square = ((int)tSquare % 2 == 0) ? 1 : -1;
-            int16_t sampleData = square * GlobalVolume / 4; // artificially lower volume
+            int16_t sampleData = static_cast<int16_t>(square * GlobalVolume / 4); // artificially lower volume
             *subSamples++ = sampleData;
             *subSamples++ = sampleData;
 
@@ -59,9 +59,9 @@ namespace slurp
             uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
             for (int x = 0; x < buffer.widthPixels; x++)
             {
-                uint8_t r = y + GlobalGameState->graphicsDY;
-                uint8_t g = (x + GlobalGameState->graphicsDX) - (y + GlobalGameState->graphicsDY);
-                uint8_t b = x + GlobalGameState->graphicsDX;
+                uint8_t r = static_cast<uint8_t>(y + GlobalGameState->graphicsDY);
+                uint8_t g = static_cast<uint8_t>((x + GlobalGameState->graphicsDX) - (y + GlobalGameState->graphicsDY));
+                uint8_t b = static_cast<uint8_t>(x + GlobalGameState->graphicsDX);
 
                 uint32_t pixel = (r << 16) | (g << 8) | b;
                 *rowPixels++ = pixel;

@@ -45,7 +45,7 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
     outBuffer->info.bmiHeader.biWidth = outBuffer->widthPixels;
     outBuffer->info.bmiHeader.biHeight = -outBuffer->heightPixels;
     outBuffer->info.bmiHeader.biPlanes = 1;
-    outBuffer->info.bmiHeader.biBitCount = bytesPerPixel * 8;
+    outBuffer->info.bmiHeader.biBitCount = static_cast<WORD>(bytesPerPixel * 8);
     outBuffer->info.bmiHeader.biCompression = BI_RGB;
 
     int bitmapSizeBytes = outBuffer->widthPixels * outBuffer->heightPixels * bytesPerPixel;
@@ -463,98 +463,17 @@ static void winCaptureAndLogPerformance(
 
     float frameMillis = (performanceCounterEnd.QuadPart - previousPerformanceCounter.QuadPart) * 1000.f /
         performanceCounterFrequency.QuadPart;
-    int fps = 1000 / frameMillis;
-    int frameProcessorMCycles = (processorCycleEnd - previousProcessorCycle) / 1000 / 1000;
+    int fps = static_cast<int>(1000 / frameMillis);
+    int frameProcessorMCycles = static_cast<int>((processorCycleEnd - previousProcessorCycle) / 1000 / 1000);
 
-    // char buf[256];
-    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    // OutputDebugStringA(buf);
+#if VERBOSE
+    char buf[256];
+    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    OutputDebugStringA(buf);
+#endif
 
     previousProcessorCycle = processorCycleEnd;
     previousPerformanceCounter = performanceCounterEnd;
-}
-
-int WINAPI WinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    PSTR lpCmdLine,
-    int nCmdShow
-)
-{
-    HWND windowHandle;
-    if (!winInitialize(hInstance, &windowHandle))
-    {
-        return 1;
-    }
-
-    uint64_t permanentMemorySizeBytes = megabytes(64);
-    uint64_t transientMemorySizeBytes = gigabytes(4);
-    slurp::GameMemory gameMemory = {};
-    gameMemory.permanentMemory.sizeBytes = permanentMemorySizeBytes;
-    gameMemory.transientMemory.sizeBytes = transientMemorySizeBytes;
-#if DEBUG
-    void* baseAddress = (void*)terabytes(1);
-#else
-    void* baseAddress = nullptr;
-#endif
-    void* memory = VirtualAlloc(
-        baseAddress,
-        permanentMemorySizeBytes + transientMemorySizeBytes,
-        MEM_RESERVE | MEM_COMMIT,
-        PAGE_READWRITE
-    );
-    gameMemory.permanentMemory.memory = memory;
-    gameMemory.transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
-    slurp::init(&gameMemory);
-
-    winInitDirectSound(windowHandle);
-    bool isPlayingAudio = false;
-
-#if DEBUG
-    uint64_t processorCycle = __rdtsc();
-    LARGE_INTEGER performanceCounterFrequency;
-    QueryPerformanceFrequency(&performanceCounterFrequency);
-    LARGE_INTEGER performanceCounter;
-    QueryPerformanceCounter(&performanceCounter);
-#endif
-
-    HDC deviceContext = GetDC(windowHandle);
-    while (GlobalRunning)
-    {
-        winDrainMessages();
-        slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
-        slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
-        winHandleGamepadInput(controllerStates);
-        slurp::handleGamepadInput(controllerStates);
-
-        slurp::GraphicsBuffer graphicsBuffer = {};
-        graphicsBuffer.memory = GlobalBackBuffer.memory;
-        graphicsBuffer.widthPixels = GlobalBackBuffer.widthPixels;
-        graphicsBuffer.heightPixels = GlobalBackBuffer.heightPixels;
-        graphicsBuffer.pitchBytes = GlobalBackBuffer.pitchBytes;
-        slurp::renderGraphics(graphicsBuffer);
-
-        winLoadAudio(!isPlayingAudio);
-        if (!isPlayingAudio)
-        {
-            GlobalAudioBuffer.buffer->Play(NULL, NULL, DSBPLAY_LOOPING);
-            isPlayingAudio = true;
-        }
-
-        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
-        winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
-        ReleaseDC(windowHandle, deviceContext);
-
-#if DEBUG
-        winCaptureAndLogPerformance(
-            processorCycle,
-            performanceCounter,
-            performanceCounterFrequency
-        );
-#endif
-    }
-
-    return 0;
 }
 
 DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
@@ -660,8 +579,8 @@ void DEBUG_platformFreeMemory(void* memory)
 
 void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
 {
-    uint16_t leftMotorSpeedRaw = leftMotorSpeed * XINPUT_VIBRATION_MAG;
-    uint16_t rightMotorSpeedRaw = rightMotorSpeed * XINPUT_VIBRATION_MAG;
+    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
+    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
     XINPUT_VIBRATION vibration{
         leftMotorSpeedRaw,
         rightMotorSpeedRaw,
@@ -673,4 +592,87 @@ void platformVibrateController(int controllerIdx, float leftMotorSpeed, float ri
 void platformShutdown()
 {
     GlobalRunning = false;
+}
+
+int WINAPI WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    PSTR lpCmdLine,
+    int nCmdShow
+)
+{
+    HWND windowHandle;
+    if (!winInitialize(hInstance, &windowHandle))
+    {
+        return 1;
+    }
+
+    uint64_t permanentMemorySizeBytes = megabytes(64);
+    uint64_t transientMemorySizeBytes = gigabytes(4);
+    slurp::GameMemory gameMemory = {};
+    gameMemory.permanentMemory.sizeBytes = permanentMemorySizeBytes;
+    gameMemory.transientMemory.sizeBytes = transientMemorySizeBytes;
+#if DEBUG
+    void* baseAddress = (void*)terabytes(1);
+#else
+    void* baseAddress = nullptr;
+#endif
+    void* memory = VirtualAlloc(
+        baseAddress,
+        permanentMemorySizeBytes + transientMemorySizeBytes,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
+    );
+    gameMemory.permanentMemory.memory = memory;
+    gameMemory.transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
+    slurp::init(&gameMemory);
+
+    winInitDirectSound(windowHandle);
+    bool isPlayingAudio = false;
+
+#if DEBUG
+    uint64_t processorCycle = __rdtsc();
+    LARGE_INTEGER performanceCounterFrequency;
+    QueryPerformanceFrequency(&performanceCounterFrequency);
+    LARGE_INTEGER performanceCounter;
+    QueryPerformanceCounter(&performanceCounter);
+#endif
+
+    HDC deviceContext = GetDC(windowHandle);
+    while (GlobalRunning)
+    {
+        winDrainMessages();
+        slurp::handleKeyboardInput(GlobalCurrentKeyboardState);
+        slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
+        winHandleGamepadInput(controllerStates);
+        slurp::handleGamepadInput(controllerStates);
+
+        slurp::GraphicsBuffer graphicsBuffer = {};
+        graphicsBuffer.memory = GlobalBackBuffer.memory;
+        graphicsBuffer.widthPixels = GlobalBackBuffer.widthPixels;
+        graphicsBuffer.heightPixels = GlobalBackBuffer.heightPixels;
+        graphicsBuffer.pitchBytes = GlobalBackBuffer.pitchBytes;
+        slurp::renderGraphics(graphicsBuffer);
+
+        winLoadAudio(!isPlayingAudio);
+        if (!isPlayingAudio)
+        {
+            GlobalAudioBuffer.buffer->Play(NULL, NULL, DSBPLAY_LOOPING);
+            isPlayingAudio = true;
+        }
+
+        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
+        winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
+        ReleaseDC(windowHandle, deviceContext);
+
+#if DEBUG
+        winCaptureAndLogPerformance(
+            processorCycle,
+            performanceCounter,
+            performanceCounterFrequency
+        );
+#endif
+    }
+
+    return 0;
 }
