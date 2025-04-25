@@ -162,6 +162,7 @@ namespace slurp
     void loadAudio(AudioBuffer buffer)
     {
         loadSineWave(buffer);
+        // loadSquareWave(buffer);
     }
 
     void renderGraphics(const GraphicsBuffer buffer)

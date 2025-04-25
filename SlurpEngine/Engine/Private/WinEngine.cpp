@@ -218,8 +218,12 @@ static void winLoadXInput()
 #define XINPUT_TRIGGER_MAG 255
 #define XINPUT_VIBRATION_MAG 65535
 
-static float winGetNormalizedStickValue(int16_t stickValue)
+static float winGetNormalizedStickValue(int16_t stickValue, int16_t deadZone)
 {
+    if (abs(stickValue) < deadZone)
+    {
+        return 0.f;
+    }
     if (stickValue > 0)
     {
         return static_cast<float>(stickValue) / XINPUT_STICK_MAG_POS;
@@ -255,8 +259,14 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
                 inputState->isDown = isDown;
             }
 
-            float leftStickXNormalized = winGetNormalizedStickValue(gamepad.sThumbLX);
-            float leftStickYNormalized = winGetNormalizedStickValue(gamepad.sThumbLY);
+            float leftStickXNormalized = winGetNormalizedStickValue(
+                gamepad.sThumbLX,
+                XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
+            );
+            float leftStickYNormalized = winGetNormalizedStickValue(
+                gamepad.sThumbLY,
+                XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
+            );
             slurp::AnalogStickInputState& leftStickState = gamepadState->leftStick;
             leftStickState.startXY = leftStickState.endXY;
             leftStickState.endXY.x = leftStickXNormalized;
@@ -264,8 +274,14 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
             leftStickState.minXY = leftStickState.endXY;
             leftStickState.maxXY = leftStickState.endXY;
 
-            float rightStickXNormalized = winGetNormalizedStickValue(gamepad.sThumbRX);
-            float rightStickYNormalized = winGetNormalizedStickValue(gamepad.sThumbRY);
+            float rightStickXNormalized = winGetNormalizedStickValue(
+                gamepad.sThumbRX,
+                XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
+            );
+            float rightStickYNormalized = winGetNormalizedStickValue(
+                gamepad.sThumbRY,
+                XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
+            );
             slurp::AnalogStickInputState& rightStickState = gamepadState->rightStick;
             rightStickState.startXY = rightStickState.endXY;
             rightStickState.endXY.x = rightStickXNormalized;
@@ -650,7 +666,7 @@ int WINAPI WinMain(
     QueryPerformanceFrequency(&performanceCounterFrequency);
     LARGE_INTEGER performanceCounter;
     QueryPerformanceCounter(&performanceCounter);
-    
+
     slurp::KeyboardState keyboardState;
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
