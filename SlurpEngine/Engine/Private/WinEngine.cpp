@@ -275,8 +275,6 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
             leftStickState.startXY = leftStickState.endXY;
             leftStickState.endXY.x = leftStickXNormalized;
             leftStickState.endXY.y = leftStickYNormalized;
-            leftStickState.minXY = leftStickState.endXY;
-            leftStickState.maxXY = leftStickState.endXY;
 
             float rightStickXNormalized = winGetNormalizedStickValue(
                 gamepad.sThumbRX,
@@ -290,22 +288,16 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
             rightStickState.startXY = rightStickState.endXY;
             rightStickState.endXY.x = rightStickXNormalized;
             rightStickState.endXY.y = rightStickYNormalized;
-            rightStickState.minXY = rightStickState.endXY;
-            rightStickState.maxXY = rightStickState.endXY;
 
             float leftTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bLeftTrigger);
             slurp::AnalogTriggerInputState& leftTriggerState = gamepadState->leftTrigger;
             leftTriggerState.start = leftTriggerState.end;
             leftTriggerState.end = leftTriggerNormalized;
-            leftTriggerState.min = leftTriggerState.end;
-            leftTriggerState.max = leftTriggerState.end;
 
             float rightTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bRightTrigger);
             slurp::AnalogTriggerInputState& rightTriggerState = gamepadState->rightTrigger;
             rightTriggerState.start = rightTriggerState.end;
             rightTriggerState.end = rightTriggerNormalized;
-            rightTriggerState.min = rightTriggerState.end;
-            rightTriggerState.max = rightTriggerState.end;
         }
         else
         {

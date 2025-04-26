@@ -146,16 +146,15 @@ namespace slurp
                 GlobalGameState->scrollSpeed = LowScrollSpeed;
             }
 
-            XYCoord leftStickMax = gamepadState.leftStick.maxXY;
-            GlobalGameState->graphicsDX += leftStickMax.x * GlobalGameState->scrollSpeed;
-            GlobalGameState->graphicsDY -= leftStickMax.y * GlobalGameState->scrollSpeed;
+            XYCoord leftStick = gamepadState.leftStick.endXY;
+            GlobalGameState->graphicsDX += leftStick.x * GlobalGameState->scrollSpeed;
+            GlobalGameState->graphicsDY -= leftStick.y * GlobalGameState->scrollSpeed;
 
-            float leftTriggerMax = gamepadState.leftTrigger.max;
-            float rightTriggerMax = gamepadState.rightTrigger.max;
-            platformVibrateController(controllerIdx, leftTriggerMax, rightTriggerMax);
+            float leftTrigger = gamepadState.leftTrigger.end;
+            float rightTrigger = gamepadState.rightTrigger.end;
+            platformVibrateController(controllerIdx, leftTrigger, rightTrigger);
 
-            XYCoord leftStickEnd = gamepadState.leftStick.endXY;
-            GlobalGameState->frequencyHz = BaseFrequencyHz + leftStickEnd.x * DeltaFrequencyHz;
+            GlobalGameState->frequencyHz = BaseFrequencyHz + leftStick.x * DeltaFrequencyHz;
         }
     }
 

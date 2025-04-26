@@ -41,16 +41,12 @@ namespace slurp
     {
         XYCoord startXY = {0, 0};
         XYCoord endXY = {0, 0};
-        XYCoord minXY = {0, 0};
-        XYCoord maxXY = {0, 0};
     };
 
     struct AnalogTriggerInputState
     {
         float start;
         float end;
-        float min;
-        float max;
     };
 
     enum class KeyboardCode: uint8_t
