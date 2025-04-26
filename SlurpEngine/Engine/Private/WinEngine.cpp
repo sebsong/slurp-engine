@@ -531,13 +531,23 @@ static float winGetFrameMillis(
 
 static void winStallFrameToTarget(
     float targetMillisPerFrame,
-    WinTimingInfo startTimingInfo
+    WinTimingInfo startTimingInfo,
+    bool isSleepGranular
 )
 {
     LARGE_INTEGER performanceCounterEnd;
     float frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
+    if (frameMillis >= targetMillisPerFrame)
+    {
+        OutputDebugStringA("Frame too slow. Target frame rate missed.\n");
+    }
     while (frameMillis < targetMillisPerFrame)
     {
+        if (isSleepGranular)
+        {
+            DWORD sleepMs = static_cast<DWORD>(targetMillisPerFrame - frameMillis);
+            Sleep(sleepMs);
+        }
         frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
     }
 }
@@ -693,6 +703,7 @@ int WINAPI WinMain(
         return 1;
     }
 
+    bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
 
@@ -738,13 +749,17 @@ int WINAPI WinMain(
             isPlayingAudio = true;
         }
 
+        winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
+        winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
+
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
-
-        winStallFrameToTarget(targetMillisPerFrame, startTimingInfo);
-        winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
     }
 
+    if (isSleepGranular)
+    {
+        timeEndPeriod(1);
+    }
     return 0;
 }

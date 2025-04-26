@@ -23,7 +23,7 @@ if %debug% == 1 (
 )
 
 set linker_flags=/link -opt:ref
-set libs=user32.lib gdi32.lib
+set libs=user32.lib gdi32.lib Winmm.lib
 
 if not exist %slurp_dir%\build mkdir %slurp_dir%\build
 pushd %slurp_dir%\build
