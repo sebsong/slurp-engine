@@ -64,3 +64,10 @@ static const std::map<XInputCode, slurp::GamepadCode> GamepadWinCodeToSlurpCode 
     {XINPUT_GAMEPAD_X, slurp::GamepadCode::X},
     {XINPUT_GAMEPAD_Y, slurp::GamepadCode::Y},
 };
+
+struct WinTimingInfo
+{
+    int64_t performanceCounter;
+    int64_t performanceCounterFrequency;
+};
+

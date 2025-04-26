@@ -480,9 +480,26 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     return true;
 }
 
+#define DEFAULT_MONITOR_REFRESH_RATE 60
+static DWORD winGetMonitorRefreshRate()
+{
+    DEVMODEA devMode = {};
+    devMode.dmSize = sizeof(devMode);
+    if (!EnumDisplaySettingsExA(
+        nullptr,
+        ENUM_CURRENT_SETTINGS,
+        &devMode,
+        EDS_RAWMODE
+    ))
+    {
+        OutputDebugStringA("Could not fetch monitor refresh rate.\n");
+        return DEFAULT_MONITOR_REFRESH_RATE;
+    }
+    return devMode.dmDisplayFrequency;
+}
+
 static void winAllocateGameMemory(slurp::GameMemory* outGameMemory)
 {
-    
     uint64_t permanentMemorySizeBytes = megabytes(64);
     uint64_t transientMemorySizeBytes = gigabytes(4);
     outGameMemory->permanentMemory.sizeBytes = permanentMemorySizeBytes;
@@ -502,27 +519,47 @@ static void winAllocateGameMemory(slurp::GameMemory* outGameMemory)
     outGameMemory->transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
 }
 
+static float winGetFrameMillis(
+    WinTimingInfo startTimingInfo,
+    LARGE_INTEGER& outPerformanceCounterEnd
+)
+{
+    QueryPerformanceCounter(&outPerformanceCounterEnd);
+    return (outPerformanceCounterEnd.QuadPart - startTimingInfo.performanceCounter) * 1000.f /
+        startTimingInfo.performanceCounterFrequency;
+}
+
+static void winStallFrameToTarget(
+    float targetMillisPerFrame,
+    WinTimingInfo startTimingInfo
+)
+{
+    LARGE_INTEGER performanceCounterEnd;
+    float frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
+    while (frameMillis < targetMillisPerFrame)
+    {
+        frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
+    }
+}
+
 static void winCaptureAndLogPerformance(
-    uint64_t& previousProcessorCycle,
-    LARGE_INTEGER& previousPerformanceCounter,
-    LARGE_INTEGER performanceCounterFrequency
+    uint64_t& startProcessorCycle,
+    WinTimingInfo& startTimingInfo
 )
 {
     uint64_t processorCycleEnd = __rdtsc();
     LARGE_INTEGER performanceCounterEnd;
-    QueryPerformanceCounter(&performanceCounterEnd);
 
-    float frameMillis = (performanceCounterEnd.QuadPart - previousPerformanceCounter.QuadPart) * 1000.f /
-        performanceCounterFrequency.QuadPart;
+    float frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
     int fps = static_cast<int>(1000 / frameMillis);
-    int frameProcessorMCycles = static_cast<int>((processorCycleEnd - previousProcessorCycle) / 1000 / 1000);
+    int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-    // char buf[256];
-    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    // OutputDebugStringA(buf);
+    char buf[256];
+    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    OutputDebugStringA(buf);
 
-    previousProcessorCycle = processorCycleEnd;
-    previousPerformanceCounter = performanceCounterEnd;
+    startProcessorCycle = processorCycleEnd;
+    startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
 }
 
 #if DEBUG
@@ -656,6 +693,9 @@ int WINAPI WinMain(
         return 1;
     }
 
+    DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
+    float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
+
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
     slurp::init(&gameMemory);
@@ -663,11 +703,15 @@ int WINAPI WinMain(
     winInitDirectSound(windowHandle);
     bool isPlayingAudio = false;
 
-    uint64_t processorCycle = __rdtsc();
+    uint64_t startProcessorCycle = __rdtsc();
+    LARGE_INTEGER startPerformanceCounter;
+    QueryPerformanceCounter(&startPerformanceCounter);
     LARGE_INTEGER performanceCounterFrequency;
     QueryPerformanceFrequency(&performanceCounterFrequency);
-    LARGE_INTEGER performanceCounter;
-    QueryPerformanceCounter(&performanceCounter);
+    WinTimingInfo startTimingInfo = {
+        startPerformanceCounter.QuadPart,
+        performanceCounterFrequency.QuadPart
+    };
 
     slurp::KeyboardState keyboardState;
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
@@ -698,11 +742,8 @@ int WINAPI WinMain(
         winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
 
-        winCaptureAndLogPerformance(
-            processorCycle,
-            performanceCounter,
-            performanceCounterFrequency
-        );
+        winStallFrameToTarget(targetMillisPerFrame, startTimingInfo);
+        winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
     }
 
     return 0;
