@@ -481,6 +481,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 }
 
 #define DEFAULT_MONITOR_REFRESH_RATE 60
+
 static DWORD winGetMonitorRefreshRate()
 {
     DEVMODEA devMode = {};
@@ -529,6 +530,8 @@ static float winGetFrameMillis(
         startTimingInfo.performanceCounterFrequency;
 }
 
+#define SLEEP_STALL_MIN_LEFTOVER_MS 0.5f
+
 static void winStallFrameToTarget(
     float targetMillisPerFrame,
     WinTimingInfo startTimingInfo,
@@ -540,14 +543,23 @@ static void winStallFrameToTarget(
     if (frameMillis >= targetMillisPerFrame)
     {
         OutputDebugStringA("Frame too slow. Target frame rate missed.\n");
+        return;
+    }
+    if (isSleepGranular)
+    {
+        float stallMs = targetMillisPerFrame - frameMillis;
+        DWORD sleepMs = static_cast<DWORD>(stallMs);
+        if (sleepMs > 1 && (stallMs - sleepMs) > SLEEP_STALL_MIN_LEFTOVER_MS)
+        {
+            sleepMs -= 1;
+        }
+        if (sleepMs > 0)
+        {
+            Sleep(sleepMs);
+        }
     }
     while (frameMillis < targetMillisPerFrame)
     {
-        if (isSleepGranular)
-        {
-            DWORD sleepMs = static_cast<DWORD>(targetMillisPerFrame - frameMillis);
-            Sleep(sleepMs);
-        }
         frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
     }
 }
