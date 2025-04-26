@@ -480,6 +480,28 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     return true;
 }
 
+static void winAllocateGameMemory(slurp::GameMemory* outGameMemory)
+{
+    
+    uint64_t permanentMemorySizeBytes = megabytes(64);
+    uint64_t transientMemorySizeBytes = gigabytes(4);
+    outGameMemory->permanentMemory.sizeBytes = permanentMemorySizeBytes;
+    outGameMemory->transientMemory.sizeBytes = transientMemorySizeBytes;
+#if DEBUG
+    void* baseAddress = (void*)terabytes(1);
+#else
+    void* baseAddress = nullptr;
+#endif
+    void* memory = VirtualAlloc(
+        baseAddress,
+        permanentMemorySizeBytes + transientMemorySizeBytes,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
+    );
+    outGameMemory->permanentMemory.memory = memory;
+    outGameMemory->transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
+}
+
 static void winCaptureAndLogPerformance(
     uint64_t& previousProcessorCycle,
     LARGE_INTEGER& previousPerformanceCounter,
@@ -495,9 +517,9 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - previousProcessorCycle) / 1000 / 1000);
 
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    // char buf[256];
+    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    // OutputDebugStringA(buf);
 
     previousProcessorCycle = processorCycleEnd;
     previousPerformanceCounter = performanceCounterEnd;
@@ -634,24 +656,8 @@ int WINAPI WinMain(
         return 1;
     }
 
-    uint64_t permanentMemorySizeBytes = megabytes(64);
-    uint64_t transientMemorySizeBytes = gigabytes(4);
     slurp::GameMemory gameMemory = {};
-    gameMemory.permanentMemory.sizeBytes = permanentMemorySizeBytes;
-    gameMemory.transientMemory.sizeBytes = transientMemorySizeBytes;
-#if DEBUG
-    void* baseAddress = (void*)terabytes(1);
-#else
-    void* baseAddress = nullptr;
-#endif
-    void* memory = VirtualAlloc(
-        baseAddress,
-        permanentMemorySizeBytes + transientMemorySizeBytes,
-        MEM_RESERVE | MEM_COMMIT,
-        PAGE_READWRITE
-    );
-    gameMemory.permanentMemory.memory = memory;
-    gameMemory.transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
+    winAllocateGameMemory(&gameMemory);
     slurp::init(&gameMemory);
 
     winInitDirectSound(windowHandle);

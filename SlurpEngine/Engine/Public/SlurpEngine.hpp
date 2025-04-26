@@ -154,7 +154,7 @@ namespace slurp
         float frequencyHz;
     };
 
-    void init(GameMemory* gameMemory);
+    void init(const GameMemory* gameMemory);
     
     void handleKeyboardInput(KeyboardState state);
     

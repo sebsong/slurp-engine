@@ -71,7 +71,7 @@ namespace slurp
         }
     }
 
-    void init(GameMemory* gameMemory)
+    void init(const GameMemory* gameMemory)
     {
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
