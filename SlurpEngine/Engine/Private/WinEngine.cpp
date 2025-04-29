@@ -741,6 +741,7 @@ int WINAPI WinMain(
     slurp::KeyboardState keyboardState;
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
+    // TODO: migrate to the newer XAudio2
     winInitDirectSound(windowHandle);
     GlobalAudioBuffer.writeAheadSampleCount = AUDIO_WRITE_AHEAD_FRAMES * GlobalAudioBuffer.samplesPerSec /
         targetFramesPerSecond;
