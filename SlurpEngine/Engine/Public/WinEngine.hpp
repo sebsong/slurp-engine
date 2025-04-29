@@ -13,6 +13,7 @@ struct WinGraphicsBuffer
     void* memory;
     int widthPixels;
     int heightPixels;
+    int bytesPerPixel;
     int pitchBytes;
 };
 

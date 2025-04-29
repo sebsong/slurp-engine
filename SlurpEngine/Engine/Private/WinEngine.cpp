@@ -7,12 +7,13 @@
 #define megabytes(n) (kilobytes(n) * 1024)
 #define gigabytes(n) (megabytes(n) * 1024)
 #define terabytes(n) (gigabytes(n) * 1024)
+#define AUDIO_WRITE_AHEAD_FRAMES 2
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool GlobalRunning;
 
-static WinGraphicsBuffer GlobalBackBuffer;
+static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
@@ -38,6 +39,7 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
     int bytesPerPixel = 4;
     outBuffer->widthPixels = width;
     outBuffer->heightPixels = height;
+    outBuffer->bytesPerPixel = bytesPerPixel;
     outBuffer->pitchBytes = width * bytesPerPixel;
 
     outBuffer->info.bmiHeader.biSize = sizeof(outBuffer->info.bmiHeader);
@@ -108,7 +110,7 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
         break;
     case WM_PAINT:
         {
-            winPaint(windowHandle, GlobalBackBuffer);
+            winPaint(windowHandle, GlobalGraphicsBuffer);
         }
         break;
     case WM_SYSKEYDOWN:
@@ -351,7 +353,7 @@ static void winInitDirectSound(HWND windowHandle)
             // Secondary Buffer
             DSBUFFERDESC dsSecBufferDescription = {};
             dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
-            dsSecBufferDescription.dwFlags = 0;
+            dsSecBufferDescription.dwFlags = DSBCAPS_GETCURRENTPOSITION2;
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
             if (SUCCEEDED(
@@ -367,30 +369,16 @@ static void winInitDirectSound(HWND windowHandle)
     }
 }
 
-static void winLoadAudio(bool isInitialLoad)
+static DWORD winLoadAudio(DWORD lastWriteCursor, DWORD writeCursor)
 {
-    static DWORD writeCursor = 0;
-    DWORD playCursor;
-    DWORD _;
-    if (!SUCCEEDED(GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor,&_)))
-    {
-        OutputDebugStringA("Get audio buffer position failed.\n");
-        return;
-    }
+     // TODO: is this the lowest latency we can get?
     DWORD targetCursor = (
-        playCursor +
+        lastWriteCursor +
         GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
     ) % GlobalAudioBuffer.bufferSizeBytes;
 
     DWORD numBytesToWrite = 0;
-    if (writeCursor == targetCursor)
-    {
-        if (isInitialLoad)
-        {
-            numBytesToWrite = GlobalAudioBuffer.writeAheadSampleCount;
-        }
-    }
-    else if (writeCursor > targetCursor)
+    if (writeCursor > targetCursor)
     {
         numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - writeCursor + targetCursor;
     }
@@ -401,7 +389,7 @@ static void winLoadAudio(bool isInitialLoad)
 
     if (numBytesToWrite == 0)
     {
-        return;
+        return 0;
     }
 
     void* audioRegion1Ptr;
@@ -419,7 +407,7 @@ static void winLoadAudio(bool isInitialLoad)
     )))
     {
         OutputDebugStringA("Audio buffer lock failed.\n");
-        return;
+        return 0;
     }
 
     slurp::AudioBuffer region1Buffer = {};
@@ -434,14 +422,13 @@ static void winLoadAudio(bool isInitialLoad)
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
     slurp::loadAudio(region2Buffer);
 
-    writeCursor = (writeCursor + numBytesToWrite) % GlobalAudioBuffer.bufferSizeBytes;
-
     GlobalAudioBuffer.buffer->Unlock(
         audioRegion1Ptr,
         audioRegion1Bytes,
         audioRegion2Ptr,
         audioRegion2Bytes
     );
+    return numBytesToWrite;
 }
 
 static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
@@ -455,7 +442,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     windowClass.lpszClassName = WINDOW_CLASS_NAME;
     RegisterClassA(&windowClass);
 
-    winResizeDIBSection(&GlobalBackBuffer, 1280, 720);
+    winResizeDIBSection(&GlobalGraphicsBuffer, 1280, 720);
 
     *outWindowHandle = CreateWindowExA(
         0,
@@ -508,7 +495,7 @@ static void winAllocateGameMemory(slurp::GameMemory* outGameMemory)
 #if DEBUG
     void* baseAddress = (void*)terabytes(1);
 #else
-    void* baseAddress = nullptr;
+	void* baseAddress = nullptr;
 #endif
     void* memory = VirtualAlloc(
         baseAddress,
@@ -576,9 +563,9 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    // char buf[256];
+    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    // OutputDebugStringA(buf);
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
@@ -685,6 +672,35 @@ void DEBUG_platformFreeMemory(void* memory)
 }
 #endif
 
+void winDrawDebugLine(int drawX, uint32_t color)
+{
+    int lineWidth = 8;
+
+    byte* bitmapBytes = static_cast<byte*>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.bytesPerPixel;
+    for (int y = 0; y < GlobalGraphicsBuffer.heightPixels; y++)
+    {
+        uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
+        for (int x = 0; x < lineWidth; x++)
+        {
+            if (drawX + x >= GlobalGraphicsBuffer.widthPixels)
+            {
+                return;
+            }
+            *rowPixels++ = color;
+        }
+
+        bitmapBytes += GlobalGraphicsBuffer.pitchBytes;
+    }
+}
+
+void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
+{
+    int padX = 16;
+    int x = static_cast<int>((static_cast<float>(cursor) / GlobalAudioBuffer.bufferSizeBytes) * (
+        GlobalGraphicsBuffer.widthPixels));
+    winDrawDebugLine(x, color);
+}
+
 void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
 {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
@@ -695,7 +711,6 @@ void platformVibrateController(int controllerIdx, float leftMotorSpeed, float ri
     };
     XInputSetState(controllerIdx, &vibration);
 }
-
 
 void platformShutdown()
 {
@@ -715,16 +730,24 @@ int WINAPI WinMain(
         return 1;
     }
 
-    bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
-    DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
-    float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
-
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
     slurp::init(&gameMemory);
 
+    bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
+    DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
+    float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
+
+    slurp::KeyboardState keyboardState;
+    slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
+
     winInitDirectSound(windowHandle);
-    bool isPlayingAudio = false;
+    GlobalAudioBuffer.writeAheadSampleCount = AUDIO_WRITE_AHEAD_FRAMES * GlobalAudioBuffer.samplesPerSec /
+        targetFramesPerSecond;
+    DWORD lastPlayCursor = 0;
+    DWORD lastWriteCursor = 0;
+    DWORD writeCursor = 0;
+    GlobalAudioBuffer.buffer->Play(NULL, NULL, DSBPLAY_LOOPING);
 
     uint64_t startProcessorCycle = __rdtsc();
     LARGE_INTEGER startPerformanceCounter;
@@ -736,10 +759,8 @@ int WINAPI WinMain(
         performanceCounterFrequency.QuadPart
     };
 
-    slurp::KeyboardState keyboardState;
-    slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
-
     HDC deviceContext = GetDC(windowHandle);
+
     while (GlobalRunning)
     {
         winHandleMessages(&keyboardState);
@@ -748,24 +769,28 @@ int WINAPI WinMain(
         slurp::handleGamepadInput(controllerStates);
 
         slurp::GraphicsBuffer graphicsBuffer = {};
-        graphicsBuffer.memory = GlobalBackBuffer.memory;
-        graphicsBuffer.widthPixels = GlobalBackBuffer.widthPixels;
-        graphicsBuffer.heightPixels = GlobalBackBuffer.heightPixels;
-        graphicsBuffer.pitchBytes = GlobalBackBuffer.pitchBytes;
+        graphicsBuffer.memory = GlobalGraphicsBuffer.memory;
+        graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;
+        graphicsBuffer.heightPixels = GlobalGraphicsBuffer.heightPixels;
+        graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
         slurp::renderGraphics(graphicsBuffer);
 
-        winLoadAudio(!isPlayingAudio);
-        if (!isPlayingAudio)
+        if (GlobalAudioBuffer.buffer->GetCurrentPosition(&lastPlayCursor, &lastWriteCursor) != DS_OK)
         {
-            GlobalAudioBuffer.buffer->Play(NULL, NULL, DSBPLAY_LOOPING);
-            isPlayingAudio = true;
+            OutputDebugStringA("Get audio buffer position failed.\n");
         }
+        DWORD numBytesWritten = winLoadAudio(lastWriteCursor, writeCursor);
+        writeCursor = (writeCursor + numBytesWritten) % GlobalAudioBuffer.bufferSizeBytes;
 
         winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
         winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
 
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
-        winUpdateWindow(deviceContext, GlobalBackBuffer, dimensions.width, dimensions.height);
+#if DEBUG
+        winDrawDebugAudioSync(lastPlayCursor, 0x00000000);
+        winDrawDebugAudioSync(writeCursor, 0x00FF0000);
+#endif
+        winUpdateWindow(deviceContext, GlobalGraphicsBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
     }
 
