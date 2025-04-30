@@ -11,6 +11,7 @@
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool GlobalRunning;
+static bool GlobalPause;
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
@@ -146,11 +147,6 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState)
                 bool isDown = ((1 << 31) & message.lParam) == 0;
 
                 // bool32 alt = (1 << 29) & lParam;
-                if (isDown == wasDown)
-                {
-                    continue;
-                }
-
                 if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
                 {
                     slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
@@ -159,6 +155,9 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState)
                     inputState->transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState->isDown = isDown;
+                } else
+                {
+                    OutputDebugStringA("Windows keyboard code not registered.\n");
                 }
             }
             break;
@@ -521,7 +520,7 @@ static void winStallFrameToTarget(
     float frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
     if (frameMillis >= targetMillisPerFrame)
     {
-        OutputDebugStringA("Frame too slow. Target frame rate missed.\n");
+        // OutputDebugStringA("Frame too slow. Target frame rate missed.\n");
         return;
     }
     if (isSleepGranular)
@@ -662,6 +661,11 @@ void DEBUG_platformFreeMemory(void* memory)
         VirtualFree(memory, 0, MEM_RELEASE);
     }
 }
+
+void DEBUG_platformTogglePause()
+{
+    GlobalPause = !GlobalPause;
+}
 #endif
 
 void winDrawDebugLine(int drawX, uint32_t color)
@@ -755,11 +759,23 @@ int WINAPI WinMain(
 
     while (GlobalRunning)
     {
+        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
+        {
+            slurp::DigitalInputState& inputState = entry.second;
+            inputState.transitionCount = 0;
+        }
         winHandleMessages(&keyboardState);
         slurp::handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
         slurp::handleGamepadInput(controllerStates);
 
+#if DEBUG
+        if (GlobalPause)
+        {
+            continue;
+        }
+#endif
+        
         slurp::GraphicsBuffer graphicsBuffer = {};
         graphicsBuffer.memory = GlobalGraphicsBuffer.memory;
         graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;

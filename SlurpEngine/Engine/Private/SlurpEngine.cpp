@@ -102,6 +102,10 @@ namespace slurp
         {
             GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
         }
+        if (state.justPressed(KeyboardCode::P))
+        {
+            DEBUG_platformTogglePause();
+        }
 
         DigitalInputState inputState;
         if (state.getState(KeyboardCode::SPACE, inputState))

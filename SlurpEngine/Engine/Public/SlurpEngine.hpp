@@ -55,6 +55,7 @@ namespace slurp
         A,
         S,
         D,
+        P,
         ESC,
         SPACE,
         ALT,
@@ -81,6 +82,16 @@ namespace slurp
             if (getState(code, inputState))
             {
                 return inputState.isDown;
+            }
+            return false;
+        }
+        
+        bool justPressed(KeyboardCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return inputState.isDown && inputState.transitionCount != 0;
             }
             return false;
         }
