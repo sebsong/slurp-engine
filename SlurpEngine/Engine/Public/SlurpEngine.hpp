@@ -1,4 +1,6 @@
 #pragma once
+#include "Platform.hpp"
+
 #include <cstdint>
 #include <map>
 
@@ -37,6 +39,7 @@ namespace slurp
         float x;
         float y;
     };
+
     struct AnalogStickInputState
     {
         XYCoord startXY = {0, 0};
@@ -85,7 +88,7 @@ namespace slurp
             }
             return false;
         }
-        
+
         bool justPressed(KeyboardCode code) const
         {
             DigitalInputState inputState;
@@ -165,13 +168,48 @@ namespace slurp
         float frequencyHz;
     };
 
-    void init(const GameMemory* gameMemory);
-    
-    void handleKeyboardInput(KeyboardState state);
-    
-    void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
+#define SLURP_INIT(fnName) void fnName(const PlatformDLL platformDLL, const slurp::GameMemory* gameMemory)
+    typedef SLURP_INIT(slurp_init);
+    SLURP_INIT(slurp_init_stub)
+    {
+    }
 
-    void loadAudio(int32_t* audioSampleBuffer);
+#define SLURP_HANDLE_KEYBOARD_INPUT(fnName) void fnName(slurp::KeyboardState state)
+    typedef SLURP_HANDLE_KEYBOARD_INPUT(slurp_handle_keyboard_input);
+    SLURP_HANDLE_KEYBOARD_INPUT(slurp_handle_keyboard_input_stub)
+    {
+    }
 
-    void renderGraphics(GraphicsBuffer buffer);
+#define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS])
+    typedef SLURP_HANDLE_GAMEPAD_INPUT(slurp_handle_gamepad_input);
+    SLURP_HANDLE_GAMEPAD_INPUT(slurp_handle_gamepad_input_stub)
+    {
+    }
+
+#define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
+    typedef SLURP_LOAD_AUDIO(slurp_load_audio);
+    SLURP_LOAD_AUDIO(slurp_load_audio_stub)
+    {
+    }
+
+#define SLURP_RENDER_GRAPHICS(fnName) void fnName(slurp::GraphicsBuffer buffer)
+    typedef SLURP_RENDER_GRAPHICS(slurp_render_graphics);
+    SLURP_RENDER_GRAPHICS(slurp_render_graphics_stub)
+    {
+    }
+
+    struct SlurpDLL
+    {
+        slurp_init* init = slurp_init_stub;
+        slurp_handle_keyboard_input* handleKeyboardInput = slurp_handle_keyboard_input_stub;
+        slurp_handle_gamepad_input* handleGamepadInput = slurp_handle_gamepad_input_stub;
+        slurp_load_audio* loadAudio = slurp_load_audio_stub;
+        slurp_render_graphics* renderGraphics = slurp_render_graphics_stub;
+    };
+
+    __declspec( dllexport ) void init(const PlatformDLL platformDLL, const GameMemory* gameMemory);
+    __declspec( dllexport ) void handleKeyboardInput(KeyboardState state);
+    __declspec( dllexport ) void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
+    __declspec( dllexport ) void loadAudio(AudioBuffer buffer);
+    __declspec( dllexport ) void renderGraphics(GraphicsBuffer buffer);
 }

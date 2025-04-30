@@ -1,7 +1,5 @@
-#include <SlurpEngine.cpp>
+#include <Platform.hpp>
 #include <WinEngine.hpp>
-
-#include <Xinput.h>
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
@@ -14,6 +12,9 @@ static bool GlobalRunning;
 static bool GlobalPause;
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
+
+static slurp::SlurpDLL GlobalSlurpDLL;
+static HMODULE GlobalSlurpLib;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -155,7 +156,8 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState)
                     inputState->transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState->isDown = isDown;
-                } else
+                }
+                else
                 {
                     OutputDebugStringA("Windows keyboard code not registered.\n");
                 }
@@ -405,13 +407,15 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
     region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.samplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
-    slurp::loadAudio(region1Buffer);
+    // slurp::loadAudio(region1Buffer);
+    GlobalSlurpDLL.loadAudio(region1Buffer);
 
     slurp::AudioBuffer region2Buffer = {};
     region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
-    slurp::loadAudio(region2Buffer);
+    // slurp::loadAudio(region2Buffer);
+    GlobalSlurpDLL.loadAudio(region2Buffer);
 
     GlobalAudioBuffer.buffer->Unlock(
         audioRegion1Ptr,
@@ -560,6 +564,65 @@ static void winCaptureAndLogPerformance(
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
+}
+
+static slurp::SlurpDLL winLoadSlurpEngineLib()
+{
+    slurp::SlurpDLL slurpDLL;
+    GlobalSlurpLib = LoadLibraryA("SlurpEngine.dll");
+    if (!GlobalSlurpLib)
+    {
+        OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
+    }
+    else
+    {
+        slurpDLL.init = reinterpret_cast<slurp::slurp_init*>(
+            GetProcAddress(GlobalSlurpLib, "init")
+        );
+        if (!slurpDLL.init)
+        {
+            OutputDebugStringA("Failed to load slurp::init.\n");
+            slurpDLL.init = slurp::slurp_init_stub;
+        }
+        
+        slurpDLL.handleKeyboardInput = reinterpret_cast<slurp::slurp_handle_keyboard_input*>(
+            GetProcAddress(GlobalSlurpLib, "handleKeyboardInput")
+        );
+        if (!slurpDLL.handleKeyboardInput)
+        {
+            OutputDebugStringA("Failed to load slurp::handleKeyboardInput.\n");
+            slurpDLL.handleKeyboardInput = slurp::slurp_handle_keyboard_input_stub;
+        }
+        
+        slurpDLL.handleGamepadInput = reinterpret_cast<slurp::slurp_handle_gamepad_input*>(
+            GetProcAddress(GlobalSlurpLib, "handleGamepadInput")
+        );
+        if (!slurpDLL.handleGamepadInput)
+        {
+            OutputDebugStringA("Failed to load slurp::handleGamepadInput.\n");
+            slurpDLL.handleGamepadInput = slurp::slurp_handle_gamepad_input_stub;
+        }
+        
+        slurpDLL.loadAudio = reinterpret_cast<slurp::slurp_load_audio*>(
+            GetProcAddress(GlobalSlurpLib, "loadAudio")
+        );
+        if (!slurpDLL.loadAudio)
+        {
+            OutputDebugStringA("Failed to load slurp::loadAudio.\n");
+            slurpDLL.loadAudio = slurp::slurp_load_audio_stub;
+        }
+        
+        slurpDLL.renderGraphics = reinterpret_cast<slurp::slurp_render_graphics*>(
+            GetProcAddress(GlobalSlurpLib, "renderGraphics")
+        );
+        if (!slurpDLL.renderGraphics)
+        {
+            OutputDebugStringA("Failed to load slurp::renderGraphics.\n");
+            slurpDLL.renderGraphics = slurp::slurp_render_graphics_stub;
+        }
+    }
+    
+    return slurpDLL;
 }
 
 #if DEBUG
@@ -726,9 +789,16 @@ int WINAPI WinMain(
         return 1;
     }
 
+    GlobalSlurpDLL = winLoadSlurpEngineLib();
+
+    PlatformDLL platformDLL = {};
+    platformDLL.platformVibrateController = platformVibrateController;
+    platformDLL.platformShutdown = platformShutdown;
+    platformDLL.DEBUG_platformTogglePause = DEBUG_platformTogglePause;
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
-    slurp::init(&gameMemory);
+    // slurp::init(&gameMemory);
+    GlobalSlurpDLL.init(platformDLL, &gameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
@@ -765,23 +835,26 @@ int WINAPI WinMain(
             inputState.transitionCount = 0;
         }
         winHandleMessages(&keyboardState);
-        slurp::handleKeyboardInput(keyboardState);
+        // slurp::handleKeyboardInput(keyboardState);
+        GlobalSlurpDLL.handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
-        slurp::handleGamepadInput(controllerStates);
-
+        // slurp::handleGamepadInput(controllerStates);
+        GlobalSlurpDLL.handleGamepadInput(controllerStates);
+        
 #if DEBUG
         if (GlobalPause)
         {
             continue;
         }
 #endif
-        
+
         slurp::GraphicsBuffer graphicsBuffer = {};
         graphicsBuffer.memory = GlobalGraphicsBuffer.memory;
         graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;
         graphicsBuffer.heightPixels = GlobalGraphicsBuffer.heightPixels;
         graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
-        slurp::renderGraphics(graphicsBuffer);
+        // slurp::renderGraphics(graphicsBuffer);
+        GlobalSlurpDLL.renderGraphics(graphicsBuffer);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
         {

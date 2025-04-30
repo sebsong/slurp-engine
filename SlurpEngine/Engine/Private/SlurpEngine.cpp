@@ -10,8 +10,9 @@ static constexpr float GlobalVolume = 0.1f * 32000;
 
 namespace slurp
 {
+    static PlatformDLL GlobalPlatformDLL;
     static GameState* GlobalGameState;
-    
+
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
@@ -72,8 +73,10 @@ namespace slurp
         }
     }
 
-    void init(const GameMemory* gameMemory)
+    void init(const PlatformDLL platformDll, const GameMemory* gameMemory)
     {
+        GlobalPlatformDLL = platformDll;
+        
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
@@ -84,7 +87,7 @@ namespace slurp
     {
         if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
         {
-            platformShutdown();
+            GlobalPlatformDLL.platformShutdown();
         }
 
         if (state.isDown(KeyboardCode::W))
@@ -103,10 +106,12 @@ namespace slurp
         {
             GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
         }
+#if DEBUG
         if (state.justPressed(KeyboardCode::P))
         {
-            DEBUG_platformTogglePause();
+            GlobalPlatformDLL.DEBUG_platformTogglePause();
         }
+#endif
 
         DigitalInputState inputState;
         if (state.getState(KeyboardCode::SPACE, inputState))
@@ -123,7 +128,7 @@ namespace slurp
 
         if (state.isDown(KeyboardCode::ESC))
         {
-            platformShutdown();
+            GlobalPlatformDLL.platformShutdown();
         }
     }
 
@@ -139,7 +144,7 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B))
             {
-                platformShutdown();
+                GlobalPlatformDLL.platformShutdown();
             }
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
@@ -157,7 +162,7 @@ namespace slurp
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
-            platformVibrateController(controllerIdx, leftTrigger, rightTrigger);
+            GlobalPlatformDLL.platformVibrateController(controllerIdx, leftTrigger, rightTrigger);
 
             GlobalGameState->frequencyHz = BaseFrequencyHz + leftStick.x * DeltaFrequencyHz;
         }
