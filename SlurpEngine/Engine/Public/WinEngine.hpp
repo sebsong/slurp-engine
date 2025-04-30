@@ -31,7 +31,7 @@ struct WinAudioBuffer
     int samplesPerSec = 48000;
     int bytesPerSample = sizeof(int16_t) * 2; // Stereo L + R
     int bufferSizeBytes = samplesPerSec * bytesPerSample;
-    int writeAheadSampleCount = samplesPerSec / 20;
+    int writeAheadSampleCount = samplesPerSec / 100; // NOTE: tuned to the max latency between writeCursor readings.
 };
 
 typedef WPARAM WinKbCode;

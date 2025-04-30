@@ -7,7 +7,6 @@
 #define megabytes(n) (kilobytes(n) * 1024)
 #define gigabytes(n) (megabytes(n) * 1024)
 #define terabytes(n) (gigabytes(n) * 1024)
-#define AUDIO_WRITE_AHEAD_FRAMES 2
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
@@ -369,22 +368,16 @@ static void winInitDirectSound(HWND windowHandle)
     }
 }
 
-static DWORD winLoadAudio(DWORD lastWriteCursor, DWORD writeCursor)
+static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
 {
-     // TODO: is this the lowest latency we can get?
-    DWORD targetCursor = (
-        lastWriteCursor +
-        GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
-    ) % GlobalAudioBuffer.bufferSizeBytes;
-
     DWORD numBytesToWrite = 0;
-    if (writeCursor > targetCursor)
+    if (lockCursor > targetCursor)
     {
-        numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - writeCursor + targetCursor;
+        numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor;
     }
     else
     {
-        numBytesToWrite = targetCursor - writeCursor;
+        numBytesToWrite = targetCursor - lockCursor;
     }
 
     if (numBytesToWrite == 0)
@@ -397,7 +390,7 @@ static DWORD winLoadAudio(DWORD lastWriteCursor, DWORD writeCursor)
     void* audioRegion2Ptr;
     DWORD audioRegion2Bytes;
     if (!SUCCEEDED(GlobalAudioBuffer.buffer->Lock(
-        writeCursor,
+        lockCursor,
         numBytesToWrite,
         &audioRegion1Ptr,
         &audioRegion1Bytes,
@@ -742,12 +735,11 @@ int WINAPI WinMain(
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
     // TODO: migrate to the newer XAudio2
+    // TODO: could dynamically track max writeCursor diff and update GlobalAudioBuffer.writeAheadSampleCount
     winInitDirectSound(windowHandle);
-    GlobalAudioBuffer.writeAheadSampleCount = AUDIO_WRITE_AHEAD_FRAMES * GlobalAudioBuffer.samplesPerSec /
-        targetFramesPerSecond;
-    DWORD lastPlayCursor = 0;
-    DWORD lastWriteCursor = 0;
+    DWORD playCursor = 0;
     DWORD writeCursor = 0;
+    DWORD lockCursor = 0;
     GlobalAudioBuffer.buffer->Play(NULL, NULL, DSBPLAY_LOOPING);
 
     uint64_t startProcessorCycle = __rdtsc();
@@ -776,20 +768,27 @@ int WINAPI WinMain(
         graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
         slurp::renderGraphics(graphicsBuffer);
 
-        if (GlobalAudioBuffer.buffer->GetCurrentPosition(&lastPlayCursor, &lastWriteCursor) != DS_OK)
+        if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
         {
             OutputDebugStringA("Get audio buffer position failed.\n");
         }
-        DWORD numBytesWritten = winLoadAudio(lastWriteCursor, writeCursor);
-        writeCursor = (writeCursor + numBytesWritten) % GlobalAudioBuffer.bufferSizeBytes;
+        // NOTE: We always set our targetCursor to right after the write cursor,
+        // this means audio is played as soon as possible.
+        // TODO: if the sound card has very low latency, we could play audio earlier than the frame flip
+        DWORD targetCursor = (
+            writeCursor +
+            GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
+        ) % GlobalAudioBuffer.bufferSizeBytes;
+        DWORD numBytesWritten = winLoadAudio(lockCursor, targetCursor);
+        lockCursor = (lockCursor + numBytesWritten) % GlobalAudioBuffer.bufferSizeBytes;
 
         winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
         winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
 
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
 #if DEBUG
-        winDrawDebugAudioSync(lastPlayCursor, 0x00000000);
-        winDrawDebugAudioSync(writeCursor, 0x00FF0000);
+        winDrawDebugAudioSync(playCursor, 0x00000000);
+        winDrawDebugAudioSync(lockCursor, 0x00FF0000);
 #endif
         winUpdateWindow(deviceContext, GlobalGraphicsBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
