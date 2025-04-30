@@ -11,7 +11,6 @@
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 
 static bool GlobalRunning;
-
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
