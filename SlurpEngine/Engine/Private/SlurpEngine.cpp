@@ -19,18 +19,19 @@ namespace slurp
 
     static void loadSineWave(AudioBuffer buffer)
     {
-        static double tSine = 0;
-        double sineWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
+        static float tSine = 0;
+        float sineWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
-            int16_t subSampleData = static_cast<int16_t>(sinf(static_cast<float>(tSine)) * GlobalVolume);
+            int16_t subSampleData = static_cast<int16_t>(sinf(tSine) * GlobalVolume);
             // *buffer.samples++ = (subSampleData << 16) | subSampleData;
             *subSamples++ = subSampleData;
             *subSamples++ = subSampleData;
 
             tSine += 2 * Pi / sineWavePeriod;
+            tSine = std::fmod(tSine, 2 * Pi);
         }
     }
 
