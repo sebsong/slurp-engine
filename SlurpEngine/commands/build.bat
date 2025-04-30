@@ -27,7 +27,7 @@ set libs=user32.lib gdi32.lib Winmm.lib
 
 if not exist %slurp_dir%\build mkdir %slurp_dir%\build
 pushd %slurp_dir%\build
-cl %includes% %warning_flags% %macros% %compiler_flags% -LD %engine_dir%\Private\SlurpEngine.cpp %linker_flags%
+cl %includes% %warning_flags% %macros% %compiler_flags% -LD %engine_dir%\Private\SlurpEngine.cpp
 cl %includes% %warning_flags% %macros% %compiler_flags% %engine_dir%\Private\WinEngine.cpp %linker_flags% %libs%
 popd
 

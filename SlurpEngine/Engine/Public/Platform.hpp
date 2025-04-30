@@ -1,6 +1,12 @@
 #pragma once
 #include <cstdint>
 
+#define DLL_EXPORT
+#if PLATFORM_WINDOWS
+#undef DLL_EXPORT
+#define DLL_EXPORT __declspec( dllexport )
+#endif
+
 #define PLATFORM_VIBRATE_CONTROLLER(fnName) void fnName(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
     typedef PLATFORM_VIBRATE_CONTROLLER(platform_vibrate_controller);
     PLATFORM_VIBRATE_CONTROLLER(platform_vibrate_controller_stub)

@@ -207,9 +207,11 @@ namespace slurp
         slurp_render_graphics* renderGraphics = slurp_render_graphics_stub;
     };
 
-    __declspec( dllexport ) void init(const PlatformDLL platformDLL, const GameMemory* gameMemory);
-    __declspec( dllexport ) void handleKeyboardInput(KeyboardState state);
-    __declspec( dllexport ) void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
-    __declspec( dllexport ) void loadAudio(AudioBuffer buffer);
-    __declspec( dllexport ) void renderGraphics(GraphicsBuffer buffer);
+    extern "C" {
+    DLL_EXPORT void init(const PlatformDLL platformDLL, const GameMemory* gameMemory);
+    DLL_EXPORT void handleKeyboardInput(KeyboardState state);
+    DLL_EXPORT void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
+    DLL_EXPORT void loadAudio(AudioBuffer buffer);
+    DLL_EXPORT void renderGraphics(GraphicsBuffer buffer);
+    }
 }
