@@ -641,7 +641,7 @@ static void winReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemo
 
 
 #if DEBUG
-platform::DEBUG_FileReadResult platform::DEBUG_readFile(const char* fileName)
+PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
 {
     platform::DEBUG_FileReadResult result = {};
     HANDLE fileHandle = CreateFileA(
@@ -696,7 +696,7 @@ platform::DEBUG_FileReadResult platform::DEBUG_readFile(const char* fileName)
     return result;
 }
 
-bool platform::DEBUG_writeFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
+PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile)
 {
     HANDLE fileHandle = CreateFileA(
         fileName,
@@ -732,7 +732,7 @@ bool platform::DEBUG_writeFile(const char* fileName, void* fileContents, uint32_
     return true;
 }
 
-void platform::DEBUG_freeMemory(void* memory)
+PLATFORM_DEBUG_FREE_MEMORY(platform::DEBUG_freeMemory)
 {
     if (memory)
     {
@@ -740,13 +740,13 @@ void platform::DEBUG_freeMemory(void* memory)
     }
 }
 
-void platform::DEBUG_togglePause()
+PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause)
 {
     GlobalPause = !GlobalPause;
 }
 #endif
 
-void platform::vibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
+PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
 {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
@@ -757,7 +757,7 @@ void platform::vibrateController(int controllerIdx, float leftMotorSpeed, float 
     XInputSetState(controllerIdx, &vibration);
 }
 
-void platform::shutdown()
+PLATFORM_SHUTDOWN(platform::shutdown)
 {
     GlobalRunning = false;
 }
