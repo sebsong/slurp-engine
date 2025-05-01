@@ -8,6 +8,8 @@
 #endif
 
 // NOTE: Define dynamic types for hot reloading
+// TODO: allow for an optional stub return value
+// TODO: make extern and dll export optional
 #define SLURP_DECLARE_DYNAMIC(fnMacro, fnName) \
     typedef fnMacro(dyn_##fnName);             \
     fnMacro(stub_##fnName){}                   \

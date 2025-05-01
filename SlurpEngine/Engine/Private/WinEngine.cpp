@@ -780,7 +780,7 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
     winDrawDebugLine(x, color);
 }
 
-void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
+void platform::vibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
 {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
@@ -791,7 +791,7 @@ void platformVibrateController(int controllerIdx, float leftMotorSpeed, float ri
     XInputSetState(controllerIdx, &vibration);
 }
 
-void platformShutdown()
+void platform::shutdown()
 {
     GlobalRunning = false;
 }
@@ -812,8 +812,8 @@ int WINAPI WinMain(
     winLoadSlurpLib();
 
     platform::PlatformDll platformDll = {};
-    platformDll.vibrateController = platformVibrateController;
-    platformDll.shutdown = platformShutdown;
+    platformDll.vibrateController = platform::vibrateController;
+    platformDll.shutdown = platform::shutdown;
 #if DEBUG
     platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
 #endif
