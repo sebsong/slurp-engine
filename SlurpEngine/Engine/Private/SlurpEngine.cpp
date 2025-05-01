@@ -25,30 +25,29 @@ namespace slurp
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
-            int16_t subSampleData = static_cast<int16_t>(sinf(GlobalGameState->tSine) * GlobalVolume);
+            int16_t subSampleData = static_cast<int16_t>(sinf(GlobalGameState->tWave) * GlobalVolume);
             // *buffer.samples++ = (subSampleData << 16) | subSampleData;
             *subSamples++ = subSampleData;
             *subSamples++ = subSampleData;
 
-            GlobalGameState->tSine += 2 * Pi / sineWavePeriod;
-            GlobalGameState->tSine = std::fmod(GlobalGameState->tSine, 2 * Pi);
+            GlobalGameState->tWave += 2 * Pi / sineWavePeriod;
+            GlobalGameState->tWave = std::fmod(GlobalGameState->tWave, 2 * Pi);
         }
     }
 
     static void loadSquareWave(AudioBuffer buffer)
     {
-        static float tSquare = 0;
         float squareWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
-            int16_t square = ((int)tSquare % 2 == 0) ? 1 : -1;
+            int16_t square = ((int)GlobalGameState->tWave % 2 == 0) ? 1 : -1;
             int16_t sampleData = static_cast<int16_t>(square * GlobalVolume / 4); // artificially lower volume
             *subSamples++ = sampleData;
             *subSamples++ = sampleData;
 
-            tSquare += 1 / (squareWavePeriod / 2.f);
+            GlobalGameState->tWave += 1 / (squareWavePeriod / 2.f);
         }
     }
 

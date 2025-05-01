@@ -568,7 +568,8 @@ static void winCaptureAndLogPerformance(
 
 static void winLoadSlurpLib()
 {
-    GlobalSlurpLib = LoadLibraryA("SlurpEngine.dll");
+    CopyFileA("SlurpEngine.dll", "SlurpEngineLoad.dll", false);
+    GlobalSlurpLib = LoadLibraryA("SlurpEngineLoad.dll");
     if (!GlobalSlurpLib)
     {
         OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
@@ -583,7 +584,7 @@ static void winLoadSlurpLib()
             OutputDebugStringA("Failed to load slurp::init.\n");
             GlobalSlurpDll.init = slurp::slurp_init_stub;
         }
-        
+
         GlobalSlurpDll.handleKeyboardInput = reinterpret_cast<slurp::slurp_handle_keyboard_input*>(
             GetProcAddress(GlobalSlurpLib, "handleKeyboardInput")
         );
@@ -592,7 +593,7 @@ static void winLoadSlurpLib()
             OutputDebugStringA("Failed to load slurp::handleKeyboardInput.\n");
             GlobalSlurpDll.handleKeyboardInput = slurp::slurp_handle_keyboard_input_stub;
         }
-        
+
         GlobalSlurpDll.handleGamepadInput = reinterpret_cast<slurp::slurp_handle_gamepad_input*>(
             GetProcAddress(GlobalSlurpLib, "handleGamepadInput")
         );
@@ -601,7 +602,7 @@ static void winLoadSlurpLib()
             OutputDebugStringA("Failed to load slurp::handleGamepadInput.\n");
             GlobalSlurpDll.handleGamepadInput = slurp::slurp_handle_gamepad_input_stub;
         }
-        
+
         GlobalSlurpDll.loadAudio = reinterpret_cast<slurp::slurp_load_audio*>(
             GetProcAddress(GlobalSlurpLib, "loadAudio")
         );
@@ -610,7 +611,7 @@ static void winLoadSlurpLib()
             OutputDebugStringA("Failed to load slurp::loadAudio.\n");
             GlobalSlurpDll.loadAudio = slurp::slurp_load_audio_stub;
         }
-        
+
         GlobalSlurpDll.renderGraphics = reinterpret_cast<slurp::slurp_render_graphics*>(
             GetProcAddress(GlobalSlurpLib, "renderGraphics")
         );
@@ -841,9 +842,14 @@ int WINAPI WinMain(
 
     HDC deviceContext = GetDC(windowHandle);
 
+    uint32_t reloadTimer = 0;
     while (GlobalRunning)
     {
-        winReloadSlurpLib(platformDll, &gameMemory);
+        if (reloadTimer++ > targetFramesPerSecond)
+        {
+            winReloadSlurpLib(platformDll, &gameMemory);
+            reloadTimer = 0;
+        }
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
         {
             slurp::DigitalInputState& inputState = entry.second;
@@ -855,7 +861,7 @@ int WINAPI WinMain(
         winHandleGamepadInput(controllerStates);
         // slurp::handleGamepadInput(controllerStates);
         GlobalSlurpDll.handleGamepadInput(controllerStates);
-        
+
 #if DEBUG
         if (GlobalPause)
         {
