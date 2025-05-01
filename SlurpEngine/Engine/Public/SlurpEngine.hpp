@@ -170,50 +170,30 @@ namespace slurp
         float tWave;
     };
 
+    // NOTE: Define dynamic types for hot reloading
+#define SLURP_DECLARE_DYNAMIC(fnMacro, fnName) \
+    typedef fnMacro(dyn_##fnName);             \
+    fnMacro(stub_##fnName){}                   \
+    extern "C" DLL_EXPORT fnMacro(fnName);
+
 #define SLURP_INIT(fnName) void fnName(const PlatformDll platformDll, slurp::GameMemory* gameMemory)
-    typedef SLURP_INIT(slurp_init);
-    SLURP_INIT(slurp_init_stub)
-    {
-    }
-
 #define SLURP_HANDLE_KEYBOARD_INPUT(fnName) void fnName(slurp::KeyboardState state)
-    typedef SLURP_HANDLE_KEYBOARD_INPUT(slurp_handle_keyboard_input);
-    SLURP_HANDLE_KEYBOARD_INPUT(slurp_handle_keyboard_input_stub)
-    {
-    }
-
 #define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS])
-    typedef SLURP_HANDLE_GAMEPAD_INPUT(slurp_handle_gamepad_input);
-    SLURP_HANDLE_GAMEPAD_INPUT(slurp_handle_gamepad_input_stub)
-    {
-    }
-
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
-    typedef SLURP_LOAD_AUDIO(slurp_load_audio);
-    SLURP_LOAD_AUDIO(slurp_load_audio_stub)
-    {
-    }
-
 #define SLURP_RENDER_GRAPHICS(fnName) void fnName(slurp::GraphicsBuffer buffer)
-    typedef SLURP_RENDER_GRAPHICS(slurp_render_graphics);
-    SLURP_RENDER_GRAPHICS(slurp_render_graphics_stub)
-    {
-    }
+
+    SLURP_DECLARE_DYNAMIC(SLURP_INIT, init)
+    SLURP_DECLARE_DYNAMIC(SLURP_HANDLE_KEYBOARD_INPUT, handleKeyboardInput)
+    SLURP_DECLARE_DYNAMIC(SLURP_HANDLE_GAMEPAD_INPUT, handleGamepadInput)
+    SLURP_DECLARE_DYNAMIC(SLURP_LOAD_AUDIO, loadAudio)
+    SLURP_DECLARE_DYNAMIC(SLURP_RENDER_GRAPHICS, renderGraphics)
 
     struct SlurpDll
     {
-        slurp_init* init = slurp_init_stub;
-        slurp_handle_keyboard_input* handleKeyboardInput = slurp_handle_keyboard_input_stub;
-        slurp_handle_gamepad_input* handleGamepadInput = slurp_handle_gamepad_input_stub;
-        slurp_load_audio* loadAudio = slurp_load_audio_stub;
-        slurp_render_graphics* renderGraphics = slurp_render_graphics_stub;
+        dyn_init* init = stub_init;
+        dyn_handleKeyboardInput* handleKeyboardInput = stub_handleKeyboardInput;
+        dyn_handleGamepadInput* handleGamepadInput = stub_handleGamepadInput;
+        dyn_loadAudio* loadAudio = stub_loadAudio;
+        dyn_renderGraphics* renderGraphics = stub_renderGraphics;
     };
-
-    extern "C" {
-    DLL_EXPORT void init(const PlatformDll platformDll, GameMemory* gameMemory);
-    DLL_EXPORT void handleKeyboardInput(KeyboardState state);
-    DLL_EXPORT void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
-    DLL_EXPORT void loadAudio(AudioBuffer buffer);
-    DLL_EXPORT void renderGraphics(GraphicsBuffer buffer);
-    }
 }

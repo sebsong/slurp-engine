@@ -71,7 +71,7 @@ namespace slurp
         }
     }
 
-    void init(const PlatformDll platformDll, GameMemory* gameMemory)
+    SLURP_INIT(init)
     {
         GlobalPlatformDll = platformDll;
 
@@ -85,7 +85,7 @@ namespace slurp
         }
     }
 
-    void handleKeyboardInput(KeyboardState state)
+    SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
     {
         if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
         {
@@ -134,7 +134,7 @@ namespace slurp
         }
     }
 
-    void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS])
+    SLURP_HANDLE_GAMEPAD_INPUT(handleGamepadInput)
     {
         for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
         {
@@ -170,13 +170,13 @@ namespace slurp
         }
     }
 
-    void loadAudio(AudioBuffer buffer)
+    SLURP_LOAD_AUDIO(loadAudio)
     {
         loadSineWave(buffer);
         // loadSquareWave(buffer);
     }
 
-    void renderGraphics(const GraphicsBuffer buffer)
+    SLURP_RENDER_GRAPHICS(renderGraphics)
     {
         drawColorfulTriangles(buffer);
     }
