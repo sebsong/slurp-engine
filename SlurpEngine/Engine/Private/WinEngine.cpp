@@ -1,7 +1,5 @@
-#include <SlurpEngine.cpp>
+#include <Platform.hpp>
 #include <WinEngine.hpp>
-
-#include <Xinput.h>
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
@@ -14,6 +12,9 @@ static bool GlobalRunning;
 static bool GlobalPause;
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
+
+static slurp::SlurpDll GlobalSlurpDll;
+static HMODULE GlobalSlurpLib;
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -155,7 +156,8 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState)
                     inputState->transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState->isDown = isDown;
-                } else
+                }
+                else
                 {
                     OutputDebugStringA("Windows keyboard code not registered.\n");
                 }
@@ -405,13 +407,15 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
     region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.samplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
-    slurp::loadAudio(region1Buffer);
+    // slurp::loadAudio(region1Buffer);
+    GlobalSlurpDll.loadAudio(region1Buffer);
 
     slurp::AudioBuffer region2Buffer = {};
     region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
-    slurp::loadAudio(region2Buffer);
+    // slurp::loadAudio(region2Buffer);
+    GlobalSlurpDll.loadAudio(region2Buffer);
 
     GlobalAudioBuffer.buffer->Unlock(
         audioRegion1Ptr,
@@ -562,10 +566,84 @@ static void winCaptureAndLogPerformance(
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
 }
 
-#if DEBUG
-DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
+template <typename T>
+static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
 {
-    DEBUG_FileReadResult result = {};
+    out = reinterpret_cast<T*>(
+        GetProcAddress(lib, fnName)
+    );
+    if (!out)
+    {
+        OutputDebugStringA("Failed to load lib function.\n");
+        assert(out)
+        out = stubFn;
+    }
+}
+
+static void winLoadSlurpLib()
+{
+    CopyFileA("SlurpEngine.dll", "SlurpEngineLoad.dll", false);
+    GlobalSlurpLib = LoadLibraryA("SlurpEngineLoad.dll");
+    if (!GlobalSlurpLib)
+    {
+        OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
+    }
+    else
+    {
+        winLoadLibFn<slurp::dyn_init>(
+            GlobalSlurpDll.init,
+            "init",
+            slurp::stub_init,
+            GlobalSlurpLib
+        );
+        winLoadLibFn<slurp::dyn_handleKeyboardInput>(
+            GlobalSlurpDll.handleKeyboardInput,
+            "handleKeyboardInput",
+            slurp::stub_handleKeyboardInput,
+            GlobalSlurpLib
+        );
+        winLoadLibFn<slurp::dyn_handleGamepadInput>(
+            GlobalSlurpDll.handleGamepadInput,
+            "handleGamepadInput",
+            slurp::stub_handleGamepadInput,
+            GlobalSlurpLib
+        );
+        winLoadLibFn<slurp::dyn_loadAudio>(
+            GlobalSlurpDll.loadAudio,
+            "loadAudio",
+            slurp::stub_loadAudio,
+            GlobalSlurpLib
+        );
+        winLoadLibFn<slurp::dyn_renderGraphics>(
+            GlobalSlurpDll.renderGraphics,
+            "renderGraphics",
+            slurp::stub_renderGraphics,
+            GlobalSlurpLib
+        );
+    }
+}
+
+static void winUnloadSlurpLib()
+{
+    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib))
+    {
+        OutputDebugStringA("Failed to unload Slurp lib.\n");
+    }
+    GlobalSlurpDll = slurp::SlurpDll();
+}
+
+static void winReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
+{
+    winUnloadSlurpLib();
+    winLoadSlurpLib();
+    GlobalSlurpDll.init(platformDll, gameMemory);
+}
+
+
+#if DEBUG
+PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
+{
+    platform::DEBUG_FileReadResult result = {};
     HANDLE fileHandle = CreateFileA(
         fileName,
         GENERIC_READ,
@@ -609,7 +687,7 @@ DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
     if (!success || bytesRead != fileSizeTruncated)
     {
         OutputDebugStringA("Could not read file.");
-        DEBUG_platformFreeMemory(buffer);
+        platform::DEBUG_freeMemory(buffer);
         return result;
     }
 
@@ -618,7 +696,7 @@ DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
     return result;
 }
 
-bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
+PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile)
 {
     HANDLE fileHandle = CreateFileA(
         fileName,
@@ -654,7 +732,7 @@ bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t 
     return true;
 }
 
-void DEBUG_platformFreeMemory(void* memory)
+PLATFORM_DEBUG_FREE_MEMORY(platform::DEBUG_freeMemory)
 {
     if (memory)
     {
@@ -662,11 +740,27 @@ void DEBUG_platformFreeMemory(void* memory)
     }
 }
 
-void DEBUG_platformTogglePause()
+PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause)
 {
     GlobalPause = !GlobalPause;
 }
 #endif
+
+PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
+{
+    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
+    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
+    XINPUT_VIBRATION vibration{
+        leftMotorSpeedRaw,
+        rightMotorSpeedRaw,
+    };
+    XInputSetState(controllerIdx, &vibration);
+}
+
+PLATFORM_SHUTDOWN(platform::shutdown)
+{
+    GlobalRunning = false;
+}
 
 void winDrawDebugLine(int drawX, uint32_t color)
 {
@@ -697,22 +791,6 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
     winDrawDebugLine(x, color);
 }
 
-void platformVibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
-{
-    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
-    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
-    XINPUT_VIBRATION vibration{
-        leftMotorSpeedRaw,
-        rightMotorSpeedRaw,
-    };
-    XInputSetState(controllerIdx, &vibration);
-}
-
-void platformShutdown()
-{
-    GlobalRunning = false;
-}
-
 int WINAPI WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -726,9 +804,21 @@ int WINAPI WinMain(
         return 1;
     }
 
+    winLoadSlurpLib();
+
+    platform::PlatformDll platformDll = {};
+    platformDll.vibrateController = platform::vibrateController;
+    platformDll.shutdown = platform::shutdown;
+#if DEBUG
+    platformDll.DEBUG_readFile = platform::DEBUG_readFile;
+    platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
+    platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
+    platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
+#endif
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
-    slurp::init(&gameMemory);
+    // slurp::init(&gameMemory);
+    GlobalSlurpDll.init(platformDll, &gameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
@@ -757,17 +847,25 @@ int WINAPI WinMain(
 
     HDC deviceContext = GetDC(windowHandle);
 
+    uint32_t reloadTimer = 0;
     while (GlobalRunning)
     {
+        if (reloadTimer++ > targetFramesPerSecond)
+        {
+            winReloadSlurpLib(platformDll, &gameMemory);
+            reloadTimer = 0;
+        }
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
         {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
         winHandleMessages(&keyboardState);
-        slurp::handleKeyboardInput(keyboardState);
+        // slurp::handleKeyboardInput(keyboardState);
+        GlobalSlurpDll.handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
-        slurp::handleGamepadInput(controllerStates);
+        // slurp::handleGamepadInput(controllerStates);
+        GlobalSlurpDll.handleGamepadInput(controllerStates);
 
 #if DEBUG
         if (GlobalPause)
@@ -775,13 +873,14 @@ int WINAPI WinMain(
             continue;
         }
 #endif
-        
+
         slurp::GraphicsBuffer graphicsBuffer = {};
         graphicsBuffer.memory = GlobalGraphicsBuffer.memory;
         graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;
         graphicsBuffer.heightPixels = GlobalGraphicsBuffer.heightPixels;
         graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
-        slurp::renderGraphics(graphicsBuffer);
+        // slurp::renderGraphics(graphicsBuffer);
+        GlobalSlurpDll.renderGraphics(graphicsBuffer);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
         {

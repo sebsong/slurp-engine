@@ -10,8 +10,9 @@ static constexpr float GlobalVolume = 0.1f * 32000;
 
 namespace slurp
 {
+    static platform::PlatformDll GlobalPlatformDll;
     static GameState* GlobalGameState;
-    
+
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
@@ -19,36 +20,34 @@ namespace slurp
 
     static void loadSineWave(AudioBuffer buffer)
     {
-        static float tSine = 0;
         float sineWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
-            int16_t subSampleData = static_cast<int16_t>(sinf(tSine) * GlobalVolume);
+            int16_t subSampleData = static_cast<int16_t>(sinf(GlobalGameState->tWave) * GlobalVolume);
             // *buffer.samples++ = (subSampleData << 16) | subSampleData;
             *subSamples++ = subSampleData;
             *subSamples++ = subSampleData;
 
-            tSine += 2 * Pi / sineWavePeriod;
-            tSine = std::fmod(tSine, 2 * Pi);
+            GlobalGameState->tWave += 2 * Pi / sineWavePeriod;
+            GlobalGameState->tWave = std::fmod(GlobalGameState->tWave, 2 * Pi);
         }
     }
 
     static void loadSquareWave(AudioBuffer buffer)
     {
-        static float tSquare = 0;
         float squareWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
 
         int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
         for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
         {
-            int16_t square = ((int)tSquare % 2 == 0) ? 1 : -1;
+            int16_t square = ((int)GlobalGameState->tWave % 2 == 0) ? 1 : -1;
             int16_t sampleData = static_cast<int16_t>(square * GlobalVolume / 4); // artificially lower volume
             *subSamples++ = sampleData;
             *subSamples++ = sampleData;
 
-            tSquare += 1 / (squareWavePeriod / 2.f);
+            GlobalGameState->tWave += 1 / (squareWavePeriod / 2.f);
         }
     }
 
@@ -72,19 +71,25 @@ namespace slurp
         }
     }
 
-    void init(const GameMemory* gameMemory)
+    SLURP_INIT(init)
     {
+        GlobalPlatformDll = platformDll;
+
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
-        GlobalGameState->scrollSpeed = LowScrollSpeed;
-        GlobalGameState->frequencyHz = BaseFrequencyHz;
+        if (!gameMemory->isInitialized)
+        {
+            GlobalGameState->scrollSpeed = LowScrollSpeed;
+            GlobalGameState->frequencyHz = BaseFrequencyHz;
+            gameMemory->isInitialized = true;
+        }
     }
 
-    void handleKeyboardInput(KeyboardState state)
+    SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
     {
         if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
         {
-            platformShutdown();
+            GlobalPlatformDll.shutdown();
         }
 
         if (state.isDown(KeyboardCode::W))
@@ -103,10 +108,12 @@ namespace slurp
         {
             GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
         }
+#if DEBUG
         if (state.justPressed(KeyboardCode::P))
         {
-            DEBUG_platformTogglePause();
+            GlobalPlatformDll.DEBUG_togglePause();
         }
+#endif
 
         DigitalInputState inputState;
         if (state.getState(KeyboardCode::SPACE, inputState))
@@ -123,11 +130,11 @@ namespace slurp
 
         if (state.isDown(KeyboardCode::ESC))
         {
-            platformShutdown();
+            GlobalPlatformDll.shutdown();
         }
     }
 
-    void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS])
+    SLURP_HANDLE_GAMEPAD_INPUT(handleGamepadInput)
     {
         for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
         {
@@ -139,7 +146,7 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B))
             {
-                platformShutdown();
+                GlobalPlatformDll.shutdown();
             }
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
@@ -157,19 +164,19 @@ namespace slurp
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
-            platformVibrateController(controllerIdx, leftTrigger, rightTrigger);
+            GlobalPlatformDll.vibrateController(controllerIdx, leftTrigger, rightTrigger);
 
             GlobalGameState->frequencyHz = BaseFrequencyHz + leftStick.x * DeltaFrequencyHz;
         }
     }
 
-    void loadAudio(AudioBuffer buffer)
+    SLURP_LOAD_AUDIO(loadAudio)
     {
         loadSineWave(buffer);
         // loadSquareWave(buffer);
     }
 
-    void renderGraphics(const GraphicsBuffer buffer)
+    SLURP_RENDER_GRAPHICS(renderGraphics)
     {
         drawColorfulTriangles(buffer);
     }

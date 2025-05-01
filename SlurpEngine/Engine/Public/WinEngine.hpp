@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SlurpEngine.hpp>
+
 #include <windows.h>
 #include <dsound.h>
 #include <map>
