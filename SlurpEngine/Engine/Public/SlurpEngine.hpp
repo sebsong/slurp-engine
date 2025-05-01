@@ -170,13 +170,7 @@ namespace slurp
         float tWave;
     };
 
-    // NOTE: Define dynamic types for hot reloading
-#define SLURP_DECLARE_DYNAMIC(fnMacro, fnName) \
-    typedef fnMacro(dyn_##fnName);             \
-    fnMacro(stub_##fnName){}                   \
-    extern "C" DLL_EXPORT fnMacro(fnName);
-
-#define SLURP_INIT(fnName) void fnName(const PlatformDll platformDll, slurp::GameMemory* gameMemory)
+#define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
 #define SLURP_HANDLE_KEYBOARD_INPUT(fnName) void fnName(slurp::KeyboardState state)
 #define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS])
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)

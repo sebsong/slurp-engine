@@ -637,7 +637,7 @@ static void winUnloadSlurpLib()
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winReloadSlurpLib(PlatformDll platformDll, slurp::GameMemory* gameMemory)
+static void winReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
 {
     winUnloadSlurpLib();
     winLoadSlurpLib();
@@ -646,9 +646,9 @@ static void winReloadSlurpLib(PlatformDll platformDll, slurp::GameMemory* gameMe
 
 
 #if DEBUG
-DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
+platform::DEBUG_FileReadResult platform::DEBUG_platformReadFile(const char* fileName)
 {
-    DEBUG_FileReadResult result = {};
+    platform::DEBUG_FileReadResult result = {};
     HANDLE fileHandle = CreateFileA(
         fileName,
         GENERIC_READ,
@@ -692,7 +692,7 @@ DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
     if (!success || bytesRead != fileSizeTruncated)
     {
         OutputDebugStringA("Could not read file.");
-        DEBUG_platformFreeMemory(buffer);
+        platform::DEBUG_platformFreeMemory(buffer);
         return result;
     }
 
@@ -701,7 +701,7 @@ DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName)
     return result;
 }
 
-bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
+bool platform::DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
 {
     HANDLE fileHandle = CreateFileA(
         fileName,
@@ -737,7 +737,7 @@ bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t 
     return true;
 }
 
-void DEBUG_platformFreeMemory(void* memory)
+void platform::DEBUG_platformFreeMemory(void* memory)
 {
     if (memory)
     {
@@ -745,7 +745,7 @@ void DEBUG_platformFreeMemory(void* memory)
     }
 }
 
-void DEBUG_platformTogglePause()
+void platform::DEBUG_platformTogglePause()
 {
     GlobalPause = !GlobalPause;
 }
@@ -811,11 +811,11 @@ int WINAPI WinMain(
 
     winLoadSlurpLib();
 
-    PlatformDll platformDll = {};
+    platform::PlatformDll platformDll = {};
     platformDll.platformVibrateController = platformVibrateController;
     platformDll.platformShutdown = platformShutdown;
 #if DEBUG
-    platformDll.DEBUG_platformTogglePause = DEBUG_platformTogglePause;
+    platformDll.DEBUG_platformTogglePause = platform::DEBUG_platformTogglePause;
 #endif
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);

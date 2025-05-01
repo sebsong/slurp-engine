@@ -10,7 +10,7 @@ static constexpr float GlobalVolume = 0.1f * 32000;
 
 namespace slurp
 {
-    static PlatformDll GlobalPlatformDll;
+    static platform::PlatformDll GlobalPlatformDll;
     static GameState* GlobalGameState;
 
     static constexpr float LowScrollSpeed = 1;
