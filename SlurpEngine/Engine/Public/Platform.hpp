@@ -22,7 +22,7 @@
     DEBUG_PLATFORM_TOGGLE_PAUSE(DEBUG_platform_toggle_pause_stub)
     {
     }
-struct PlatformDLL
+struct PlatformDll
 {
     platform_vibrate_controller* platformVibrateController;
     platform_shutdown* platformShutdown;

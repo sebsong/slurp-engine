@@ -156,6 +156,7 @@ namespace slurp
 
     struct GameMemory
     {
+        bool isInitialized;
         MemoryBlock permanentMemory;
         MemoryBlock transientMemory;
     };
@@ -166,9 +167,10 @@ namespace slurp
         float graphicsDY;
         float scrollSpeed;
         float frequencyHz;
+        float tSine;
     };
 
-#define SLURP_INIT(fnName) void fnName(const PlatformDLL platformDLL, const slurp::GameMemory* gameMemory)
+#define SLURP_INIT(fnName) void fnName(const PlatformDll platformDll, slurp::GameMemory* gameMemory)
     typedef SLURP_INIT(slurp_init);
     SLURP_INIT(slurp_init_stub)
     {
@@ -198,7 +200,7 @@ namespace slurp
     {
     }
 
-    struct SlurpDLL
+    struct SlurpDll
     {
         slurp_init* init = slurp_init_stub;
         slurp_handle_keyboard_input* handleKeyboardInput = slurp_handle_keyboard_input_stub;
@@ -208,7 +210,7 @@ namespace slurp
     };
 
     extern "C" {
-    DLL_EXPORT void init(const PlatformDLL platformDLL, const GameMemory* gameMemory);
+    DLL_EXPORT void init(const PlatformDll platformDll, GameMemory* gameMemory);
     DLL_EXPORT void handleKeyboardInput(KeyboardState state);
     DLL_EXPORT void handleGamepadInput(GamepadState controllerStates[MAX_NUM_CONTROLLERS]);
     DLL_EXPORT void loadAudio(AudioBuffer buffer);
