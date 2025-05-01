@@ -566,6 +566,20 @@ static void winCaptureAndLogPerformance(
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
 }
 
+template <typename T>
+static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
+{
+    out = reinterpret_cast<T*>(
+        GetProcAddress(lib, fnName)
+    );
+    if (!out)
+    {
+        OutputDebugStringA("Failed to load lib function.\n");
+        assert(out)
+        out = stubFn;
+    }
+}
+
 static void winLoadSlurpLib()
 {
     CopyFileA("SlurpEngine.dll", "SlurpEngineLoad.dll", false);
@@ -576,55 +590,36 @@ static void winLoadSlurpLib()
     }
     else
     {
-        GlobalSlurpDll.init = reinterpret_cast<slurp::dyn_init*>(
-            GetProcAddress(GlobalSlurpLib, "init")
+        winLoadLibFn<slurp::dyn_init>(
+            GlobalSlurpDll.init,
+            "init",
+            slurp::stub_init,
+            GlobalSlurpLib
         );
-        assert(GlobalSlurpDll.init)
-        if (!GlobalSlurpDll.init)
-        {
-            OutputDebugStringA("Failed to load slurp::init.\n");
-            GlobalSlurpDll.init = slurp::stub_init;
-        }
-
-        GlobalSlurpDll.handleKeyboardInput = reinterpret_cast<slurp::dyn_handleKeyboardInput*>(
-            GetProcAddress(GlobalSlurpLib, "handleKeyboardInput")
+        winLoadLibFn<slurp::dyn_handleKeyboardInput>(
+            GlobalSlurpDll.handleKeyboardInput,
+            "handleKeyboardInput",
+            slurp::stub_handleKeyboardInput,
+            GlobalSlurpLib
         );
-        assert(GlobalSlurpDll.handleKeyboardInput)
-        if (!GlobalSlurpDll.handleKeyboardInput)
-        {
-            OutputDebugStringA("Failed to load slurp::handleKeyboardInput.\n");
-            GlobalSlurpDll.handleKeyboardInput = slurp::stub_handleKeyboardInput;
-        }
-
-        GlobalSlurpDll.handleGamepadInput = reinterpret_cast<slurp::dyn_handleGamepadInput*>(
-            GetProcAddress(GlobalSlurpLib, "handleGamepadInput")
+        winLoadLibFn<slurp::dyn_handleGamepadInput>(
+            GlobalSlurpDll.handleGamepadInput,
+            "handleGamepadInput",
+            slurp::stub_handleGamepadInput,
+            GlobalSlurpLib
         );
-        assert(GlobalSlurpDll.handleGamepadInput)
-        if (!GlobalSlurpDll.handleGamepadInput)
-        {
-            OutputDebugStringA("Failed to load slurp::handleGamepadInput.\n");
-            GlobalSlurpDll.handleGamepadInput = slurp::stub_handleGamepadInput;
-        }
-
-        GlobalSlurpDll.loadAudio = reinterpret_cast<slurp::dyn_loadAudio*>(
-            GetProcAddress(GlobalSlurpLib, "loadAudio")
+        winLoadLibFn<slurp::dyn_loadAudio>(
+            GlobalSlurpDll.loadAudio,
+            "loadAudio",
+            slurp::stub_loadAudio,
+            GlobalSlurpLib
         );
-        assert(GlobalSlurpDll.loadAudio)
-        if (!GlobalSlurpDll.loadAudio)
-        {
-            OutputDebugStringA("Failed to load slurp::loadAudio.\n");
-            GlobalSlurpDll.loadAudio = slurp::stub_loadAudio;
-        }
-
-        GlobalSlurpDll.renderGraphics = reinterpret_cast<slurp::dyn_renderGraphics*>(
-            GetProcAddress(GlobalSlurpLib, "renderGraphics")
+        winLoadLibFn<slurp::dyn_renderGraphics>(
+            GlobalSlurpDll.renderGraphics,
+            "renderGraphics",
+            slurp::stub_renderGraphics,
+            GlobalSlurpLib
         );
-        assert(GlobalSlurpDll.renderGraphics)
-        if (!GlobalSlurpDll.renderGraphics)
-        {
-            OutputDebugStringA("Failed to load slurp::renderGraphics.\n");
-            GlobalSlurpDll.renderGraphics = slurp::stub_renderGraphics;
-        }
     }
 }
 
