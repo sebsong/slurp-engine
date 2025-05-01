@@ -751,6 +751,22 @@ void platform::DEBUG_togglePause()
 }
 #endif
 
+void platform::vibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
+{
+    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
+    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
+    XINPUT_VIBRATION vibration{
+        leftMotorSpeedRaw,
+        rightMotorSpeedRaw,
+    };
+    XInputSetState(controllerIdx, &vibration);
+}
+
+void platform::shutdown()
+{
+    GlobalRunning = false;
+}
+
 void winDrawDebugLine(int drawX, uint32_t color)
 {
     int lineWidth = 8;
@@ -780,22 +796,6 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
     winDrawDebugLine(x, color);
 }
 
-void platform::vibrateController(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
-{
-    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
-    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
-    XINPUT_VIBRATION vibration{
-        leftMotorSpeedRaw,
-        rightMotorSpeedRaw,
-    };
-    XInputSetState(controllerIdx, &vibration);
-}
-
-void platform::shutdown()
-{
-    GlobalRunning = false;
-}
-
 int WINAPI WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -815,6 +815,9 @@ int WINAPI WinMain(
     platformDll.vibrateController = platform::vibrateController;
     platformDll.shutdown = platform::shutdown;
 #if DEBUG
+    platformDll.DEBUG_readFile = platform::DEBUG_readFile;
+    platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
+    platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
     platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
 #endif
     slurp::GameMemory gameMemory = {};
