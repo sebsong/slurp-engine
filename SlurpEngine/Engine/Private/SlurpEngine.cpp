@@ -89,7 +89,7 @@ namespace slurp
     {
         if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
         {
-            GlobalPlatformDll.platformShutdown();
+            GlobalPlatformDll.shutdown();
         }
 
         if (state.isDown(KeyboardCode::W))
@@ -111,7 +111,7 @@ namespace slurp
 #if DEBUG
         if (state.justPressed(KeyboardCode::P))
         {
-            GlobalPlatformDll.DEBUG_platformTogglePause();
+            GlobalPlatformDll.DEBUG_togglePause();
         }
 #endif
 
@@ -130,7 +130,7 @@ namespace slurp
 
         if (state.isDown(KeyboardCode::ESC))
         {
-            GlobalPlatformDll.platformShutdown();
+            GlobalPlatformDll.shutdown();
         }
     }
 
@@ -146,7 +146,7 @@ namespace slurp
 
             if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B))
             {
-                GlobalPlatformDll.platformShutdown();
+                GlobalPlatformDll.shutdown();
             }
 
             if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
@@ -164,7 +164,7 @@ namespace slurp
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
-            GlobalPlatformDll.platformVibrateController(controllerIdx, leftTrigger, rightTrigger);
+            GlobalPlatformDll.vibrateController(controllerIdx, leftTrigger, rightTrigger);
 
             GlobalGameState->frequencyHz = BaseFrequencyHz + leftStick.x * DeltaFrequencyHz;
         }

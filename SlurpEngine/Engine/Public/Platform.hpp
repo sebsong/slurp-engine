@@ -17,18 +17,10 @@ namespace platform
 {
 #define PLATFORM_VIBRATE_CONTROLLER(fnName) void fnName(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
 #define PLATFORM_SHUTDOWN(fnName) void fnName()
-#define DEBUG_PLATFORM_TOGGLE_PAUSE(fnName) void fnName()
 
-    SLURP_DECLARE_DYNAMIC(PLATFORM_VIBRATE_CONTROLLER, platformVibrateController)
-    SLURP_DECLARE_DYNAMIC(PLATFORM_SHUTDOWN, platformShutdown)
-    SLURP_DECLARE_DYNAMIC(DEBUG_PLATFORM_TOGGLE_PAUSE, DEBUG_platformTogglePause)
+    SLURP_DECLARE_DYNAMIC(PLATFORM_VIBRATE_CONTROLLER, vibrateController)
+    SLURP_DECLARE_DYNAMIC(PLATFORM_SHUTDOWN, shutdown)
 
-    struct PlatformDll
-    {
-        dyn_platformVibrateController* platformVibrateController = stub_platformVibrateController;
-        dyn_platformShutdown* platformShutdown = stub_platformShutdown;
-        dyn_DEBUG_platformTogglePause* DEBUG_platformTogglePause = stub_DEBUG_platformTogglePause;
-    };
 
 #if DEBUG
     struct DEBUG_FileReadResult
@@ -37,11 +29,21 @@ namespace platform
         uint32_t sizeBytes;
     };
 
-    //TODO: make these dynamic
+#define PLATFORM_DEBUG_TOGGLE_PAUSE(fnName) void fnName()
 
-    DEBUG_FileReadResult DEBUG_platformReadFile(const char* fileName);
-    bool DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes);
-    void DEBUG_platformFreeMemory(void* memory);
-    // void DEBUG_platformTogglePause();
+    //TODO: make these dynamic
+    DEBUG_FileReadResult DEBUG_readFile(const char* fileName);
+    bool DEBUG_writeFile(const char* fileName, void* fileContents, uint32_t sizeBytes);
+    void DEBUG_freeMemory(void* memory);
+    SLURP_DECLARE_DYNAMIC(PLATFORM_DEBUG_TOGGLE_PAUSE, DEBUG_togglePause)
 #endif
+
+    struct PlatformDll
+    {
+        dyn_vibrateController* vibrateController = stub_vibrateController;
+        dyn_shutdown* shutdown = stub_shutdown;
+#if DEBUG
+        dyn_DEBUG_togglePause* DEBUG_togglePause = stub_DEBUG_togglePause;
+#endif
+    };
 }

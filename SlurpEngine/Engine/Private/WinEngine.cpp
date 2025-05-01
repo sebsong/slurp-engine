@@ -646,7 +646,7 @@ static void winReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemo
 
 
 #if DEBUG
-platform::DEBUG_FileReadResult platform::DEBUG_platformReadFile(const char* fileName)
+platform::DEBUG_FileReadResult platform::DEBUG_readFile(const char* fileName)
 {
     platform::DEBUG_FileReadResult result = {};
     HANDLE fileHandle = CreateFileA(
@@ -692,7 +692,7 @@ platform::DEBUG_FileReadResult platform::DEBUG_platformReadFile(const char* file
     if (!success || bytesRead != fileSizeTruncated)
     {
         OutputDebugStringA("Could not read file.");
-        platform::DEBUG_platformFreeMemory(buffer);
+        platform::DEBUG_freeMemory(buffer);
         return result;
     }
 
@@ -701,7 +701,7 @@ platform::DEBUG_FileReadResult platform::DEBUG_platformReadFile(const char* file
     return result;
 }
 
-bool platform::DEBUG_platformWriteFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
+bool platform::DEBUG_writeFile(const char* fileName, void* fileContents, uint32_t sizeBytes)
 {
     HANDLE fileHandle = CreateFileA(
         fileName,
@@ -737,7 +737,7 @@ bool platform::DEBUG_platformWriteFile(const char* fileName, void* fileContents,
     return true;
 }
 
-void platform::DEBUG_platformFreeMemory(void* memory)
+void platform::DEBUG_freeMemory(void* memory)
 {
     if (memory)
     {
@@ -745,7 +745,7 @@ void platform::DEBUG_platformFreeMemory(void* memory)
     }
 }
 
-void platform::DEBUG_platformTogglePause()
+void platform::DEBUG_togglePause()
 {
     GlobalPause = !GlobalPause;
 }
@@ -812,10 +812,10 @@ int WINAPI WinMain(
     winLoadSlurpLib();
 
     platform::PlatformDll platformDll = {};
-    platformDll.platformVibrateController = platformVibrateController;
-    platformDll.platformShutdown = platformShutdown;
+    platformDll.vibrateController = platformVibrateController;
+    platformDll.shutdown = platformShutdown;
 #if DEBUG
-    platformDll.DEBUG_platformTogglePause = platform::DEBUG_platformTogglePause;
+    platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
 #endif
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
