@@ -407,14 +407,12 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
     region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.samplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
-    // slurp::loadAudio(region1Buffer);
     GlobalSlurpDll.loadAudio(region1Buffer);
 
     slurp::AudioBuffer region2Buffer = {};
     region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
-    // slurp::loadAudio(region2Buffer);
     GlobalSlurpDll.loadAudio(region2Buffer);
 
     GlobalAudioBuffer.buffer->Unlock(
@@ -817,7 +815,6 @@ int WINAPI WinMain(
 #endif
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
-    // slurp::init(&gameMemory);
     GlobalSlurpDll.init(platformDll, &gameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
@@ -861,10 +858,8 @@ int WINAPI WinMain(
             inputState.transitionCount = 0;
         }
         winHandleMessages(&keyboardState);
-        // slurp::handleKeyboardInput(keyboardState);
         GlobalSlurpDll.handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
-        // slurp::handleGamepadInput(controllerStates);
         GlobalSlurpDll.handleGamepadInput(controllerStates);
 
 #if DEBUG
@@ -879,7 +874,6 @@ int WINAPI WinMain(
         graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;
         graphicsBuffer.heightPixels = GlobalGraphicsBuffer.heightPixels;
         graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
-        // slurp::renderGraphics(graphicsBuffer);
         GlobalSlurpDll.renderGraphics(graphicsBuffer);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
