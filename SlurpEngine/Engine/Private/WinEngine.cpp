@@ -7,6 +7,8 @@
 #define terabytes(n) (gigabytes(n) * 1024)
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
+static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
+static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
 
 static bool GlobalRunning;
 static bool GlobalPause;
@@ -556,9 +558,9 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-    // char buf[256];
-    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    // OutputDebugStringA(buf);
+    char buf[256];
+    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    OutputDebugStringA(buf);
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
@@ -580,8 +582,8 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
 
 static void winLoadSlurpLib()
 {
-    CopyFileA("SlurpEngine.dll", "SlurpEngineLoad.dll", false);
-    GlobalSlurpLib = LoadLibraryA("SlurpEngineLoad.dll");
+    CopyFileA(SLURP_DLL_FILE_NAME, SLURP_LOAD_DLL_FILE_NAME, false);
+    GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
     if (!GlobalSlurpLib)
     {
         OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
@@ -630,8 +632,29 @@ static void winUnloadSlurpLib()
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
+static void winTryReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
 {
+    HANDLE dllFileHandle = CreateFileA(
+        SLURP_DLL_FILE_NAME,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+    static FILETIME previousWriteTime;
+    FILETIME writeTime;
+    FILETIME _;
+    GetFileTime(dllFileHandle, &_, &_, &writeTime);
+    CloseHandle(dllFileHandle);
+    if (writeTime.dwLowDateTime == previousWriteTime.dwLowDateTime &&
+        writeTime.dwHighDateTime == previousWriteTime.dwHighDateTime)
+    {
+        return;
+    }
+    
+    previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib();
     GlobalSlurpDll.init(platformDll, gameMemory);
@@ -818,6 +841,7 @@ int WINAPI WinMain(
     GlobalSlurpDll.init(platformDll, &gameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
+    // DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
 
@@ -843,15 +867,11 @@ int WINAPI WinMain(
     };
 
     HDC deviceContext = GetDC(windowHandle);
-
-    uint32_t reloadTimer = 0;
+    
     while (GlobalRunning)
     {
-        if (reloadTimer++ > targetFramesPerSecond)
-        {
-            winReloadSlurpLib(platformDll, &gameMemory);
-            reloadTimer = 0;
-        }
+        winTryReloadSlurpLib(platformDll, &gameMemory);
+        
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
         {
             slurp::DigitalInputState& inputState = entry.second;

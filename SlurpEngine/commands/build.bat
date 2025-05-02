@@ -22,13 +22,17 @@ if %debug% == 1 (
     set compiler_flags=%release_flags% %compiler_flags%
 )
 
-set linker_flags=/link -opt:ref
+set timestamp=%time::=_%
+set timestamp=%timestamp:.=_%
+set slurp_linker_flags=-incremental:no -PDB:slurp_%timestamp%.pdb
+set win_linker_flags=-opt:ref
 set libs=user32.lib gdi32.lib Winmm.lib
 
 if not exist %slurp_dir%\build mkdir %slurp_dir%\build
 pushd %slurp_dir%\build
-cl %includes% %warning_flags% %macros% %compiler_flags% -LD %engine_dir%\Private\SlurpEngine.cpp
-cl %includes% %warning_flags% %macros% %compiler_flags% %engine_dir%\Private\WinEngine.cpp %linker_flags% %libs%
+del *.pdb
+cl %includes% %warning_flags% %macros% %compiler_flags% -LD %engine_dir%\Private\SlurpEngine.cpp -link %slurp_linker_flags%
+cl %includes% %warning_flags% %macros% %compiler_flags% %engine_dir%\Private\WinEngine.cpp -link %win_linker_flags% %libs%
 popd
 
 ENDLOCAL
