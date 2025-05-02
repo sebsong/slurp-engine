@@ -77,12 +77,8 @@ namespace slurp
 
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
-        if (!gameMemory->isInitialized)
-        {
-            GlobalGameState->scrollSpeed = LowScrollSpeed;
-            GlobalGameState->frequencyHz = BaseFrequencyHz;
-            gameMemory->isInitialized = true;
-        }
+        GlobalGameState->scrollSpeed = LowScrollSpeed;
+        GlobalGameState->frequencyHz = BaseFrequencyHz;
     }
 
     SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)

@@ -24,9 +24,10 @@ if %debug% == 1 (
 
 set timestamp=%time::=_%
 set timestamp=%timestamp:.=_%
+set timestamp=%timestamp: =%
 set slurp_linker_flags=-incremental:no -PDB:slurp_%timestamp%.pdb
 set win_linker_flags=-opt:ref
-set libs=user32.lib gdi32.lib Winmm.lib
+set libs=user32.lib gdi32.lib Winmm.lib Shlwapi.lib
 
 if not exist %slurp_dir%\build mkdir %slurp_dir%\build
 pushd %slurp_dir%\build

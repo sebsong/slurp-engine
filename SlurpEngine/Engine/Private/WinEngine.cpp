@@ -1,6 +1,9 @@
 #include <Platform.hpp>
 #include <WinEngine.hpp>
 
+#include <shlwapi.h>
+#include <string>
+
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
 #define gigabytes(n) (megabytes(n) * 1024)
@@ -580,9 +583,9 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
     }
 }
 
-static void winLoadSlurpLib()
+static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath)
 {
-    CopyFileA(SLURP_DLL_FILE_NAME, SLURP_LOAD_DLL_FILE_NAME, false);
+    CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
     if (!GlobalSlurpLib)
     {
@@ -632,10 +635,15 @@ static void winUnloadSlurpLib()
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winTryReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
+static void winTryReloadSlurpLib(
+    const char* dllFilePath,
+    const char* dllLoadFilePath,
+    platform::PlatformDll platformDll,
+    slurp::GameMemory* gameMemory
+)
 {
     HANDLE dllFileHandle = CreateFileA(
-        SLURP_DLL_FILE_NAME,
+        dllFilePath,
         GENERIC_READ,
         FILE_SHARE_READ,
         NULL,
@@ -646,16 +654,19 @@ static void winTryReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameM
     static FILETIME previousWriteTime;
     FILETIME writeTime;
     FILETIME _;
-    GetFileTime(dllFileHandle, &_, &_, &writeTime);
+    if (!GetFileTime(dllFileHandle, &_, &_, &writeTime))
+    {
+        OutputDebugStringA("Failed to get SlurpEngine.dll file time.\n");
+    }
     CloseHandle(dllFileHandle);
     if (CompareFileTime(&writeTime, &previousWriteTime) == 0)
     {
         return;
     }
-    
+
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
-    winLoadSlurpLib();
+    winLoadSlurpLib(dllFilePath, dllLoadFilePath);
     GlobalSlurpDll.init(platformDll, gameMemory);
 }
 
@@ -824,7 +835,15 @@ int WINAPI WinMain(
         return 1;
     }
 
-    winLoadSlurpLib();
+    char exeDirPath[MAX_PATH];
+    GetModuleFileNameA(nullptr, exeDirPath, MAX_PATH);
+    PathRemoveFileSpecA(exeDirPath);
+    std::string exeDirPathStr = std::string(exeDirPath);
+    std::string dllFilePathStr = exeDirPathStr + "\\" + SLURP_DLL_FILE_NAME;
+    const char* dllFilePath = dllFilePathStr.c_str();
+    std::string dllLoadFilePathStr = exeDirPathStr + "\\" + SLURP_LOAD_DLL_FILE_NAME;
+    const char* dllLoadFilePath = dllLoadFilePathStr.c_str();
+    winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
     platform::PlatformDll platformDll = {};
     platformDll.vibrateController = platform::vibrateController;
@@ -866,11 +885,11 @@ int WINAPI WinMain(
     };
 
     HDC deviceContext = GetDC(windowHandle);
-    
+
     while (GlobalRunning)
     {
-        winTryReloadSlurpLib(platformDll, &gameMemory);
-        
+        winTryReloadSlurpLib(dllFilePath, dllLoadFilePath, platformDll, &gameMemory);
+
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
         {
             slurp::DigitalInputState& inputState = entry.second;

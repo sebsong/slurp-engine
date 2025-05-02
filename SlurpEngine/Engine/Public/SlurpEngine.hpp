@@ -156,7 +156,6 @@ namespace slurp
 
     struct GameMemory
     {
-        bool isInitialized;
         MemoryBlock permanentMemory;
         MemoryBlock transientMemory;
     };
