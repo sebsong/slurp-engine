@@ -648,8 +648,7 @@ static void winTryReloadSlurpLib(platform::PlatformDll platformDll, slurp::GameM
     FILETIME _;
     GetFileTime(dllFileHandle, &_, &_, &writeTime);
     CloseHandle(dllFileHandle);
-    if (writeTime.dwLowDateTime == previousWriteTime.dwLowDateTime &&
-        writeTime.dwHighDateTime == previousWriteTime.dwHighDateTime)
+    if (CompareFileTime(&writeTime, &previousWriteTime) == 0)
     {
         return;
     }
