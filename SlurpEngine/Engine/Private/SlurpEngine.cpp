@@ -17,6 +17,11 @@ namespace slurp
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
     static constexpr float DeltaFrequencyHz = 220;
+    static constexpr float PlayerStartX = 640;
+    static constexpr float PlayerStartY = 360;
+    static constexpr float PlayerSizePixels = 10;
+    static constexpr float PlayerSpeedX = 20;
+    static constexpr float PlayerSpeedY = 5;
 
     static void loadSineWave(AudioBuffer buffer)
     {
@@ -71,6 +76,30 @@ namespace slurp
         }
     }
 
+    static void drawPlayer(const GraphicsBuffer buffer, uint32_t color)
+    {
+        int xOffset = static_cast<int>(GlobalGameState->playerX);
+        int yOffset = static_cast<int>(GlobalGameState->playerY) * buffer.pitchBytes;
+        byte* startBitmapBytes = static_cast<byte*>(buffer.memory);
+        byte* bitmapBytes = startBitmapBytes + xOffset + yOffset;
+        size_t maxBitmapSize = buffer.widthPixels * buffer.heightPixels * sizeof(uint32_t);
+        for (int y = 0; y < PlayerSizePixels; y++)
+        {
+            uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
+            for (int x = 0; x < PlayerSizePixels; x++)
+            {
+                size_t bitmapOffset = bitmapBytes - startBitmapBytes;
+                if (bitmapOffset < 0 || bitmapOffset >= maxBitmapSize)
+                {
+                    continue;
+                }
+                *rowPixels++ = color;
+            }
+
+            bitmapBytes += buffer.pitchBytes;
+        }
+    }
+
     SLURP_INIT(init)
     {
         GlobalPlatformDll = platformDll;
@@ -79,6 +108,8 @@ namespace slurp
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
+        GlobalGameState->playerX = PlayerStartX;
+        GlobalGameState->playerY = PlayerStartY;
     }
 
     SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
@@ -91,18 +122,22 @@ namespace slurp
         if (state.isDown(KeyboardCode::W))
         {
             GlobalGameState->graphicsDY -= GlobalGameState->scrollSpeed;
+            GlobalGameState->playerY -= PlayerSpeedY;
         }
         if (state.isDown(KeyboardCode::A))
         {
             GlobalGameState->graphicsDX -= GlobalGameState->scrollSpeed;
+            GlobalGameState->playerX -= PlayerSpeedX;
         }
         if (state.isDown(KeyboardCode::S))
         {
             GlobalGameState->graphicsDY += GlobalGameState->scrollSpeed;
+            GlobalGameState->playerY += PlayerSpeedY;
         }
         if (state.isDown(KeyboardCode::D))
         {
             GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
+            GlobalGameState->playerX += PlayerSpeedX;
         }
 #if DEBUG
         if (state.justPressed(KeyboardCode::P))
@@ -157,6 +192,8 @@ namespace slurp
             XYCoord leftStick = gamepadState.leftStick.endXY;
             GlobalGameState->graphicsDX += leftStick.x * GlobalGameState->scrollSpeed;
             GlobalGameState->graphicsDY -= leftStick.y * GlobalGameState->scrollSpeed;
+            GlobalGameState->playerX += leftStick.x * PlayerSpeedX;
+            GlobalGameState->playerY -= leftStick.y * PlayerSpeedY;
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -175,5 +212,6 @@ namespace slurp
     SLURP_RENDER_GRAPHICS(renderGraphics)
     {
         drawColorfulTriangles(buffer);
+        drawPlayer(buffer, 0x00000000);
     }
 }

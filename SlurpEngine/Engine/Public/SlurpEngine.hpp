@@ -167,6 +167,8 @@ namespace slurp
         float scrollSpeed;
         float frequencyHz;
         float tWave;
+        float playerX;
+        float playerY;
     };
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
