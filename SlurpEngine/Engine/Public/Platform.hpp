@@ -34,6 +34,10 @@ namespace platform
 #define PLATFORM_DEBUG_WRITE_FILE(fnName) bool fnName(const char* fileName, void* fileContents, uint32_t sizeBytes)
 #define PLATFORM_DEBUG_FREE_MEMORY(fnName) void fnName(void* memory)
 #define PLATFORM_DEBUG_TOGGLE_PAUSE(fnName) void fnName()
+#define PLATFORM_DEBUG_BEGIN_RECORDING(fnName) void fnName(void* gameState, size_t size)
+#define PLATFORM_DEBUG_END_RECORDING(fnName) void fnName()
+#define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName()
+#define PLATFORM_DEBUG_END_PLAYBACK(fnName) void fnName()
 #endif
 
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_VIBRATE_CONTROLLER, vibrateController)
@@ -43,8 +47,13 @@ namespace platform
     SLURP_DECLARE_DYNAMIC_RETURN(PLATFORM_DEBUG_WRITE_FILE, DEBUG_writeFile, false)
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_FREE_MEMORY, DEBUG_freeMemory)
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_TOGGLE_PAUSE, DEBUG_togglePause)
+    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_RECORDING, DEBUG_beginRecording)
+    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_END_RECORDING, DEBUG_endRecording)
+    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_PLAYBACK, DEBUG_beginPlayback)
+    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_END_PLAYBACK, DEBUG_endPlayback)
 #endif
 
+    // TODO: assert that we actually replace these stubs properly
     struct PlatformDll
     {
         dyn_vibrateController* vibrateController = stub_vibrateController;
@@ -54,6 +63,10 @@ namespace platform
         dyn_DEBUG_writeFile* DEBUG_writeFile = stub_DEBUG_writeFile;
         dyn_DEBUG_freeMemory* DEBUG_freeMemory = stub_DEBUG_freeMemory;
         dyn_DEBUG_togglePause* DEBUG_togglePause = stub_DEBUG_togglePause;
+        dyn_DEBUG_beginRecording* DEBUG_beginRecording = stub_DEBUG_beginRecording;
+        dyn_DEBUG_endRecording* DEBUG_endRecording = stub_DEBUG_endRecording;
+        dyn_DEBUG_beginPlayback* DEBUG_beginPlayback = stub_DEBUG_beginPlayback;
+        dyn_DEBUG_endPlayback* DEBUG_endPlayback = stub_DEBUG_endPlayback;
 #endif
     };
 }

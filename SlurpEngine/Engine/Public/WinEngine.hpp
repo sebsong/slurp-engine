@@ -43,6 +43,8 @@ static const std::map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeToSlurpCode
     {'A', slurp::KeyboardCode::A},
     {'S', slurp::KeyboardCode::S},
     {'D', slurp::KeyboardCode::D},
+    {'R', slurp::KeyboardCode::R},
+    {'T', slurp::KeyboardCode::T},
     {'P', slurp::KeyboardCode::P},
     {VK_SPACE, slurp::KeyboardCode::SPACE},
     {VK_ESCAPE, slurp::KeyboardCode::ESC},

@@ -59,6 +59,8 @@ namespace slurp
         S,
         D,
         P,
+        R,
+        T,
         ESC,
         SPACE,
         ALT,
@@ -148,6 +150,12 @@ namespace slurp
         }
     };
 
+    struct InputStates
+    {
+        KeyboardState keyboardState;
+        GamepadState gamepadState;
+    };
+
     struct MemoryBlock
     {
         uint64_t sizeBytes;
@@ -169,6 +177,18 @@ namespace slurp
         float tWave;
         float playerX;
         float playerY;
+    };
+    
+    struct RecordingState
+    {
+        bool isRecording;
+        bool isPlayingBack;
+    };
+
+    struct SlurpStates
+    {
+        GameState gameState;
+        RecordingState recordingState;
     };
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)

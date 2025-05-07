@@ -11,12 +11,14 @@ static constexpr float GlobalVolume = 0.1f * 32000;
 namespace slurp
 {
     static platform::PlatformDll GlobalPlatformDll;
+    static RecordingState* GlobalRecordingState;
     static GameState* GlobalGameState;
-
+    
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
     static constexpr float DeltaFrequencyHz = 220;
+    
     static constexpr float PlayerStartX = 640;
     static constexpr float PlayerStartY = 360;
     static constexpr float PlayerSizePixels = 10;
@@ -104,8 +106,10 @@ namespace slurp
     {
         GlobalPlatformDll = platformDll;
 
-        assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
-        GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
+        assert(sizeof(SlurpStates) <= gameMemory->permanentMemory.sizeBytes)
+        SlurpStates* states = static_cast<SlurpStates*>(gameMemory->permanentMemory.memory);
+        GlobalRecordingState = &states->recordingState;
+        GlobalGameState = &states->gameState;
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         GlobalGameState->playerX = PlayerStartX;
@@ -143,6 +147,32 @@ namespace slurp
         if (state.justPressed(KeyboardCode::P))
         {
             GlobalPlatformDll.DEBUG_togglePause();
+        }
+        if (state.justPressed(KeyboardCode::R))
+        {
+            if (!GlobalRecordingState->isRecording)
+            {
+                std::cout << "begin recording" << std::endl;
+                GlobalPlatformDll.DEBUG_beginRecording(GlobalGameState, sizeof(GameState));
+                GlobalRecordingState->isRecording = true;
+            } else
+            {
+                std::cout << "end recording" << std::endl;
+                GlobalPlatformDll.DEBUG_endRecording();
+                GlobalRecordingState->isRecording = false;
+            }
+        }
+        if (state.justPressed(KeyboardCode::T))
+        {
+            if (!GlobalRecordingState->isPlayingBack)
+            {
+                GlobalPlatformDll.DEBUG_beginPlayback();
+                GlobalRecordingState->isPlayingBack = true;
+            } else
+            {
+                GlobalPlatformDll.DEBUG_endPlayback();
+                GlobalRecordingState->isPlayingBack = false;
+            }
         }
 #endif
 

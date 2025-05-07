@@ -12,11 +12,16 @@
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
+static const LPCSTR RECORDING_FILE_NAME = "SlurpRecording.rec";
 
 static bool GlobalRunning;
-static bool GlobalPause;
+static bool GlobalIsPaused;
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
+
+static bool GlobalIsRecording;
+static bool GlobalIsPlayingBack;
+static HANDLE GlobalRecordingFileHandle;
 
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
@@ -561,9 +566,9 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    // char buf[256];
+    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    // OutputDebugStringA(buf);
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
@@ -670,6 +675,14 @@ static void winTryReloadSlurpLib(
     GlobalSlurpDll.init(platformDll, gameMemory);
 }
 
+static std::string getLocalFilePath(LPCSTR filename)
+{
+    char exeDirPath[MAX_PATH];
+    GetModuleFileNameA(nullptr, exeDirPath, MAX_PATH);
+    PathRemoveFileSpecA(exeDirPath);
+    std::string exeDirPathStr = std::string(exeDirPath);
+    return exeDirPathStr + "\\" + filename;
+}
 
 #if DEBUG
 PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
@@ -773,8 +786,59 @@ PLATFORM_DEBUG_FREE_MEMORY(platform::DEBUG_freeMemory)
 
 PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause)
 {
-    GlobalPause = !GlobalPause;
+    GlobalIsPaused = !GlobalIsPaused;
 }
+
+PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
+{
+    OutputDebugStringA("BEGIN RECORDING");
+    GlobalRecordingFileHandle = CreateFileA(
+        getLocalFilePath(RECORDING_FILE_NAME).c_str(),
+        GENERIC_WRITE,
+        NULL,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+    DWORD _;
+    WriteFile(
+        GlobalRecordingFileHandle,
+        gameState,
+        static_cast<DWORD>(size),
+        &_,
+        nullptr
+    );
+    GlobalIsRecording = true;
+}
+
+PLATFORM_DEBUG_END_RECORDING(platform::DEBUG_endRecording)
+{
+    OutputDebugStringA("END RECORDING");
+    GlobalIsRecording = false;
+    CloseHandle(GlobalRecordingFileHandle);
+}
+
+PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
+{
+    GlobalRecordingFileHandle = CreateFileA(
+        getLocalFilePath(RECORDING_FILE_NAME).c_str(),
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+    GlobalIsPlayingBack = true;
+}
+
+PLATFORM_DEBUG_END_PLAYBACK(platform::DEBUG_endPlayback)
+{
+    GlobalIsPlayingBack = false;
+    CloseHandle(GlobalRecordingFileHandle);
+}
+
 #endif
 
 PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
@@ -822,6 +886,24 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
     winDrawDebugLine(x, color);
 }
 
+static platform::PlatformDll loadPlatformDll()
+{
+    platform::PlatformDll platformDll = {};
+    platformDll.vibrateController = platform::vibrateController;
+    platformDll.shutdown = platform::shutdown;
+#if DEBUG
+    platformDll.DEBUG_readFile = platform::DEBUG_readFile;
+    platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
+    platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
+    platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
+    platformDll.DEBUG_beginRecording = platform::DEBUG_beginRecording;
+    platformDll.DEBUG_endRecording = platform::DEBUG_endRecording;
+    platformDll.DEBUG_beginPlayback = platform::DEBUG_beginPlayback;
+    platformDll.DEBUG_endPlayback = platform::DEBUG_endPlayback;
+#endif
+    return platformDll;
+}
+
 int WINAPI WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -835,31 +917,18 @@ int WINAPI WinMain(
         return 1;
     }
 
-    char exeDirPath[MAX_PATH];
-    GetModuleFileNameA(nullptr, exeDirPath, MAX_PATH);
-    PathRemoveFileSpecA(exeDirPath);
-    std::string exeDirPathStr = std::string(exeDirPath);
-    std::string dllFilePathStr = exeDirPathStr + "\\" + SLURP_DLL_FILE_NAME;
+    std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);
     const char* dllFilePath = dllFilePathStr.c_str();
-    std::string dllLoadFilePathStr = exeDirPathStr + "\\" + SLURP_LOAD_DLL_FILE_NAME;
+    std::string dllLoadFilePathStr = getLocalFilePath(SLURP_LOAD_DLL_FILE_NAME);
     const char* dllLoadFilePath = dllLoadFilePathStr.c_str();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
-    platform::PlatformDll platformDll = {};
-    platformDll.vibrateController = platform::vibrateController;
-    platformDll.shutdown = platform::shutdown;
-#if DEBUG
-    platformDll.DEBUG_readFile = platform::DEBUG_readFile;
-    platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
-    platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
-    platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
-#endif
+    platform::PlatformDll platformDll = loadPlatformDll();
     slurp::GameMemory gameMemory = {};
     winAllocateGameMemory(&gameMemory);
     GlobalSlurpDll.init(platformDll, &gameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
-    // DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
 
@@ -901,7 +970,7 @@ int WINAPI WinMain(
         GlobalSlurpDll.handleGamepadInput(controllerStates);
 
 #if DEBUG
-        if (GlobalPause)
+        if (GlobalIsPaused)
         {
             continue;
         }
