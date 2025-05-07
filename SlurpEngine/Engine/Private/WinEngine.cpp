@@ -817,10 +817,30 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
     GlobalIsRecording = true;
 }
 
-static void winRecordInput(const slurp::KeyboardState& keyboardState, slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS])
+static void winRecordInput(const slurp::KeyboardState& keyboardState,
+                           slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS])
 {
     //TODO: the maps in these states are dynamically sized
     DWORD _;
+    size_t numKeyboardStates = keyboardState.state.size();
+    WriteFile(
+        GlobalRecordingFileHandle,
+        &numKeyboardStates,
+        sizeof(size_t),
+        &_,
+        nullptr
+    );
+    for (const slurp::keyboard_state_entry& entry : keyboardState.state)
+    {
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &entry,
+            sizeof(slurp::keyboard_state_entry),
+            &_,
+            nullptr
+        );
+    }
+
     WriteFile(
         GlobalRecordingFileHandle,
         &keyboardState,
@@ -865,17 +885,32 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
     GlobalIsPlayingBack = true;
 }
 
-static void winReadInputRecording(slurp::KeyboardState& outKeyboardState, slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS])
+static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
+                                  slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS])
 {
     //TODO: the maps in these states are dynamically sized
     DWORD bytesRead;
+    size_t numKeyboardStates;
     ReadFile(
         GlobalRecordingFileHandle,
-        &outKeyboardState,
-        sizeof(slurp::KeyboardState),
+        &numKeyboardStates,
+        sizeof(size_t),
         &bytesRead,
         nullptr
     );
+    outKeyboardState.state.clear();
+    for (int i = 0; i < numKeyboardStates; i++)
+    {
+        slurp::keyboard_state_entry entry;
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &entry,
+            sizeof(slurp::keyboard_state_entry),
+            &bytesRead,
+            nullptr
+        );
+        outKeyboardState.state.insert(entry);
+    }
     ReadFile(
         GlobalRecordingFileHandle,
         outGamepadStates,

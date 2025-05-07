@@ -69,6 +69,7 @@ namespace slurp
         F4,
     };
 
+    typedef std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> keyboard_state_entry;
     struct KeyboardState
     {
         std::unordered_map<KeyboardCode, DigitalInputState> state;
@@ -122,6 +123,7 @@ namespace slurp
         Y,
     };
 
+    typedef std::pair<const slurp::GamepadCode, slurp::DigitalInputState> gamepad_state_entry;
     struct GamepadState
     {
         bool isConnected = false;

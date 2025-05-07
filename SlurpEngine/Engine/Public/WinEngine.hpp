@@ -4,7 +4,7 @@
 
 #include <windows.h>
 #include <dsound.h>
-#include <map>
+#include <unordered_map>
 #include <Xinput.h>
 
 typedef uint32_t bool32;
@@ -37,7 +37,7 @@ struct WinAudioBuffer
 };
 
 typedef WPARAM WinKbCode;
-static const std::map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeToSlurpCode =
+static const std::unordered_map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeToSlurpCode =
 {
     {'W', slurp::KeyboardCode::W},
     {'A', slurp::KeyboardCode::A},
@@ -53,7 +53,7 @@ static const std::map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeToSlurpCode
 };
 
 typedef uint64_t XInputCode;
-static const std::map<XInputCode, slurp::GamepadCode> GamepadWinCodeToSlurpCode =
+static const std::unordered_map<XInputCode, slurp::GamepadCode> GamepadWinCodeToSlurpCode =
 {
     {XINPUT_GAMEPAD_DPAD_UP, slurp::GamepadCode::DPAD_UP},
     {XINPUT_GAMEPAD_DPAD_DOWN, slurp::GamepadCode::DPAD_DOWN},
