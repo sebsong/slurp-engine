@@ -150,12 +150,6 @@ namespace slurp
         }
     };
 
-    struct InputStates
-    {
-        KeyboardState keyboardState;
-        GamepadState gamepadState;
-    };
-
     struct MemoryBlock
     {
         uint64_t sizeBytes;

@@ -812,6 +812,11 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
     GlobalIsRecording = true;
 }
 
+static void winRecordInput(const slurp::KeyboardState& keyboardState, slurp::GamepadState* gamepadStates)
+{
+    //TODO: implement
+}
+
 PLATFORM_DEBUG_END_RECORDING(platform::DEBUG_endRecording)
 {
     OutputDebugStringA("END RECORDING");
@@ -831,6 +836,11 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
         NULL
     );
     GlobalIsPlayingBack = true;
+}
+
+static void winReadInputRecording(slurp::KeyboardState& outKeyboardState, slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS])
+{
+    //TODO: implement
 }
 
 PLATFORM_DEBUG_END_PLAYBACK(platform::DEBUG_endPlayback)
@@ -965,8 +975,18 @@ int WINAPI WinMain(
             inputState.transitionCount = 0;
         }
         winHandleMessages(&keyboardState);
-        GlobalSlurpDll.handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
+#if DEBUG
+        if (GlobalIsRecording)
+        {
+            winRecordInput(keyboardState, controllerStates);
+        }
+        if (GlobalIsPlayingBack)
+        {
+            winReadInputRecording(keyboardState, controllerStates);
+        }
+#endif
+        GlobalSlurpDll.handleKeyboardInput(keyboardState);
         GlobalSlurpDll.handleGamepadInput(controllerStates);
 
 #if DEBUG
