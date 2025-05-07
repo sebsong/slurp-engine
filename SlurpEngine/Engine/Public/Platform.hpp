@@ -1,24 +1,21 @@
 #pragma once
+#include <DynamicDeclaration.hpp>
 #include <cstdint>
-
-#define DLL_EXPORT
-#if PLATFORM_WINDOWS
-#undef DLL_EXPORT
-#define DLL_EXPORT __declspec( dllexport )
-#endif
-
-// NOTE: Define dynamic types for hot reloading
-#define NO_ARG
-#define _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, fnPrefix, stubReturn) \
-    typedef fnMacro(dyn_##fnName);                                    \
-    fnMacro(stub_##fnName){ stubReturn }                              \
-    fnPrefix fnMacro(fnName);
-#define SLURP_DECLARE_DYNAMIC_VOID(fnMacro, fnName) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, NO_ARG, NO_ARG)
-#define SLURP_DECLARE_DYNAMIC_RETURN(fnMacro, fnName, stubReturn) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, NO_ARG, return stubReturn##;)
-#define SLURP_DECLARE_DYNAMIC_DLL_VOID(fnMacro, fnName) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, extern "C" DLL_EXPORT, NO_ARG)
 
 namespace platform
 {
+    struct MemoryBlock
+    {
+        uint64_t sizeBytes;
+        void* memory;
+    };
+
+    struct GameMemory
+    {
+        MemoryBlock permanentMemory;
+        MemoryBlock transientMemory;
+    };
+    
 #if DEBUG
     struct DEBUG_FileReadResult
     {
@@ -34,7 +31,7 @@ namespace platform
 #define PLATFORM_DEBUG_WRITE_FILE(fnName) bool fnName(const char* fileName, void* fileContents, uint32_t sizeBytes)
 #define PLATFORM_DEBUG_FREE_MEMORY(fnName) void fnName(void* memory)
 #define PLATFORM_DEBUG_TOGGLE_PAUSE(fnName) void fnName()
-#define PLATFORM_DEBUG_BEGIN_RECORDING(fnName) void fnName(void* gameState, size_t size)
+#define PLATFORM_DEBUG_BEGIN_RECORDING(fnName) void fnName()
 #define PLATFORM_DEBUG_END_RECORDING(fnName) void fnName()
 #define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName()
 #define PLATFORM_DEBUG_END_PLAYBACK(fnName) void fnName()

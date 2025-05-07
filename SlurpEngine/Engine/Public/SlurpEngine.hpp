@@ -1,8 +1,10 @@
 #pragma once
-#include "Platform.hpp"
+
+#include <DynamicDeclaration.hpp>
+#include <Platform.hpp>
 
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 
 #define MAX_NUM_CONTROLLERS 4
 #if DEBUG
@@ -69,7 +71,7 @@ namespace slurp
 
     struct KeyboardState
     {
-        std::map<KeyboardCode, DigitalInputState> state;
+        std::unordered_map<KeyboardCode, DigitalInputState> state;
 
         bool getState(KeyboardCode code, DigitalInputState& outInputState) const
         {
@@ -127,7 +129,7 @@ namespace slurp
         AnalogStickInputState rightStick;
         AnalogTriggerInputState leftTrigger;
         AnalogTriggerInputState rightTrigger;
-        std::map<GamepadCode, DigitalInputState> state;
+        std::unordered_map<GamepadCode, DigitalInputState> state;
 
         bool getState(GamepadCode code, DigitalInputState& outState) const
         {
@@ -148,18 +150,6 @@ namespace slurp
             }
             return false;
         }
-    };
-
-    struct MemoryBlock
-    {
-        uint64_t sizeBytes;
-        void* memory;
-    };
-
-    struct GameMemory
-    {
-        MemoryBlock permanentMemory;
-        MemoryBlock transientMemory;
     };
 
     struct GameState
@@ -185,17 +175,19 @@ namespace slurp
         RecordingState recordingState;
     };
 
-#define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, slurp::GameMemory* gameMemory)
+#define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)
 #define SLURP_HANDLE_KEYBOARD_INPUT(fnName) void fnName(slurp::KeyboardState state)
 #define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS])
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
 #define SLURP_RENDER_GRAPHICS(fnName) void fnName(slurp::GraphicsBuffer buffer)
+#define SLURP_UPDATE(fnName) void fnName()
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_KEYBOARD_INPUT, handleKeyboardInput)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_GAMEPAD_INPUT, handleGamepadInput)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_LOAD_AUDIO, loadAudio)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_RENDER_GRAPHICS, renderGraphics)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE, update)
 
     struct SlurpDll
     {
@@ -204,5 +196,6 @@ namespace slurp
         dyn_handleGamepadInput* handleGamepadInput = stub_handleGamepadInput;
         dyn_loadAudio* loadAudio = stub_loadAudio;
         dyn_renderGraphics* renderGraphics = stub_renderGraphics;
+        dyn_update* update = stub_update;
     };
 }

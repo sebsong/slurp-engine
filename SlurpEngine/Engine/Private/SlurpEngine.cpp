@@ -1,8 +1,6 @@
 ﻿#include <SlurpEngine.hpp>
 #include <iostream>
 
-#include "Platform.hpp"
-
 typedef unsigned char byte;
 
 static constexpr float Pi = 3.14159265359f;
@@ -13,12 +11,12 @@ namespace slurp
     static platform::PlatformDll GlobalPlatformDll;
     static RecordingState* GlobalRecordingState;
     static GameState* GlobalGameState;
-    
+
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
     static constexpr float DeltaFrequencyHz = 220;
-    
+
     static constexpr float PlayerStartX = 640;
     static constexpr float PlayerStartY = 360;
     static constexpr float PlayerSizePixels = 10;
@@ -107,9 +105,11 @@ namespace slurp
         GlobalPlatformDll = platformDll;
 
         assert(sizeof(SlurpStates) <= gameMemory->permanentMemory.sizeBytes)
+        
         SlurpStates* states = static_cast<SlurpStates*>(gameMemory->permanentMemory.memory);
         GlobalRecordingState = &states->recordingState;
         GlobalGameState = &states->gameState;
+        
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         GlobalGameState->playerX = PlayerStartX;
@@ -153,9 +153,10 @@ namespace slurp
             if (!GlobalRecordingState->isRecording)
             {
                 std::cout << "begin recording" << std::endl;
-                GlobalPlatformDll.DEBUG_beginRecording(GlobalGameState, sizeof(GameState));
+                GlobalPlatformDll.DEBUG_beginRecording();
                 GlobalRecordingState->isRecording = true;
-            } else
+            }
+            else
             {
                 std::cout << "end recording" << std::endl;
                 GlobalPlatformDll.DEBUG_endRecording();
@@ -168,7 +169,8 @@ namespace slurp
             {
                 GlobalPlatformDll.DEBUG_beginPlayback();
                 GlobalRecordingState->isPlayingBack = true;
-            } else
+            }
+            else
             {
                 GlobalPlatformDll.DEBUG_endPlayback();
                 GlobalRecordingState->isPlayingBack = false;
@@ -243,5 +245,11 @@ namespace slurp
     {
         drawColorfulTriangles(buffer);
         drawPlayer(buffer, 0x00000000);
+    }
+
+    SLURP_UPDATE(update)
+    {
+        std::cout << "PLAYER: " << GlobalGameState->playerX << ":" << GlobalGameState->playerY << std::endl;
+        std::cout << "GRAPHICS: " << GlobalGameState->graphicsDX << ":" << GlobalGameState->graphicsDY << std::endl;
     }
 }
