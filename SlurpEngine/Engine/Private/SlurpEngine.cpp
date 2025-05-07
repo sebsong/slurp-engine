@@ -152,13 +152,11 @@ namespace slurp
         {
             if (!GlobalRecordingState->isRecording)
             {
-                std::cout << "begin recording" << std::endl;
                 GlobalPlatformDll.DEBUG_beginRecording();
                 GlobalRecordingState->isRecording = true;
             }
             else
             {
-                std::cout << "end recording" << std::endl;
                 GlobalPlatformDll.DEBUG_endRecording();
                 GlobalRecordingState->isRecording = false;
             }
@@ -249,7 +247,7 @@ namespace slurp
 
     SLURP_UPDATE(update)
     {
-        std::cout << "PLAYER: " << GlobalGameState->playerX << ":" << GlobalGameState->playerY << std::endl;
-        std::cout << "GRAPHICS: " << GlobalGameState->graphicsDX << ":" << GlobalGameState->graphicsDY << std::endl;
+        // std::cout << "PLAYER: " << GlobalGameState->playerX << ":" << GlobalGameState->playerY << std::endl;
+        // std::cout << "GRAPHICS: " << GlobalGameState->graphicsDX << ":" << GlobalGameState->graphicsDY << std::endl;
     }
 }

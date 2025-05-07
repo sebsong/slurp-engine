@@ -858,7 +858,7 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
     ReadFile(
         GlobalRecordingFileHandle,
         GlobalGameMemory.permanentMemory.memory,
-        sizeof(GlobalGameMemory.permanentMemory.sizeBytes),
+        static_cast<DWORD>(GlobalGameMemory.permanentMemory.sizeBytes),
         &_,
         nullptr
     );
@@ -1024,7 +1024,7 @@ int WINAPI WinMain(
         }
         if (GlobalIsPlayingBack)
         {
-            // winReadInputRecording(keyboardState, controllerStates);
+            winReadInputRecording(keyboardState, controllerStates);
         }
 #endif
         GlobalSlurpDll.handleKeyboardInput(keyboardState);
