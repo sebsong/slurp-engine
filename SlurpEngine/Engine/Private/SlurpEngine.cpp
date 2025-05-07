@@ -100,16 +100,40 @@ namespace slurp
         }
     }
 
+    static void drawBorder(const GraphicsBuffer buffer, uint8_t borderWidth, uint32_t color)
+    {
+        uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer.memory);
+        for (int y = 0; y < buffer.heightPixels; y++)
+        {
+            int x = 0;
+            while (x < buffer.widthPixels)
+            {
+                uint32_t* pixel = pixels + (y * buffer.widthPixels) + x;
+                if ((y < borderWidth || y > buffer.heightPixels - borderWidth) ||
+                    (x < borderWidth || x > buffer.widthPixels - borderWidth))
+                {
+                    *pixel = color;
+                }
+                else if (x > borderWidth && x < buffer.widthPixels - borderWidth)
+                {
+                    x = buffer.widthPixels - borderWidth;
+                    continue;
+                }
+                x++;
+            }
+        }
+    }
+
     SLURP_INIT(init)
     {
         GlobalPlatformDll = platformDll;
 
         assert(sizeof(SlurpStates) <= gameMemory->permanentMemory.sizeBytes)
-        
+
         SlurpStates* states = static_cast<SlurpStates*>(gameMemory->permanentMemory.memory);
         GlobalRecordingState = &states->recordingState;
         GlobalGameState = &states->gameState;
-        
+
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         GlobalGameState->playerX = PlayerStartX;
@@ -243,6 +267,13 @@ namespace slurp
     {
         drawColorfulTriangles(buffer);
         drawPlayer(buffer, 0x00000000);
+        if (GlobalRecordingState->isRecording)
+        {
+            drawBorder(buffer, 5, 0x00FF0000);
+        } else if (GlobalRecordingState->isPlayingBack)
+        {
+            drawBorder(buffer, 5, 0x0000FF00);
+        }
     }
 
     SLURP_UPDATE(update)
