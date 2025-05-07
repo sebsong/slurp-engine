@@ -133,7 +133,7 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     case WM_KEYDOWN:
     case WM_KEYUP:
         {
-            assert(!"Keyboard event should not be handled in Windows handler.")
+            assert(!"Keyboard event should not be handled in Windows handler.");
         }
         break;
     default:
@@ -588,7 +588,7 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
     if (!out)
     {
         OutputDebugStringA("Failed to load lib function.\n");
-        assert(out)
+        assert(out);
         out = stubFn;
     }
 }
@@ -716,7 +716,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
         &fileSize
     );
 
-    assert(fileSize.QuadPart < gigabytes(4))
+    assert(fileSize.QuadPart < gigabytes(4));
     DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
     void* buffer = VirtualAlloc(
         nullptr,
@@ -868,21 +868,27 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
 static void winReadInputRecording(slurp::KeyboardState& outKeyboardState, slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS])
 {
     //TODO: the maps in these states are dynamically sized
-    DWORD _;
+    DWORD bytesRead;
     ReadFile(
         GlobalRecordingFileHandle,
         &outKeyboardState,
         sizeof(slurp::KeyboardState),
-        &_,
+        &bytesRead,
         nullptr
     );
     ReadFile(
         GlobalRecordingFileHandle,
         outGamepadStates,
         sizeof(slurp::GamepadState) * MAX_NUM_CONTROLLERS,
-        &_,
+        &bytesRead,
         nullptr
     );
+
+    if (bytesRead == 0)
+    {
+        platform::DEBUG_endPlayback();
+        platform::DEBUG_beginPlayback();
+    }
 }
 
 PLATFORM_DEBUG_END_PLAYBACK(platform::DEBUG_endPlayback)

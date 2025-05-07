@@ -8,7 +8,7 @@
 
 #define MAX_NUM_CONTROLLERS 4
 #if DEBUG
-#define assert(expression) if (!(expression)) { *(int*)(nullptr) = 0; }
+#define assert(expression) if (!(expression)) *(int*)(nullptr) = 0
 #else
 #define assert(expression) 
 #endif
@@ -167,12 +167,6 @@ namespace slurp
     {
         bool isRecording;
         bool isPlayingBack;
-    };
-
-    struct SlurpStates
-    {
-        GameState gameState;
-        RecordingState recordingState;
     };
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)

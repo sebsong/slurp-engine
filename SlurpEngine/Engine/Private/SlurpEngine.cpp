@@ -128,16 +128,16 @@ namespace slurp
     {
         GlobalPlatformDll = platformDll;
 
-        assert(sizeof(SlurpStates) <= gameMemory->permanentMemory.sizeBytes)
-
-        SlurpStates* states = static_cast<SlurpStates*>(gameMemory->permanentMemory.memory);
-        GlobalRecordingState = &states->recordingState;
-        GlobalGameState = &states->gameState;
-
+        assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes);
+        GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         GlobalGameState->playerX = PlayerStartX;
         GlobalGameState->playerY = PlayerStartY;
+        
+        assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
+        GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
+
     }
 
     SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
