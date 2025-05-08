@@ -447,7 +447,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     winLoadXInput();
 
     WNDCLASSA windowClass = {};
-    windowClass.style = CS_OWNDC | CS_HREDRAW;
+    windowClass.style = CS_HREDRAW;
     windowClass.lpfnWndProc = winMessageHandler;
     windowClass.hInstance = instance;
     windowClass.lpszClassName = WINDOW_CLASS_NAME;
@@ -456,7 +456,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     winResizeDIBSection(&GlobalGraphicsBuffer, 1280, 720);
 
     *outWindowHandle = CreateWindowExA(
-        0,
+        WS_EX_TOPMOST,
         windowClass.lpszClassName,
         "Slurp's Up!",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
@@ -1139,8 +1139,6 @@ int WINAPI WinMain(
         performanceCounterFrequency.QuadPart
     };
 
-    HDC deviceContext = GetDC(windowHandle);
-
     while (GlobalRunning)
     {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
@@ -1203,6 +1201,7 @@ int WINAPI WinMain(
         winDrawDebugAudioSync(playCursor, 0x00000000);
         winDrawDebugAudioSync(lockCursor, 0x00FF0000);
 #endif
+        HDC deviceContext = GetDC(windowHandle);
         winUpdateWindow(deviceContext, GlobalGraphicsBuffer, dimensions.width, dimensions.height);
         ReleaseDC(windowHandle, deviceContext);
     }
