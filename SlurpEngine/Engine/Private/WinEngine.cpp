@@ -822,6 +822,7 @@ static void winRecordInput(const slurp::KeyboardState& keyboardState,
                            slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS])
 {
     DWORD _;
+
     size_t numKeyboardStates = keyboardState.state.size();
     WriteFile(
         GlobalRecordingFileHandle,
@@ -840,17 +841,45 @@ static void winRecordInput(const slurp::KeyboardState& keyboardState,
             nullptr
         );
     }
-    WriteFile(
-        GlobalRecordingFileHandle,
-        gamepadStates,
-        sizeof(slurp::GamepadState) * MAX_NUM_CONTROLLERS,
-        &_,
-        nullptr
-    );
 
     for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
     {
-        slurp::GamepadState gamepadState = gamepadStates[controllerIdx];
+        slurp::GamepadState& gamepadState = gamepadStates[controllerIdx];
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.isConnected,
+            sizeof(bool),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.leftStick,
+            sizeof(slurp::AnalogStickInputState),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.rightStick,
+            sizeof(slurp::AnalogStickInputState),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.leftTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.rightTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &_,
+            nullptr
+        );
         size_t numGamepadStates = gamepadState.state.size();
         WriteFile(
             GlobalRecordingFileHandle,
@@ -915,6 +944,12 @@ static void winReadInputRecording(
         &bytesRead,
         nullptr
     );
+    if (bytesRead == 0)
+    {
+        GlobalIsPlayingBack = false;
+        CloseHandle(GlobalRecordingFileHandle);
+        GlobalOnPlaybackEnd();
+    }
     outKeyboardState.state.clear();
     for (int i = 0; i < numKeyboardStates; i++)
     {
@@ -929,18 +964,44 @@ static void winReadInputRecording(
         outKeyboardState.state.insert(entry);
     }
     //TODO: the maps in this state is dynamically sized
-    // slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS];
-    ReadFile(
-        GlobalRecordingFileHandle,
-        outGamepadStates,
-        sizeof(slurp::GamepadState) * MAX_NUM_CONTROLLERS,
-        &bytesRead,
-        nullptr
-    );
     for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
     {
-        // slurp::GamepadState gamepadState = gamepadStates[controllerIdx];
         slurp::GamepadState& outGamepadState = outGamepadStates[controllerIdx];
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.isConnected,
+            sizeof(bool),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.leftStick,
+            sizeof(slurp::AnalogStickInputState),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.rightStick,
+            sizeof(slurp::AnalogStickInputState),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.leftTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.rightTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &bytesRead,
+            nullptr
+        );
         size_t numGamepadStates = 0;
         ReadFile(
             GlobalRecordingFileHandle,
@@ -950,7 +1011,6 @@ static void winReadInputRecording(
             nullptr
         );
         outGamepadState.state.clear();
-        // gamepadState.state = outGamepadState.state;
         for (int i = 0; i < numGamepadStates; i++)
         {
             slurp::gamepad_state_entry entry;
@@ -963,14 +1023,6 @@ static void winReadInputRecording(
             );
             outGamepadState.state.insert(entry);
         }
-        // outGamepadStates[controllerIdx] = gamepadStates[controllerIdx];
-    }
-
-    if (bytesRead == 0)
-    {
-        GlobalIsPlayingBack = false;
-        CloseHandle(GlobalRecordingFileHandle);
-        GlobalOnPlaybackEnd();
     }
 }
 
