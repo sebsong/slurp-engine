@@ -172,12 +172,12 @@ namespace slurp
         {
             GlobalPlatformDll.DEBUG_togglePause();
         }
-        if (state.justPressed(KeyboardCode::R))
+        if (state.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack)
         {
             if (!GlobalRecordingState->isRecording)
             {
-                GlobalPlatformDll.DEBUG_beginRecording();
                 GlobalRecordingState->isRecording = true;
+                GlobalPlatformDll.DEBUG_beginRecording();
             }
             else
             {
@@ -189,8 +189,8 @@ namespace slurp
         {
             if (!GlobalRecordingState->isPlayingBack)
             {
-                GlobalPlatformDll.DEBUG_beginPlayback();
                 GlobalRecordingState->isPlayingBack = true;
+                GlobalPlatformDll.DEBUG_beginPlayback();
             }
             else
             {

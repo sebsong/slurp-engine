@@ -882,7 +882,7 @@ static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
 {
     //TODO: the maps in these states are dynamically sized
     DWORD bytesRead;
-    size_t numKeyboardStates;
+    size_t numKeyboardStates = 0;
     ReadFile(
         GlobalRecordingFileHandle,
         &numKeyboardStates,
@@ -914,7 +914,7 @@ static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
     if (bytesRead == 0)
     {
         platform::DEBUG_endPlayback();
-        // platform::DEBUG_beginPlayback();
+        platform::DEBUG_beginPlayback();
     }
 }
 
