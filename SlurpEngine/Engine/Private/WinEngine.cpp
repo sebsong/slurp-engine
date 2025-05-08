@@ -965,7 +965,7 @@ static void winReadInputRecording(
         );
         outKeyboardState.state.insert(entry);
     }
-    //TODO: the maps in this state is dynamically sized
+    
     for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
     {
         slurp::GamepadState& outGamepadState = outGamepadStates[controllerIdx];
