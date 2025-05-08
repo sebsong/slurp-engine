@@ -840,14 +840,6 @@ static void winRecordInput(const slurp::KeyboardState& keyboardState,
             nullptr
         );
     }
-
-    WriteFile(
-        GlobalRecordingFileHandle,
-        &keyboardState,
-        sizeof(slurp::KeyboardState),
-        &_,
-        nullptr
-    );
     WriteFile(
         GlobalRecordingFileHandle,
         gamepadStates,
@@ -922,7 +914,7 @@ static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
     if (bytesRead == 0)
     {
         platform::DEBUG_endPlayback();
-        platform::DEBUG_beginPlayback();
+        // platform::DEBUG_beginPlayback();
     }
 }
 
