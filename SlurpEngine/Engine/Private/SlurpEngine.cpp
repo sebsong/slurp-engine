@@ -9,8 +9,10 @@ static constexpr float GlobalVolume = 0.1f * 32000;
 namespace slurp
 {
     static platform::PlatformDll GlobalPlatformDll;
-    static RecordingState* GlobalRecordingState;
     static GameState* GlobalGameState;
+#if DEBUG
+    static RecordingState* GlobalRecordingState;
+#endif
 
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
@@ -135,8 +137,10 @@ namespace slurp
         GlobalGameState->playerX = PlayerStartX;
         GlobalGameState->playerY = PlayerStartY;
 
+#if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
+#endif
     }
 
     SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
@@ -259,6 +263,7 @@ namespace slurp
     {
         drawColorfulTriangles(buffer);
         drawPlayer(buffer, 0x00000000);
+#if DEBUG
         if (GlobalRecordingState->isRecording)
         {
             drawBorder(buffer, 5, 0x00FF0000);
@@ -267,6 +272,7 @@ namespace slurp
         {
             drawBorder(buffer, 5, 0x0000FF00);
         }
+#endif
     }
 
     SLURP_UPDATE(update)

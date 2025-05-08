@@ -164,12 +164,14 @@ namespace slurp
         float playerX;
         float playerY;
     };
-    
+
+#if DEBUG
     struct RecordingState
     {
         bool isRecording;
         bool isPlayingBack;
     };
+#endif
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)
 #define SLURP_HANDLE_KEYBOARD_INPUT(fnName) void fnName(slurp::KeyboardState state)

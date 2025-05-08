@@ -17,20 +17,22 @@ static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
 static const LPCSTR RECORDING_FILE_NAME = "SlurpRecording.rec";
 
 static bool GlobalRunning;
-static bool GlobalIsPaused;
+
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
 static platform::GameMemory GlobalGameMemory;
+static slurp::SlurpDll GlobalSlurpDll;
+static HMODULE GlobalSlurpLib;
 
+#if DEBUG
+static bool GlobalIsPaused;
 static bool GlobalIsRecording;
 static bool GlobalIsPlayingBack;
 static std::function<void()> GlobalOnPlaybackEnd;
 static HANDLE GlobalRecordingFileHandle;
-
-static slurp::SlurpDll GlobalSlurpDll;
-static HMODULE GlobalSlurpLib;
+#endif
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -1026,24 +1028,6 @@ static void winReadInputRecording(
     }
 }
 
-#endif
-
-PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
-{
-    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
-    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
-    XINPUT_VIBRATION vibration{
-        leftMotorSpeedRaw,
-        rightMotorSpeedRaw,
-    };
-    XInputSetState(controllerIdx, &vibration);
-}
-
-PLATFORM_SHUTDOWN(platform::shutdown)
-{
-    GlobalRunning = false;
-}
-
 void winDrawDebugLine(int drawX, uint32_t color)
 {
     int lineWidth = 8;
@@ -1071,6 +1055,23 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
     int x = static_cast<int>((static_cast<float>(cursor) / GlobalAudioBuffer.bufferSizeBytes) * (
         GlobalGraphicsBuffer.widthPixels));
     winDrawDebugLine(x, color);
+}
+#endif
+
+PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
+{
+    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
+    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
+    XINPUT_VIBRATION vibration{
+        leftMotorSpeedRaw,
+        rightMotorSpeedRaw,
+    };
+    XInputSetState(controllerIdx, &vibration);
+}
+
+PLATFORM_SHUTDOWN(platform::shutdown)
+{
+    GlobalRunning = false;
 }
 
 static platform::PlatformDll loadPlatformDll()
