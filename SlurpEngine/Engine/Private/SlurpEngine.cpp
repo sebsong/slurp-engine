@@ -134,10 +134,9 @@ namespace slurp
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         GlobalGameState->playerX = PlayerStartX;
         GlobalGameState->playerY = PlayerStartY;
-        
+
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
-
     }
 
     SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
@@ -187,16 +186,9 @@ namespace slurp
         }
         if (state.justPressed(KeyboardCode::T))
         {
-            if (!GlobalRecordingState->isPlayingBack)
-            {
-                GlobalRecordingState->isPlayingBack = true;
-                GlobalPlatformDll.DEBUG_beginPlayback();
-            }
-            else
-            {
-                GlobalPlatformDll.DEBUG_endPlayback();
-                GlobalRecordingState->isPlayingBack = false;
-            }
+            GlobalRecordingState->isPlayingBack = true;
+            auto onPlaybackEnd = []() -> void { GlobalRecordingState->isPlayingBack = false; };
+            GlobalPlatformDll.DEBUG_beginPlayback(onPlaybackEnd);
         }
 #endif
 
@@ -270,7 +262,8 @@ namespace slurp
         if (GlobalRecordingState->isRecording)
         {
             drawBorder(buffer, 5, 0x00FF0000);
-        } else if (GlobalRecordingState->isPlayingBack)
+        }
+        else if (GlobalRecordingState->isPlayingBack)
         {
             drawBorder(buffer, 5, 0x0000FF00);
         }

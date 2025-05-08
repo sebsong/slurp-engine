@@ -1,6 +1,7 @@
 #pragma once
 #include <DynamicDeclaration.hpp>
 #include <cstdint>
+#include <functional>
 
 namespace platform
 {
@@ -33,8 +34,7 @@ namespace platform
 #define PLATFORM_DEBUG_TOGGLE_PAUSE(fnName) void fnName()
 #define PLATFORM_DEBUG_BEGIN_RECORDING(fnName) void fnName()
 #define PLATFORM_DEBUG_END_RECORDING(fnName) void fnName()
-#define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName()
-#define PLATFORM_DEBUG_END_PLAYBACK(fnName) void fnName()
+#define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName(std::function<void()> onPlaybackEnd)
 #endif
 
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_VIBRATE_CONTROLLER, vibrateController)
@@ -47,7 +47,6 @@ namespace platform
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_RECORDING, DEBUG_beginRecording)
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_END_RECORDING, DEBUG_endRecording)
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_PLAYBACK, DEBUG_beginPlayback)
-    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_END_PLAYBACK, DEBUG_endPlayback)
 #endif
 
     // TODO: assert that we actually replace these stubs properly
@@ -63,7 +62,6 @@ namespace platform
         dyn_DEBUG_beginRecording* DEBUG_beginRecording = stub_DEBUG_beginRecording;
         dyn_DEBUG_endRecording* DEBUG_endRecording = stub_DEBUG_endRecording;
         dyn_DEBUG_beginPlayback* DEBUG_beginPlayback = stub_DEBUG_beginPlayback;
-        dyn_DEBUG_endPlayback* DEBUG_endPlayback = stub_DEBUG_endPlayback;
 #endif
     };
 }

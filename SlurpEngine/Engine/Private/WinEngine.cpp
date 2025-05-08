@@ -26,6 +26,7 @@ static platform::GameMemory GlobalGameMemory;
 
 static bool GlobalIsRecording;
 static bool GlobalIsPlayingBack;
+static std::function<void()> GlobalOnPlaybackEnd;
 static HANDLE GlobalRecordingFileHandle;
 
 static slurp::SlurpDll GlobalSlurpDll;
@@ -875,12 +876,12 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
         nullptr
     );
     GlobalIsPlayingBack = true;
+    GlobalOnPlaybackEnd = onPlaybackEnd;
 }
 
 static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
                                   slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS])
 {
-    //TODO: the maps in these states are dynamically sized
     DWORD bytesRead;
     size_t numKeyboardStates = 0;
     ReadFile(
@@ -903,6 +904,7 @@ static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
         );
         outKeyboardState.state.insert(entry);
     }
+    //TODO: the maps in this state is dynamically sized
     ReadFile(
         GlobalRecordingFileHandle,
         outGamepadStates,
@@ -913,15 +915,10 @@ static void winReadInputRecording(slurp::KeyboardState& outKeyboardState,
 
     if (bytesRead == 0)
     {
-        platform::DEBUG_endPlayback();
-        platform::DEBUG_beginPlayback();
+        GlobalIsPlayingBack = false;
+        CloseHandle(GlobalRecordingFileHandle);
+        GlobalOnPlaybackEnd();
     }
-}
-
-PLATFORM_DEBUG_END_PLAYBACK(platform::DEBUG_endPlayback)
-{
-    GlobalIsPlayingBack = false;
-    CloseHandle(GlobalRecordingFileHandle);
 }
 
 #endif
@@ -984,7 +981,6 @@ static platform::PlatformDll loadPlatformDll()
     platformDll.DEBUG_beginRecording = platform::DEBUG_beginRecording;
     platformDll.DEBUG_endRecording = platform::DEBUG_endRecording;
     platformDll.DEBUG_beginPlayback = platform::DEBUG_beginPlayback;
-    platformDll.DEBUG_endPlayback = platform::DEBUG_endPlayback;
 #endif
     return platformDll;
 }
