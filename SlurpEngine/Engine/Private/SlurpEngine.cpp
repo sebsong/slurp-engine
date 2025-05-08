@@ -1,8 +1,6 @@
 ﻿#include <SlurpEngine.hpp>
 #include <iostream>
 
-#include "Platform.hpp"
-
 typedef unsigned char byte;
 
 static constexpr float Pi = 3.14159265359f;
@@ -12,11 +10,15 @@ namespace slurp
 {
     static platform::PlatformDll GlobalPlatformDll;
     static GameState* GlobalGameState;
+#if DEBUG
+    static RecordingState* GlobalRecordingState;
+#endif
 
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
     static constexpr float DeltaFrequencyHz = 220;
+
     static constexpr float PlayerStartX = 640;
     static constexpr float PlayerStartY = 360;
     static constexpr float PlayerSizePixels = 10;
@@ -100,16 +102,45 @@ namespace slurp
         }
     }
 
+    static void drawBorder(const GraphicsBuffer buffer, uint8_t borderWidth, uint32_t color)
+    {
+        uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer.memory);
+        for (int y = 0; y < buffer.heightPixels; y++)
+        {
+            int x = 0;
+            while (x < buffer.widthPixels)
+            {
+                uint32_t* pixel = pixels + (y * buffer.widthPixels) + x;
+                if ((y < borderWidth || y > buffer.heightPixels - borderWidth) ||
+                    (x < borderWidth || x > buffer.widthPixels - borderWidth))
+                {
+                    *pixel = color;
+                }
+                else if (x > borderWidth && x < buffer.widthPixels - borderWidth)
+                {
+                    x = buffer.widthPixels - borderWidth;
+                    continue;
+                }
+                x++;
+            }
+        }
+    }
+
     SLURP_INIT(init)
     {
         GlobalPlatformDll = platformDll;
 
-        assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes)
+        assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes);
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         GlobalGameState->playerX = PlayerStartX;
         GlobalGameState->playerY = PlayerStartY;
+
+#if DEBUG
+        assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
+        GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
+#endif
     }
 
     SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
@@ -143,6 +174,25 @@ namespace slurp
         if (state.justPressed(KeyboardCode::P))
         {
             GlobalPlatformDll.DEBUG_togglePause();
+        }
+        if (state.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack)
+        {
+            if (!GlobalRecordingState->isRecording)
+            {
+                GlobalRecordingState->isRecording = true;
+                GlobalPlatformDll.DEBUG_beginRecording();
+            }
+            else
+            {
+                GlobalPlatformDll.DEBUG_endRecording();
+                GlobalRecordingState->isRecording = false;
+            }
+        }
+        if (state.justPressed(KeyboardCode::T))
+        {
+            GlobalRecordingState->isPlayingBack = true;
+            auto onPlaybackEnd = []() -> void { GlobalRecordingState->isPlayingBack = false; };
+            GlobalPlatformDll.DEBUG_beginPlayback(onPlaybackEnd);
         }
 #endif
 
@@ -213,5 +263,21 @@ namespace slurp
     {
         drawColorfulTriangles(buffer);
         drawPlayer(buffer, 0x00000000);
+#if DEBUG
+        if (GlobalRecordingState->isRecording)
+        {
+            drawBorder(buffer, 5, 0x00FF0000);
+        }
+        else if (GlobalRecordingState->isPlayingBack)
+        {
+            drawBorder(buffer, 5, 0x0000FF00);
+        }
+#endif
+    }
+
+    SLURP_UPDATE(update)
+    {
+        // std::cout << "PLAYER: " << GlobalGameState->playerX << ":" << GlobalGameState->playerY << std::endl;
+        // std::cout << "GRAPHICS: " << GlobalGameState->graphicsDX << ":" << GlobalGameState->graphicsDY << std::endl;
     }
 }

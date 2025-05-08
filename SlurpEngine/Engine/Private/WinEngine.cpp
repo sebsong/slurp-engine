@@ -1,3 +1,5 @@
+#include <iostream>
+#include <ostream>
 #include <Platform.hpp>
 #include <WinEngine.hpp>
 
@@ -12,14 +14,25 @@
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
+static const LPCSTR RECORDING_FILE_NAME = "SlurpRecording.rec";
 
 static bool GlobalRunning;
-static bool GlobalPause;
+
 static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
+static platform::PlatformDll GlobalPlatformDll;
+static platform::GameMemory GlobalGameMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
+
+#if DEBUG
+static bool GlobalIsPaused;
+static bool GlobalIsRecording;
+static bool GlobalIsPlayingBack;
+static std::function<void()> GlobalOnPlaybackEnd;
+static HANDLE GlobalRecordingFileHandle;
+#endif
 
 static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
 {
@@ -123,7 +136,7 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     case WM_KEYDOWN:
     case WM_KEYUP:
         {
-            assert(!"Keyboard event should not be handled in Windows handler.")
+            assert(!"Keyboard event should not be handled in Windows handler.");
         }
         break;
     default:
@@ -484,7 +497,7 @@ static DWORD winGetMonitorRefreshRate()
     return devMode.dmDisplayFrequency;
 }
 
-static void winAllocateGameMemory(slurp::GameMemory* outGameMemory)
+static void winAllocateGameMemory(platform::GameMemory* outGameMemory)
 {
     uint64_t permanentMemorySizeBytes = megabytes(64);
     uint64_t transientMemorySizeBytes = gigabytes(4);
@@ -561,9 +574,9 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    // char buf[256];
+    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    // OutputDebugStringA(buf);
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
@@ -578,7 +591,7 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
     if (!out)
     {
         OutputDebugStringA("Failed to load lib function.\n");
-        assert(out)
+        assert(out);
         out = stubFn;
     }
 }
@@ -623,6 +636,12 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_renderGraphics,
             GlobalSlurpLib
         );
+        winLoadLibFn<slurp::dyn_update>(
+            GlobalSlurpDll.update,
+            "update",
+            slurp::stub_update,
+            GlobalSlurpLib
+        );
     }
 }
 
@@ -635,12 +654,7 @@ static void winUnloadSlurpLib()
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winTryReloadSlurpLib(
-    const char* dllFilePath,
-    const char* dllLoadFilePath,
-    platform::PlatformDll platformDll,
-    slurp::GameMemory* gameMemory
-)
+static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath)
 {
     HANDLE dllFileHandle = CreateFileA(
         dllFilePath,
@@ -667,9 +681,17 @@ static void winTryReloadSlurpLib(
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
-    GlobalSlurpDll.init(platformDll, gameMemory);
+    GlobalSlurpDll.init(GlobalPlatformDll, &GlobalGameMemory);
 }
 
+static std::string getLocalFilePath(LPCSTR filename)
+{
+    char exeDirPath[MAX_PATH];
+    GetModuleFileNameA(nullptr, exeDirPath, MAX_PATH);
+    PathRemoveFileSpecA(exeDirPath);
+    std::string exeDirPathStr = std::string(exeDirPath);
+    return exeDirPathStr + "\\" + filename;
+}
 
 #if DEBUG
 PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
@@ -697,7 +719,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
         &fileSize
     );
 
-    assert(fileSize.QuadPart < gigabytes(4))
+    assert(fileSize.QuadPart < gigabytes(4));
     DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
     void* buffer = VirtualAlloc(
         nullptr,
@@ -773,24 +795,237 @@ PLATFORM_DEBUG_FREE_MEMORY(platform::DEBUG_freeMemory)
 
 PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause)
 {
-    GlobalPause = !GlobalPause;
-}
-#endif
-
-PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
-{
-    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
-    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
-    XINPUT_VIBRATION vibration{
-        leftMotorSpeedRaw,
-        rightMotorSpeedRaw,
-    };
-    XInputSetState(controllerIdx, &vibration);
+    GlobalIsPaused = !GlobalIsPaused;
 }
 
-PLATFORM_SHUTDOWN(platform::shutdown)
+PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
 {
-    GlobalRunning = false;
+    GlobalRecordingFileHandle = CreateFileA(
+        getLocalFilePath(RECORDING_FILE_NAME).c_str(),
+        GENERIC_WRITE,
+        NULL,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+    DWORD _;
+    WriteFile(
+        GlobalRecordingFileHandle,
+        GlobalGameMemory.permanentMemory.memory,
+        static_cast<DWORD>(GlobalGameMemory.permanentMemory.sizeBytes),
+        &_,
+        nullptr
+    );
+    GlobalIsRecording = true;
+}
+
+static void winRecordInput(const slurp::KeyboardState& keyboardState,
+                           slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS])
+{
+    DWORD _;
+
+    size_t numKeyboardStates = keyboardState.state.size();
+    WriteFile(
+        GlobalRecordingFileHandle,
+        &numKeyboardStates,
+        sizeof(size_t),
+        &_,
+        nullptr
+    );
+    for (const slurp::keyboard_state_entry& entry : keyboardState.state)
+    {
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &entry,
+            sizeof(slurp::keyboard_state_entry),
+            &_,
+            nullptr
+        );
+    }
+
+    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
+    {
+        slurp::GamepadState& gamepadState = gamepadStates[controllerIdx];
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.isConnected,
+            sizeof(bool),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.leftStick,
+            sizeof(slurp::AnalogStickInputState),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.rightStick,
+            sizeof(slurp::AnalogStickInputState),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.leftTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &_,
+            nullptr
+        );
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &gamepadState.rightTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &_,
+            nullptr
+        );
+        size_t numGamepadStates = gamepadState.state.size();
+        WriteFile(
+            GlobalRecordingFileHandle,
+            &numGamepadStates,
+            sizeof(size_t),
+            &_,
+            nullptr
+        );
+        for (const slurp::gamepad_state_entry& entry : gamepadState.state)
+        {
+            WriteFile(
+                GlobalRecordingFileHandle,
+                &entry,
+                sizeof(slurp::gamepad_state_entry),
+                &_,
+                nullptr
+            );
+        }
+    }
+}
+
+PLATFORM_DEBUG_END_RECORDING(platform::DEBUG_endRecording)
+{
+    GlobalIsRecording = false;
+    CloseHandle(GlobalRecordingFileHandle);
+}
+
+PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
+{
+    GlobalRecordingFileHandle = CreateFileA(
+        getLocalFilePath(RECORDING_FILE_NAME).c_str(),
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+    DWORD _;
+    ReadFile(
+        GlobalRecordingFileHandle,
+        GlobalGameMemory.permanentMemory.memory,
+        static_cast<DWORD>(GlobalGameMemory.permanentMemory.sizeBytes),
+        &_,
+        nullptr
+    );
+    GlobalIsPlayingBack = true;
+    GlobalOnPlaybackEnd = onPlaybackEnd;
+}
+
+static void winReadInputRecording(
+    slurp::KeyboardState& outKeyboardState,
+    slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS]
+)
+{
+    DWORD bytesRead;
+    size_t numKeyboardStates = 0;
+    ReadFile(
+        GlobalRecordingFileHandle,
+        &numKeyboardStates,
+        sizeof(size_t),
+        &bytesRead,
+        nullptr
+    );
+    if (bytesRead == 0)
+    {
+        GlobalIsPlayingBack = false;
+        CloseHandle(GlobalRecordingFileHandle);
+        GlobalOnPlaybackEnd();
+    }
+    outKeyboardState.state.clear();
+    for (int i = 0; i < numKeyboardStates; i++)
+    {
+        slurp::keyboard_state_entry entry;
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &entry,
+            sizeof(slurp::keyboard_state_entry),
+            &bytesRead,
+            nullptr
+        );
+        outKeyboardState.state.insert(entry);
+    }
+    //TODO: the maps in this state is dynamically sized
+    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
+    {
+        slurp::GamepadState& outGamepadState = outGamepadStates[controllerIdx];
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.isConnected,
+            sizeof(bool),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.leftStick,
+            sizeof(slurp::AnalogStickInputState),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.rightStick,
+            sizeof(slurp::AnalogStickInputState),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.leftTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &bytesRead,
+            nullptr
+        );
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &outGamepadState.rightTrigger,
+            sizeof(slurp::AnalogTriggerInputState),
+            &bytesRead,
+            nullptr
+        );
+        size_t numGamepadStates = 0;
+        ReadFile(
+            GlobalRecordingFileHandle,
+            &numGamepadStates,
+            sizeof(size_t),
+            &bytesRead,
+            nullptr
+        );
+        outGamepadState.state.clear();
+        for (int i = 0; i < numGamepadStates; i++)
+        {
+            slurp::gamepad_state_entry entry;
+            ReadFile(
+                GlobalRecordingFileHandle,
+                &entry,
+                sizeof(slurp::gamepad_state_entry),
+                &bytesRead,
+                nullptr
+            );
+            outGamepadState.state.insert(entry);
+        }
+    }
 }
 
 void winDrawDebugLine(int drawX, uint32_t color)
@@ -821,6 +1056,40 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
         GlobalGraphicsBuffer.widthPixels));
     winDrawDebugLine(x, color);
 }
+#endif
+
+PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
+{
+    uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
+    uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
+    XINPUT_VIBRATION vibration{
+        leftMotorSpeedRaw,
+        rightMotorSpeedRaw,
+    };
+    XInputSetState(controllerIdx, &vibration);
+}
+
+PLATFORM_SHUTDOWN(platform::shutdown)
+{
+    GlobalRunning = false;
+}
+
+static platform::PlatformDll loadPlatformDll()
+{
+    platform::PlatformDll platformDll = {};
+    platformDll.vibrateController = platform::vibrateController;
+    platformDll.shutdown = platform::shutdown;
+#if DEBUG
+    platformDll.DEBUG_readFile = platform::DEBUG_readFile;
+    platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
+    platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
+    platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
+    platformDll.DEBUG_beginRecording = platform::DEBUG_beginRecording;
+    platformDll.DEBUG_endRecording = platform::DEBUG_endRecording;
+    platformDll.DEBUG_beginPlayback = platform::DEBUG_beginPlayback;
+#endif
+    return platformDll;
+}
 
 int WINAPI WinMain(
     HINSTANCE hInstance,
@@ -835,31 +1104,17 @@ int WINAPI WinMain(
         return 1;
     }
 
-    char exeDirPath[MAX_PATH];
-    GetModuleFileNameA(nullptr, exeDirPath, MAX_PATH);
-    PathRemoveFileSpecA(exeDirPath);
-    std::string exeDirPathStr = std::string(exeDirPath);
-    std::string dllFilePathStr = exeDirPathStr + "\\" + SLURP_DLL_FILE_NAME;
+    std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);
     const char* dllFilePath = dllFilePathStr.c_str();
-    std::string dllLoadFilePathStr = exeDirPathStr + "\\" + SLURP_LOAD_DLL_FILE_NAME;
+    std::string dllLoadFilePathStr = getLocalFilePath(SLURP_LOAD_DLL_FILE_NAME);
     const char* dllLoadFilePath = dllLoadFilePathStr.c_str();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
-    platform::PlatformDll platformDll = {};
-    platformDll.vibrateController = platform::vibrateController;
-    platformDll.shutdown = platform::shutdown;
-#if DEBUG
-    platformDll.DEBUG_readFile = platform::DEBUG_readFile;
-    platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
-    platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
-    platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
-#endif
-    slurp::GameMemory gameMemory = {};
-    winAllocateGameMemory(&gameMemory);
-    GlobalSlurpDll.init(platformDll, &gameMemory);
+    GlobalPlatformDll = loadPlatformDll();
+    winAllocateGameMemory(&GlobalGameMemory);
+    GlobalSlurpDll.init(GlobalPlatformDll, &GlobalGameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
-    // DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
 
@@ -888,7 +1143,7 @@ int WINAPI WinMain(
 
     while (GlobalRunning)
     {
-        winTryReloadSlurpLib(dllFilePath, dllLoadFilePath, platformDll, &gameMemory);
+        winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
         {
@@ -896,12 +1151,24 @@ int WINAPI WinMain(
             inputState.transitionCount = 0;
         }
         winHandleMessages(&keyboardState);
-        GlobalSlurpDll.handleKeyboardInput(keyboardState);
         winHandleGamepadInput(controllerStates);
+#if DEBUG
+        if (GlobalIsRecording)
+        {
+            winRecordInput(keyboardState, controllerStates);
+        }
+        if (GlobalIsPlayingBack)
+        {
+            winReadInputRecording(keyboardState, controllerStates);
+        }
+#endif
+        GlobalSlurpDll.handleKeyboardInput(keyboardState);
         GlobalSlurpDll.handleGamepadInput(controllerStates);
 
+        GlobalSlurpDll.update();
+
 #if DEBUG
-        if (GlobalPause)
+        if (GlobalIsPaused)
         {
             continue;
         }
