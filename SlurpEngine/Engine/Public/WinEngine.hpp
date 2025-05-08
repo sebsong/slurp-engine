@@ -77,3 +77,13 @@ struct WinTimingInfo
     int64_t performanceCounterFrequency;
 };
 
+#if DEBUG
+struct WinRecordingState
+{
+    bool isPaused;
+    bool isRecording;
+    bool isPlayingBack;
+    std::function<void()> onPlaybackEnd;
+    HANDLE recordingFileHandle;
+};
+#endif
