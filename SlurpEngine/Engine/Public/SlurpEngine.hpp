@@ -202,6 +202,8 @@ namespace slurp
 
     struct GameState
     {
+        bool isInitialized;
+        
         float graphicsDX;
         float graphicsDY;
         float scrollSpeed;

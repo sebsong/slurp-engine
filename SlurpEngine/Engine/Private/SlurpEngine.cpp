@@ -127,8 +127,12 @@ namespace slurp
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         GlobalGameState->scrollSpeed = LowScrollSpeed;
         GlobalGameState->frequencyHz = BaseFrequencyHz;
-        GlobalGameState->playerX = PlayerStartX;
-        GlobalGameState->playerY = PlayerStartY;
+        if (!GlobalGameState->isInitialized)
+        {
+            GlobalGameState->playerX = PlayerStartX;
+            GlobalGameState->playerY = PlayerStartY;
+        }
+        GlobalGameState->isInitialized = true;
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
