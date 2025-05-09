@@ -36,6 +36,16 @@ struct WinAudioBuffer
     int writeAheadSampleCount = samplesPerSec / 100; // NOTE: tuned to the max latency between writeCursor readings.
 };
 
+typedef int WinMouseCode;
+static const std::unordered_map<WinMouseCode, slurp::MouseCode> MouseWinCodeToSlurpCode =
+{
+    {VK_LBUTTON, slurp::MouseCode::Left},
+    {VK_RBUTTON, slurp::MouseCode::Right},
+    {VK_MBUTTON, slurp::MouseCode::Middle},
+    {VK_XBUTTON1, slurp::MouseCode::Button1},
+    {VK_XBUTTON2, slurp::MouseCode::Button2},
+};
+
 typedef WPARAM WinKbCode;
 static const std::unordered_map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeToSlurpCode =
 {

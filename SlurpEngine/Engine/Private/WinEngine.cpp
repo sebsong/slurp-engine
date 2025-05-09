@@ -156,8 +156,19 @@ static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseSt
     ScreenToClient(windowHandle, &point);
     outMouseState->x = static_cast<float>(point.x);
     outMouseState->y = static_cast<float>(point.y);
-}
 
+    short keyDownBit = static_cast<short>(1 << 15);
+    for (std::pair<WinMouseCode, slurp::MouseCode> entry : MouseWinCodeToSlurpCode)
+    {
+        WinMouseCode winMouseCode = entry.first;
+        bool isDown = GetKeyState(winMouseCode) & keyDownBit;
+
+        slurp::MouseCode mouseCode = entry.second;
+        slurp::DigitalInputState* inputState = &outMouseState->state[mouseCode];
+        inputState->transitionCount = inputState->isDown != isDown ? 1 : 0;
+        inputState->isDown = isDown;
+    }
+}
 
 static void winHandleMessages(slurp::KeyboardState* keyboardState)
 {
@@ -175,7 +186,6 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState)
                 bool wasDown = (1 << 30) & message.lParam;
                 bool isDown = ((1 << 31) & message.lParam) == 0;
 
-                // bool32 alt = (1 << 29) & lParam;
                 if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
                 {
                     slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
@@ -489,6 +499,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 }
 
 #define DEFAULT_MONITOR_REFRESH_RATE 144
+
 static DWORD winGetMonitorRefreshRate()
 {
     DEVMODEA devMode = {};
@@ -974,7 +985,7 @@ static void winReadInputRecording(
         );
         outKeyboardState.state.insert(entry);
     }
-    
+
     for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
     {
         slurp::GamepadState& outGamepadState = outGamepadStates[controllerIdx];
@@ -1148,7 +1159,7 @@ int WINAPI WinMain(
         startPerformanceCounter.QuadPart,
         performanceCounterFrequency.QuadPart
     };
-    
+
     while (GlobalRunning)
     {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);

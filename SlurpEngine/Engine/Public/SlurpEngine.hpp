@@ -53,6 +53,51 @@ namespace slurp
         float start;
         float end;
     };
+    
+    enum class MouseCode: uint8_t
+    {
+        Left,
+        Right,
+        Middle,
+        Button1,
+        Button2,
+    };
+
+    struct MouseState
+    {
+        float x;
+        float y;
+        std::unordered_map<MouseCode, DigitalInputState> state;
+        bool getState(MouseCode code, DigitalInputState& outInputState) const
+        {
+            if (state.count(code) > 0)
+            {
+                outInputState = state.at(code);
+                return true;
+            }
+            return false;
+        }
+
+        bool isDown(MouseCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return inputState.isDown;
+            }
+            return false;
+        }
+
+        bool justPressed(MouseCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return inputState.isDown && inputState.transitionCount != 0;
+            }
+            return false;
+        }
+    };
 
     enum class KeyboardCode: uint8_t
     {
@@ -69,15 +114,7 @@ namespace slurp
         F4,
     };
 
-    struct MouseState
-    {
-        float x;
-        float y;
-        // TODO: capture mouse button input
-    };
-
     typedef std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> keyboard_state_entry;
-
     struct KeyboardState
     {
         std::unordered_map<KeyboardCode, DigitalInputState> state;
@@ -174,6 +211,12 @@ namespace slurp
         float playerY;
         float mouseX;
         float mouseY;
+        
+        bool mouseL;
+        bool mouseR;
+        bool mouseM;
+        bool mouseB1;
+        bool mouseB2;
     };
 
 #if DEBUG
