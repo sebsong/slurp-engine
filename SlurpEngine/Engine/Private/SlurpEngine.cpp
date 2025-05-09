@@ -22,8 +22,7 @@ namespace slurp
     static constexpr float PlayerStartX = 640;
     static constexpr float PlayerStartY = 360;
     static constexpr float PlayerSizePixels = 10;
-    static constexpr float PlayerSpeedX = 20;
-    static constexpr float PlayerSpeedY = 5;
+    static constexpr float PlayerSpeed = 5;
 
     static void loadSineWave(AudioBuffer buffer)
     {
@@ -80,25 +79,19 @@ namespace slurp
 
     static void drawPlayer(const GraphicsBuffer buffer, uint32_t color)
     {
-        int xOffset = static_cast<int>(GlobalGameState->playerX);
-        int yOffset = static_cast<int>(GlobalGameState->playerY) * buffer.pitchBytes;
-        byte* startBitmapBytes = static_cast<byte*>(buffer.memory);
-        byte* bitmapBytes = startBitmapBytes + xOffset + yOffset;
-        size_t maxBitmapSize = buffer.widthPixels * buffer.heightPixels * sizeof(uint32_t);
-        for (int y = 0; y < PlayerSizePixels; y++)
+        uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer.memory);
+        for (int dY = 0; dY < PlayerSizePixels; dY++)
         {
-            uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
-            for (int x = 0; x < PlayerSizePixels; x++)
+            for (int dX = 0; dX < PlayerSizePixels; dX++)
             {
-                size_t bitmapOffset = bitmapBytes - startBitmapBytes;
-                if (bitmapOffset < 0 || bitmapOffset >= maxBitmapSize)
+                int x = static_cast<int>(GlobalGameState->playerX) + dX;
+                int y = static_cast<int>(GlobalGameState->playerY) + dY;
+                if (x < 0 || x >= buffer.widthPixels || y < 0 || y >= buffer.heightPixels)
                 {
                     continue;
                 }
-                *rowPixels++ = color;
+                *(pixels + x + (y * buffer.widthPixels)) = color;
             }
-
-            bitmapBytes += buffer.pitchBytes;
         }
     }
 
@@ -143,39 +136,42 @@ namespace slurp
 #endif
     }
 
-    SLURP_HANDLE_KEYBOARD_INPUT(handleKeyboardInput)
+    SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
-        if (state.isDown(KeyboardCode::ALT) && state.isDown(KeyboardCode::F4))
+        // GlobalGameState->playerX = mouseState.x;
+        // GlobalGameState->playerY = mouseState.y;
+
+        if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
         {
             GlobalPlatformDll.shutdown();
         }
 
-        if (state.isDown(KeyboardCode::W))
+        if (keyboardState.isDown(KeyboardCode::W))
         {
             GlobalGameState->graphicsDY -= GlobalGameState->scrollSpeed;
-            GlobalGameState->playerY -= PlayerSpeedY;
+            GlobalGameState->playerY -= PlayerSpeed;
         }
-        if (state.isDown(KeyboardCode::A))
+        if (keyboardState.isDown(KeyboardCode::A))
         {
             GlobalGameState->graphicsDX -= GlobalGameState->scrollSpeed;
-            GlobalGameState->playerX -= PlayerSpeedX;
+            GlobalGameState->playerX -= PlayerSpeed;
         }
-        if (state.isDown(KeyboardCode::S))
+        if (keyboardState.isDown(KeyboardCode::S))
         {
             GlobalGameState->graphicsDY += GlobalGameState->scrollSpeed;
-            GlobalGameState->playerY += PlayerSpeedY;
+            GlobalGameState->playerY += PlayerSpeed;
         }
-        if (state.isDown(KeyboardCode::D))
+        if (keyboardState.isDown(KeyboardCode::D))
         {
             GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
-            GlobalGameState->playerX += PlayerSpeedX;
+            GlobalGameState->playerX += PlayerSpeed;
         }
 #if DEBUG
-        if (state.justPressed(KeyboardCode::P))
+        if (keyboardState.justPressed(KeyboardCode::P))
         {
             GlobalPlatformDll.DEBUG_togglePause();
         }
-        if (state.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack)
+        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack)
         {
             if (!GlobalRecordingState->isRecording)
             {
@@ -188,7 +184,7 @@ namespace slurp
                 GlobalRecordingState->isRecording = false;
             }
         }
-        if (state.justPressed(KeyboardCode::T))
+        if (keyboardState.justPressed(KeyboardCode::T))
         {
             GlobalRecordingState->isPlayingBack = true;
             auto onPlaybackEnd = []() -> void { GlobalRecordingState->isPlayingBack = false; };
@@ -197,7 +193,7 @@ namespace slurp
 #endif
 
         DigitalInputState inputState;
-        if (state.getState(KeyboardCode::SPACE, inputState))
+        if (keyboardState.getState(KeyboardCode::SPACE, inputState))
         {
             if (inputState.isDown)
             {
@@ -209,7 +205,7 @@ namespace slurp
             }
         }
 
-        if (state.isDown(KeyboardCode::ESC))
+        if (keyboardState.isDown(KeyboardCode::ESC))
         {
             GlobalPlatformDll.shutdown();
         }
@@ -242,8 +238,8 @@ namespace slurp
             XYCoord leftStick = gamepadState.leftStick.endXY;
             GlobalGameState->graphicsDX += leftStick.x * GlobalGameState->scrollSpeed;
             GlobalGameState->graphicsDY -= leftStick.y * GlobalGameState->scrollSpeed;
-            GlobalGameState->playerX += leftStick.x * PlayerSpeedX;
-            GlobalGameState->playerY -= leftStick.y * PlayerSpeedY;
+            GlobalGameState->playerX += leftStick.x * PlayerSpeed;
+            GlobalGameState->playerY -= leftStick.y * PlayerSpeed;
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;

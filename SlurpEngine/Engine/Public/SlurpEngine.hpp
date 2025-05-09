@@ -69,7 +69,15 @@ namespace slurp
         F4,
     };
 
+    struct MouseState
+    {
+        float x;
+        float y;
+        // TODO: capture mouse button input
+    };
+
     typedef std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> keyboard_state_entry;
+
     struct KeyboardState
     {
         std::unordered_map<KeyboardCode, DigitalInputState> state;
@@ -124,6 +132,7 @@ namespace slurp
     };
 
     typedef std::pair<const slurp::GamepadCode, slurp::DigitalInputState> gamepad_state_entry;
+
     struct GamepadState
     {
         bool isConnected = false;
@@ -174,14 +183,14 @@ namespace slurp
 #endif
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)
-#define SLURP_HANDLE_KEYBOARD_INPUT(fnName) void fnName(slurp::KeyboardState state)
+#define SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(fnName) void fnName(slurp::MouseState mouseState, slurp::KeyboardState keyboardState)
 #define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS])
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
 #define SLURP_RENDER_GRAPHICS(fnName) void fnName(slurp::GraphicsBuffer buffer)
 #define SLURP_UPDATE(fnName) void fnName()
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_KEYBOARD_INPUT, handleKeyboardInput)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT, handleMouseAndKeyboardInput)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_GAMEPAD_INPUT, handleGamepadInput)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_LOAD_AUDIO, loadAudio)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_RENDER_GRAPHICS, renderGraphics)
@@ -190,7 +199,7 @@ namespace slurp
     struct SlurpDll
     {
         dyn_init* init = stub_init;
-        dyn_handleKeyboardInput* handleKeyboardInput = stub_handleKeyboardInput;
+        dyn_handleMouseAndKeyboardInput* handleMouseAndKeyboardInput = stub_handleMouseAndKeyboardInput;
         dyn_handleGamepadInput* handleGamepadInput = stub_handleGamepadInput;
         dyn_loadAudio* loadAudio = stub_loadAudio;
         dyn_renderGraphics* renderGraphics = stub_renderGraphics;

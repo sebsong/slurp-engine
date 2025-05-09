@@ -149,6 +149,16 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     return result;
 };
 
+static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseState)
+{
+    POINT point;
+    GetCursorPos(&point);
+    ScreenToClient(windowHandle, &point);
+    outMouseState->x = static_cast<float>(point.x);
+    outMouseState->y = static_cast<float>(point.y);
+}
+
+
 static void winHandleMessages(slurp::KeyboardState* keyboardState)
 {
     MSG message;
@@ -478,8 +488,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     return true;
 }
 
-#define DEFAULT_MONITOR_REFRESH_RATE 60
-
+#define DEFAULT_MONITOR_REFRESH_RATE 144
 static DWORD winGetMonitorRefreshRate()
 {
     DEVMODEA devMode = {};
@@ -511,7 +520,7 @@ static void winAllocateGameMemory(platform::GameMemory* outGameMemory)
     void* memory = VirtualAlloc(
         baseAddress,
         permanentMemorySizeBytes + transientMemorySizeBytes,
-        MEM_RESERVE | MEM_COMMIT,
+        MEM_RESERVE | MEM_COMMIT, // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
         PAGE_READWRITE
     );
     outGameMemory->permanentMemory.memory = memory;
@@ -612,10 +621,10 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_init,
             GlobalSlurpLib
         );
-        winLoadLibFn<slurp::dyn_handleKeyboardInput>(
-            GlobalSlurpDll.handleKeyboardInput,
-            "handleKeyboardInput",
-            slurp::stub_handleKeyboardInput,
+        winLoadLibFn<slurp::dyn_handleMouseAndKeyboardInput>(
+            GlobalSlurpDll.handleMouseAndKeyboardInput,
+            "handleMouseAndKeyboardInput",
+            slurp::stub_handleMouseAndKeyboardInput,
             GlobalSlurpLib
         );
         winLoadLibFn<slurp::dyn_handleGamepadInput>(
@@ -1118,6 +1127,7 @@ int WINAPI WinMain(
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
     float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
 
+    slurp::MouseState mouseState;
     slurp::KeyboardState keyboardState;
     slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
 
@@ -1138,11 +1148,12 @@ int WINAPI WinMain(
         startPerformanceCounter.QuadPart,
         performanceCounterFrequency.QuadPart
     };
-
+    
     while (GlobalRunning)
     {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
+        winHandleMouseInput(windowHandle, &mouseState);
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
         {
             slurp::DigitalInputState& inputState = entry.second;
@@ -1160,7 +1171,7 @@ int WINAPI WinMain(
             winReadInputRecording(keyboardState, controllerStates);
         }
 #endif
-        GlobalSlurpDll.handleKeyboardInput(keyboardState);
+        GlobalSlurpDll.handleMouseAndKeyboardInput(mouseState, keyboardState);
         GlobalSlurpDll.handleGamepadInput(controllerStates);
 
         GlobalSlurpDll.update();
