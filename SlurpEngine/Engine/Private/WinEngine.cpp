@@ -82,8 +82,8 @@ static void winUpdateWindow(
     // TODO: aspect ratio correction
     StretchDIBits(
         deviceContextHandle,
-#if DEBUG
-        0, 0, buffer.widthPixels, buffer.heightPixels,
+#if 0
+        0, 0, buffer.widthPixels, buffer.heightPixels, // for pixel perfect scaling
 #else
         0, 0, screenWidth, screenHeight,
 #endif
