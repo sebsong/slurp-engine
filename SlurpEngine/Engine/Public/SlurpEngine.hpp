@@ -172,6 +172,8 @@ namespace slurp
         float tWave;
         float playerX;
         float playerY;
+        float mouseX;
+        float mouseY;
     };
 
 #if DEBUG

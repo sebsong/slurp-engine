@@ -77,15 +77,15 @@ namespace slurp
         }
     }
 
-    static void drawPlayer(const GraphicsBuffer buffer, uint32_t color)
+    static void drawBox(const GraphicsBuffer buffer, float xPos, float yPos, uint32_t color)
     {
         uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer.memory);
         for (int dY = 0; dY < PlayerSizePixels; dY++)
         {
             for (int dX = 0; dX < PlayerSizePixels; dX++)
             {
-                int x = static_cast<int>(GlobalGameState->playerX) + dX;
-                int y = static_cast<int>(GlobalGameState->playerY) + dY;
+                int x = static_cast<int>(xPos) + dX;
+                int y = static_cast<int>(yPos) + dY;
                 if (x < 0 || x >= buffer.widthPixels || y < 0 || y >= buffer.heightPixels)
                 {
                     continue;
@@ -138,8 +138,8 @@ namespace slurp
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
-        // GlobalGameState->playerX = mouseState.x;
-        // GlobalGameState->playerY = mouseState.y;
+        GlobalGameState->mouseX = mouseState.x;
+        GlobalGameState->mouseY = mouseState.y;
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
         {
@@ -258,7 +258,8 @@ namespace slurp
     SLURP_RENDER_GRAPHICS(renderGraphics)
     {
         drawColorfulTriangles(buffer);
-        drawPlayer(buffer, 0x00000000);
+        drawBox(buffer, GlobalGameState->playerX, GlobalGameState->playerY, 0x00000000);
+        drawBox(buffer, GlobalGameState->mouseX, GlobalGameState->mouseY, 0x00CF9FFF);
 #if DEBUG
         if (GlobalRecordingState->isRecording)
         {
