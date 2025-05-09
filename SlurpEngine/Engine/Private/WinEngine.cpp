@@ -844,6 +844,7 @@ static void winRecordInput(const slurp::KeyboardState& keyboardState,
                            slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS])
 {
     DWORD _;
+    // TODO: record mouse input
 
     size_t numKeyboardStates = keyboardState.state.size();
     WriteFile(
@@ -958,6 +959,8 @@ static void winReadInputRecording(
 )
 {
     DWORD bytesRead;
+    // TODO: read mouse input
+    
     size_t numKeyboardStates = 0;
     ReadFile(
         GlobalRecordingState.recordingFileHandle,
