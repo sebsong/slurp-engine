@@ -1,7 +1,8 @@
 #pragma once
 
-#include <DynamicDeclaration.hpp>
 #include <Platform.hpp>
+#include <DynamicDeclaration.hpp>
+#include <Vector.hpp>
 
 #include <cstdint>
 #include <unordered_map>
@@ -22,12 +23,12 @@ namespace slurp
         int samplesToWrite;
     };
 
+    typedef uint32_t Pixel;
     struct GraphicsBuffer
     {
-        void* memory; // memory byte order: XRGB
+        Pixel* const pixelMap; // memory byte order: XRGB
         int widthPixels;
         int heightPixels;
-        int pitchBytes;
     };
 
     struct DigitalInputState
@@ -36,16 +37,10 @@ namespace slurp
         bool isDown;
     };
 
-    struct XYCoord
-    {
-        float x;
-        float y;
-    };
-
     struct AnalogStickInputState
     {
-        XYCoord startXY = {0, 0};
-        XYCoord endXY = {0, 0};
+        Vector2<float> start = {0, 0};
+        Vector2<float> end = {0, 0};
     };
 
     struct AnalogTriggerInputState
@@ -65,8 +60,7 @@ namespace slurp
 
     struct MouseState
     {
-        float x;
-        float y;
+        Vector2<int> position;
         std::unordered_map<MouseCode, DigitalInputState> state;
         bool getState(MouseCode code, DigitalInputState& outInputState) const
         {
@@ -209,10 +203,8 @@ namespace slurp
         float scrollSpeed;
         float frequencyHz;
         float tWave;
-        float playerX;
-        float playerY;
-        float mouseX;
-        float mouseY;
+        Vector2<int> playerPos;
+        Vector2<int> mousePos;
         
         bool mouseL;
         bool mouseR;

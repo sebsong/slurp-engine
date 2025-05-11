@@ -1,6 +1,16 @@
 ﻿#include <SlurpEngine.hpp>
 #include <iostream>
 
+// NOTE: color palette from https://lospec.com/palette-list/slso8
+#define DARK_BLUE 0x000d2b45
+#define BLUE 0x00203c56
+#define DARK_PURPLE 0x00544e68
+#define PURPLE 0x008d697a
+#define DARK_ORANGE 0x00d08159
+#define ORANGE 0x00ffaa5e
+#define LIGHT_ORANGE 0x00ffd4a3
+#define WHITE 0x00ffecd6
+
 typedef unsigned char byte;
 
 static constexpr float Pi = 3.14159265359f;
@@ -19,10 +29,9 @@ namespace slurp
     static constexpr float BaseFrequencyHz = 360;
     static constexpr float DeltaFrequencyHz = 220;
 
-    static constexpr float PlayerStartX = 640;
-    static constexpr float PlayerStartY = 360;
-    static constexpr float PlayerSizePixels = 10;
-    static constexpr float PlayerSpeed = 5;
+    static const Vector2<int> PlayerStartPos = {640, 360};
+    static constexpr int PlayerSizePixels = 10;
+    static constexpr int PlayerSpeed = 5;
 
     static void loadSineWave(AudioBuffer buffer)
     {
@@ -57,53 +66,115 @@ namespace slurp
         }
     }
 
-    static void drawColorfulTriangles(const GraphicsBuffer buffer)
+    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
     {
-        byte* bitmapBytes = static_cast<byte*>(buffer.memory);
-        for (int y = 0; y < buffer.heightPixels; y++)
+        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
+    }
+
+
+    static void drawRect(
+        const GraphicsBuffer buffer,
+        Vector2<int> minPoint,
+        Vector2<int> maxPoint,
+        uint32_t color
+    )
+    {
+        int minX = std::max(minPoint.x, 0);
+        int maxX = std::min(maxPoint.x, buffer.widthPixels);
+        int minY = std::max(minPoint.y, 0);
+        int maxY = std::min(maxPoint.y, buffer.heightPixels);
+        for (int y = minY; y < maxY; y++)
         {
-            uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
-            for (int x = 0; x < buffer.widthPixels; x++)
+            for (int x = minX; x < maxX; x++)
             {
-                uint8_t r = static_cast<uint8_t>(y + GlobalGameState->graphicsDY);
-                uint8_t g = static_cast<uint8_t>((x + GlobalGameState->graphicsDX) - (y + GlobalGameState->graphicsDY));
-                uint8_t b = static_cast<uint8_t>(x + GlobalGameState->graphicsDX);
-
-                uint32_t pixel = (r << 16) | (g << 8) | b;
-                *rowPixels++ = pixel;
+                drawAtPoint(buffer, {x, y}, color);
             }
-
-            bitmapBytes += buffer.pitchBytes;
         }
     }
 
-    static void drawBox(const GraphicsBuffer buffer, float xPos, float yPos, uint32_t color)
+    static void drawSquare(
+        const GraphicsBuffer buffer,
+        Vector2<int> point,
+        int size,
+        uint32_t color
+    )
     {
-        uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer.memory);
-        for (int dY = 0; dY < PlayerSizePixels; dY++)
-        {
-            for (int dX = 0; dX < PlayerSizePixels; dX++)
-            {
-                int x = static_cast<int>(xPos) + dX;
-                int y = static_cast<int>(yPos) + dY;
-                if (x < 0 || x >= buffer.widthPixels || y < 0 || y >= buffer.heightPixels)
-                {
-                    continue;
-                }
-                *(pixels + x + (y * buffer.widthPixels)) = color;
-            }
-        }
+        drawRect(
+            buffer,
+            point,
+            {point.x + size, point.y + size},
+            color
+        );
+    }
+
+    static void drawColorPaletteSwatch(GraphicsBuffer buffer, Vector2<int> point, int size)
+    {
+        Vector2<int> position = point;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            DARK_BLUE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            BLUE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            DARK_PURPLE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            PURPLE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            DARK_ORANGE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            ORANGE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            LIGHT_ORANGE
+        );
+        position.x += size;
+        drawSquare(
+            buffer,
+            position,
+            size,
+            WHITE
+        );
     }
 
     static void drawBorder(const GraphicsBuffer buffer, uint8_t borderWidth, uint32_t color)
     {
-        uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer.memory);
         for (int y = 0; y < buffer.heightPixels; y++)
         {
             int x = 0;
             while (x < buffer.widthPixels)
             {
-                uint32_t* pixel = pixels + (y * buffer.widthPixels) + x;
+                uint32_t* pixel = buffer.pixelMap + (y * buffer.widthPixels) + x;
                 if ((y < borderWidth || y > buffer.heightPixels - borderWidth) ||
                     (x < borderWidth || x > buffer.widthPixels - borderWidth))
                 {
@@ -129,8 +200,7 @@ namespace slurp
         GlobalGameState->frequencyHz = BaseFrequencyHz;
         if (!GlobalGameState->isInitialized)
         {
-            GlobalGameState->playerX = PlayerStartX;
-            GlobalGameState->playerY = PlayerStartY;
+            GlobalGameState->playerPos = PlayerStartPos;
         }
         GlobalGameState->isInitialized = true;
 
@@ -142,8 +212,8 @@ namespace slurp
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
-        GlobalGameState->mouseX = mouseState.x;
-        GlobalGameState->mouseY = mouseState.y;
+
+        GlobalGameState->mousePos = mouseState.position;
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
         {
@@ -153,22 +223,22 @@ namespace slurp
         if (keyboardState.isDown(KeyboardCode::W))
         {
             GlobalGameState->graphicsDY -= GlobalGameState->scrollSpeed;
-            GlobalGameState->playerY -= PlayerSpeed;
+            GlobalGameState->playerPos.y -= PlayerSpeed;
         }
         if (keyboardState.isDown(KeyboardCode::A))
         {
             GlobalGameState->graphicsDX -= GlobalGameState->scrollSpeed;
-            GlobalGameState->playerX -= PlayerSpeed;
+            GlobalGameState->playerPos.x -= PlayerSpeed;
         }
         if (keyboardState.isDown(KeyboardCode::S))
         {
             GlobalGameState->graphicsDY += GlobalGameState->scrollSpeed;
-            GlobalGameState->playerY += PlayerSpeed;
+            GlobalGameState->playerPos.y += PlayerSpeed;
         }
         if (keyboardState.isDown(KeyboardCode::D))
         {
             GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
-            GlobalGameState->playerX += PlayerSpeed;
+            GlobalGameState->playerPos.x += PlayerSpeed;
         }
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P))
@@ -239,11 +309,10 @@ namespace slurp
                 GlobalGameState->scrollSpeed = LowScrollSpeed;
             }
 
-            XYCoord leftStick = gamepadState.leftStick.endXY;
+            Vector2<float> leftStick = gamepadState.leftStick.end;
             GlobalGameState->graphicsDX += leftStick.x * GlobalGameState->scrollSpeed;
             GlobalGameState->graphicsDY -= leftStick.y * GlobalGameState->scrollSpeed;
-            GlobalGameState->playerX += leftStick.x * PlayerSpeed;
-            GlobalGameState->playerY -= leftStick.y * PlayerSpeed;
+            GlobalGameState->playerPos += static_cast<Vector2<int>>(leftStick) * PlayerSpeed;
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -255,15 +324,32 @@ namespace slurp
 
     SLURP_LOAD_AUDIO(loadAudio)
     {
-        loadSineWave(buffer);
+        // loadSineWave(buffer);
         // loadSquareWave(buffer);
     }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
-        drawColorfulTriangles(buffer);
-        drawBox(buffer, GlobalGameState->playerX, GlobalGameState->playerY, 0x00000000);
-        drawBox(buffer, GlobalGameState->mouseX, GlobalGameState->mouseY, 0x00CF9FFF);
+        // drawColorfulTriangles(buffer);
+        drawRect(
+            buffer,
+            {0, 0},
+            {buffer.widthPixels, buffer.heightPixels},
+            0x00000000
+        );
+        drawColorPaletteSwatch(buffer, {0, 0}, 50);
+        drawSquare(
+            buffer,
+            GlobalGameState->playerPos,
+            PlayerSizePixels,
+            DARK_PURPLE
+        );
+        drawSquare(
+            buffer,
+            GlobalGameState->mousePos,
+            PlayerSizePixels,
+            LIGHT_ORANGE
+        );
 #if DEBUG
         if (GlobalRecordingState->isRecording)
         {

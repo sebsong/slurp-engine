@@ -11,6 +11,15 @@
 #define gigabytes(n) (megabytes(n) * 1024)
 #define terabytes(n) (gigabytes(n) * 1024)
 
+#if DEBUG
+#define DISPLAY_WIDTH 1280
+#define DISPLAY_HEIGHT 720
+#else
+#define DISPLAY_WIDTH 2560
+#define DISPLAY_HEIGHT 1440
+#endif
+#define DEFAULT_MONITOR_REFRESH_RATE 144
+
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
@@ -82,7 +91,7 @@ static void winUpdateWindow(
     // TODO: aspect ratio correction
     StretchDIBits(
         deviceContextHandle,
-#if 0
+#if 1
         0, 0, buffer.widthPixels, buffer.heightPixels, // for pixel perfect scaling
 #else
         0, 0, screenWidth, screenHeight,
@@ -154,8 +163,7 @@ static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseSt
     POINT point;
     GetCursorPos(&point);
     ScreenToClient(windowHandle, &point);
-    outMouseState->x = static_cast<float>(point.x);
-    outMouseState->y = static_cast<float>(point.y);
+    outMouseState->position = {point.x, point.y};
 
     short keyDownBit = static_cast<short>(1 << 15);
     for (std::pair<WinMouseCode, slurp::MouseCode> entry : MouseWinCodeToSlurpCode)
@@ -311,9 +319,9 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
                 XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
             );
             slurp::AnalogStickInputState& leftStickState = gamepadState->leftStick;
-            leftStickState.startXY = leftStickState.endXY;
-            leftStickState.endXY.x = leftStickXNormalized;
-            leftStickState.endXY.y = leftStickYNormalized;
+            leftStickState.start = leftStickState.end;
+            leftStickState.end.x = leftStickXNormalized;
+            leftStickState.end.y = leftStickYNormalized;
 
             float rightStickXNormalized = winGetNormalizedStickValue(
                 gamepad.sThumbRX,
@@ -324,9 +332,9 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
                 XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
             );
             slurp::AnalogStickInputState& rightStickState = gamepadState->rightStick;
-            rightStickState.startXY = rightStickState.endXY;
-            rightStickState.endXY.x = rightStickXNormalized;
-            rightStickState.endXY.y = rightStickYNormalized;
+            rightStickState.start = rightStickState.end;
+            rightStickState.end.x = rightStickXNormalized;
+            rightStickState.end.y = rightStickYNormalized;
 
             float leftTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bLeftTrigger);
             slurp::AnalogTriggerInputState& leftTriggerState = gamepadState->leftTrigger;
@@ -473,7 +481,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     windowClass.lpszClassName = WINDOW_CLASS_NAME;
     RegisterClassA(&windowClass);
 
-    winResizeDIBSection(&GlobalGraphicsBuffer, 1280, 720);
+    winResizeDIBSection(&GlobalGraphicsBuffer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
     *outWindowHandle = CreateWindowExA(
         WS_EX_TOPMOST,
@@ -498,7 +506,6 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
     return true;
 }
 
-#define DEFAULT_MONITOR_REFRESH_RATE 144
 
 static DWORD winGetMonitorRefreshRate()
 {
@@ -956,7 +963,7 @@ static void winReadInputRecording(
 {
     DWORD bytesRead;
     // TODO: read mouse input
-    
+
     size_t numKeyboardStates = 0;
     ReadFile(
         GlobalRecordingState.recordingFileHandle,
@@ -1191,11 +1198,11 @@ int WINAPI WinMain(
         }
 #endif
 
-        slurp::GraphicsBuffer graphicsBuffer = {};
-        graphicsBuffer.memory = GlobalGraphicsBuffer.memory;
-        graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;
-        graphicsBuffer.heightPixels = GlobalGraphicsBuffer.heightPixels;
-        graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
+        slurp::GraphicsBuffer graphicsBuffer = {
+            static_cast<slurp::Pixel* const>(GlobalGraphicsBuffer.memory),
+            GlobalGraphicsBuffer.widthPixels,
+            GlobalGraphicsBuffer.heightPixels
+        };
         GlobalSlurpDll.updateAndRender(graphicsBuffer);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
@@ -1216,7 +1223,7 @@ int WINAPI WinMain(
         winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
 
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
-#if DEBUG
+#if 0
         winDrawDebugAudioSync(playCursor, 0x00000000);
         winDrawDebugAudioSync(lockCursor, 0x00FF0000);
 #endif
