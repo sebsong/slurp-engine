@@ -233,15 +233,13 @@ namespace slurp
 #define SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(fnName) void fnName(slurp::MouseState mouseState, slurp::KeyboardState keyboardState)
 #define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS])
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
-#define SLURP_RENDER_GRAPHICS(fnName) void fnName(slurp::GraphicsBuffer buffer)
-#define SLURP_UPDATE(fnName) void fnName()
+#define SLURP_UPDATE_AND_RENDER(fnName) void fnName(slurp::GraphicsBuffer buffer)
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT, handleMouseAndKeyboardInput)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_GAMEPAD_INPUT, handleGamepadInput)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_LOAD_AUDIO, loadAudio)
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_RENDER_GRAPHICS, renderGraphics)
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE, update)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE_AND_RENDER, updateAndRender)
 
     struct SlurpDll
     {
@@ -249,7 +247,6 @@ namespace slurp
         dyn_handleMouseAndKeyboardInput* handleMouseAndKeyboardInput = stub_handleMouseAndKeyboardInput;
         dyn_handleGamepadInput* handleGamepadInput = stub_handleGamepadInput;
         dyn_loadAudio* loadAudio = stub_loadAudio;
-        dyn_renderGraphics* renderGraphics = stub_renderGraphics;
-        dyn_update* update = stub_update;
+        dyn_updateAndRender* updateAndRender = stub_updateAndRender;
     };
 }

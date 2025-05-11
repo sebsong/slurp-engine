@@ -259,7 +259,7 @@ namespace slurp
         // loadSquareWave(buffer);
     }
 
-    SLURP_RENDER_GRAPHICS(renderGraphics)
+    SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
         drawColorfulTriangles(buffer);
         drawBox(buffer, GlobalGameState->playerX, GlobalGameState->playerY, 0x00000000);
@@ -274,11 +274,5 @@ namespace slurp
             drawBorder(buffer, 5, 0x0000FF00);
         }
 #endif
-    }
-
-    SLURP_UPDATE(update)
-    {
-        // std::cout << "PLAYER: " << GlobalGameState->playerX << ":" << GlobalGameState->playerY << std::endl;
-        // std::cout << "GRAPHICS: " << GlobalGameState->graphicsDX << ":" << GlobalGameState->graphicsDY << std::endl;
     }
 }

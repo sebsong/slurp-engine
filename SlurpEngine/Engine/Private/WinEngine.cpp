@@ -610,7 +610,9 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
     );
     if (!out)
     {
-        OutputDebugStringA("Failed to load lib function.\n");
+        char buf[256];
+        sprintf_s(buf, "Failed to load lib function: %s.\n", fnName);
+        OutputDebugStringA(buf);
         assert(out);
         out = stubFn;
     }
@@ -650,16 +652,10 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_loadAudio,
             GlobalSlurpLib
         );
-        winLoadLibFn<slurp::dyn_renderGraphics>(
-            GlobalSlurpDll.renderGraphics,
-            "renderGraphics",
-            slurp::stub_renderGraphics,
-            GlobalSlurpLib
-        );
-        winLoadLibFn<slurp::dyn_update>(
-            GlobalSlurpDll.update,
-            "update",
-            slurp::stub_update,
+        winLoadLibFn<slurp::dyn_updateAndRender>(
+            GlobalSlurpDll.updateAndRender,
+            "updateAndRender",
+            slurp::stub_updateAndRender,
             GlobalSlurpLib
         );
     }
@@ -1188,8 +1184,6 @@ int WINAPI WinMain(
         GlobalSlurpDll.handleMouseAndKeyboardInput(mouseState, keyboardState);
         GlobalSlurpDll.handleGamepadInput(controllerStates);
 
-        GlobalSlurpDll.update();
-
 #if DEBUG
         if (GlobalRecordingState.isPaused)
         {
@@ -1202,7 +1196,7 @@ int WINAPI WinMain(
         graphicsBuffer.widthPixels = GlobalGraphicsBuffer.widthPixels;
         graphicsBuffer.heightPixels = GlobalGraphicsBuffer.heightPixels;
         graphicsBuffer.pitchBytes = GlobalGraphicsBuffer.pitchBytes;
-        GlobalSlurpDll.renderGraphics(graphicsBuffer);
+        GlobalSlurpDll.updateAndRender(graphicsBuffer);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
         {
