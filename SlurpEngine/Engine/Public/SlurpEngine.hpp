@@ -14,6 +14,8 @@
 #define assert(expression) 
 #endif
 
+#define COLOR_PALETTE_SIZE 8
+
 namespace slurp
 {
     struct AudioBuffer
@@ -30,6 +32,12 @@ namespace slurp
         int widthPixels;
         int heightPixels;
     };
+    
+    struct ColorPalette
+    {
+        Pixel colors[COLOR_PALETTE_SIZE];
+    };
+
 
     struct DigitalInputState
     {
@@ -197,6 +205,8 @@ namespace slurp
     struct GameState
     {
         bool isInitialized;
+
+        ColorPalette colorPalette;
         
         float graphicsDX;
         float graphicsDY;

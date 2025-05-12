@@ -1,20 +1,29 @@
 ﻿#include <SlurpEngine.hpp>
 #include <iostream>
 
-// NOTE: color palette from https://lospec.com/palette-list/slso8
-#define DARK_BLUE 0x000d2b45
-#define BLUE 0x00203c56
-#define DARK_PURPLE 0x00544e68
-#define PURPLE 0x008d697a
-#define DARK_ORANGE 0x00d08159
-#define ORANGE 0x00ffaa5e
-#define LIGHT_ORANGE 0x00ffd4a3
-#define WHITE 0x00ffecd6
-
 typedef unsigned char byte;
 
 static constexpr float Pi = 3.14159265359f;
 static constexpr float GlobalVolume = 0.1f * 32000;
+
+// NOTE: color palette from https://lospec.com/palette-list/slso8
+#define WHITE_HEX 0x00ffecd6
+#define LIGHT_ORANGE_HEX 0x00ffd4a3
+#define ORANGE_HEX 0x00ffaa5e
+#define DARK_ORANGE_HEX 0x00d08159
+#define PURPLE_HEX 0x008d697a
+#define DARK_PURPLE_HEX 0x00544e68
+#define BLUE_HEX 0x00203c56
+#define DARK_BLUE_HEX 0x000d2b45
+
+#define WHITE_IDX 0
+#define LIGHT_ORANGE_IDX 1
+#define ORANGE_IDX 2
+#define DARK_ORANGE_IDX 3
+#define PURPLE_IDX 4
+#define DARK_PURPLE_IDX 5
+#define BLUE_IDX 6
+#define DARK_BLUE_IDX 7
 
 namespace slurp
 {
@@ -24,6 +33,10 @@ namespace slurp
     static RecordingState* GlobalRecordingState;
 #endif
 
+    // TODO: add ability to load this info from a file
+    static constexpr ColorPalette Palette = {
+        {WHITE_HEX, LIGHT_ORANGE_HEX, ORANGE_HEX, DARK_ORANGE_HEX, PURPLE_HEX, DARK_PURPLE_HEX, BLUE_HEX, DARK_BLUE_HEX}
+    };
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
@@ -66,17 +79,16 @@ namespace slurp
         }
     }
 
-    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
+    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, uint8_t colorPaletteIdx)
     {
-        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
+        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = Palette.colors[colorPaletteIdx];
     }
-
 
     static void drawRect(
         const GraphicsBuffer buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
-        uint32_t color
+        uint8_t colorPaletteIdx
     )
     {
         int minX = std::max(minPoint.x, 0);
@@ -87,7 +99,7 @@ namespace slurp
         {
             for (int x = minX; x < maxX; x++)
             {
-                drawAtPoint(buffer, {x, y}, color);
+                drawAtPoint(buffer, {x, y}, colorPaletteIdx);
             }
         }
     }
@@ -96,75 +108,30 @@ namespace slurp
         const GraphicsBuffer buffer,
         Vector2<int> point,
         int size,
-        uint32_t color
+        uint8_t colorPaletteIdx
     )
     {
         drawRect(
             buffer,
             point,
             {point.x + size, point.y + size},
-            color
+            colorPaletteIdx
         );
     }
 
     static void drawColorPaletteSwatch(GraphicsBuffer buffer, Vector2<int> point, int size)
     {
         Vector2<int> position = point;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            DARK_BLUE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            BLUE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            DARK_PURPLE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            PURPLE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            DARK_ORANGE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            ORANGE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            LIGHT_ORANGE
-        );
-        position.x += size;
-        drawSquare(
-            buffer,
-            position,
-            size,
-            WHITE
-        );
+        for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++)
+        {
+            drawSquare(
+                buffer,
+                position,
+                size,
+                i
+            );
+            position.x += size;
+        }
     }
 
     static void drawBorder(const GraphicsBuffer buffer, uint8_t borderWidth, uint32_t color)
@@ -212,7 +179,6 @@ namespace slurp
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
-
         GlobalGameState->mousePos = mouseState.position;
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
@@ -335,20 +301,20 @@ namespace slurp
             buffer,
             {0, 0},
             {buffer.widthPixels, buffer.heightPixels},
-            0x00000000
+            DARK_BLUE_IDX
         );
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
         drawSquare(
             buffer,
             GlobalGameState->playerPos,
             PlayerSizePixels,
-            DARK_PURPLE
+            ORANGE_IDX
         );
         drawSquare(
             buffer,
             GlobalGameState->mousePos,
             PlayerSizePixels,
-            LIGHT_ORANGE
+            PURPLE_IDX
         );
 #if DEBUG
         if (GlobalRecordingState->isRecording)
