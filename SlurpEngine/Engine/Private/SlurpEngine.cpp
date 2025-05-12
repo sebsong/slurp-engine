@@ -1,29 +1,11 @@
 ﻿#include <SlurpEngine.hpp>
 #include <iostream>
-
+#include <fstream>
+#include <string>
 typedef unsigned char byte;
 
 static constexpr float Pi = 3.14159265359f;
 static constexpr float GlobalVolume = 0.1f * 32000;
-
-// NOTE: color palette from https://lospec.com/palette-list/slso8
-#define WHITE_HEX 0x00ffecd6
-#define LIGHT_ORANGE_HEX 0x00ffd4a3
-#define ORANGE_HEX 0x00ffaa5e
-#define DARK_ORANGE_HEX 0x00d08159
-#define PURPLE_HEX 0x008d697a
-#define DARK_PURPLE_HEX 0x00544e68
-#define BLUE_HEX 0x00203c56
-#define DARK_BLUE_HEX 0x000d2b45
-
-#define WHITE_IDX 0
-#define LIGHT_ORANGE_IDX 1
-#define ORANGE_IDX 2
-#define DARK_ORANGE_IDX 3
-#define PURPLE_IDX 4
-#define DARK_PURPLE_IDX 5
-#define BLUE_IDX 6
-#define DARK_BLUE_IDX 7
 
 namespace slurp
 {
@@ -33,10 +15,9 @@ namespace slurp
     static RecordingState* GlobalRecordingState;
 #endif
 
-    // TODO: add ability to load this info from a file
-    static constexpr ColorPalette Palette = {
-        {WHITE_HEX, LIGHT_ORANGE_HEX, ORANGE_HEX, DARK_ORANGE_HEX, PURPLE_HEX, DARK_PURPLE_HEX, BLUE_HEX, DARK_BLUE_HEX}
-    };
+    static const std::string ColorPaletteHexFileName = "slso8.hex";
+    // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
+    // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
     static constexpr float LowScrollSpeed = 1;
     static constexpr float HighScrollSpeed = 5;
     static constexpr float BaseFrequencyHz = 360;
@@ -81,7 +62,9 @@ namespace slurp
 
     static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, uint8_t colorPaletteIdx)
     {
-        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = Palette.colors[colorPaletteIdx];
+        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
+        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = GlobalGameState->colorPalette.colors[
+            colorPaletteIdx];
     }
 
     static void drawRect(
@@ -117,6 +100,23 @@ namespace slurp
             {point.x + size, point.y + size},
             colorPaletteIdx
         );
+    }
+
+    static ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
+    {
+        ColorPalette palette = {};
+        std::ifstream file(paletteHexFileName);
+
+        uint8_t colorPaletteIdx = 0;
+        std::string line;
+        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE)
+        {
+            Pixel color = std::stoi(line, nullptr, 16);
+            palette.colors[colorPaletteIdx] = color;
+            colorPaletteIdx++;
+        }
+
+        return palette;
     }
 
     static void drawColorPaletteSwatch(GraphicsBuffer buffer, Vector2<int> point, int size)
@@ -170,6 +170,7 @@ namespace slurp
             GlobalGameState->playerPos = PlayerStartPos;
         }
         GlobalGameState->isInitialized = true;
+        GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
@@ -301,20 +302,20 @@ namespace slurp
             buffer,
             {0, 0},
             {buffer.widthPixels, buffer.heightPixels},
-            DARK_BLUE_IDX
+            7
         );
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
         drawSquare(
             buffer,
             GlobalGameState->playerPos,
             PlayerSizePixels,
-            ORANGE_IDX
+            2
         );
         drawSquare(
             buffer,
             GlobalGameState->mousePos,
             PlayerSizePixels,
-            PURPLE_IDX
+            4
         );
 #if DEBUG
         if (GlobalRecordingState->isRecording)
