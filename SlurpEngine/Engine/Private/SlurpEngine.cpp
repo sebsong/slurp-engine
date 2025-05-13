@@ -19,47 +19,10 @@ namespace slurp
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
-    static constexpr float LowScrollSpeed = 1;
-    static constexpr float HighScrollSpeed = 5;
-    static constexpr float BaseFrequencyHz = 360;
-    static constexpr float DeltaFrequencyHz = 220;
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int PlayerSizePixels = 10;
     static constexpr int PlayerSpeed = 5;
-
-    static void loadSineWave(AudioBuffer buffer)
-    {
-        float sineWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
-
-        int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
-        for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
-        {
-            int16_t subSampleData = static_cast<int16_t>(sinf(GlobalGameState->tWave) * GlobalVolume);
-            // *buffer.samples++ = (subSampleData << 16) | subSampleData;
-            *subSamples++ = subSampleData;
-            *subSamples++ = subSampleData;
-
-            GlobalGameState->tWave += 2 * Pi / sineWavePeriod;
-            GlobalGameState->tWave = std::fmod(GlobalGameState->tWave, 2 * Pi);
-        }
-    }
-
-    static void loadSquareWave(AudioBuffer buffer)
-    {
-        float squareWavePeriod = buffer.samplesPerSec / GlobalGameState->frequencyHz;
-
-        int16_t* subSamples = reinterpret_cast<int16_t*>(buffer.samples);
-        for (int regionSampleIndex = 0; regionSampleIndex < buffer.samplesToWrite; regionSampleIndex++)
-        {
-            int16_t square = ((int)GlobalGameState->tWave % 2 == 0) ? 1 : -1;
-            int16_t sampleData = static_cast<int16_t>(square * GlobalVolume / 4); // artificially lower volume
-            *subSamples++ = sampleData;
-            *subSamples++ = sampleData;
-
-            GlobalGameState->tWave += 1 / (squareWavePeriod / 2.f);
-        }
-    }
 
     static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, uint8_t colorPaletteIdx)
     {
@@ -166,8 +129,6 @@ namespace slurp
 
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes);
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
-        GlobalGameState->scrollSpeed = LowScrollSpeed;
-        GlobalGameState->frequencyHz = BaseFrequencyHz;
         if (!GlobalGameState->isInitialized)
         {
             GlobalGameState->playerPos = PlayerStartPos;
@@ -192,22 +153,18 @@ namespace slurp
 
         if (keyboardState.isDown(KeyboardCode::W))
         {
-            GlobalGameState->graphicsDY -= GlobalGameState->scrollSpeed;
             GlobalGameState->playerPos.y -= PlayerSpeed;
         }
         if (keyboardState.isDown(KeyboardCode::A))
         {
-            GlobalGameState->graphicsDX -= GlobalGameState->scrollSpeed;
             GlobalGameState->playerPos.x -= PlayerSpeed;
         }
         if (keyboardState.isDown(KeyboardCode::S))
         {
-            GlobalGameState->graphicsDY += GlobalGameState->scrollSpeed;
             GlobalGameState->playerPos.y += PlayerSpeed;
         }
         if (keyboardState.isDown(KeyboardCode::D))
         {
-            GlobalGameState->graphicsDX += GlobalGameState->scrollSpeed;
             GlobalGameState->playerPos.x += PlayerSpeed;
         }
 #if DEBUG
@@ -236,19 +193,6 @@ namespace slurp
         }
 #endif
 
-        DigitalInputState inputState;
-        if (keyboardState.getState(KeyboardCode::SPACE, inputState))
-        {
-            if (inputState.isDown)
-            {
-                GlobalGameState->scrollSpeed = 5;
-            }
-            else if (!inputState.isDown)
-            {
-                GlobalGameState->scrollSpeed = 1;
-            }
-        }
-
         if (keyboardState.isDown(KeyboardCode::ESC))
         {
             GlobalPlatformDll.shutdown();
@@ -270,25 +214,14 @@ namespace slurp
                 GlobalPlatformDll.shutdown();
             }
 
-            if (gamepadState.isDown(GamepadCode::LEFT_SHOULDER) || gamepadState.isDown(GamepadCode::RIGHT_SHOULDER))
-            {
-                GlobalGameState->scrollSpeed = HighScrollSpeed;
-            }
-            else
-            {
-                GlobalGameState->scrollSpeed = LowScrollSpeed;
-            }
-
             Vector2<float> leftStick = gamepadState.leftStick.end;
-            GlobalGameState->graphicsDX += leftStick.x * GlobalGameState->scrollSpeed;
-            GlobalGameState->graphicsDY -= leftStick.y * GlobalGameState->scrollSpeed;
-            GlobalGameState->playerPos += static_cast<Vector2<int>>(leftStick) * PlayerSpeed;
+            Vector2<float> dPosition = leftStick * PlayerSpeed;
+            dPosition.y *= -1;
+            GlobalGameState->playerPos += dPosition;
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
             GlobalPlatformDll.vibrateController(controllerIdx, leftTrigger, rightTrigger);
-
-            GlobalGameState->frequencyHz = BaseFrequencyHz + leftStick.x * DeltaFrequencyHz;
         }
     }
 

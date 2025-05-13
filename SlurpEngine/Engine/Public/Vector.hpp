@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+#include <ostream>
 
 namespace slurp
 {
@@ -20,11 +22,12 @@ namespace slurp
             this->y = _y;
         }
 
-        Vector2 operator+(const Vector2& other)
+        template <typename U>
+        Vector2<std::common_type_t<T, U>> operator+(const Vector2<U>& other)
         {
-            return Vector2(this->x + other.x, this->y + other.y);
+            return Vector2<std::common_type_t<T, U>>(this->x + other.x, this->y + other.y);
         }
-
+        
         Vector2& operator+=(const Vector2& other)
         {
             this->x += other.x;
@@ -32,21 +35,29 @@ namespace slurp
             return *this;
         }
 
-        Vector2 operator-(const Vector2& other)
+        template <typename U>
+        Vector2<std::common_type_t<T, U>> operator-(const Vector2<U>& other)
         {
-            return Vector2(this->x - other.x, this->y - other.y);
+            return Vector2<std::common_type_t<T, U>>(this->x - other.x, this->y - other.y);
         }
 
         template <typename TScalar>
-        Vector2 operator*(const TScalar& scalar)
+        Vector2<std::common_type_t<T, TScalar>> operator*(const TScalar& scalar)
         {
-            return Vector2(this->x * scalar, this->y * scalar);
+            return Vector2<std::common_type_t<T, TScalar>>(this->x * scalar, this->y * scalar);
         }
 
         template <typename TNew>
         operator Vector2<TNew>() const
         {
-            return Vector2<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->x));
+            return Vector2<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->y));
         }
     };
+    
+    template <typename T>
+    std::ostream& operator<<(std::ostream& os, const Vector2<T>& vector)
+    {
+        os << "(" << vector.x << ", " << vector.y << ")";
+        return os;
+    }
 }

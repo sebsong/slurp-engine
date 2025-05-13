@@ -208,19 +208,8 @@ namespace slurp
 
         ColorPalette colorPalette;
         
-        float graphicsDX;
-        float graphicsDY;
-        float scrollSpeed;
-        float frequencyHz;
-        float tWave;
         Vector2<int> playerPos;
         Vector2<int> mousePos;
-        
-        bool mouseL;
-        bool mouseR;
-        bool mouseM;
-        bool mouseB1;
-        bool mouseB2;
     };
 
 #if DEBUG
