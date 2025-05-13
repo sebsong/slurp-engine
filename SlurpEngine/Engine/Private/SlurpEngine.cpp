@@ -15,6 +15,7 @@ namespace slurp
     static RecordingState* GlobalRecordingState;
 #endif
 
+    static const std::string AssetsDirectory = "../assets/";
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
@@ -105,7 +106,9 @@ namespace slurp
     static ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
     {
         ColorPalette palette = {};
-        std::ifstream file(paletteHexFileName);
+        
+        const std::string filePath = AssetsDirectory + paletteHexFileName;
+        std::ifstream file(filePath);
 
         uint8_t colorPaletteIdx = 0;
         std::string line;
