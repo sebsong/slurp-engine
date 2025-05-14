@@ -22,7 +22,8 @@ namespace slurp
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int PlayerSizePixels = 20;
-    static constexpr int PlayerSpeed = 1000;
+    static constexpr int BasePlayerSpeed = 400;
+    static constexpr int SprintPlayerSpeed = 1000;
 
     static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, uint8_t colorPaletteIdx)
     {
@@ -69,7 +70,7 @@ namespace slurp
     static ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
     {
         ColorPalette palette = {};
-        
+
         const std::string filePath = AssetsDirectory + paletteHexFileName;
         std::ifstream file(filePath);
 
@@ -135,6 +136,7 @@ namespace slurp
         }
         GlobalGameState->isInitialized = true;
         GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
+        GlobalGameState->playerSpeed = BasePlayerSpeed;
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
@@ -168,8 +170,17 @@ namespace slurp
         {
             dPosition.x += 1;
         }
-        GlobalGameState->playerPos += dPosition * PlayerSpeed * dt;
-        
+        GlobalGameState->playerPos += dPosition * GlobalGameState->playerSpeed * dt;
+
+        if (keyboardState.justPressed(KeyboardCode::SPACE))
+        {
+            GlobalGameState->playerSpeed = SprintPlayerSpeed;
+        }
+        else if (keyboardState.justReleased(KeyboardCode::SPACE))
+        {
+            GlobalGameState->playerSpeed = BasePlayerSpeed;
+        }
+
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P))
         {
@@ -217,8 +228,19 @@ namespace slurp
                 GlobalPlatformDll.shutdown();
             }
 
+            if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
+                GamepadCode::RIGHT_SHOULDER))
+            {
+                GlobalGameState->playerSpeed = SprintPlayerSpeed;
+            }
+            else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
+                GamepadCode::RIGHT_SHOULDER))
+            {
+                GlobalGameState->playerSpeed = BasePlayerSpeed;
+            }
+
             Vector2<float> leftStick = gamepadState.leftStick.end;
-            Vector2<float> dPosition = leftStick * PlayerSpeed * dt;
+            Vector2<float> dPosition = leftStick * GlobalGameState->playerSpeed * dt;
             dPosition.y *= -1;
             GlobalGameState->playerPos += dPosition;
 

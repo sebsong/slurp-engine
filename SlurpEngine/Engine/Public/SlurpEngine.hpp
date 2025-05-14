@@ -150,6 +150,16 @@ namespace slurp
             }
             return false;
         }
+        
+        bool justReleased(KeyboardCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return !inputState.isDown && inputState.transitionCount != 0;
+            }
+            return false;
+        }
     };
 
     enum class GamepadCode: uint8_t
@@ -200,6 +210,26 @@ namespace slurp
             }
             return false;
         }
+        
+        bool justPressed(GamepadCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return inputState.isDown && inputState.transitionCount != 0;
+            }
+            return false;
+        }
+        
+        bool justReleased(GamepadCode code) const
+        {
+            DigitalInputState inputState;
+            if (getState(code, inputState))
+            {
+                return !inputState.isDown && inputState.transitionCount != 0;
+            }
+            return false;
+        }
     };
 
     struct GameState
@@ -209,6 +239,8 @@ namespace slurp
         ColorPalette colorPalette;
         
         Vector2<int> playerPos;
+        float playerSpeed;
+        
         Vector2<int> mousePos;
     };
 
