@@ -22,10 +22,35 @@ namespace slurp
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int PlayerSizePixels = 20;
-    static constexpr int BasePlayerSpeed = 400;
-    static constexpr int SprintPlayerSpeed = 1000;
+    static constexpr int BasePlayerSpeed = 800;
+    static constexpr int SprintPlayerSpeed = 1500;
 
-    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, uint8_t colorPaletteIdx)
+    static constexpr uint8_t GlobalTileMapWidth = 32;
+    static constexpr uint8_t GlobalTileMapHeight = 18;
+    static constexpr uint8_t GlobalTileSize = 40;
+    static constexpr ColorPaletteIdx GlobalTileMap[GlobalTileMapHeight][GlobalTileMapWidth] =
+    {
+        {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 3, 3, 3, 1, 1, 1, 1, 1, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
+        {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+    };
+
+    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, ColorPaletteIdx colorPaletteIdx)
     {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = GlobalGameState->colorPalette.colors[
@@ -36,7 +61,7 @@ namespace slurp
         const GraphicsBuffer buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
-        uint8_t colorPaletteIdx
+        ColorPaletteIdx colorPaletteIdx
     )
     {
         int minX = std::max(minPoint.x, 0);
@@ -56,7 +81,7 @@ namespace slurp
         const GraphicsBuffer buffer,
         Vector2<int> point,
         int size,
-        uint8_t colorPaletteIdx
+        ColorPaletteIdx colorPaletteIdx
     )
     {
         drawRect(
@@ -65,6 +90,22 @@ namespace slurp
             {point.x + size, point.y + size},
             colorPaletteIdx
         );
+    }
+
+    static void drawTilemap(
+        const GraphicsBuffer& buffer,
+        const ColorPaletteIdx tilemap[GlobalTileMapHeight][GlobalTileMapWidth],
+        uint8_t tileSize
+    )
+    {
+        for (int y = 0; y < GlobalTileMapHeight; y++)
+        {
+            for (int x = 0; x < GlobalTileMapWidth; x++)
+            {
+                uint8_t colorPaletteIdx = tilemap[y][x];
+                drawSquare(buffer, {x * tileSize, y * tileSize}, tileSize, colorPaletteIdx);
+            }
+        }
     }
 
     static ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
@@ -265,7 +306,10 @@ namespace slurp
             {buffer.widthPixels, buffer.heightPixels},
             7
         );
+
+        drawTilemap(buffer, GlobalTileMap, GlobalTileSize);
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
+
         drawSquare(
             buffer,
             GlobalGameState->playerPos,

@@ -18,6 +18,9 @@
 
 namespace slurp
 {
+    typedef uint8_t ColorPaletteIdx;
+    typedef uint32_t Pixel;
+
     struct AudioBuffer
     {
         int32_t* samples; // 16-bit Stereo L + R samples
@@ -25,14 +28,15 @@ namespace slurp
         int samplesToWrite;
     };
 
-    typedef uint32_t Pixel;
+
     struct GraphicsBuffer
     {
         Pixel* const pixelMap; // memory byte order: XRGB
         int widthPixels;
         int heightPixels;
     };
-    
+
+
     struct ColorPalette
     {
         Pixel colors[COLOR_PALETTE_SIZE];
@@ -56,7 +60,7 @@ namespace slurp
         float start;
         float end;
     };
-    
+
     enum class MouseCode: uint8_t
     {
         Left,
@@ -70,6 +74,7 @@ namespace slurp
     {
         Vector2<int> position;
         std::unordered_map<MouseCode, DigitalInputState> state;
+
         bool getState(MouseCode code, DigitalInputState& outInputState) const
         {
             if (state.count(code) > 0)
@@ -117,6 +122,7 @@ namespace slurp
     };
 
     typedef std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> keyboard_state_entry;
+
     struct KeyboardState
     {
         std::unordered_map<KeyboardCode, DigitalInputState> state;
@@ -150,7 +156,7 @@ namespace slurp
             }
             return false;
         }
-        
+
         bool justReleased(KeyboardCode code) const
         {
             DigitalInputState inputState;
@@ -210,7 +216,7 @@ namespace slurp
             }
             return false;
         }
-        
+
         bool justPressed(GamepadCode code) const
         {
             DigitalInputState inputState;
@@ -220,7 +226,7 @@ namespace slurp
             }
             return false;
         }
-        
+
         bool justReleased(GamepadCode code) const
         {
             DigitalInputState inputState;
@@ -237,10 +243,10 @@ namespace slurp
         bool isInitialized;
 
         ColorPalette colorPalette;
-        
+
         Vector2<int> playerPos;
         float playerSpeed;
-        
+
         Vector2<int> mousePos;
     };
 
