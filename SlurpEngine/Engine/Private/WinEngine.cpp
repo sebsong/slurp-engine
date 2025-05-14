@@ -1142,7 +1142,8 @@ int WINAPI WinMain(
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
-    float targetMillisPerFrame = 1000.f / targetFramesPerSecond;
+    float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
+    float targetMillisPerFrame = targetSecondsPerFrame * 1000.f;
 
     slurp::MouseState mouseState;
     slurp::KeyboardState keyboardState;
@@ -1188,8 +1189,8 @@ int WINAPI WinMain(
             winReadInputRecording(keyboardState, controllerStates);
         }
 #endif
-        GlobalSlurpDll.handleMouseAndKeyboardInput(mouseState, keyboardState);
-        GlobalSlurpDll.handleGamepadInput(controllerStates);
+        GlobalSlurpDll.handleMouseAndKeyboardInput(mouseState, keyboardState, targetSecondsPerFrame);
+        GlobalSlurpDll.handleGamepadInput(controllerStates, targetSecondsPerFrame);
 
 #if DEBUG
         if (GlobalRecordingState.isPaused)
@@ -1203,7 +1204,7 @@ int WINAPI WinMain(
             GlobalGraphicsBuffer.widthPixels,
             GlobalGraphicsBuffer.heightPixels
         };
-        GlobalSlurpDll.updateAndRender(graphicsBuffer);
+        GlobalSlurpDll.updateAndRender(graphicsBuffer, targetSecondsPerFrame);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
         {

@@ -21,8 +21,8 @@ namespace slurp
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
 
     static const Vector2<int> PlayerStartPos = {640, 360};
-    static constexpr int PlayerSizePixels = 10;
-    static constexpr int PlayerSpeed = 5;
+    static constexpr int PlayerSizePixels = 20;
+    static constexpr int PlayerSpeed = 1000;
 
     static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, uint8_t colorPaletteIdx)
     {
@@ -151,22 +151,25 @@ namespace slurp
             GlobalPlatformDll.shutdown();
         }
 
+        Vector2<float> dPosition;
         if (keyboardState.isDown(KeyboardCode::W))
         {
-            GlobalGameState->playerPos.y -= PlayerSpeed;
+            dPosition.y -= 1;
         }
         if (keyboardState.isDown(KeyboardCode::A))
         {
-            GlobalGameState->playerPos.x -= PlayerSpeed;
+            dPosition.x -= 1;
         }
         if (keyboardState.isDown(KeyboardCode::S))
         {
-            GlobalGameState->playerPos.y += PlayerSpeed;
+            dPosition.y += 1;
         }
         if (keyboardState.isDown(KeyboardCode::D))
         {
-            GlobalGameState->playerPos.x += PlayerSpeed;
+            dPosition.x += 1;
         }
+        GlobalGameState->playerPos += dPosition * PlayerSpeed * dt;
+        
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P))
         {
@@ -215,7 +218,7 @@ namespace slurp
             }
 
             Vector2<float> leftStick = gamepadState.leftStick.end;
-            Vector2<float> dPosition = leftStick * PlayerSpeed;
+            Vector2<float> dPosition = leftStick * PlayerSpeed * dt;
             dPosition.y *= -1;
             GlobalGameState->playerPos += dPosition;
 
