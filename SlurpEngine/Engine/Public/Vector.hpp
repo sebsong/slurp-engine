@@ -9,6 +9,9 @@ namespace slurp
     {
         T x;
         T y;
+
+        static const Vector2 Zero;
+        static const Vector2 Unit;
         
         Vector2()
         {
@@ -23,7 +26,7 @@ namespace slurp
         }
 
         template <typename U>
-        Vector2<std::common_type_t<T, U>> operator+(const Vector2<U>& other)
+        Vector2<std::common_type_t<T, U>> operator+(const Vector2<U>& other) const
         {
             return Vector2<std::common_type_t<T, U>>(this->x + other.x, this->y + other.y);
         }
@@ -36,15 +39,21 @@ namespace slurp
         }
 
         template <typename U>
-        Vector2<std::common_type_t<T, U>> operator-(const Vector2<U>& other)
+        Vector2<std::common_type_t<T, U>> operator-(const Vector2<U>& other) const
         {
             return Vector2<std::common_type_t<T, U>>(this->x - other.x, this->y - other.y);
         }
 
         template <typename TScalar>
-        Vector2<std::common_type_t<T, TScalar>> operator*(const TScalar& scalar)
+        Vector2<std::common_type_t<T, TScalar>> operator*(const TScalar& scalar) const
         {
             return Vector2<std::common_type_t<T, TScalar>>(this->x * scalar, this->y * scalar);
+        }
+        
+        template <typename TScalar>
+        Vector2<std::common_type_t<T, TScalar>> operator/(const TScalar& scalar) const
+        {
+            return Vector2<std::common_type_t<T, TScalar>>(this->x / scalar, this->y / scalar);
         }
 
         template <typename TNew>
@@ -53,6 +62,11 @@ namespace slurp
             return Vector2<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->y));
         }
     };
+
+    template <typename T>
+    const Vector2<T> Vector2<T>::Zero{1, 1};
+    template <typename T>
+    const Vector2<T> Vector2<T>::Unit{1, 1};
     
     template <typename T>
     std::ostream& operator<<(std::ostream& os, const Vector2<T>& vector)

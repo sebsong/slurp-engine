@@ -56,7 +56,7 @@ namespace slurp
     }
 
     static void _drawRect(
-        const GraphicsBuffer buffer,
+        const GraphicsBuffer& buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
         Pixel color
@@ -81,7 +81,7 @@ namespace slurp
     }
 
     static void drawRect(
-        const GraphicsBuffer buffer,
+        const GraphicsBuffer& buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
         float r,
@@ -97,7 +97,7 @@ namespace slurp
     }
 
     static void drawRect(
-        const GraphicsBuffer buffer,
+        const GraphicsBuffer& buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
         ColorPaletteIdx colorPaletteIdx
@@ -109,7 +109,7 @@ namespace slurp
     }
 
     static void drawSquare(
-        const GraphicsBuffer buffer,
+        const GraphicsBuffer& buffer,
         Vector2<int> point,
         int size,
         ColorPaletteIdx colorPaletteIdx
@@ -119,6 +119,40 @@ namespace slurp
             buffer,
             point,
             {point.x + size, point.y + size},
+            colorPaletteIdx
+        );
+    }
+
+    static void drawPlayer(
+        const GraphicsBuffer& buffer,
+        Vector2<int> playerPosition,
+        int size,
+        ColorPaletteIdx colorPaletteIdx
+    )
+    {
+        Vector2<int> point = playerPosition;
+        point.x -= size / 2;
+        point.y -= size;
+        drawSquare(
+            buffer,
+            point,
+            size,
+            colorPaletteIdx
+        );
+    }
+
+    static void drawMouse(
+        const GraphicsBuffer& buffer,
+        Vector2<int> mousePosition,
+        int size,
+        ColorPaletteIdx colorPaletteIdx
+    )
+    {
+        Vector2<int> point = mousePosition - Vector2<int>::Unit * size / 2;
+        drawSquare(
+            buffer,
+            point,
+            size,
             colorPaletteIdx
         );
     }
@@ -173,7 +207,7 @@ namespace slurp
         }
     }
 
-    static void drawBorder(const GraphicsBuffer buffer, uint8_t borderThickness, uint32_t color)
+    static void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color)
     {
         _drawRect(
             buffer,
@@ -343,13 +377,13 @@ namespace slurp
         drawTilemap(buffer, GlobalTileMap, GlobalTileSize);
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
 
-        drawSquare(
+        drawPlayer(
             buffer,
             GlobalGameState->playerPos,
             PlayerSizePixels,
             2
         );
-        drawSquare(
+        drawMouse(
             buffer,
             GlobalGameState->mousePos,
             PlayerSizePixels,
