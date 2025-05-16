@@ -244,10 +244,10 @@ namespace slurp
 
         ColorPalette colorPalette;
 
-        Vector2<int> playerPos;
+        Vector2<int> playerPosition;
         float playerSpeed;
 
-        Vector2<int> mousePos;
+        Vector2<int> mousePosition;
     };
 
 #if DEBUG

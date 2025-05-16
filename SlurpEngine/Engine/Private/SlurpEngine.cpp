@@ -243,7 +243,7 @@ namespace slurp
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         if (!GlobalGameState->isInitialized)
         {
-            GlobalGameState->playerPos = PlayerStartPos;
+            GlobalGameState->playerPosition = PlayerStartPos;
         }
         GlobalGameState->isInitialized = true;
         GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
@@ -257,7 +257,7 @@ namespace slurp
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
-        GlobalGameState->mousePos = mouseState.position;
+        GlobalGameState->mousePosition = mouseState.position;
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
         {
@@ -281,7 +281,23 @@ namespace slurp
         {
             dPosition.x += 1;
         }
-        GlobalGameState->playerPos += dPosition * GlobalGameState->playerSpeed * dt;
+
+        // handle collision check against tilemap
+        Vector2<int> newPosition = GlobalGameState->playerPosition + (dPosition * GlobalGameState->playerSpeed * dt);
+        bool shouldUpdate = false;
+        Vector2<int> newTilemapPosition = newPosition / GlobalTileSize;
+        if (
+            newTilemapPosition.x > 0 && newTilemapPosition.x < GlobalTileMapWidth &&
+            newTilemapPosition.y > 0 && newTilemapPosition.y < GlobalTileMapHeight
+        )
+        {
+            ColorPaletteIdx tilemapValue = GlobalTileMap[newTilemapPosition.y][newTilemapPosition.x];
+            shouldUpdate = tilemapValue == (COLOR_PALETTE_SIZE - 1);
+        }
+        if (shouldUpdate)
+        {
+            GlobalGameState->playerPosition = newPosition;
+        }
 
         if (keyboardState.justPressed(KeyboardCode::SPACE))
         {
@@ -353,7 +369,7 @@ namespace slurp
             Vector2<float> leftStick = gamepadState.leftStick.end;
             Vector2<float> dPosition = leftStick * GlobalGameState->playerSpeed * dt;
             dPosition.y *= -1;
-            GlobalGameState->playerPos += dPosition;
+            GlobalGameState->playerPosition += dPosition;
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -379,13 +395,13 @@ namespace slurp
 
         drawPlayer(
             buffer,
-            GlobalGameState->playerPos,
+            GlobalGameState->playerPosition,
             PlayerSizePixels,
             2
         );
         drawMouse(
             buffer,
-            GlobalGameState->mousePos,
+            GlobalGameState->mousePosition,
             PlayerSizePixels,
             4
         );
