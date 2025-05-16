@@ -50,18 +50,16 @@ namespace slurp
         {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
     };
 
-    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, ColorPaletteIdx colorPaletteIdx)
+    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
     {
-        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = GlobalGameState->colorPalette.colors[
-            colorPaletteIdx];
+        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
     }
 
-    static void drawRect(
+    static void _drawRect(
         const GraphicsBuffer buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
-        ColorPaletteIdx colorPaletteIdx
+        Pixel color
     )
     {
         int minX = std::max(minPoint.x, 0);
@@ -72,9 +70,42 @@ namespace slurp
         {
             for (int x = minX; x < maxX; x++)
             {
-                drawAtPoint(buffer, {x, y}, colorPaletteIdx);
+                drawAtPoint(buffer, {x, y}, color);
             }
         }
+    }
+
+    static uint8_t round(float num)
+    {
+        return static_cast<uint8_t>(num + 0.5f);
+    }
+
+    static void drawRect(
+        const GraphicsBuffer buffer,
+        Vector2<int> minPoint,
+        Vector2<int> maxPoint,
+        float r,
+        float g,
+        float b
+    )
+    {
+        uint8_t red = round(r * 255);
+        uint8_t green = round(g * 255);
+        uint8_t blue = round(b * 255);
+        Pixel color = (red << 16) | (green << 8) | blue;
+        _drawRect(buffer, minPoint, maxPoint, color);
+    }
+
+    static void drawRect(
+        const GraphicsBuffer buffer,
+        Vector2<int> minPoint,
+        Vector2<int> maxPoint,
+        ColorPaletteIdx colorPaletteIdx
+    )
+    {
+        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
+        Pixel color = GlobalGameState->colorPalette.colors[colorPaletteIdx];
+        _drawRect(buffer, minPoint, maxPoint, color);
     }
 
     static void drawSquare(
@@ -94,7 +125,7 @@ namespace slurp
 
     static void drawTilemap(
         const GraphicsBuffer& buffer,
-        const ColorPaletteIdx tilemap[GlobalTileMapHeight][GlobalTileMapWidth],
+        const ColorPaletteIdx (&tilemap)[GlobalTileMapHeight][GlobalTileMapWidth],
         uint8_t tileSize
     )
     {
@@ -142,27 +173,32 @@ namespace slurp
         }
     }
 
-    static void drawBorder(const GraphicsBuffer buffer, uint8_t borderWidth, uint32_t color)
+    static void drawBorder(const GraphicsBuffer buffer, uint8_t borderThickness, uint32_t color)
     {
-        for (int y = 0; y < buffer.heightPixels; y++)
-        {
-            int x = 0;
-            while (x < buffer.widthPixels)
-            {
-                uint32_t* pixel = buffer.pixelMap + (y * buffer.widthPixels) + x;
-                if ((y < borderWidth || y > buffer.heightPixels - borderWidth) ||
-                    (x < borderWidth || x > buffer.widthPixels - borderWidth))
-                {
-                    *pixel = color;
-                }
-                else if (x > borderWidth && x < buffer.widthPixels - borderWidth)
-                {
-                    x = buffer.widthPixels - borderWidth;
-                    continue;
-                }
-                x++;
-            }
-        }
+        _drawRect(
+            buffer,
+            {0, 0},
+            {buffer.widthPixels, borderThickness},
+            color
+        );
+        _drawRect(
+            buffer,
+            {0, 0},
+            {borderThickness, buffer.heightPixels},
+            color
+        );
+        _drawRect(
+            buffer,
+            {buffer.widthPixels - borderThickness, 0},
+            {buffer.widthPixels, buffer.heightPixels},
+            color
+        );
+        _drawRect(
+            buffer,
+            {0, buffer.heightPixels - borderThickness},
+            {buffer.widthPixels, buffer.heightPixels},
+            color
+        );
     }
 
     SLURP_INIT(init)
@@ -293,13 +329,10 @@ namespace slurp
 
     SLURP_LOAD_AUDIO(loadAudio)
     {
-        // loadSineWave(buffer);
-        // loadSquareWave(buffer);
     }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
-        // drawColorfulTriangles(buffer);
         drawRect(
             buffer,
             {0, 0},
@@ -325,11 +358,11 @@ namespace slurp
 #if DEBUG
         if (GlobalRecordingState->isRecording)
         {
-            drawBorder(buffer, 5, 0x00FF0000);
+            drawBorder(buffer, 10, 0x00FF0000);
         }
         else if (GlobalRecordingState->isPlayingBack)
         {
-            drawBorder(buffer, 5, 0x0000FF00);
+            drawBorder(buffer, 10, 0x0000FF00);
         }
 #endif
     }

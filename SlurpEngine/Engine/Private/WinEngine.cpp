@@ -19,7 +19,7 @@
 #define DISPLAY_HEIGHT 1440
 #endif
 #define DEFAULT_MONITOR_REFRESH_RATE 144
-#define DEBUG_MONITOR_REFRESH_RATE 30
+#define DEBUG_MONITOR_REFRESH_RATE 60
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
@@ -614,9 +614,9 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-    // char buf[256];
-    // sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    // OutputDebugStringA(buf);
+    char buf[256];
+    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
+    OutputDebugStringA(buf);
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
