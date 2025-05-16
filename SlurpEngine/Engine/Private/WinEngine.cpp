@@ -19,6 +19,7 @@
 #define DISPLAY_HEIGHT 1440
 #endif
 #define DEFAULT_MONITOR_REFRESH_RATE 144
+#define DEBUG_MONITOR_REFRESH_RATE 30
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
@@ -88,6 +89,17 @@ static void winUpdateWindow(
     int screenHeight
 )
 {
+#if 0 // this causes flickering because windows display update is not in sync with ours
+    PatBlt(
+        deviceContextHandle,
+        0,
+        0,
+        screenWidth,
+        screenHeight,
+        BLACKNESS
+    );
+#endif
+
     // TODO: aspect ratio correction
     StretchDIBits(
         deviceContextHandle,
@@ -102,6 +114,7 @@ static void winUpdateWindow(
         DIB_RGB_COLORS,
         SRCCOPY
     );
+    
 };
 
 static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer)
@@ -1141,7 +1154,11 @@ int WINAPI WinMain(
     GlobalSlurpDll.init(GlobalPlatformDll, &GlobalGameMemory);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
+#if DEBUG
+    DWORD targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
+#else
     DWORD targetFramesPerSecond = winGetMonitorRefreshRate();
+#endif
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
     float targetMillisPerFrame = targetSecondsPerFrame * 1000.f;
 
