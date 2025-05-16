@@ -22,8 +22,8 @@ namespace slurp
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int PlayerSizePixels = 20;
-    static constexpr int BasePlayerSpeed = 800;
-    static constexpr int SprintPlayerSpeed = 1500;
+    static constexpr int BasePlayerSpeed = 400;
+    static constexpr int SprintPlayerSpeed = 800;
 
     static constexpr uint8_t GlobalTileMapWidth = 32;
     static constexpr uint8_t GlobalTileMapHeight = 18;

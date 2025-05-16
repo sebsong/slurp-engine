@@ -89,13 +89,21 @@ static void winUpdateWindow(
     int screenHeight
 )
 {
-#if 0 // this causes flickering because windows display update is not in sync with ours
+#if DEBUG
     PatBlt(
         deviceContextHandle,
         0,
-        0,
+        buffer.heightPixels,
         screenWidth,
-        screenHeight,
+        screenHeight - buffer.heightPixels,
+        BLACKNESS
+    );
+    PatBlt(
+        deviceContextHandle,
+        buffer.widthPixels,
+        0,
+        screenWidth - buffer.widthPixels,
+        buffer.heightPixels,
         BLACKNESS
     );
 #endif
