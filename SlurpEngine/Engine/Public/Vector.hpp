@@ -24,18 +24,11 @@ namespace slurp
             this->x = _x;
             this->y = _y;
         }
-
+        
         template <typename U>
         Vector2<std::common_type_t<T, U>> operator+(const Vector2<U>& other) const
         {
             return Vector2<std::common_type_t<T, U>>(this->x + other.x, this->y + other.y);
-        }
-        
-        Vector2& operator+=(const Vector2& other)
-        {
-            this->x += other.x;
-            this->y += other.y;
-            return *this;
         }
 
         template <typename U>
@@ -55,6 +48,13 @@ namespace slurp
         {
             return Vector2<std::common_type_t<T, TScalar>>(this->x / scalar, this->y / scalar);
         }
+        
+        Vector2& operator+=(const Vector2& other)
+        {
+            this->x += other.x;
+            this->y += other.y;
+            return *this;
+        }
 
         template <typename TNew>
         operator Vector2<TNew>() const
@@ -64,7 +64,7 @@ namespace slurp
     };
 
     template <typename T>
-    const Vector2<T> Vector2<T>::Zero{1, 1};
+    const Vector2<T> Vector2<T>::Zero{0, 0};
     template <typename T>
     const Vector2<T> Vector2<T>::Unit{1, 1};
     
