@@ -1,2 +1,2 @@
-# slurp-engine
-A souped up C++ game engine 🍜
+# slurp-engine 🍜
+A souped up C++ game engine
