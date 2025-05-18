@@ -21,7 +21,7 @@ namespace slurp
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
 
     static const Vector2<int> PlayerStartPos = {640, 360};
-    static constexpr int PlayerSizePixels = 20;
+    static constexpr int BasePlayerSizePixels = 20;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
 
@@ -130,12 +130,9 @@ namespace slurp
         ColorPaletteIdx colorPaletteIdx
     )
     {
-        Vector2<int> point = playerPosition;
-        point.x -= (size / 2) - 1;
-        point.y -= size - 1;
         drawSquare(
             buffer,
-            point,
+            playerPosition,
             size,
             colorPaletteIdx
         );
@@ -243,11 +240,18 @@ namespace slurp
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         if (!GlobalGameState->isInitialized)
         {
-            GlobalGameState->playerPosition = PlayerStartPos;
+            GlobalGameState->player.position = PlayerStartPos;
+            GlobalGameState->player.size = BasePlayerSizePixels;
+            GlobalGameState->player.speed = BasePlayerSpeed;
+
+            int sizeCoord = GlobalGameState->player.size - 1;
+            GlobalGameState->player.relativeCollisionPoints[0] = {0, 0};
+            GlobalGameState->player.relativeCollisionPoints[1] = {sizeCoord, 0};
+            GlobalGameState->player.relativeCollisionPoints[2] = {0, sizeCoord};
+            GlobalGameState->player.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
         }
         GlobalGameState->isInitialized = true;
         GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
-        GlobalGameState->playerSpeed = BasePlayerSpeed;
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
@@ -255,32 +259,33 @@ namespace slurp
 #endif
     }
 
-    static int getUpdatedAxisPosition(int currentAxisPosition, int newAxisPosition, ColorPaletteIdx newTilemapValue)
+    static int getAxisPositionUpdate(int currentAxisPosition, int axisPositionUpdate, ColorPaletteIdx newTilemapValue)
     {
+        int newAxisPosition = currentAxisPosition + axisPositionUpdate;
         int currentAxisTilemapPosition = currentAxisPosition / GlobalTileSize;
         int newAxisTilemapPosition = newAxisPosition / GlobalTileSize;
 
-        int axisPosition = currentAxisPosition;
+        int updatedAxisPosition = currentAxisPosition;
         if (newTilemapValue == (COLOR_PALETTE_SIZE - 1))
         {
-            axisPosition = newAxisPosition;
+            updatedAxisPosition = newAxisPosition;
         }
         else
         {
             if (newAxisTilemapPosition > currentAxisTilemapPosition)
             {
-                axisPosition = newAxisTilemapPosition * GlobalTileSize - 1;
+                updatedAxisPosition = newAxisTilemapPosition * GlobalTileSize - 1;
             }
             else if (newAxisTilemapPosition < currentAxisTilemapPosition)
             {
-                axisPosition = currentAxisTilemapPosition * GlobalTileSize;
+                updatedAxisPosition = currentAxisTilemapPosition * GlobalTileSize;
             }
         }
 
-        return axisPosition;
+        return updatedAxisPosition - currentAxisPosition;
     }
 
-    static Vector2<int> getUpdatedPosition(Vector2<int> currentPosition, Vector2<int> positionUpdate)
+    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> positionUpdate)
     {
         Vector2<int> newPosition = currentPosition + positionUpdate;
         Vector2<int> currentTilemapPosition = currentPosition / GlobalTileSize;
@@ -292,11 +297,11 @@ namespace slurp
         {
             ColorPaletteIdx newXAxisTilemapValue = GlobalTileMap[currentTilemapPosition.y][newTilemapPosition.x];
             ColorPaletteIdx newYAxisTilemapValue = GlobalTileMap[newTilemapPosition.y][currentTilemapPosition.x];
-            int updatedXAxisPosition = getUpdatedAxisPosition(currentPosition.x, newPosition.x, newXAxisTilemapValue);
-            int updatedYAxisPosition = getUpdatedAxisPosition(currentPosition.y, newPosition.y, newYAxisTilemapValue);
-            return {updatedXAxisPosition, updatedYAxisPosition};
+            int xAxisPositionUpdate = getAxisPositionUpdate(currentPosition.x, positionUpdate.x, newXAxisTilemapValue);
+            int yAxisPositionUpdate = getAxisPositionUpdate(currentPosition.y, positionUpdate.y, newYAxisTilemapValue);
+            return {xAxisPositionUpdate, yAxisPositionUpdate};
         }
-        return currentTilemapPosition;
+        return Vector2<int>::Zero;
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
@@ -327,16 +332,31 @@ namespace slurp
         }
 
         // handle collision check against tilemap
-        Vector2<int> positionUpdate = (dPosition * GlobalGameState->playerSpeed * dt);
-        GlobalGameState->playerPosition = getUpdatedPosition(GlobalGameState->playerPosition, positionUpdate);
+        // TODO: refactor these names and move to separate method
+        Vector2<int> positionUpdate = (dPosition * GlobalGameState->player.speed * dt);
+        Vector2<int> update = positionUpdate;
+        for (Vector2<int> relativePoint : GlobalGameState->player.relativeCollisionPoints)
+        {
+            Vector2<int> point = GlobalGameState->player.position + relativePoint;
+            Vector2<int> pointPositionUpdate = getPositionUpdate(point, positionUpdate);
+            if (std::abs(pointPositionUpdate.x) < std::abs(update.x))
+            {
+                update.x = pointPositionUpdate.x;
+            }
+            if (std::abs(pointPositionUpdate.y) < std::abs(update.y))
+            {
+                update.y = pointPositionUpdate.y;
+            }
+        }
+        GlobalGameState->player.position += update;
 
         if (keyboardState.justPressed(KeyboardCode::SPACE))
         {
-            GlobalGameState->playerSpeed = SprintPlayerSpeed;
+            GlobalGameState->player.speed = SprintPlayerSpeed;
         }
         else if (keyboardState.justReleased(KeyboardCode::SPACE))
         {
-            GlobalGameState->playerSpeed = BasePlayerSpeed;
+            GlobalGameState->player.speed = BasePlayerSpeed;
         }
 
 #if DEBUG
@@ -389,18 +409,18 @@ namespace slurp
             if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
                 GamepadCode::RIGHT_SHOULDER))
             {
-                GlobalGameState->playerSpeed = SprintPlayerSpeed;
+                GlobalGameState->player.speed = SprintPlayerSpeed;
             }
             else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
                 GamepadCode::RIGHT_SHOULDER))
             {
-                GlobalGameState->playerSpeed = BasePlayerSpeed;
+                GlobalGameState->player.speed = BasePlayerSpeed;
             }
 
             Vector2<float> leftStick = gamepadState.leftStick.end;
-            Vector2<float> dPosition = leftStick * GlobalGameState->playerSpeed * dt;
+            Vector2<float> dPosition = leftStick * GlobalGameState->player.speed * dt;
             dPosition.y *= -1;
-            GlobalGameState->playerPosition += dPosition;
+            GlobalGameState->player.position += dPosition;
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -426,14 +446,14 @@ namespace slurp
 
         drawPlayer(
             buffer,
-            GlobalGameState->playerPosition,
-            PlayerSizePixels,
+            GlobalGameState->player.position,
+            GlobalGameState->player.size,
             2
         );
         drawMouse(
             buffer,
             GlobalGameState->mousePosition,
-            PlayerSizePixels,
+            BasePlayerSizePixels,
             4
         );
 #if DEBUG

@@ -238,15 +238,19 @@ namespace slurp
         }
     };
 
+    struct Player
+    {
+        Vector2<int> relativeCollisionPoints[4];
+        Vector2<int> position;
+        int size;
+        float speed;
+    };
+
     struct GameState
     {
         bool isInitialized;
-
         ColorPalette colorPalette;
-
-        Vector2<int> playerPosition;
-        float playerSpeed;
-
+        Player player;
         Vector2<int> mousePosition;
     };
 
