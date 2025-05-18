@@ -20,6 +20,7 @@
 #endif
 #define DEFAULT_MONITOR_REFRESH_RATE 144
 #define DEBUG_MONITOR_REFRESH_RATE 60
+#define VERBOSE 0
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
@@ -622,9 +623,11 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
+#if VERBOSE
     char buf[256];
     sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
     OutputDebugStringA(buf);
+#endif
 
     startProcessorCycle = processorCycleEnd;
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
