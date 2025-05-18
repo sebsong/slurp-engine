@@ -255,7 +255,7 @@ namespace slurp
 #endif
     }
 
-    static int getAxisPosition(int currentAxisPosition, int newAxisPosition, ColorPaletteIdx newTilemapValue)
+    static int getUpdatedAxisPosition(int currentAxisPosition, int newAxisPosition, ColorPaletteIdx newTilemapValue)
     {
         int currentAxisTilemapPosition = currentAxisPosition / GlobalTileSize;
         int newAxisTilemapPosition = newAxisPosition / GlobalTileSize;
@@ -278,6 +278,25 @@ namespace slurp
         }
 
         return axisPosition;
+    }
+
+    static Vector2<int> getUpdatedPosition(Vector2<int> currentPosition, Vector2<int> positionUpdate)
+    {
+        Vector2<int> newPosition = currentPosition + positionUpdate;
+        Vector2<int> currentTilemapPosition = currentPosition / GlobalTileSize;
+        Vector2<int> newTilemapPosition = newPosition / GlobalTileSize;
+        if (
+            newTilemapPosition.x >= 0 && newTilemapPosition.x < GlobalTileMapWidth &&
+            newTilemapPosition.y >= 0 && newTilemapPosition.y < GlobalTileMapHeight
+        )
+        {
+            ColorPaletteIdx newXAxisTilemapValue = GlobalTileMap[currentTilemapPosition.y][newTilemapPosition.x];
+            ColorPaletteIdx newYAxisTilemapValue = GlobalTileMap[newTilemapPosition.y][currentTilemapPosition.x];
+            int updatedXAxisPosition = getUpdatedAxisPosition(currentPosition.x, newPosition.x, newXAxisTilemapValue);
+            int updatedYAxisPosition = getUpdatedAxisPosition(currentPosition.y, newPosition.y, newYAxisTilemapValue);
+            return {updatedXAxisPosition, updatedYAxisPosition};
+        }
+        return currentTilemapPosition;
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
@@ -308,20 +327,8 @@ namespace slurp
         }
 
         // handle collision check against tilemap
-        Vector2<int> newPosition = GlobalGameState->playerPosition + (dPosition * GlobalGameState->playerSpeed * dt);
-        Vector2<int> currentTilemapPosition = GlobalGameState->playerPosition / GlobalTileSize;
-        Vector2<int> newTilemapPosition = newPosition / GlobalTileSize;
-        if (
-            newTilemapPosition.x >= 0 && newTilemapPosition.x < GlobalTileMapWidth &&
-            newTilemapPosition.y >= 0 && newTilemapPosition.y < GlobalTileMapHeight
-        )
-        {
-            ColorPaletteIdx newXAxisTilemapValue = GlobalTileMap[currentTilemapPosition.y][newTilemapPosition.x];
-            ColorPaletteIdx newYAxisTilemapValue = GlobalTileMap[newTilemapPosition.y][currentTilemapPosition.x];
-            int xAxisPosition = getAxisPosition(GlobalGameState->playerPosition.x, newPosition.x, newXAxisTilemapValue);
-            int yAxisPosition = getAxisPosition(GlobalGameState->playerPosition.y, newPosition.y, newYAxisTilemapValue);
-            GlobalGameState->playerPosition = {xAxisPosition, yAxisPosition};
-        }
+        Vector2<int> positionUpdate = (dPosition * GlobalGameState->playerSpeed * dt);
+        GlobalGameState->playerPosition = getUpdatedPosition(GlobalGameState->playerPosition, positionUpdate);
 
         if (keyboardState.justPressed(KeyboardCode::SPACE))
         {
