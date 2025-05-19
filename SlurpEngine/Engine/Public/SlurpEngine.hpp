@@ -5,6 +5,7 @@
 #include <Vector.hpp>
 
 #include <cstdint>
+#include <array>
 #include <unordered_map>
 
 #define MAX_NUM_CONTROLLERS 4
@@ -15,6 +16,8 @@
 #endif
 
 #define COLOR_PALETTE_SIZE 8
+#define TILEMAP_WIDTH 32
+#define TILEMAP_HEIGHT 18
 
 namespace slurp
 {
@@ -246,8 +249,15 @@ namespace slurp
         float speed;
     };
 
+    struct Tilemap
+    {
+        std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> map;
+        uint8_t tileSize;
+    };
+
     struct GameState
     {
+        Tilemap tilemap;
         bool isInitialized;
         ColorPalette colorPalette;
         Player player;

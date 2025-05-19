@@ -25,29 +25,29 @@ namespace slurp
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
 
-    static constexpr uint8_t GlobalTileMapWidth = 32;
-    static constexpr uint8_t GlobalTileMapHeight = 18;
-    static constexpr uint8_t GlobalTileSize = 40;
-    static constexpr ColorPaletteIdx GlobalTileMap[GlobalTileMapHeight][GlobalTileMapWidth] =
+    static constexpr uint8_t BaseTileSize = 40;
+    static constexpr std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> BaseTileMap =
     {
-        {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 3, 3, 3, 1, 1, 1, 1, 1, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6},
-        {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+        {
+            {{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 3, 3, 3, 1, 1, 1, 1, 1, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
+            {{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}},
+        }
     };
 
     static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
@@ -156,16 +156,15 @@ namespace slurp
 
     static void drawTilemap(
         const GraphicsBuffer& buffer,
-        const ColorPaletteIdx (&tilemap)[GlobalTileMapHeight][GlobalTileMapWidth],
-        uint8_t tileSize
+        const Tilemap tilemap
     )
     {
-        for (int y = 0; y < GlobalTileMapHeight; y++)
+        for (int y = 0; y < TILEMAP_HEIGHT; y++)
         {
-            for (int x = 0; x < GlobalTileMapWidth; x++)
+            for (int x = 0; x < TILEMAP_WIDTH; x++)
             {
-                uint8_t colorPaletteIdx = tilemap[y][x];
-                drawSquare(buffer, {x * tileSize, y * tileSize}, tileSize, colorPaletteIdx);
+                uint8_t colorPaletteIdx = tilemap.map[y][x];
+                drawSquare(buffer, {x * tilemap.tileSize, y * tilemap.tileSize}, tilemap.tileSize, colorPaletteIdx);
             }
         }
     }
@@ -240,6 +239,9 @@ namespace slurp
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
         if (!GlobalGameState->isInitialized)
         {
+            GlobalGameState->tilemap.map = BaseTileMap;
+            GlobalGameState->tilemap.tileSize = BaseTileSize;
+
             GlobalGameState->player.position = PlayerStartPos;
             GlobalGameState->player.size = BasePlayerSizePixels;
             GlobalGameState->player.speed = BasePlayerSpeed;
@@ -249,8 +251,8 @@ namespace slurp
             GlobalGameState->player.relativeCollisionPoints[1] = {sizeCoord, 0};
             GlobalGameState->player.relativeCollisionPoints[2] = {0, sizeCoord};
             GlobalGameState->player.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
+            GlobalGameState->isInitialized = true;
         }
-        GlobalGameState->isInitialized = true;
         GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
 #if DEBUG
@@ -259,11 +261,16 @@ namespace slurp
 #endif
     }
 
-    static int getAxisPositionUpdate(int currentAxisPosition, int axisPositionUpdate, ColorPaletteIdx newTilemapValue)
+    static int getAxisPositionUpdate(
+        int currentAxisPosition,
+        int axisPositionUpdate,
+        ColorPaletteIdx newTilemapValue,
+        uint8_t tileSize
+    )
     {
         int newAxisPosition = currentAxisPosition + axisPositionUpdate;
-        int currentAxisTilemapPosition = currentAxisPosition / GlobalTileSize;
-        int newAxisTilemapPosition = newAxisPosition / GlobalTileSize;
+        int currentAxisTilemapPosition = currentAxisPosition / tileSize;
+        int newAxisTilemapPosition = newAxisPosition / tileSize;
 
         int updatedAxisPosition = currentAxisPosition;
         if (newTilemapValue == (COLOR_PALETTE_SIZE - 1))
@@ -274,31 +281,41 @@ namespace slurp
         {
             if (newAxisTilemapPosition > currentAxisTilemapPosition)
             {
-                updatedAxisPosition = newAxisTilemapPosition * GlobalTileSize - 1;
+                updatedAxisPosition = newAxisTilemapPosition * tileSize - 1;
             }
             else if (newAxisTilemapPosition < currentAxisTilemapPosition)
             {
-                updatedAxisPosition = currentAxisTilemapPosition * GlobalTileSize;
+                updatedAxisPosition = currentAxisTilemapPosition * tileSize;
             }
         }
 
         return updatedAxisPosition - currentAxisPosition;
     }
 
-    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> positionUpdate)
+    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> positionUpdate, Tilemap tilemap)
     {
         Vector2<int> newPosition = currentPosition + positionUpdate;
-        Vector2<int> currentTilemapPosition = currentPosition / GlobalTileSize;
-        Vector2<int> newTilemapPosition = newPosition / GlobalTileSize;
+        Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
+        Vector2<int> newTilemapPosition = newPosition / tilemap.tileSize;
         if (
-            newTilemapPosition.x >= 0 && newTilemapPosition.x < GlobalTileMapWidth &&
-            newTilemapPosition.y >= 0 && newTilemapPosition.y < GlobalTileMapHeight
+            newTilemapPosition.x >= 0 && newTilemapPosition.x < TILEMAP_WIDTH &&
+            newTilemapPosition.y >= 0 && newTilemapPosition.y < TILEMAP_HEIGHT
         )
         {
-            ColorPaletteIdx newXAxisTilemapValue = GlobalTileMap[currentTilemapPosition.y][newTilemapPosition.x];
-            ColorPaletteIdx newYAxisTilemapValue = GlobalTileMap[newTilemapPosition.y][currentTilemapPosition.x];
-            int xAxisPositionUpdate = getAxisPositionUpdate(currentPosition.x, positionUpdate.x, newXAxisTilemapValue);
-            int yAxisPositionUpdate = getAxisPositionUpdate(currentPosition.y, positionUpdate.y, newYAxisTilemapValue);
+            ColorPaletteIdx newXAxisTilemapValue = tilemap.map[currentTilemapPosition.y][newTilemapPosition.x];
+            ColorPaletteIdx newYAxisTilemapValue = tilemap.map[newTilemapPosition.y][currentTilemapPosition.x];
+            int xAxisPositionUpdate = getAxisPositionUpdate(
+                currentPosition.x,
+                positionUpdate.x,
+                newXAxisTilemapValue,
+                tilemap.tileSize
+            );
+            int yAxisPositionUpdate = getAxisPositionUpdate(
+                currentPosition.y,
+                positionUpdate.y,
+                newYAxisTilemapValue,
+                tilemap.tileSize
+            );
             return {xAxisPositionUpdate, yAxisPositionUpdate};
         }
         return Vector2<int>::Zero;
@@ -338,7 +355,7 @@ namespace slurp
         for (Vector2<int> relativePoint : GlobalGameState->player.relativeCollisionPoints)
         {
             Vector2<int> point = GlobalGameState->player.position + relativePoint;
-            Vector2<int> pointPositionUpdate = getPositionUpdate(point, positionUpdate);
+            Vector2<int> pointPositionUpdate = getPositionUpdate(point, positionUpdate, GlobalGameState->tilemap);
             if (std::abs(pointPositionUpdate.x) < std::abs(update.x))
             {
                 update.x = pointPositionUpdate.x;
@@ -441,7 +458,7 @@ namespace slurp
             7
         );
 
-        drawTilemap(buffer, GlobalTileMap, GlobalTileSize);
+        drawTilemap(buffer, GlobalGameState->tilemap);
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
 
         drawPlayer(
