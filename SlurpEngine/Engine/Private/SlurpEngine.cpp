@@ -261,66 +261,6 @@ namespace slurp
 #endif
     }
 
-    static int getAxisPositionUpdate(
-        int currentAxisPosition,
-        int axisPositionUpdate,
-        ColorPaletteIdx newTilemapValue,
-        uint8_t tileSize
-    )
-    {
-        int newAxisPosition = currentAxisPosition + axisPositionUpdate;
-        int currentAxisTilemapPosition = currentAxisPosition / tileSize;
-        int newAxisTilemapPosition = newAxisPosition / tileSize;
-
-        int updatedAxisPosition = currentAxisPosition;
-        if (newTilemapValue == (COLOR_PALETTE_SIZE - 1))
-        {
-            updatedAxisPosition = newAxisPosition;
-        }
-        else
-        {
-            if (newAxisTilemapPosition > currentAxisTilemapPosition)
-            {
-                updatedAxisPosition = newAxisTilemapPosition * tileSize - 1;
-            }
-            else if (newAxisTilemapPosition < currentAxisTilemapPosition)
-            {
-                updatedAxisPosition = currentAxisTilemapPosition * tileSize;
-            }
-        }
-
-        return updatedAxisPosition - currentAxisPosition;
-    }
-
-    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> positionUpdate, Tilemap tilemap)
-    {
-        Vector2<int> newPosition = currentPosition + positionUpdate;
-        Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
-        Vector2<int> newTilemapPosition = newPosition / tilemap.tileSize;
-        if (
-            newTilemapPosition.x >= 0 && newTilemapPosition.x < TILEMAP_WIDTH &&
-            newTilemapPosition.y >= 0 && newTilemapPosition.y < TILEMAP_HEIGHT
-        )
-        {
-            ColorPaletteIdx newXAxisTilemapValue = tilemap.map[currentTilemapPosition.y][newTilemapPosition.x];
-            ColorPaletteIdx newYAxisTilemapValue = tilemap.map[newTilemapPosition.y][currentTilemapPosition.x];
-            int xAxisPositionUpdate = getAxisPositionUpdate(
-                currentPosition.x,
-                positionUpdate.x,
-                newXAxisTilemapValue,
-                tilemap.tileSize
-            );
-            int yAxisPositionUpdate = getAxisPositionUpdate(
-                currentPosition.y,
-                positionUpdate.y,
-                newYAxisTilemapValue,
-                tilemap.tileSize
-            );
-            return {xAxisPositionUpdate, yAxisPositionUpdate};
-        }
-        return Vector2<int>::Zero;
-    }
-
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
         GlobalGameState->mousePosition = mouseState.position;
@@ -330,42 +270,25 @@ namespace slurp
             GlobalPlatformDll.shutdown();
         }
 
-        Vector2<float> dPosition;
+        Vector2<float> direction;
         if (keyboardState.isDown(KeyboardCode::W))
         {
-            dPosition.y -= 1;
+            direction.y -= 1;
         }
         if (keyboardState.isDown(KeyboardCode::A))
         {
-            dPosition.x -= 1;
+            direction.x -= 1;
         }
         if (keyboardState.isDown(KeyboardCode::S))
         {
-            dPosition.y += 1;
+            direction.y += 1;
         }
         if (keyboardState.isDown(KeyboardCode::D))
         {
-            dPosition.x += 1;
+            direction.x += 1;
         }
+        GlobalGameState->player.direction = direction.normalize();
 
-        // handle collision check against tilemap
-        // TODO: refactor these names and move to separate method
-        Vector2<int> positionUpdate = (dPosition * GlobalGameState->player.speed * dt);
-        Vector2<int> update = positionUpdate;
-        for (Vector2<int> relativePoint : GlobalGameState->player.relativeCollisionPoints)
-        {
-            Vector2<int> point = GlobalGameState->player.position + relativePoint;
-            Vector2<int> pointPositionUpdate = getPositionUpdate(point, positionUpdate, GlobalGameState->tilemap);
-            if (std::abs(pointPositionUpdate.x) < std::abs(update.x))
-            {
-                update.x = pointPositionUpdate.x;
-            }
-            if (std::abs(pointPositionUpdate.y) < std::abs(update.y))
-            {
-                update.y = pointPositionUpdate.y;
-            }
-        }
-        GlobalGameState->player.position += update;
 
         if (keyboardState.justPressed(KeyboardCode::SPACE))
         {
@@ -435,9 +358,9 @@ namespace slurp
             }
 
             Vector2<float> leftStick = gamepadState.leftStick.end;
-            Vector2<float> dPosition = leftStick * GlobalGameState->player.speed * dt;
-            dPosition.y *= -1;
-            GlobalGameState->player.position += dPosition;
+            Vector2<float> direction = leftStick;
+            direction.y *= -1;
+            GlobalGameState->player.direction = direction.normalize();
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -449,8 +372,90 @@ namespace slurp
     {
     }
 
+    static int getAxisPositionUpdate(
+        int currentAxisPosition,
+        int axisPositionUpdate,
+        ColorPaletteIdx newTilemapValue,
+        uint8_t tileSize
+    )
+    {
+        int newAxisPosition = currentAxisPosition + axisPositionUpdate;
+        int currentAxisTilemapPosition = currentAxisPosition / tileSize;
+        int newAxisTilemapPosition = newAxisPosition / tileSize;
+
+        int updatedAxisPosition = currentAxisPosition;
+        if (newTilemapValue == (COLOR_PALETTE_SIZE - 1))
+        {
+            updatedAxisPosition = newAxisPosition;
+        }
+        else
+        {
+            if (newAxisTilemapPosition > currentAxisTilemapPosition)
+            {
+                updatedAxisPosition = newAxisTilemapPosition * tileSize - 1;
+            }
+            else if (newAxisTilemapPosition < currentAxisTilemapPosition)
+            {
+                updatedAxisPosition = currentAxisTilemapPosition * tileSize;
+            }
+        }
+
+        return updatedAxisPosition - currentAxisPosition;
+    }
+
+    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> positionUpdate, Tilemap tilemap)
+    {
+        Vector2<int> newPosition = currentPosition + positionUpdate;
+        Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
+        Vector2<int> newTilemapPosition = newPosition / tilemap.tileSize;
+        if (
+            newTilemapPosition.x >= 0 && newTilemapPosition.x < TILEMAP_WIDTH &&
+            newTilemapPosition.y >= 0 && newTilemapPosition.y < TILEMAP_HEIGHT
+        )
+        {
+            ColorPaletteIdx newXAxisTilemapValue = tilemap.map[currentTilemapPosition.y][newTilemapPosition.x];
+            ColorPaletteIdx newYAxisTilemapValue = tilemap.map[newTilemapPosition.y][currentTilemapPosition.x];
+            int xAxisPositionUpdate = getAxisPositionUpdate(
+                currentPosition.x,
+                positionUpdate.x,
+                newXAxisTilemapValue,
+                tilemap.tileSize
+            );
+            int yAxisPositionUpdate = getAxisPositionUpdate(
+                currentPosition.y,
+                positionUpdate.y,
+                newYAxisTilemapValue,
+                tilemap.tileSize
+            );
+            return {xAxisPositionUpdate, yAxisPositionUpdate};
+        }
+        return Vector2<int>::Zero;
+    }
+
+    static Vector2<int> getPlayerPositionUpdate(Player player, float dt)
+    {
+        Vector2<int> positionUpdate = (player.direction * player.speed * dt);
+        Vector2<int> update = positionUpdate;
+        for (Vector2<int> relativePoint : player.relativeCollisionPoints)
+        {
+            Vector2<int> point = player.position + relativePoint;
+            Vector2<int> pointPositionUpdate = getPositionUpdate(point, positionUpdate, GlobalGameState->tilemap);
+            if (std::abs(pointPositionUpdate.x) < std::abs(update.x))
+            {
+                update.x = pointPositionUpdate.x;
+            }
+            if (std::abs(pointPositionUpdate.y) < std::abs(update.y))
+            {
+                update.y = pointPositionUpdate.y;
+            }
+        }
+        return update;
+    }
+
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
+        GlobalGameState->player.position += getPlayerPositionUpdate(GlobalGameState->player, dt);
+        
         drawRect(
             buffer,
             {0, 0},

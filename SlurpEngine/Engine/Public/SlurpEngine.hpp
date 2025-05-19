@@ -245,6 +245,7 @@ namespace slurp
     {
         Vector2<int> relativeCollisionPoints[4];
         Vector2<int> position;
+        Vector2<float> direction;
         int size;
         float speed;
     };
