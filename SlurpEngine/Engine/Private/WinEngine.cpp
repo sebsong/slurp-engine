@@ -2,6 +2,7 @@
 #include <ostream>
 #include <Platform.hpp>
 #include <WinEngine.hpp>
+#include <Debug.hpp>
 
 #include <shlwapi.h>
 #include <string>

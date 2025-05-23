@@ -1,11 +1,7 @@
 ﻿#include <SlurpEngine.hpp>
-#include <iostream>
-#include <fstream>
-#include <string>
-typedef unsigned char byte;
+#include <Debug.hpp>
 
-static constexpr float Pi = 3.14159265359f;
-static constexpr float GlobalVolume = 0.1f * 32000;
+typedef unsigned char byte;
 
 namespace slurp
 {
@@ -15,7 +11,6 @@ namespace slurp
     static RecordingState* GlobalRecordingState;
 #endif
 
-    static const std::string AssetsDirectory = "../assets/";
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
@@ -50,79 +45,6 @@ namespace slurp
         }
     };
 
-    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
-    {
-        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
-    }
-
-    static void _drawRect(
-        const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
-        Pixel color
-    )
-    {
-        int minX = std::max(minPoint.x, 0);
-        int maxX = std::min(maxPoint.x, buffer.widthPixels);
-        int minY = std::max(minPoint.y, 0);
-        int maxY = std::min(maxPoint.y, buffer.heightPixels);
-        for (int y = minY; y < maxY; y++)
-        {
-            for (int x = minX; x < maxX; x++)
-            {
-                drawAtPoint(buffer, {x, y}, color);
-            }
-        }
-    }
-
-    static uint8_t round(float num)
-    {
-        return static_cast<uint8_t>(num + 0.5f);
-    }
-
-    static void drawRect(
-        const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
-        float r,
-        float g,
-        float b
-    )
-    {
-        uint8_t red = round(r * 255);
-        uint8_t green = round(g * 255);
-        uint8_t blue = round(b * 255);
-        Pixel color = (red << 16) | (green << 8) | blue;
-        _drawRect(buffer, minPoint, maxPoint, color);
-    }
-
-    static void drawRect(
-        const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
-        ColorPaletteIdx colorPaletteIdx
-    )
-    {
-        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        Pixel color = GlobalGameState->colorPalette.colors[colorPaletteIdx];
-        _drawRect(buffer, minPoint, maxPoint, color);
-    }
-
-    static void drawSquare(
-        const GraphicsBuffer& buffer,
-        Vector2<int> point,
-        int size,
-        ColorPaletteIdx colorPaletteIdx
-    )
-    {
-        drawRect(
-            buffer,
-            point,
-            {point.x + size, point.y + size},
-            colorPaletteIdx
-        );
-    }
-
     static void drawMouse(
         const GraphicsBuffer& buffer,
         Vector2<int> mousePosition,
@@ -135,7 +57,8 @@ namespace slurp
             buffer,
             point,
             size,
-            colorPaletteIdx
+            colorPaletteIdx,
+            GlobalGameState->colorPalette
         );
     }
 
@@ -149,29 +72,17 @@ namespace slurp
             for (int x = 0; x < TILEMAP_WIDTH; x++)
             {
                 uint8_t colorPaletteIdx = tilemap.map[y][x];
-                drawSquare(buffer, {x * tilemap.tileSize, y * tilemap.tileSize}, tilemap.tileSize, colorPaletteIdx);
+                drawSquare(
+                    buffer,
+                    {x * tilemap.tileSize, y * tilemap.tileSize},
+                    tilemap.tileSize,
+                    colorPaletteIdx,
+                    GlobalGameState->colorPalette
+                );
             }
         }
     }
 
-    static ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
-    {
-        ColorPalette palette = {};
-
-        const std::string filePath = AssetsDirectory + paletteHexFileName;
-        std::ifstream file(filePath);
-
-        uint8_t colorPaletteIdx = 0;
-        std::string line;
-        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE)
-        {
-            Pixel color = std::stoi(line, nullptr, 16);
-            palette.colors[colorPaletteIdx] = color;
-            colorPaletteIdx++;
-        }
-
-        return palette;
-    }
 
     static void drawColorPaletteSwatch(GraphicsBuffer buffer, Vector2<int> point, int size)
     {
@@ -182,38 +93,11 @@ namespace slurp
                 buffer,
                 position,
                 size,
-                i
+                i,
+                GlobalGameState->colorPalette
             );
             position.x += size;
         }
-    }
-
-    static void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color)
-    {
-        _drawRect(
-            buffer,
-            {0, 0},
-            {buffer.widthPixels, borderThickness},
-            color
-        );
-        _drawRect(
-            buffer,
-            {0, 0},
-            {borderThickness, buffer.heightPixels},
-            color
-        );
-        _drawRect(
-            buffer,
-            {buffer.widthPixels - borderThickness, 0},
-            {buffer.widthPixels, buffer.heightPixels},
-            color
-        );
-        _drawRect(
-            buffer,
-            {0, buffer.heightPixels - borderThickness},
-            {buffer.widthPixels, buffer.heightPixels},
-            color
-        );
     }
 
     SLURP_INIT(init)
@@ -357,104 +241,18 @@ namespace slurp
     {
     }
 
-    static int getAxisPositionUpdate(
-        int currentAxisPosition,
-        int targetAxisPositionUpdate,
-        ColorPaletteIdx targetTilemapValue,
-        uint8_t tileSize
-    )
-    {
-        if (targetTilemapValue == (COLOR_PALETTE_SIZE - 1)) // TODO: probably have a collision map
-        {
-            // tile is empty
-            return targetAxisPositionUpdate;
-        }
-
-        // tile is occupied
-        int targetAxisPosition = currentAxisPosition + targetAxisPositionUpdate;
-        if (targetAxisPosition > currentAxisPosition)
-        {
-            int updatedAxisTilemapPosition = targetAxisPosition / tileSize;
-            int updatedAxisPosition = updatedAxisTilemapPosition * tileSize - 1;
-            return updatedAxisPosition - currentAxisPosition;
-        }
-        if (targetAxisPosition < currentAxisPosition)
-        {
-            int updatedAxisTilemapPosition = currentAxisPosition / tileSize;
-            int updatedAxisPosition = updatedAxisTilemapPosition * tileSize;
-            return updatedAxisPosition - currentAxisPosition;
-        }
-
-        return 0;
-    }
-
-    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> targetPositionUpdate,
-                                          Tilemap tilemap)
-    {
-        Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
-        Vector2<int> targetPosition = currentPosition + targetPositionUpdate;
-        Vector2<int> targetTilemapPosition = targetPosition / tilemap.tileSize;
-        if (
-            targetTilemapPosition.x >= 0 && targetTilemapPosition.x < TILEMAP_WIDTH &&
-            targetTilemapPosition.y >= 0 && targetTilemapPosition.y < TILEMAP_HEIGHT
-        )
-        {
-            ColorPaletteIdx targetXAxisTilemapValue = tilemap.map[currentTilemapPosition.y][targetTilemapPosition.x];
-            int xAxisPositionUpdate = getAxisPositionUpdate(
-                currentPosition.x,
-                targetPositionUpdate.x,
-                targetXAxisTilemapValue,
-                tilemap.tileSize
-            );
-
-            ColorPaletteIdx targetYAxisTilemapValue = tilemap.map[targetTilemapPosition.y][currentTilemapPosition.x];
-            int yAxisPositionUpdate = getAxisPositionUpdate(
-                currentPosition.y,
-                targetPositionUpdate.y,
-                targetYAxisTilemapValue,
-                tilemap.tileSize
-            );
-
-            return {xAxisPositionUpdate, yAxisPositionUpdate};
-        }
-        return Vector2<int>::Zero;
-    }
-
-    static void updatePosition(Entity& entity, const float& dt)
-    {
-        Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
-        Vector2<int> positionUpdate = targetPositionUpdate;
-        for (const Vector2<int>& relativeCollisionPoint : entity.relativeCollisionPoints)
-        {
-            Vector2<int> collisionPoint = entity.position + relativeCollisionPoint;
-            Vector2<int> pointPositionUpdate = getPositionUpdate(
-                collisionPoint,
-                targetPositionUpdate,
-                GlobalGameState->tilemap
-            );
-            if (std::abs(pointPositionUpdate.x) < std::abs(positionUpdate.x))
-            {
-                positionUpdate.x = pointPositionUpdate.x;
-            }
-            if (std::abs(pointPositionUpdate.y) < std::abs(positionUpdate.y))
-            {
-                positionUpdate.y = pointPositionUpdate.y;
-            }
-        }
-        entity.position += positionUpdate;
-    }
-
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
         // Update
-        updatePosition(GlobalGameState->player, dt);
+        updatePosition(GlobalGameState->player, GlobalGameState->tilemap, dt);
 
         // Render
         drawRect(
             buffer,
             {0, 0},
             {buffer.widthPixels, buffer.heightPixels},
-            7
+            7,
+            GlobalGameState->colorPalette
         );
 
         drawTilemap(buffer, GlobalGameState->tilemap);
@@ -464,7 +262,8 @@ namespace slurp
             buffer,
             GlobalGameState->player.position,
             GlobalGameState->player.size,
-            2
+            2,
+            GlobalGameState->colorPalette
         );
         drawMouse(
             buffer,

@@ -2,47 +2,23 @@
 
 #include <Platform.hpp>
 #include <DynamicDeclaration.hpp>
+#include <Update.hpp>
+#include <Render.hpp>
 #include <Vector.hpp>
 
 #include <cstdint>
-#include <array>
 #include <unordered_map>
 
 #define MAX_NUM_CONTROLLERS 4
-#if DEBUG
-#define assert(expression) if (!(expression)) *(int*)(nullptr) = 0
-#else
-#define assert(expression) 
-#endif
-
-#define COLOR_PALETTE_SIZE 8
-#define TILEMAP_WIDTH 32
-#define TILEMAP_HEIGHT 18
 
 namespace slurp
 {
-    typedef uint8_t ColorPaletteIdx;
-    typedef uint32_t Pixel;
 
     struct AudioBuffer
     {
         int32_t* samples; // 16-bit Stereo L + R samples
         int samplesPerSec;
         int samplesToWrite;
-    };
-
-
-    struct GraphicsBuffer
-    {
-        Pixel* const pixelMap; // memory byte order: XRGB
-        int widthPixels;
-        int heightPixels;
-    };
-
-
-    struct ColorPalette
-    {
-        Pixel colors[COLOR_PALETTE_SIZE];
     };
 
 
@@ -239,21 +215,6 @@ namespace slurp
             }
             return false;
         }
-    };
-
-    struct Entity
-    {
-        int size;
-        float speed;
-        Vector2<int> position;
-        Vector2<float> direction;
-        Vector2<int> relativeCollisionPoints[4];
-    };
-
-    struct Tilemap
-    {
-        std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> map;
-        uint8_t tileSize;
     };
 
     struct GameState
