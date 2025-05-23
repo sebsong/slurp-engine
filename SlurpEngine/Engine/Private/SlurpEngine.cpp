@@ -18,7 +18,7 @@ namespace slurp
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
-    
+
     static constexpr int MouseCursorSizePixels = 10;
     static constexpr ColorPaletteIdx MouseCursorColorPalletIdx = 1;
 
@@ -137,7 +137,7 @@ namespace slurp
         {
             GlobalGameState->tilemap.map = BaseTileMap;
             GlobalGameState->tilemap.tileSize = BaseTileSize;
-            
+
             GlobalGameState->mouseCursor.size = MouseCursorSizePixels;
             GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
 
@@ -156,7 +156,7 @@ namespace slurp
                 setSquareCollisionPoints(GlobalGameState->enemies[i]);
             }
 
-            GlobalGameState->projectile.enabled = false;
+            GlobalGameState->projectile.enabled = true;
             GlobalGameState->projectile.size = ProjectileSizePixels;
             GlobalGameState->projectile.color = ProjectileColorPalletIdx;
             GlobalGameState->projectile.speed = BaseProjectileSpeed;
@@ -174,6 +174,12 @@ namespace slurp
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
         GlobalGameState->mouseCursor.position = mouseState.position;
+
+        if (mouseState.justPressed(MouseCode::Left))
+        {
+            GlobalGameState->projectile.position = GlobalGameState->player.position;
+            GlobalGameState->projectile.direction = static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).normalize();
+        }
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
         {
@@ -286,6 +292,7 @@ namespace slurp
     {
         // Update
         updatePosition(GlobalGameState->player, GlobalGameState->tilemap, dt);
+        updatePosition(GlobalGameState->projectile, GlobalGameState->tilemap, dt);
 
         // Render
         drawRect(
@@ -307,6 +314,12 @@ namespace slurp
                 GlobalGameState->colorPalette
             );
         }
+
+        drawEntity(
+            buffer,
+            GlobalGameState->projectile,
+            GlobalGameState->colorPalette
+        );
 
         drawEntity(
             buffer,

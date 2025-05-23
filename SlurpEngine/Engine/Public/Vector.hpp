@@ -29,7 +29,8 @@ namespace slurp
             return static_cast<float>(std::sqrt(std::pow(this->x, 2) + std::pow(this->y, 2)));
         }
 
-        Vector2<float>& normalize()
+        // TODO: this can't properly normalize an int vector. need to convert to float first
+        Vector2<float> normalize()
         {
             float mag = magnitude();
             if (mag != 0.0f)
