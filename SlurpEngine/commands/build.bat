@@ -24,7 +24,7 @@ if %debug% == 1 (
     set compiler_flags=%release_flags% %compiler_flags%
 )
 
-set slurp_compilation_files=%source_dir%\SlurpEngine.cpp %source_dir%\Update.cpp %source_dir%\Render.cpp
+set slurp_compilation_files=%source_dir%\SlurpEngine.cpp
 
 set timestamp=%time::=_%
 set timestamp=%timestamp:.=_%
@@ -37,11 +37,14 @@ if not exist %slurp_dir%\build mkdir %slurp_dir%\build
 pushd %slurp_dir%\build
 del *.pdb
 set build_start=%time%
+
 cl %includes% %warning_flags% %macros% %compiler_flags% -LD %slurp_compilation_files% -link %slurp_linker_flags%
 cl %includes% %warning_flags% %macros% %compiler_flags% %source_dir%\WinEngine.cpp -link %win_linker_flags% %libs%
+
 set build_end=%time%
 echo Build Start: %build_start%
 echo Build End:   %build_end%
+
 popd
 
 ENDLOCAL

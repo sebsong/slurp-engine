@@ -1,6 +1,10 @@
 ﻿#include <SlurpEngine.hpp>
 #include <Debug.hpp>
 
+// Single translation unit, unity build
+#include <Update.cpp>
+#include <Render.cpp>
+
 typedef unsigned char byte;
 
 namespace slurp
