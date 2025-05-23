@@ -6,9 +6,9 @@
 #include <Audio.hpp>
 #include <Update.hpp>
 #include <Render.hpp>
-#include <Vector.hpp>
 
 #define MAX_NUM_CONTROLLERS 4
+#define NUM_ENEMIES 4
 
 namespace slurp
 {
@@ -18,7 +18,9 @@ namespace slurp
         bool isInitialized;
         ColorPalette colorPalette;
         Entity player;
-        Vector2<int> mousePosition;
+        Entity enemies[NUM_ENEMIES];
+        Entity projectile;
+        Entity mouseCursor;
     };
 
 #if DEBUG

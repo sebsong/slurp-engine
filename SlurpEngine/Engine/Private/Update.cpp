@@ -10,7 +10,7 @@ namespace slurp
         uint8_t tileSize
     )
     {
-        if (targetTilemapValue == (COLOR_PALETTE_SIZE - 1)) // TODO: probably have a collision map
+        if (targetTilemapValue == EMPTY_COLOR_PALETTE_IDX) // TODO: probably have a collision map
         {
             // tile is empty
             return targetAxisPositionUpdate;

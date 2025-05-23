@@ -9,6 +9,7 @@
 
 namespace slurp
 {
+    struct Entity;
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
@@ -54,6 +55,8 @@ namespace slurp
         ColorPaletteIdx colorPaletteIdx,
         ColorPalette colorPalette
     );
+    
+    void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette);
     
     void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color);
     

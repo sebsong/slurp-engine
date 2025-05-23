@@ -83,6 +83,17 @@ namespace slurp
         );
     }
 
+    void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette)
+    {
+        drawSquare(
+            buffer,
+            entity.position,
+            entity.size,
+            entity.color,
+            colorPalette
+        );
+    }
+
     void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color)
     {
         _drawRect(
@@ -110,7 +121,7 @@ namespace slurp
             color
         );
     }
-    
+
     ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
     {
         ColorPalette palette = {};

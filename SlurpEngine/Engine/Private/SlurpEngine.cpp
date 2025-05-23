@@ -18,34 +18,48 @@ namespace slurp
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
+    
+    static constexpr int MouseCursorSizePixels = 10;
+    static constexpr ColorPaletteIdx MouseCursorColorPalletIdx = 1;
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int BasePlayerSizePixels = 20;
+    static constexpr ColorPaletteIdx PlayerColorPalletIdx = 2;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
+
+    static const Vector2<int> EnemyStartPos = {400, 200};
+    static const Vector2<int> EnemyPosOffset = {100, 0};
+    static constexpr int BaseEnemySizePixels = 20;
+    static constexpr ColorPaletteIdx EnemyColorPalletIdx = 4;
+    static constexpr int BaseEnemySpeed = 200;
+
+    static constexpr int ProjectileSizePixels = 15;
+    static constexpr ColorPaletteIdx ProjectileColorPalletIdx = 1;
+    static constexpr int BaseProjectileSpeed = 1000;
 
     static constexpr uint8_t BaseTileSize = 40;
     static constexpr std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> BaseTileMap =
     {
         {
-            {{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 3, 2, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 3, 3, 3, 1, 1, 1, 1, 1, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6}},
-            {{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}},
+            {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 3, 3, 3, 6, 6, 6, 6, 6, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 3, 3, 3, 1, 1, 1, 1, 1, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 3, 3, 3, 6, 6, 6, 6, 6, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
+            {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}},
         }
     };
 
@@ -87,7 +101,6 @@ namespace slurp
         }
     }
 
-
     static void drawColorPaletteSwatch(GraphicsBuffer buffer, Vector2<int> point, int size)
     {
         Vector2<int> position = point;
@@ -104,29 +117,53 @@ namespace slurp
         }
     }
 
+    static void setSquareCollisionPoints(Entity& entity)
+    {
+        int sizeCoord = entity.size - 1;
+        entity.relativeCollisionPoints[0] = {0, 0};
+        entity.relativeCollisionPoints[1] = {sizeCoord, 0};
+        entity.relativeCollisionPoints[2] = {0, sizeCoord};
+        entity.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
+    }
+
     SLURP_INIT(init)
     {
         GlobalPlatformDll = platformDll;
 
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes);
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
+        GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
         if (!GlobalGameState->isInitialized)
         {
             GlobalGameState->tilemap.map = BaseTileMap;
             GlobalGameState->tilemap.tileSize = BaseTileSize;
+            
+            GlobalGameState->mouseCursor.size = MouseCursorSizePixels;
+            GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
 
-            GlobalGameState->player.position = PlayerStartPos;
             GlobalGameState->player.size = BasePlayerSizePixels;
+            GlobalGameState->player.color = PlayerColorPalletIdx;
             GlobalGameState->player.speed = BasePlayerSpeed;
+            GlobalGameState->player.position = PlayerStartPos;
+            setSquareCollisionPoints(GlobalGameState->player);
 
-            int sizeCoord = GlobalGameState->player.size - 1;
-            GlobalGameState->player.relativeCollisionPoints[0] = {0, 0};
-            GlobalGameState->player.relativeCollisionPoints[1] = {sizeCoord, 0};
-            GlobalGameState->player.relativeCollisionPoints[2] = {0, sizeCoord};
-            GlobalGameState->player.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
+            for (int i = 0; i < NUM_ENEMIES; i++)
+            {
+                GlobalGameState->enemies[i].size = BaseEnemySizePixels;
+                GlobalGameState->enemies[i].speed = BaseEnemySpeed;
+                GlobalGameState->enemies[i].color = EnemyColorPalletIdx;
+                GlobalGameState->enemies[i].position = EnemyStartPos + (EnemyPosOffset * i);
+                setSquareCollisionPoints(GlobalGameState->enemies[i]);
+            }
+
+            GlobalGameState->projectile.enabled = false;
+            GlobalGameState->projectile.size = ProjectileSizePixels;
+            GlobalGameState->projectile.color = ProjectileColorPalletIdx;
+            GlobalGameState->projectile.speed = BaseProjectileSpeed;
+            setSquareCollisionPoints(GlobalGameState->projectile);
+
             GlobalGameState->isInitialized = true;
         }
-        GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
@@ -136,7 +173,7 @@ namespace slurp
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
     {
-        GlobalGameState->mousePosition = mouseState.position;
+        GlobalGameState->mouseCursor.position = mouseState.position;
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
         {
@@ -262,18 +299,25 @@ namespace slurp
         drawTilemap(buffer, GlobalGameState->tilemap);
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
 
-        drawSquare(
+        for (const Entity& enemy : GlobalGameState->enemies)
+        {
+            drawEntity(
+                buffer,
+                enemy,
+                GlobalGameState->colorPalette
+            );
+        }
+
+        drawEntity(
             buffer,
-            GlobalGameState->player.position,
-            GlobalGameState->player.size,
-            2,
+            GlobalGameState->player,
             GlobalGameState->colorPalette
         );
-        drawMouse(
+
+        drawEntity(
             buffer,
-            GlobalGameState->mousePosition,
-            BasePlayerSizePixels,
-            4
+            GlobalGameState->mouseCursor,
+            GlobalGameState->colorPalette
         );
 #if DEBUG
         if (GlobalRecordingState->isRecording)
