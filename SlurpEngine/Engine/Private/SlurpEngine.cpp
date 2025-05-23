@@ -156,11 +156,14 @@ namespace slurp
                 setSquareCollisionPoints(GlobalGameState->enemies[i]);
             }
 
-            GlobalGameState->projectile.enabled = true;
-            GlobalGameState->projectile.size = ProjectileSizePixels;
-            GlobalGameState->projectile.color = ProjectileColorPalletIdx;
-            GlobalGameState->projectile.speed = BaseProjectileSpeed;
-            setSquareCollisionPoints(GlobalGameState->projectile);
+            for (Entity& projectile : GlobalGameState->projectiles)
+            {
+                projectile.enabled = false;
+                projectile.size = ProjectileSizePixels;
+                projectile.color = ProjectileColorPalletIdx;
+                projectile.speed = BaseProjectileSpeed;
+                setSquareCollisionPoints(projectile);
+            }
 
             GlobalGameState->isInitialized = true;
         }
@@ -177,8 +180,12 @@ namespace slurp
 
         if (mouseState.justPressed(MouseCode::Left))
         {
-            GlobalGameState->projectile.position = GlobalGameState->player.position;
-            GlobalGameState->projectile.direction = static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).normalize();
+            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            projectile.enabled = true;
+            projectile.position = GlobalGameState->player.position;
+            projectile.direction =
+                static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).normalize();
+            GlobalGameState->projectileIdx++;
         }
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
@@ -292,7 +299,13 @@ namespace slurp
     {
         // Update
         updatePosition(GlobalGameState->player, GlobalGameState->tilemap, dt);
-        updatePosition(GlobalGameState->projectile, GlobalGameState->tilemap, dt);
+        for (Entity& projectile : GlobalGameState->projectiles)
+        {
+            if (projectile.enabled)
+            {
+                updatePosition(projectile, GlobalGameState->tilemap, dt);
+            }
+        }
 
         // Render
         drawRect(
@@ -315,11 +328,17 @@ namespace slurp
             );
         }
 
-        drawEntity(
-            buffer,
-            GlobalGameState->projectile,
-            GlobalGameState->colorPalette
-        );
+        for (Entity& projectile : GlobalGameState->projectiles)
+        {
+            if (projectile.enabled)
+            {
+                drawEntity(
+                    buffer,
+                    projectile,
+                    GlobalGameState->colorPalette
+                );
+            }
+        }
 
         drawEntity(
             buffer,
