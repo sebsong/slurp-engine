@@ -241,13 +241,13 @@ namespace slurp
         }
     };
 
-    struct Player
+    struct Entity
     {
-        Vector2<int> relativeCollisionPoints[4];
-        Vector2<int> position;
-        Vector2<float> direction;
         int size;
         float speed;
+        Vector2<int> position;
+        Vector2<float> direction;
+        Vector2<int> relativeCollisionPoints[4];
     };
 
     struct Tilemap
@@ -261,7 +261,7 @@ namespace slurp
         Tilemap tilemap;
         bool isInitialized;
         ColorPalette colorPalette;
-        Player player;
+        Entity player;
         Vector2<int> mousePosition;
     };
 

@@ -123,21 +123,6 @@ namespace slurp
         );
     }
 
-    static void drawPlayer(
-        const GraphicsBuffer& buffer,
-        Vector2<int> playerPosition,
-        int size,
-        ColorPaletteIdx colorPaletteIdx
-    )
-    {
-        drawSquare(
-            buffer,
-            playerPosition,
-            size,
-            colorPaletteIdx
-        );
-    }
-
     static void drawMouse(
         const GraphicsBuffer& buffer,
         Vector2<int> mousePosition,
@@ -374,88 +359,97 @@ namespace slurp
 
     static int getAxisPositionUpdate(
         int currentAxisPosition,
-        int axisPositionUpdate,
-        ColorPaletteIdx newTilemapValue,
+        int targetAxisPositionUpdate,
+        ColorPaletteIdx targetTilemapValue,
         uint8_t tileSize
     )
     {
-        int newAxisPosition = currentAxisPosition + axisPositionUpdate;
-        int currentAxisTilemapPosition = currentAxisPosition / tileSize;
-        int newAxisTilemapPosition = newAxisPosition / tileSize;
-
-        int updatedAxisPosition = currentAxisPosition;
-        if (newTilemapValue == (COLOR_PALETTE_SIZE - 1))
+        if (targetTilemapValue == (COLOR_PALETTE_SIZE - 1)) // TODO: probably have a collision map
         {
-            updatedAxisPosition = newAxisPosition;
-        }
-        else
-        {
-            if (newAxisTilemapPosition > currentAxisTilemapPosition)
-            {
-                updatedAxisPosition = newAxisTilemapPosition * tileSize - 1;
-            }
-            else if (newAxisTilemapPosition < currentAxisTilemapPosition)
-            {
-                updatedAxisPosition = currentAxisTilemapPosition * tileSize;
-            }
+            // tile is empty
+            return targetAxisPositionUpdate;
         }
 
-        return updatedAxisPosition - currentAxisPosition;
+        // tile is occupied
+        int targetAxisPosition = currentAxisPosition + targetAxisPositionUpdate;
+        if (targetAxisPosition > currentAxisPosition)
+        {
+            int updatedAxisTilemapPosition = targetAxisPosition / tileSize;
+            int updatedAxisPosition = updatedAxisTilemapPosition * tileSize - 1;
+            return updatedAxisPosition - currentAxisPosition;
+        }
+        if (targetAxisPosition < currentAxisPosition)
+        {
+            int updatedAxisTilemapPosition = currentAxisPosition / tileSize;
+            int updatedAxisPosition = updatedAxisTilemapPosition * tileSize;
+            return updatedAxisPosition - currentAxisPosition;
+        }
+
+        return 0;
     }
 
-    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> positionUpdate, Tilemap tilemap)
+    static Vector2<int> getPositionUpdate(Vector2<int> currentPosition, Vector2<int> targetPositionUpdate,
+                                          Tilemap tilemap)
     {
-        Vector2<int> newPosition = currentPosition + positionUpdate;
         Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
-        Vector2<int> newTilemapPosition = newPosition / tilemap.tileSize;
+        Vector2<int> targetPosition = currentPosition + targetPositionUpdate;
+        Vector2<int> targetTilemapPosition = targetPosition / tilemap.tileSize;
         if (
-            newTilemapPosition.x >= 0 && newTilemapPosition.x < TILEMAP_WIDTH &&
-            newTilemapPosition.y >= 0 && newTilemapPosition.y < TILEMAP_HEIGHT
+            targetTilemapPosition.x >= 0 && targetTilemapPosition.x < TILEMAP_WIDTH &&
+            targetTilemapPosition.y >= 0 && targetTilemapPosition.y < TILEMAP_HEIGHT
         )
         {
-            ColorPaletteIdx newXAxisTilemapValue = tilemap.map[currentTilemapPosition.y][newTilemapPosition.x];
-            ColorPaletteIdx newYAxisTilemapValue = tilemap.map[newTilemapPosition.y][currentTilemapPosition.x];
+            ColorPaletteIdx targetXAxisTilemapValue = tilemap.map[currentTilemapPosition.y][targetTilemapPosition.x];
             int xAxisPositionUpdate = getAxisPositionUpdate(
                 currentPosition.x,
-                positionUpdate.x,
-                newXAxisTilemapValue,
+                targetPositionUpdate.x,
+                targetXAxisTilemapValue,
                 tilemap.tileSize
             );
+
+            ColorPaletteIdx targetYAxisTilemapValue = tilemap.map[targetTilemapPosition.y][currentTilemapPosition.x];
             int yAxisPositionUpdate = getAxisPositionUpdate(
                 currentPosition.y,
-                positionUpdate.y,
-                newYAxisTilemapValue,
+                targetPositionUpdate.y,
+                targetYAxisTilemapValue,
                 tilemap.tileSize
             );
+
             return {xAxisPositionUpdate, yAxisPositionUpdate};
         }
         return Vector2<int>::Zero;
     }
 
-    static Vector2<int> getPlayerPositionUpdate(Player player, float dt)
+    static void updatePosition(Entity& entity, const float& dt)
     {
-        Vector2<int> positionUpdate = (player.direction * player.speed * dt);
-        Vector2<int> update = positionUpdate;
-        for (Vector2<int> relativePoint : player.relativeCollisionPoints)
+        Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
+        Vector2<int> positionUpdate = targetPositionUpdate;
+        for (const Vector2<int>& relativeCollisionPoint : entity.relativeCollisionPoints)
         {
-            Vector2<int> point = player.position + relativePoint;
-            Vector2<int> pointPositionUpdate = getPositionUpdate(point, positionUpdate, GlobalGameState->tilemap);
-            if (std::abs(pointPositionUpdate.x) < std::abs(update.x))
+            Vector2<int> collisionPoint = entity.position + relativeCollisionPoint;
+            Vector2<int> pointPositionUpdate = getPositionUpdate(
+                collisionPoint,
+                targetPositionUpdate,
+                GlobalGameState->tilemap
+            );
+            if (std::abs(pointPositionUpdate.x) < std::abs(positionUpdate.x))
             {
-                update.x = pointPositionUpdate.x;
+                positionUpdate.x = pointPositionUpdate.x;
             }
-            if (std::abs(pointPositionUpdate.y) < std::abs(update.y))
+            if (std::abs(pointPositionUpdate.y) < std::abs(positionUpdate.y))
             {
-                update.y = pointPositionUpdate.y;
+                positionUpdate.y = pointPositionUpdate.y;
             }
         }
-        return update;
+        entity.position += positionUpdate;
     }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
-        GlobalGameState->player.position += getPlayerPositionUpdate(GlobalGameState->player, dt);
-        
+        // Update
+        updatePosition(GlobalGameState->player, dt);
+
+        // Render
         drawRect(
             buffer,
             {0, 0},
@@ -466,7 +460,7 @@ namespace slurp
         drawTilemap(buffer, GlobalGameState->tilemap);
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
 
-        drawPlayer(
+        drawSquare(
             buffer,
             GlobalGameState->player.position,
             GlobalGameState->player.size,
