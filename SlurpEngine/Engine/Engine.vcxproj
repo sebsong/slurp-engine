@@ -385,6 +385,7 @@
   <ItemGroup>
     <ClInclude Include="Public\Debug.hpp" />
     <ClInclude Include="Public\DynamicDeclaration.hpp" />
+    <ClInclude Include="Public\Input.hpp" />
     <ClInclude Include="Public\Platform.hpp" />
     <ClInclude Include="Public\Render.hpp" />
     <ClInclude Include="Public\SlurpEngine.hpp" />
