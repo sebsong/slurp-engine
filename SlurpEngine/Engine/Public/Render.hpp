@@ -19,7 +19,6 @@ namespace slurp
         int heightPixels;
     };
 
-
     struct ColorPalette
     {
         Pixel colors[COLOR_PALETTE_SIZE];

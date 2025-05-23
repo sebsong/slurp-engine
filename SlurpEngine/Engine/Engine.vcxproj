@@ -383,6 +383,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Public\Audio.hpp" />
     <ClInclude Include="Public\Debug.hpp" />
     <ClInclude Include="Public\DynamicDeclaration.hpp" />
     <ClInclude Include="Public\Input.hpp" />

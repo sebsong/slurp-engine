@@ -3,23 +3,15 @@
 #include <Platform.hpp>
 #include <DynamicDeclaration.hpp>
 #include <Input.hpp>
+#include <Audio.hpp>
 #include <Update.hpp>
 #include <Render.hpp>
 #include <Vector.hpp>
-
-#include <cstdint>
 
 #define MAX_NUM_CONTROLLERS 4
 
 namespace slurp
 {
-    struct AudioBuffer
-    {
-        int32_t* samples; // 16-bit Stereo L + R samples
-        int samplesPerSec;
-        int samplesToWrite;
-    };
-
     struct GameState
     {
         Tilemap tilemap;
