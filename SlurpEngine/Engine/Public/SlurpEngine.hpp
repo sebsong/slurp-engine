@@ -9,7 +9,7 @@
 
 #define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
-#define PROJECTILE_POOL_SIZE 1000 // TODO: can't shoot more than this many projectiles!
+#define PROJECTILE_POOL_SIZE 1000
 
 namespace slurp
 {

@@ -186,6 +186,10 @@ namespace slurp
             projectile.direction =
                 static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).normalize();
             GlobalGameState->projectileIdx++;
+            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE)
+            {
+                GlobalGameState->projectileIdx = 0;
+            }
         }
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
