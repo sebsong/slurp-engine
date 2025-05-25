@@ -45,6 +45,12 @@ namespace slurp
         {
             return this->x == other.x && this->y == other.y;
         }
+        
+        template <typename U>
+        bool operator!=(const Vector2<U>& other) const
+        {
+            return this->x != other.x && this->y != other.y;
+        }
 
         template <typename U>
         Vector2<std::common_type_t<T, U>> operator+(const Vector2<U>& other) const

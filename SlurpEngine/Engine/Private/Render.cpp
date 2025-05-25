@@ -1,4 +1,5 @@
 #include <Render.hpp>
+#include <Update.hpp>
 #include <Debug.hpp>
 #include <fstream>
 #include <string>
@@ -7,9 +8,15 @@ namespace slurp
 {
     static const std::string AssetsDirectory = "../assets/";
 
-    static void drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
+    static void _drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
     {
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
+    }
+
+    static void _clampToBufferBounds(const GraphicsBuffer& buffer, Vector2<int>& point)
+    {
+        point.x = std::min(std::max(point.x, 0), buffer.widthPixels);
+        point.y = std::min(std::max(point.y, 0), buffer.heightPixels);
     }
 
     static void _drawRect(
@@ -19,15 +26,13 @@ namespace slurp
         Pixel color
     )
     {
-        int minX = std::max(minPoint.x, 0);
-        int maxX = std::min(maxPoint.x, buffer.widthPixels);
-        int minY = std::max(minPoint.y, 0);
-        int maxY = std::min(maxPoint.y, buffer.heightPixels);
-        for (int y = minY; y < maxY; y++)
+        _clampToBufferBounds(buffer, minPoint);
+        _clampToBufferBounds(buffer, maxPoint);
+        for (int y = minPoint.y; y < maxPoint.y; y++)
         {
-            for (int x = minX; x < maxX; x++)
+            for (int x = minPoint.x; x < maxPoint.x; x++)
             {
-                drawAtPoint(buffer, {x, y}, color);
+                _drawAtPoint(buffer, {x, y}, color);
             }
         }
     }
@@ -58,7 +63,7 @@ namespace slurp
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
         ColorPaletteIdx colorPaletteIdx,
-        ColorPalette colorPalette
+        const ColorPalette& colorPalette
     )
     {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
@@ -71,7 +76,7 @@ namespace slurp
         Vector2<int> point,
         int size,
         ColorPaletteIdx colorPaletteIdx,
-        ColorPalette colorPalette
+        const ColorPalette& colorPalette
     )
     {
         drawRect(
@@ -81,6 +86,34 @@ namespace slurp
             colorPaletteIdx,
             colorPalette
         );
+    }
+
+    void drawLine(
+        const GraphicsBuffer& buffer,
+        Vector2<int> startPoint,
+        Vector2<int> endPoint,
+        int size, // TODO: incorporate size
+        ColorPaletteIdx colorPaletteIdx,
+        const ColorPalette& colorPalette
+    )
+    {
+        _clampToBufferBounds(buffer, startPoint);
+        _clampToBufferBounds(buffer, endPoint);
+        
+        Vector2<int> startToEnd = endPoint - startPoint;
+        Vector2<float> direction = static_cast<Vector2<float>>(startToEnd).normalize();
+        
+        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
+        Pixel color = colorPalette.colors[colorPaletteIdx];
+
+        Vector2<float> currentPoint = startPoint;
+        float distance = startToEnd.magnitude();
+        while (distance > 0)
+        {
+            _drawAtPoint(buffer, currentPoint, color);
+            currentPoint += direction;
+            distance--;
+        }
     }
 
     void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette)

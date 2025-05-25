@@ -40,12 +40,13 @@ namespace slurp
         float b
     );
 
+    // TODO: maybe register/save graphics buffer and color palette so we don't need to pass it in every time?
     void drawRect(
         const GraphicsBuffer& buffer,
         Vector2<int> minPoint,
         Vector2<int> maxPoint,
         ColorPaletteIdx colorPaletteIdx,
-        ColorPalette colorPalette
+        const ColorPalette& colorPalette
     );
 
     void drawSquare(
@@ -53,7 +54,16 @@ namespace slurp
         Vector2<int> point,
         int size,
         ColorPaletteIdx colorPaletteIdx,
-        ColorPalette colorPalette
+        const ColorPalette& colorPalette
+    );
+    
+    void drawLine(
+        const GraphicsBuffer& buffer,
+        Vector2<int> startPoint,
+        Vector2<int> endPoint,
+        int size,
+        ColorPaletteIdx colorPaletteIdx,
+        const ColorPalette& colorPalette
     );
     
     void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette);

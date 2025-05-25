@@ -355,6 +355,15 @@ namespace slurp
             GlobalGameState->mouseCursor,
             GlobalGameState->colorPalette
         );
+
+        drawLine(
+            buffer,
+            GlobalGameState->mouseCursor.position,
+            GlobalGameState->player.position,
+            1,
+            3,
+            GlobalGameState->colorPalette
+        );
 #if DEBUG
         if (GlobalRecordingState->isRecording)
         {
