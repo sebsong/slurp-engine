@@ -32,6 +32,8 @@ namespace slurp
         Button2,
     };
 
+    typedef std::pair<const slurp::MouseCode, slurp::DigitalInputState> mouse_state_entry;
+    
     struct MouseState
     {
         Vector2<int> position;
