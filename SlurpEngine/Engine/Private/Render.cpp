@@ -92,25 +92,31 @@ namespace slurp
         const GraphicsBuffer& buffer,
         Vector2<int> startPoint,
         Vector2<int> endPoint,
-        int size, // TODO: incorporate size
+        int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     )
     {
         _clampToBufferBounds(buffer, startPoint);
         _clampToBufferBounds(buffer, endPoint);
-        
+
         Vector2<int> startToEnd = endPoint - startPoint;
         Vector2<float> direction = static_cast<Vector2<float>>(startToEnd).normalize();
-        
-        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        Pixel color = colorPalette.colors[colorPaletteIdx];
+
+        // assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
+        // Pixel color = colorPalette.colors[colorPaletteIdx];
 
         Vector2<float> currentPoint = startPoint;
         float distance = startToEnd.magnitude();
         while (distance > 0)
         {
-            _drawAtPoint(buffer, currentPoint, color);
+            drawSquare(
+                buffer,
+                currentPoint,
+                size,
+                colorPaletteIdx,
+                colorPalette
+            );
             currentPoint += direction;
             distance--;
         }

@@ -360,8 +360,8 @@ namespace slurp
             buffer,
             GlobalGameState->mouseCursor.position,
             GlobalGameState->player.position,
-            1,
-            3,
+            2,
+            5,
             GlobalGameState->colorPalette
         );
 #if DEBUG
