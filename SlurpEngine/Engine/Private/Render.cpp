@@ -1,5 +1,6 @@
 #include <Render.hpp>
 #include <Update.hpp>
+#include <Math.hpp>
 #include <Debug.hpp>
 #include <fstream>
 #include <string>
@@ -35,11 +36,6 @@ namespace slurp
                 _drawAtPoint(buffer, {x, y}, color);
             }
         }
-    }
-
-    static uint8_t round(float num)
-    {
-        return static_cast<uint8_t>(num + 0.5f);
     }
 
     void drawRect(
@@ -102,9 +98,6 @@ namespace slurp
 
         Vector2<int> startToEnd = endPoint - startPoint;
         Vector2<float> direction = static_cast<Vector2<float>>(startToEnd).normalize();
-
-        // assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        // Pixel color = colorPalette.colors[colorPaletteIdx];
 
         Vector2<float> currentPoint = startPoint;
         float distance = startToEnd.magnitude();

@@ -24,7 +24,7 @@ namespace slurp
             this->y = _y;
         }
 
-        float magnitude()
+        float magnitude() const
         {
             return static_cast<float>(std::sqrt(std::pow(this->x, 2) + std::pow(this->y, 2)));
         }
@@ -38,6 +38,12 @@ namespace slurp
                 *this /= mag;
             }
             return *this;
+        }
+        
+        template <typename U>
+        float distanceTo(const Vector2<U>& other) const
+        {
+            return (other - *this).magnitude();
         }
 
         template <typename U>

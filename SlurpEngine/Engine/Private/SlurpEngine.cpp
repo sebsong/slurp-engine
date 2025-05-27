@@ -299,6 +299,27 @@ namespace slurp
     {
     }
 
+    static const Entity& findClosest(const Vector2<int>& position, const Entity* entities, int numEntities)
+    {
+        assert(numEntities > 0);
+
+        int minIdx = 0;
+        float minDistance = position.distanceTo(entities[0].position);
+
+        for (int i = 1; i < numEntities; i++)
+        {
+            const Entity& entity = entities[i];
+            float distance = position.distanceTo(entity.position);
+            if (distance < minDistance)
+            {
+                minIdx = i;
+                minDistance = distance;
+            }
+        }
+
+        return entities[minIdx];
+    }
+
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
         // Update
@@ -355,6 +376,21 @@ namespace slurp
             GlobalGameState->mouseCursor,
             GlobalGameState->colorPalette
         );
+
+        int projectileIdx = GlobalGameState->projectileIdx;
+        if (projectileIdx > 0)
+        {
+            const Entity& newestProjectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx - 1];
+            const Entity& closestEnemy = findClosest(newestProjectile.position, GlobalGameState->enemies, NUM_ENEMIES);
+            drawLine(
+                buffer,
+                newestProjectile.position,
+                closestEnemy.position,
+                2,
+                0,
+                GlobalGameState->colorPalette
+            );
+        }
 
         drawLine(
             buffer,
