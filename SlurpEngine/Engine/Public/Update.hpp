@@ -13,6 +13,7 @@ namespace slurp
         ColorPaletteIdx color;
         float speed;
         Vector2<int> position;
+        Vector2<float> positionOffset;
         Vector2<float> direction;
         Vector2<int> relativeCollisionPoints[4];
     };

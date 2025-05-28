@@ -36,7 +36,7 @@ namespace slurp
 
     static constexpr int ProjectileSizePixels = 15;
     static constexpr ColorPaletteIdx ProjectileColorPalletIdx = 1;
-    static constexpr int BaseProjectileSpeed = 1000;
+    static constexpr int BaseProjectileSpeed = 500;
 
     static constexpr uint8_t BaseTileSize = 40;
     static constexpr std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> BaseTileMap =
@@ -124,6 +124,11 @@ namespace slurp
         entity.relativeCollisionPoints[1] = {sizeCoord, 0};
         entity.relativeCollisionPoints[2] = {0, sizeCoord};
         entity.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
+
+        for (Vector2<int>& collisionPoint : entity.relativeCollisionPoints)
+        {
+            collisionPoint -= entity.positionOffset;
+        }
     }
 
     SLURP_INIT(init)
@@ -140,11 +145,13 @@ namespace slurp
 
             GlobalGameState->mouseCursor.size = MouseCursorSizePixels;
             GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
+            GlobalGameState->mouseCursor.positionOffset = Vector2<int>::Unit * GlobalGameState->mouseCursor.size / 2;
 
             GlobalGameState->player.size = BasePlayerSizePixels;
             GlobalGameState->player.color = PlayerColorPalletIdx;
             GlobalGameState->player.speed = BasePlayerSpeed;
             GlobalGameState->player.position = PlayerStartPos;
+            GlobalGameState->player.positionOffset = Vector2<int>::Unit * GlobalGameState->player.size / 2;
             setSquareCollisionPoints(GlobalGameState->player);
 
             for (int i = 0; i < NUM_ENEMIES; i++)
@@ -153,6 +160,7 @@ namespace slurp
                 GlobalGameState->enemies[i].speed = BaseEnemySpeed;
                 GlobalGameState->enemies[i].color = EnemyColorPalletIdx;
                 GlobalGameState->enemies[i].position = EnemyStartPos + (EnemyPosOffset * i);
+                GlobalGameState->enemies[i].positionOffset = Vector2<int>::Unit * GlobalGameState->enemies[i].size / 2;
                 setSquareCollisionPoints(GlobalGameState->enemies[i]);
             }
 
@@ -160,12 +168,13 @@ namespace slurp
             {
                 projectile.enabled = false;
                 projectile.size = ProjectileSizePixels;
+                projectile.positionOffset = {.5, .5};
                 projectile.color = ProjectileColorPalletIdx;
                 projectile.speed = BaseProjectileSpeed;
                 setSquareCollisionPoints(projectile);
             }
 
-            GlobalGameState->isInitialized = true;
+            // GlobalGameState->isInitialized = true;
         }
 
 #if DEBUG
@@ -377,19 +386,20 @@ namespace slurp
             GlobalGameState->colorPalette
         );
 
-        int projectileIdx = GlobalGameState->projectileIdx;
-        if (projectileIdx > 0)
+        for (const Entity& projectile : GlobalGameState->projectiles)
         {
-            const Entity& newestProjectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx - 1];
-            const Entity& closestEnemy = findClosest(newestProjectile.position, GlobalGameState->enemies, NUM_ENEMIES);
-            drawLine(
-                buffer,
-                newestProjectile.position,
-                closestEnemy.position,
-                2,
-                0,
-                GlobalGameState->colorPalette
-            );
+            if (projectile.enabled)
+            {
+                const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
+                drawLine(
+                    buffer,
+                    projectile.position,
+                    closestEnemy.position,
+                    2,
+                    0,
+                    GlobalGameState->colorPalette
+                );
+            }
         }
 
         drawLine(

@@ -117,9 +117,11 @@ namespace slurp
 
     void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette)
     {
+        // NOTE: Sizes that are even will have an off-center position
+        Vector2<int> point = entity.position - entity.positionOffset;
         drawSquare(
             buffer,
-            entity.position,
+            point,
             entity.size,
             entity.color,
             colorPalette
