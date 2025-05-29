@@ -13,12 +13,18 @@
 
 namespace slurp
 {
+    struct Player
+    {
+        Entity entity;
+        bool isParryActive;
+    };
+    
     struct GameState
     {
         Tilemap tilemap;
         bool isInitialized;
         ColorPalette colorPalette;
-        Entity player;
+        Player player;
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         Entity projectiles[PROJECTILE_POOL_SIZE];

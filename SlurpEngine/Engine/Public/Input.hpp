@@ -25,9 +25,9 @@ namespace slurp
 
     enum class MouseCode: uint8_t
     {
-        Left,
-        Right,
-        Middle,
+        LeftClick,
+        RightClick,
+        MiddleClick,
         Button1,
         Button2,
     };

@@ -39,9 +39,9 @@ struct WinAudioBuffer
 typedef int WinMouseCode;
 static const std::unordered_map<WinMouseCode, slurp::MouseCode> MouseWinCodeToSlurpCode =
 {
-    {VK_LBUTTON, slurp::MouseCode::Left},
-    {VK_RBUTTON, slurp::MouseCode::Right},
-    {VK_MBUTTON, slurp::MouseCode::Middle},
+    {VK_LBUTTON, slurp::MouseCode::LeftClick},
+    {VK_RBUTTON, slurp::MouseCode::RightClick},
+    {VK_MBUTTON, slurp::MouseCode::MiddleClick},
     {VK_XBUTTON1, slurp::MouseCode::Button1},
     {VK_XBUTTON2, slurp::MouseCode::Button2},
 };

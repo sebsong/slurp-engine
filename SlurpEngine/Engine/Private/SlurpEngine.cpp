@@ -27,6 +27,7 @@ namespace slurp
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int BasePlayerSizePixels = 20;
     static constexpr ColorPaletteIdx PlayerColorPalletIdx = 2;
+    static constexpr ColorPaletteIdx PlayerParryColorPalletIdx = 1;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
 
@@ -150,13 +151,14 @@ namespace slurp
             GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
             GlobalGameState->mouseCursor.positionOffset = Vector2<int>::Unit * GlobalGameState->mouseCursor.size / 2;
 
-            GlobalGameState->player.enabled = true;
-            GlobalGameState->player.size = BasePlayerSizePixels;
-            GlobalGameState->player.color = PlayerColorPalletIdx;
-            GlobalGameState->player.speed = BasePlayerSpeed;
-            GlobalGameState->player.position = PlayerStartPos;
-            GlobalGameState->player.positionOffset = Vector2<int>::Unit * GlobalGameState->player.size / 2;
-            setSquareCollisionPoints(GlobalGameState->player);
+            GlobalGameState->player.entity.enabled = true;
+            GlobalGameState->player.entity.size = BasePlayerSizePixels;
+            GlobalGameState->player.entity.color = PlayerColorPalletIdx;
+            GlobalGameState->player.entity.speed = BasePlayerSpeed;
+            GlobalGameState->player.entity.position = PlayerStartPos;
+            GlobalGameState->player.entity.positionOffset = Vector2<int>::Unit * GlobalGameState->player.entity.size /
+                2;
+            setSquareCollisionPoints(GlobalGameState->player.entity);
 
             for (int i = 0; i < NUM_ENEMIES; i++)
             {
@@ -179,7 +181,7 @@ namespace slurp
                 setSquareCollisionPoints(projectile);
             }
 
-            // GlobalGameState->isInitialized = true;
+            GlobalGameState->isInitialized = true;
         }
 
 #if DEBUG
@@ -192,18 +194,33 @@ namespace slurp
     {
         GlobalGameState->mouseCursor.position = mouseState.position;
 
-        if (mouseState.justPressed(MouseCode::Left))
+        if (mouseState.justPressed(MouseCode::LeftClick))
         {
             Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
             projectile.enabled = true;
-            projectile.position = GlobalGameState->player.position;
+            projectile.position = GlobalGameState->player.entity.position;
             projectile.direction =
-                static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).normalize();
+                static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity.position).normalize();
             GlobalGameState->projectileIdx++;
             if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE)
             {
                 GlobalGameState->projectileIdx = 0;
             }
+        }
+
+        if (mouseState.justPressed(MouseCode::RightClick))
+        {
+            GlobalGameState->player.isParryActive = !GlobalGameState->player.isParryActive;
+            ColorPaletteIdx newColor;
+            if (GlobalGameState->player.isParryActive)
+            {
+                newColor = PlayerParryColorPalletIdx;
+            }
+            else
+            {
+                newColor = PlayerColorPalletIdx;
+            }
+            GlobalGameState->player.entity.color = newColor;
         }
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
@@ -228,16 +245,16 @@ namespace slurp
         {
             direction.x += 1;
         }
-        GlobalGameState->player.direction = direction.normalize();
+        GlobalGameState->player.entity.direction = direction.normalize();
 
 
         if (keyboardState.justPressed(KeyboardCode::SPACE))
         {
-            GlobalGameState->player.speed = SprintPlayerSpeed;
+            GlobalGameState->player.entity.speed = SprintPlayerSpeed;
         }
         else if (keyboardState.justReleased(KeyboardCode::SPACE))
         {
-            GlobalGameState->player.speed = BasePlayerSpeed;
+            GlobalGameState->player.entity.speed = BasePlayerSpeed;
         }
 
 #if DEBUG
@@ -290,18 +307,18 @@ namespace slurp
             if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
                 GamepadCode::RIGHT_SHOULDER))
             {
-                GlobalGameState->player.speed = SprintPlayerSpeed;
+                GlobalGameState->player.entity.speed = SprintPlayerSpeed;
             }
             else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
                 GamepadCode::RIGHT_SHOULDER))
             {
-                GlobalGameState->player.speed = BasePlayerSpeed;
+                GlobalGameState->player.entity.speed = BasePlayerSpeed;
             }
 
             Vector2<float> leftStick = gamepadState.leftStick.end;
             Vector2<float> direction = leftStick;
             direction.y *= -1;
-            GlobalGameState->player.direction = direction.normalize();
+            GlobalGameState->player.entity.direction = direction.normalize();
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -355,9 +372,9 @@ namespace slurp
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
         // Update
-        if (GlobalGameState->player.enabled)
+        if (GlobalGameState->player.entity.enabled)
         {
-            updatePosition(GlobalGameState->player, GlobalGameState->tilemap, dt);
+            updatePosition(GlobalGameState->player.entity, GlobalGameState->tilemap, dt);
         }
         for (Entity& enemy : GlobalGameState->enemies)
         {
@@ -411,11 +428,11 @@ namespace slurp
             }
         }
 
-        if (GlobalGameState->player.enabled)
+        if (GlobalGameState->player.entity.enabled)
         {
             drawEntity(
                 buffer,
-                GlobalGameState->player,
+                GlobalGameState->player.entity,
                 GlobalGameState->colorPalette
             );
         }
@@ -448,7 +465,7 @@ namespace slurp
         drawLine(
             buffer,
             GlobalGameState->mouseCursor.position,
-            GlobalGameState->player.position,
+            GlobalGameState->player.entity.position,
             2,
             5,
             GlobalGameState->colorPalette
