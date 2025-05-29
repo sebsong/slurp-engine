@@ -8,7 +8,7 @@ namespace slurp
 {
     struct Entity
     {
-        bool enabled = true;
+        bool enabled;
         int size;
         ColorPaletteIdx color;
         float speed;

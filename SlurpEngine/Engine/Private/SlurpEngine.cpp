@@ -5,6 +5,8 @@
 #include <Update.cpp>
 #include <Render.cpp>
 
+#include <random>
+
 typedef unsigned char byte;
 
 namespace slurp
@@ -143,10 +145,12 @@ namespace slurp
             GlobalGameState->tilemap.map = BaseTileMap;
             GlobalGameState->tilemap.tileSize = BaseTileSize;
 
+            GlobalGameState->mouseCursor.enabled = true;
             GlobalGameState->mouseCursor.size = MouseCursorSizePixels;
             GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
             GlobalGameState->mouseCursor.positionOffset = Vector2<int>::Unit * GlobalGameState->mouseCursor.size / 2;
 
+            GlobalGameState->player.enabled = true;
             GlobalGameState->player.size = BasePlayerSizePixels;
             GlobalGameState->player.color = PlayerColorPalletIdx;
             GlobalGameState->player.speed = BasePlayerSpeed;
@@ -156,6 +160,7 @@ namespace slurp
 
             for (int i = 0; i < NUM_ENEMIES; i++)
             {
+                GlobalGameState->enemies[i].enabled = true;
                 GlobalGameState->enemies[i].size = BaseEnemySizePixels;
                 GlobalGameState->enemies[i].speed = BaseEnemySpeed;
                 GlobalGameState->enemies[i].color = EnemyColorPalletIdx;
@@ -329,10 +334,39 @@ namespace slurp
         return entities[minIdx];
     }
 
+    // Random float between [0, 1]
+    static float randomFloat()
+    {
+        return rand() / static_cast<float>(RAND_MAX);
+    }
+
+    static float randomFloat(float min, float max)
+    {
+        return (randomFloat()) * (max - min) + min;
+    }
+
+    static void setRandomDirection(Entity& entity)
+    {
+        float randX = randomFloat(-1, 1);
+        float randY = randomFloat(-1, 1);
+        entity.direction = Vector2<float>(randX, randY).normalize();
+    }
+
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
         // Update
-        updatePosition(GlobalGameState->player, GlobalGameState->tilemap, dt);
+        if (GlobalGameState->player.enabled)
+        {
+            updatePosition(GlobalGameState->player, GlobalGameState->tilemap, dt);
+        }
+        for (Entity& enemy : GlobalGameState->enemies)
+        {
+            if (enemy.enabled)
+            {
+                setRandomDirection(enemy);
+                updatePosition(enemy, GlobalGameState->tilemap, dt);
+            }
+        }
         for (Entity& projectile : GlobalGameState->projectiles)
         {
             if (projectile.enabled)
@@ -355,11 +389,14 @@ namespace slurp
 
         for (const Entity& enemy : GlobalGameState->enemies)
         {
-            drawEntity(
-                buffer,
-                enemy,
-                GlobalGameState->colorPalette
-            );
+            if (enemy.enabled)
+            {
+                drawEntity(
+                    buffer,
+                    enemy,
+                    GlobalGameState->colorPalette
+                );
+            }
         }
 
         for (Entity& projectile : GlobalGameState->projectiles)
@@ -374,17 +411,23 @@ namespace slurp
             }
         }
 
-        drawEntity(
-            buffer,
-            GlobalGameState->player,
-            GlobalGameState->colorPalette
-        );
+        if (GlobalGameState->player.enabled)
+        {
+            drawEntity(
+                buffer,
+                GlobalGameState->player,
+                GlobalGameState->colorPalette
+            );
+        }
 
-        drawEntity(
-            buffer,
-            GlobalGameState->mouseCursor,
-            GlobalGameState->colorPalette
-        );
+        if (GlobalGameState->mouseCursor.enabled)
+        {
+            drawEntity(
+                buffer,
+                GlobalGameState->mouseCursor,
+                GlobalGameState->colorPalette
+            );
+        }
 
         for (const Entity& projectile : GlobalGameState->projectiles)
         {
