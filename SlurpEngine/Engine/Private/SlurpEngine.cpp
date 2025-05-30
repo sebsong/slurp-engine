@@ -352,21 +352,10 @@ namespace slurp
         return entities[minIdx];
     }
 
-    // Random float between [0, 1]
-    static float randomFloat()
-    {
-        return rand() / static_cast<float>(RAND_MAX);
-    }
-
-    static float randomFloat(float min, float max)
-    {
-        return (randomFloat()) * (max - min) + min;
-    }
-
     static void setRandomDirection(Entity& entity)
     {
-        float randX = randomFloat(-1, 1);
-        float randY = randomFloat(-1, 1);
+        float randX = math::randomFloat(-1, 1);
+        float randY = math::randomFloat(-1, 1);
         entity.direction = Vector2<float>(randX, randY).normalize();
     }
 
@@ -374,7 +363,8 @@ namespace slurp
     {
         // Update
         timer::tick(dt);
-        
+
+        if (GlobalGameState->player.entity.enabled)
         {
             update::updatePosition(GlobalGameState->player.entity, GlobalGameState->tilemap, dt);
         }

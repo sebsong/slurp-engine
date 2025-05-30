@@ -9,4 +9,15 @@ namespace math
     {
         return static_cast<uint8_t>(num + 0.5f);
     }
+    
+    // Random float between [0, 1]
+    inline float randomFloat()
+    {
+        return rand() / static_cast<float>(RAND_MAX);
+    }
+
+    inline float randomFloat(float min, float max)
+    {
+        return (randomFloat()) * (max - min) + min;
+    }
 }
