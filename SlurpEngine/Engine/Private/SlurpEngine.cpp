@@ -37,6 +37,8 @@ namespace slurp
     static constexpr int BaseEnemySizePixels = 20;
     static constexpr render::ColorPaletteIdx EnemyColorPalletIdx = 4;
     static constexpr int BaseEnemySpeed = 200;
+    static constexpr float BaseEnemyDirectionChangeDelay = 2;
+    static constexpr float EnemyDirectionChangeDelayDelta = 1.5;
 
     static constexpr int ProjectileSizePixels = 15;
     static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
@@ -135,6 +137,29 @@ namespace slurp
         }
     }
 
+    static void setRandomDirection(Entity& entity)
+    {
+        float randX = math::randomFloat(-1, 1);
+        float randY = math::randomFloat(-1, 1);
+        entity.direction = Vector2<float>(randX, randY).normalize();
+    }
+
+    static float getRandomDirectionChangeDelay()
+    {
+        float minDelay = BaseEnemyDirectionChangeDelay - EnemyDirectionChangeDelayDelta;
+        float maxDelay = BaseEnemyDirectionChangeDelay + EnemyDirectionChangeDelayDelta;
+        return math::randomFloat(minDelay, maxDelay);
+    }
+
+    static void startUpdateEnemyDirection(Entity& enemy)
+    {
+        setRandomDirection(enemy);
+        timer::delay(getRandomDirectionChangeDelay(), [&]
+        {
+            startUpdateEnemyDirection(enemy);
+        });
+    }
+
     SLURP_INIT(init)
     {
         GlobalPlatformDll = platformDll;
@@ -170,6 +195,7 @@ namespace slurp
                 GlobalGameState->enemies[i].position = EnemyStartPos + (EnemyPosOffset * i);
                 GlobalGameState->enemies[i].positionOffset = Vector2<int>::Unit * GlobalGameState->enemies[i].size / 2;
                 setSquareCollisionPoints(GlobalGameState->enemies[i]);
+                startUpdateEnemyDirection(GlobalGameState->enemies[i]);
             }
 
             for (Entity& projectile : GlobalGameState->projectiles)
@@ -352,16 +378,9 @@ namespace slurp
         return entities[minIdx];
     }
 
-    static void setRandomDirection(Entity& entity)
-    {
-        float randX = math::randomFloat(-1, 1);
-        float randY = math::randomFloat(-1, 1);
-        entity.direction = Vector2<float>(randX, randY).normalize();
-    }
-
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
-        // Update
+        /** Update **/
         timer::tick(dt);
 
         if (GlobalGameState->player.entity.enabled)
@@ -372,7 +391,6 @@ namespace slurp
         {
             if (enemy.enabled)
             {
-                setRandomDirection(enemy);
                 update::updatePosition(enemy, GlobalGameState->tilemap, dt);
             }
         }
@@ -384,7 +402,7 @@ namespace slurp
             }
         }
 
-        // Render
+        /** Render **/
         render::drawRect(
             buffer,
             {0, 0},

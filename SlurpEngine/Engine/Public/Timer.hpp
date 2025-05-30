@@ -15,7 +15,7 @@ namespace timer
         float timer;
     };
     
-    timer_handle registerTimer(float duration, bool shouldLoop, std::function<void()> callback);
+    timer_handle registerTimer(float duration, bool shouldLoop, std::function<void()>&& callback);
     
     void tick(float dt);
     

@@ -1164,7 +1164,7 @@ int WINAPI WinMain(
 
     GlobalPlatformDll = loadPlatformDll();
     winAllocateGameMemory(&GlobalGameMemory);
-    GlobalSlurpDll.init(GlobalPlatformDll, &GlobalGameMemory);
+    winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
 #if DEBUG
