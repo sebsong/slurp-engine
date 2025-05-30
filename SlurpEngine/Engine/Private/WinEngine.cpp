@@ -136,7 +136,6 @@ static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer)
     ReleaseDC(windowHandle, deviceContext);
 }
 
-
 static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LRESULT result = 0;
@@ -1230,8 +1229,8 @@ int WINAPI WinMain(
         }
 #endif
 
-        slurp::GraphicsBuffer graphicsBuffer = {
-            static_cast<slurp::Pixel* const>(GlobalGraphicsBuffer.memory),
+        render::GraphicsBuffer graphicsBuffer = {
+            static_cast<render::Pixel* const>(GlobalGraphicsBuffer.memory),
             GlobalGraphicsBuffer.widthPixels,
             GlobalGraphicsBuffer.heightPixels
         };

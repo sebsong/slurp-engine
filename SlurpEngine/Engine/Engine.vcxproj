@@ -232,6 +232,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Private\Timer.cpp" />
     <ClCompile Include="Private\Update.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -384,6 +385,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\Audio.hpp" />
+    <ClInclude Include="Public\Core.hpp" />
     <ClInclude Include="Public\Debug.hpp" />
     <ClInclude Include="Public\DynamicDeclaration.hpp" />
     <ClInclude Include="Public\Input.hpp" />
@@ -391,6 +393,7 @@
     <ClInclude Include="Public\Platform.hpp" />
     <ClInclude Include="Public\Render.hpp" />
     <ClInclude Include="Public\SlurpEngine.hpp" />
+    <ClInclude Include="Public\Timer.hpp" />
     <ClInclude Include="Public\Update.hpp" />
     <ClInclude Include="Public\Vector.hpp" />
     <ClInclude Include="Public\WinEngine.hpp" />

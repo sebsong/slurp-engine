@@ -1,8 +1,9 @@
 #pragma once
 
 #define INT_MAX 2147483647
+#include <cstdint>
 
-namespace slurp
+namespace math
 {
     inline uint8_t round(float num)
     {

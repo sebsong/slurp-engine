@@ -4,6 +4,7 @@
 // Single translation unit, unity build
 #include <Update.cpp>
 #include <Render.cpp>
+#include <Timer.cpp>
 
 #include <random>
 
@@ -22,27 +23,27 @@ namespace slurp
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
 
     static constexpr int MouseCursorSizePixels = 10;
-    static constexpr ColorPaletteIdx MouseCursorColorPalletIdx = 1;
+    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int BasePlayerSizePixels = 20;
-    static constexpr ColorPaletteIdx PlayerColorPalletIdx = 2;
-    static constexpr ColorPaletteIdx PlayerParryColorPalletIdx = 1;
+    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 2;
+    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 1;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
 
     static const Vector2<int> EnemyStartPos = {400, 200};
     static const Vector2<int> EnemyPosOffset = {100, 0};
     static constexpr int BaseEnemySizePixels = 20;
-    static constexpr ColorPaletteIdx EnemyColorPalletIdx = 4;
+    static constexpr render::ColorPaletteIdx EnemyColorPalletIdx = 4;
     static constexpr int BaseEnemySpeed = 200;
 
     static constexpr int ProjectileSizePixels = 15;
-    static constexpr ColorPaletteIdx ProjectileColorPalletIdx = 1;
+    static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
     static constexpr int BaseProjectileSpeed = 500;
 
     static constexpr uint8_t BaseTileSize = 40;
-    static constexpr std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> BaseTileMap =
+    static constexpr std::array<std::array<render::ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> BaseTileMap =
     {
         {
             {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}},
@@ -67,10 +68,10 @@ namespace slurp
     };
 
     static void drawMouse(
-        const GraphicsBuffer& buffer,
+        const render::GraphicsBuffer& buffer,
         Vector2<int> mousePosition,
         int size,
-        ColorPaletteIdx colorPaletteIdx
+        render::ColorPaletteIdx colorPaletteIdx
     )
     {
         Vector2<int> point = mousePosition - Vector2<int>::Unit * size / 2;
@@ -84,7 +85,7 @@ namespace slurp
     }
 
     static void drawTilemap(
-        const GraphicsBuffer& buffer,
+        const render::GraphicsBuffer& buffer,
         const Tilemap tilemap
     )
     {
@@ -104,7 +105,7 @@ namespace slurp
         }
     }
 
-    static void drawColorPaletteSwatch(GraphicsBuffer buffer, Vector2<int> point, int size)
+    static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size)
     {
         Vector2<int> position = point;
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++)
@@ -140,7 +141,7 @@ namespace slurp
 
         assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes);
         GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
-        GlobalGameState->colorPalette = DEBUG_loadColorPalette(ColorPaletteHexFileName);
+        GlobalGameState->colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
         if (!GlobalGameState->isInitialized)
         {
             GlobalGameState->tilemap.map = BaseTileMap;
@@ -211,7 +212,7 @@ namespace slurp
         if (mouseState.justPressed(MouseCode::RightClick))
         {
             GlobalGameState->player.isParryActive = !GlobalGameState->player.isParryActive;
-            ColorPaletteIdx newColor;
+            render::ColorPaletteIdx newColor;
             if (GlobalGameState->player.isParryActive)
             {
                 newColor = PlayerParryColorPalletIdx;
@@ -372,28 +373,29 @@ namespace slurp
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
         // Update
-        if (GlobalGameState->player.entity.enabled)
+        timer::tick(dt);
+        
         {
-            updatePosition(GlobalGameState->player.entity, GlobalGameState->tilemap, dt);
+            update::updatePosition(GlobalGameState->player.entity, GlobalGameState->tilemap, dt);
         }
         for (Entity& enemy : GlobalGameState->enemies)
         {
             if (enemy.enabled)
             {
                 setRandomDirection(enemy);
-                updatePosition(enemy, GlobalGameState->tilemap, dt);
+                update::updatePosition(enemy, GlobalGameState->tilemap, dt);
             }
         }
         for (Entity& projectile : GlobalGameState->projectiles)
         {
             if (projectile.enabled)
             {
-                updatePosition(projectile, GlobalGameState->tilemap, dt);
+                update::updatePosition(projectile, GlobalGameState->tilemap, dt);
             }
         }
 
         // Render
-        drawRect(
+        render::drawRect(
             buffer,
             {0, 0},
             {buffer.widthPixels, buffer.heightPixels},
@@ -408,7 +410,7 @@ namespace slurp
         {
             if (enemy.enabled)
             {
-                drawEntity(
+                render::drawEntity(
                     buffer,
                     enemy,
                     GlobalGameState->colorPalette
@@ -420,7 +422,7 @@ namespace slurp
         {
             if (projectile.enabled)
             {
-                drawEntity(
+                render::drawEntity(
                     buffer,
                     projectile,
                     GlobalGameState->colorPalette
@@ -430,7 +432,7 @@ namespace slurp
 
         if (GlobalGameState->player.entity.enabled)
         {
-            drawEntity(
+            render::drawEntity(
                 buffer,
                 GlobalGameState->player.entity,
                 GlobalGameState->colorPalette
@@ -439,7 +441,7 @@ namespace slurp
 
         if (GlobalGameState->mouseCursor.enabled)
         {
-            drawEntity(
+            render::drawEntity(
                 buffer,
                 GlobalGameState->mouseCursor,
                 GlobalGameState->colorPalette
@@ -451,7 +453,7 @@ namespace slurp
             if (projectile.enabled)
             {
                 const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
-                drawLine(
+                render::drawLine(
                     buffer,
                     projectile.position,
                     closestEnemy.position,
@@ -462,7 +464,7 @@ namespace slurp
             }
         }
 
-        drawLine(
+        render::drawLine(
             buffer,
             GlobalGameState->mouseCursor.position,
             GlobalGameState->player.entity.position,
@@ -473,11 +475,11 @@ namespace slurp
 #if DEBUG
         if (GlobalRecordingState->isRecording)
         {
-            drawBorder(buffer, 10, 0x00FF0000);
+            render::drawBorder(buffer, 10, 0x00FF0000);
         }
         else if (GlobalRecordingState->isPlayingBack)
         {
-            drawBorder(buffer, 10, 0x0000FF00);
+            render::drawBorder(buffer, 10, 0x0000FF00);
         }
 #endif
     }

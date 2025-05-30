@@ -1,13 +1,12 @@
 #pragma once
 #include <Vector.hpp>
 #include <cstdint>
-#include <array>
 
 #define COLOR_PALETTE_SIZE 8
 #define TILEMAP_WIDTH 32
 #define TILEMAP_HEIGHT 18
 
-namespace slurp
+namespace render
 {
     struct Entity;
     typedef uint8_t ColorPaletteIdx;
@@ -25,16 +24,10 @@ namespace slurp
         Pixel colors[COLOR_PALETTE_SIZE];
     };
     
-    struct Tilemap
-    {
-        std::array<std::array<ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> map;
-        uint8_t tileSize;
-    };
-
     void drawRect(
         const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
+        slurp::Vector2<int> minPoint,
+        slurp::Vector2<int> maxPoint,
         float r,
         float g,
         float b
@@ -43,15 +36,15 @@ namespace slurp
     // TODO: maybe register/save graphics buffer and color palette so we don't need to pass it in every time?
     void drawRect(
         const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
+        slurp::Vector2<int> minPoint,
+        slurp::Vector2<int> maxPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     );
 
     void drawSquare(
         const GraphicsBuffer& buffer,
-        Vector2<int> point,
+        slurp::Vector2<int> point,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
@@ -59,8 +52,8 @@ namespace slurp
     
     void drawLine(
         const GraphicsBuffer& buffer,
-        Vector2<int> startPoint,
-        Vector2<int> endPoint,
+        slurp::Vector2<int> startPoint,
+        slurp::Vector2<int> endPoint,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette

@@ -2,9 +2,9 @@
 
 #include <Platform.hpp>
 #include <DynamicDeclaration.hpp>
+#include <Core.hpp>
 #include <Input.hpp>
 #include <Audio.hpp>
-#include <Update.hpp>
 #include <Render.hpp>
 
 #define MAX_NUM_CONTROLLERS 4
@@ -23,7 +23,7 @@ namespace slurp
     {
         Tilemap tilemap;
         bool isInitialized;
-        ColorPalette colorPalette;
+        render::ColorPalette colorPalette;
         Player player;
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
@@ -43,7 +43,7 @@ namespace slurp
 #define SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(fnName) void fnName(slurp::MouseState mouseState, slurp::KeyboardState keyboardState, float dt)
 #define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS], float dt)
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
-#define SLURP_UPDATE_AND_RENDER(fnName) void fnName(slurp::GraphicsBuffer buffer, float dt)
+#define SLURP_UPDATE_AND_RENDER(fnName) void fnName(render::GraphicsBuffer buffer, float dt)
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT, handleMouseAndKeyboardInput)

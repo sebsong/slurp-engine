@@ -1,20 +1,20 @@
 #include <Render.hpp>
-#include <Update.hpp>
+#include <Core.hpp>
 #include <Math.hpp>
 #include <Debug.hpp>
 #include <fstream>
 #include <string>
 
-namespace slurp
+namespace render
 {
     static const std::string AssetsDirectory = "../assets/";
 
-    static void _drawAtPoint(GraphicsBuffer buffer, Vector2<int> point, Pixel color)
+    static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color)
     {
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
     }
 
-    static void _clampToBufferBounds(const GraphicsBuffer& buffer, Vector2<int>& point)
+    static void _clampToBufferBounds(const GraphicsBuffer& buffer, slurp::Vector2<int>& point)
     {
         point.x = std::min(std::max(point.x, 0), buffer.widthPixels);
         point.y = std::min(std::max(point.y, 0), buffer.heightPixels);
@@ -22,8 +22,8 @@ namespace slurp
 
     static void _drawRect(
         const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
+        slurp::Vector2<int> minPoint,
+        slurp::Vector2<int> maxPoint,
         Pixel color
     )
     {
@@ -40,24 +40,24 @@ namespace slurp
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
+        const slurp::Vector2<int> minPoint,
+        const slurp::Vector2<int> maxPoint,
         float r,
         float g,
         float b
     )
     {
-        uint8_t red = round(r * 255);
-        uint8_t green = round(g * 255);
-        uint8_t blue = round(b * 255);
+        uint8_t red = math::round(r * 255);
+        uint8_t green = math::round(g * 255);
+        uint8_t blue = math::round(b * 255);
         Pixel color = (red << 16) | (green << 8) | blue;
         _drawRect(buffer, minPoint, maxPoint, color);
     }
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        Vector2<int> minPoint,
-        Vector2<int> maxPoint,
+        const slurp::Vector2<int> minPoint,
+        const slurp::Vector2<int> maxPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     )
@@ -69,7 +69,7 @@ namespace slurp
 
     void drawSquare(
         const GraphicsBuffer& buffer,
-        Vector2<int> point,
+        const slurp::Vector2<int> point,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
@@ -86,8 +86,8 @@ namespace slurp
 
     void drawLine(
         const GraphicsBuffer& buffer,
-        Vector2<int> startPoint,
-        Vector2<int> endPoint,
+        slurp::Vector2<int> startPoint,
+        slurp::Vector2<int> endPoint,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
@@ -96,10 +96,10 @@ namespace slurp
         _clampToBufferBounds(buffer, startPoint);
         _clampToBufferBounds(buffer, endPoint);
 
-        Vector2<int> startToEnd = endPoint - startPoint;
-        Vector2<float> direction = static_cast<Vector2<float>>(startToEnd).normalize();
+        slurp::Vector2<int> startToEnd = endPoint - startPoint;
+        slurp::Vector2<float> direction = static_cast<slurp::Vector2<float>>(startToEnd).normalize();
 
-        Vector2<float> currentPoint = startPoint;
+        slurp::Vector2<float> currentPoint = startPoint;
         float distance = startToEnd.magnitude();
         while (distance > 0)
         {
@@ -115,10 +115,10 @@ namespace slurp
         }
     }
 
-    void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette)
+    void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette)
     {
         // NOTE: Sizes that are even will have an off-center position
-        Vector2<int> point = entity.position - entity.positionOffset;
+        slurp::Vector2<int> point = entity.position - entity.positionOffset;
         drawSquare(
             buffer,
             point,
