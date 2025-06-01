@@ -28,10 +28,12 @@ namespace slurp
 
     static const Vector2<int> PlayerStartPos = {640, 360};
     static constexpr int BasePlayerSizePixels = 20;
-    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 2;
-    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 1;
+    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
+    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
+
+    static constexpr float ParryActiveDuration = .1f;
 
     static const Vector2<int> EnemyStartPos = {400, 200};
     static const Vector2<int> EnemyPosOffset = {100, 0};
@@ -169,7 +171,7 @@ namespace slurp
         MemorySections* sections = static_cast<MemorySections*>(gameMemory->permanentMemory.memory);
 
         render::ColorPalette colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
-        
+
         sections->updateRenderPipeline = UpdateRenderPipeline(colorPalette);
         GlobalUpdateRenderPipeline = &sections->updateRenderPipeline;
 
@@ -178,7 +180,7 @@ namespace slurp
         if (!GlobalGameState->isInitialized)
         {
             GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
-            
+
             GlobalGameState->tilemap.map = BaseTileMap;
             GlobalGameState->tilemap.tileSize = BaseTileSize;
 
@@ -227,13 +229,25 @@ namespace slurp
 
             GlobalGameState->isInitialized = true;
         }
-        
+
         random::setRandomSeed(GlobalGameState->randomSeed);
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
 #endif
+    }
+
+    static void activateParry(Player& player)
+    {
+        player.isParryActive = true;
+        player.entity.color = PlayerParryColorPalletIdx;
+    }
+
+    static void deactivateParry(Player& player)
+    {
+        player.isParryActive = false;
+        player.entity.color = PlayerColorPalletIdx;
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
@@ -256,17 +270,8 @@ namespace slurp
 
         if (mouseState.justPressed(MouseCode::RightClick))
         {
-            GlobalGameState->player.isParryActive = !GlobalGameState->player.isParryActive;
-            render::ColorPaletteIdx newColor;
-            if (GlobalGameState->player.isParryActive)
-            {
-                newColor = PlayerParryColorPalletIdx;
-            }
-            else
-            {
-                newColor = PlayerColorPalletIdx;
-            }
-            GlobalGameState->player.entity.color = newColor;
+            activateParry(GlobalGameState->player);
+            timer::delay(ParryActiveDuration, [] { deactivateParry(GlobalGameState->player); });
         }
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
@@ -417,7 +422,7 @@ namespace slurp
             dt,
             graphicsBuffer
         );
-        
+
         for (const Entity& projectile : GlobalGameState->projectiles)
         {
             if (projectile.enabled)
