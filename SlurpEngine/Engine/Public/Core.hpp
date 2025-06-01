@@ -7,7 +7,6 @@ namespace slurp
 {
     struct Entity
     {
-        bool enabled;
         int size;
         render::ColorPaletteIdx color;
         float speed;
@@ -15,6 +14,8 @@ namespace slurp
         Vector2<float> positionOffset;
         Vector2<float> direction;
         Vector2<int> relativeCollisionPoints[4];
+        bool enabled;
+        bool shouldDestroy;
     };
 
     struct Tilemap

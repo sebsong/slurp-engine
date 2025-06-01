@@ -6,9 +6,13 @@
 #define TILEMAP_WIDTH 32
 #define TILEMAP_HEIGHT 18
 
-namespace render
+namespace slurp
 {
     struct Entity;
+}
+
+namespace render
+{
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
@@ -59,7 +63,7 @@ namespace render
         const ColorPalette& colorPalette
     );
     
-    void drawEntity(const GraphicsBuffer& buffer, const Entity& entity, const ColorPalette& colorPalette);
+    void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette);
     
     void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color);
     

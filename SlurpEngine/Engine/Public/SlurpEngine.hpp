@@ -7,6 +7,8 @@
 #include <Audio.hpp>
 #include <Render.hpp>
 
+#include <UpdateRenderPipeline.hpp>
+
 #define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 1000
@@ -18,7 +20,7 @@ namespace slurp
         Entity entity;
         bool isParryActive;
     };
-    
+
     struct GameState
     {
         Tilemap tilemap;
@@ -29,6 +31,12 @@ namespace slurp
         uint32_t projectileIdx;
         Entity projectiles[PROJECTILE_POOL_SIZE];
         Entity mouseCursor;
+    };
+    
+    struct MemorySections
+    {
+        GameState gameState;
+        UpdateRenderPipeline updateRenderPipeline;
     };
 
 #if DEBUG

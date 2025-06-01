@@ -4,6 +4,7 @@
 // Single translation unit, unity build
 #include <Update.cpp>
 #include <Render.cpp>
+#include <UpdateRenderPipeline.cpp>
 #include <Timer.cpp>
 
 #include <random>
@@ -14,6 +15,7 @@ namespace slurp
 {
     static platform::PlatformDll GlobalPlatformDll;
     static GameState* GlobalGameState;
+    static UpdateRenderPipeline* GlobalUpdateRenderPipeline;
 #if DEBUG
     static RecordingState* GlobalRecordingState;
 #endif
@@ -164,8 +166,11 @@ namespace slurp
     {
         GlobalPlatformDll = platformDll;
 
-        assert(sizeof(GameState) <= gameMemory->permanentMemory.sizeBytes);
-        GlobalGameState = static_cast<GameState*>(gameMemory->permanentMemory.memory);
+        assert(sizeof(MemorySections) <= gameMemory->permanentMemory.sizeBytes);
+        MemorySections* sections = static_cast<MemorySections*>(gameMemory->permanentMemory.memory);
+        GlobalGameState = &sections->gameState;
+        GlobalUpdateRenderPipeline = &sections->updateRenderPipeline;
+
         GlobalGameState->colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
         if (!GlobalGameState->isInitialized)
         {
@@ -176,6 +181,7 @@ namespace slurp
             GlobalGameState->mouseCursor.size = MouseCursorSizePixels;
             GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
             GlobalGameState->mouseCursor.positionOffset = Vector2<int>::Unit * GlobalGameState->mouseCursor.size / 2;
+            GlobalUpdateRenderPipeline->push(GlobalGameState->mouseCursor);
 
             GlobalGameState->player.entity.enabled = true;
             GlobalGameState->player.entity.size = BasePlayerSizePixels;
@@ -185,17 +191,20 @@ namespace slurp
             GlobalGameState->player.entity.positionOffset = Vector2<int>::Unit * GlobalGameState->player.entity.size /
                 2;
             setSquareCollisionPoints(GlobalGameState->player.entity);
+            GlobalUpdateRenderPipeline->push(GlobalGameState->player.entity);
 
             for (int i = 0; i < NUM_ENEMIES; i++)
             {
-                GlobalGameState->enemies[i].enabled = true;
-                GlobalGameState->enemies[i].size = BaseEnemySizePixels;
-                GlobalGameState->enemies[i].speed = BaseEnemySpeed;
-                GlobalGameState->enemies[i].color = EnemyColorPalletIdx;
-                GlobalGameState->enemies[i].position = EnemyStartPos + (EnemyPosOffset * i);
-                GlobalGameState->enemies[i].positionOffset = Vector2<int>::Unit * GlobalGameState->enemies[i].size / 2;
-                setSquareCollisionPoints(GlobalGameState->enemies[i]);
-                startUpdateEnemyDirection(GlobalGameState->enemies[i]);
+                Entity& enemy = GlobalGameState->enemies[i];
+                enemy.enabled = true;
+                enemy.size = BaseEnemySizePixels;
+                enemy.speed = BaseEnemySpeed;
+                enemy.color = EnemyColorPalletIdx;
+                enemy.position = EnemyStartPos + (EnemyPosOffset * i);
+                enemy.positionOffset = Vector2<int>::Unit * enemy.size / 2;
+                setSquareCollisionPoints(enemy);
+                startUpdateEnemyDirection(enemy);
+                GlobalUpdateRenderPipeline->push(enemy);
             }
 
             for (Entity& projectile : GlobalGameState->projectiles)
@@ -206,6 +215,7 @@ namespace slurp
                 projectile.color = ProjectileColorPalletIdx;
                 projectile.speed = BaseProjectileSpeed;
                 setSquareCollisionPoints(projectile);
+                GlobalUpdateRenderPipeline->push(projectile);
             }
 
             GlobalGameState->isInitialized = true;
@@ -380,29 +390,9 @@ namespace slurp
 
     SLURP_UPDATE_AND_RENDER(updateAndRender)
     {
-        /** Update **/
         timer::tick(dt);
 
-        if (GlobalGameState->player.entity.enabled)
-        {
-            update::updatePosition(GlobalGameState->player.entity, GlobalGameState->tilemap, dt);
-        }
-        for (Entity& enemy : GlobalGameState->enemies)
-        {
-            if (enemy.enabled)
-            {
-                update::updatePosition(enemy, GlobalGameState->tilemap, dt);
-            }
-        }
-        for (Entity& projectile : GlobalGameState->projectiles)
-        {
-            if (projectile.enabled)
-            {
-                update::updatePosition(projectile, GlobalGameState->tilemap, dt);
-            }
-        }
-
-        /** Render **/
+        // Draw background
         render::drawRect(
             buffer,
             {0, 0},
@@ -410,52 +400,16 @@ namespace slurp
             7,
             GlobalGameState->colorPalette
         );
-
         drawTilemap(buffer, GlobalGameState->tilemap);
         drawColorPaletteSwatch(buffer, {0, 0}, 50);
 
-        for (const Entity& enemy : GlobalGameState->enemies)
-        {
-            if (enemy.enabled)
-            {
-                render::drawEntity(
-                    buffer,
-                    enemy,
-                    GlobalGameState->colorPalette
-                );
-            }
-        }
-
-        for (Entity& projectile : GlobalGameState->projectiles)
-        {
-            if (projectile.enabled)
-            {
-                render::drawEntity(
-                    buffer,
-                    projectile,
-                    GlobalGameState->colorPalette
-                );
-            }
-        }
-
-        if (GlobalGameState->player.entity.enabled)
-        {
-            render::drawEntity(
-                buffer,
-                GlobalGameState->player.entity,
-                GlobalGameState->colorPalette
-            );
-        }
-
-        if (GlobalGameState->mouseCursor.enabled)
-        {
-            render::drawEntity(
-                buffer,
-                GlobalGameState->mouseCursor,
-                GlobalGameState->colorPalette
-            );
-        }
-
+        GlobalUpdateRenderPipeline->process(
+            GlobalGameState->tilemap,
+            dt,
+            buffer,
+            GlobalGameState->colorPalette
+        );
+        
         for (const Entity& projectile : GlobalGameState->projectiles)
         {
             if (projectile.enabled)

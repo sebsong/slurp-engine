@@ -2,9 +2,13 @@
 
 #define EMPTY_COLOR_PALETTE_IDX 6
 
-namespace update
+namespace slurp
 {
     struct Entity;
     struct Tilemap;
-    void updatePosition(Entity& entity, const Tilemap& tilemap, const float& dt);
+}
+
+namespace update
+{
+    void updatePosition(slurp::Entity& entity, const slurp::Tilemap& tilemap, float dt);
 }

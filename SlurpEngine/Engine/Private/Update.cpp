@@ -67,7 +67,7 @@ namespace update
         return slurp::Vector2<int>::Zero;
     }
 
-    void updatePosition(slurp::Entity& entity, const slurp::Tilemap& tilemap, const float& dt)
+    void updatePosition(slurp::Entity& entity, const slurp::Tilemap& tilemap, float dt)
     {
         slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
         slurp::Vector2<int> positionUpdate = targetPositionUpdate;
