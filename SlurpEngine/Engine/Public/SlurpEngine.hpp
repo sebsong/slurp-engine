@@ -35,8 +35,8 @@ namespace slurp
     
     struct MemorySections
     {
-        GameState gameState;
         UpdateRenderPipeline updateRenderPipeline;
+        GameState gameState;
     };
 
 #if DEBUG

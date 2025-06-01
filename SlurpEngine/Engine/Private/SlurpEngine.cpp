@@ -168,10 +168,14 @@ namespace slurp
 
         assert(sizeof(MemorySections) <= gameMemory->permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory->permanentMemory.memory);
-        GlobalGameState = &sections->gameState;
+
+        render::ColorPalette colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
+        
+        sections->updateRenderPipeline = UpdateRenderPipeline(colorPalette);
         GlobalUpdateRenderPipeline = &sections->updateRenderPipeline;
 
-        GlobalGameState->colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
+        GlobalGameState = &sections->gameState;
+        GlobalGameState->colorPalette = colorPalette;
         if (!GlobalGameState->isInitialized)
         {
             GlobalGameState->tilemap.map = BaseTileMap;
@@ -406,8 +410,7 @@ namespace slurp
         GlobalUpdateRenderPipeline->process(
             GlobalGameState->tilemap,
             dt,
-            buffer,
-            GlobalGameState->colorPalette
+            buffer
         );
         
         for (const Entity& projectile : GlobalGameState->projectiles)

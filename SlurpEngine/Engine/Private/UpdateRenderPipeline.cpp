@@ -6,6 +6,12 @@
 
 namespace slurp
 {
+    UpdateRenderPipeline::UpdateRenderPipeline(const render::ColorPalette& colorPalette)
+    {
+        this->_pipeline = std::deque<Entity*>();
+        this->_colorPalette = colorPalette;
+    }
+
     void UpdateRenderPipeline::push(Entity& entity)
     {
         _pipeline.push_back(&entity);
@@ -14,8 +20,7 @@ namespace slurp
     void UpdateRenderPipeline::process(
         const Tilemap& tilemap,
         float dt,
-        const render::GraphicsBuffer& buffer,
-        const render::ColorPalette& colorPalette
+        const render::GraphicsBuffer& buffer
     )
     {
         for (Entity* entity : _pipeline)
@@ -24,7 +29,7 @@ namespace slurp
             if (entity->enabled)
             {
                 update::updatePosition(*entity, tilemap, dt);
-                render::drawEntity(buffer, *entity, colorPalette);
+                render::drawEntity(buffer, *entity, _colorPalette);
             }
         }
     }
