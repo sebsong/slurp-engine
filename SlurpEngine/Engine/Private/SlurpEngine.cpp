@@ -1,4 +1,5 @@
 ﻿#include <SlurpEngine.hpp>
+#include <Random.hpp>
 #include <Debug.hpp>
 
 // Single translation unit, unity build
@@ -6,8 +7,6 @@
 #include <Render.cpp>
 #include <UpdateRenderPipeline.cpp>
 #include <Timer.cpp>
-
-#include <random>
 
 typedef unsigned char byte;
 
@@ -141,8 +140,8 @@ namespace slurp
 
     static void setRandomDirection(Entity& entity)
     {
-        float randX = math::randomFloat(-1, 1);
-        float randY = math::randomFloat(-1, 1);
+        float randX = random::randomFloat(-1, 1);
+        float randY = random::randomFloat(-1, 1);
         entity.direction = Vector2<float>(randX, randY).normalize();
     }
 
@@ -150,7 +149,7 @@ namespace slurp
     {
         float minDelay = BaseEnemyDirectionChangeDelay - EnemyDirectionChangeDelayDelta;
         float maxDelay = BaseEnemyDirectionChangeDelay + EnemyDirectionChangeDelayDelta;
-        return math::randomFloat(minDelay, maxDelay);
+        return random::randomFloat(minDelay, maxDelay);
     }
 
     static void startUpdateEnemyDirection(Entity& enemy)
@@ -178,24 +177,28 @@ namespace slurp
         GlobalGameState->colorPalette = colorPalette;
         if (!GlobalGameState->isInitialized)
         {
+            GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
+            
             GlobalGameState->tilemap.map = BaseTileMap;
             GlobalGameState->tilemap.tileSize = BaseTileSize;
 
-            GlobalGameState->mouseCursor.enabled = true;
-            GlobalGameState->mouseCursor.size = MouseCursorSizePixels;
-            GlobalGameState->mouseCursor.color = MouseCursorColorPalletIdx;
-            GlobalGameState->mouseCursor.positionOffset = Vector2<int>::Unit * GlobalGameState->mouseCursor.size / 2;
-            GlobalUpdateRenderPipeline->push(GlobalGameState->mouseCursor);
+            Entity& mouseCursor = GlobalGameState->mouseCursor;
+            mouseCursor.enabled = true;
+            mouseCursor.size = MouseCursorSizePixels;
+            mouseCursor.color = MouseCursorColorPalletIdx;
+            mouseCursor.positionOffset = Vector2<int>::Unit * mouseCursor.size / 2;
+            GlobalUpdateRenderPipeline->push(mouseCursor);
 
-            GlobalGameState->player.entity.enabled = true;
-            GlobalGameState->player.entity.size = BasePlayerSizePixels;
-            GlobalGameState->player.entity.color = PlayerColorPalletIdx;
-            GlobalGameState->player.entity.speed = BasePlayerSpeed;
-            GlobalGameState->player.entity.position = PlayerStartPos;
-            GlobalGameState->player.entity.positionOffset = Vector2<int>::Unit * GlobalGameState->player.entity.size /
+            Entity& playerEntity = GlobalGameState->player.entity;
+            playerEntity.enabled = true;
+            playerEntity.size = BasePlayerSizePixels;
+            playerEntity.color = PlayerColorPalletIdx;
+            playerEntity.speed = BasePlayerSpeed;
+            playerEntity.position = PlayerStartPos;
+            playerEntity.positionOffset = Vector2<int>::Unit * playerEntity.size /
                 2;
-            setSquareCollisionPoints(GlobalGameState->player.entity);
-            GlobalUpdateRenderPipeline->push(GlobalGameState->player.entity);
+            setSquareCollisionPoints(playerEntity);
+            GlobalUpdateRenderPipeline->push(playerEntity);
 
             for (int i = 0; i < NUM_ENEMIES; i++)
             {
@@ -224,6 +227,8 @@ namespace slurp
 
             GlobalGameState->isInitialized = true;
         }
+        
+        random::setRandomSeed(GlobalGameState->randomSeed);
 
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
@@ -398,19 +403,19 @@ namespace slurp
 
         // Draw background
         render::drawRect(
-            buffer,
+            graphicsBuffer,
             {0, 0},
-            {buffer.widthPixels, buffer.heightPixels},
+            {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
             7,
             GlobalGameState->colorPalette
         );
-        drawTilemap(buffer, GlobalGameState->tilemap);
-        drawColorPaletteSwatch(buffer, {0, 0}, 50);
+        drawTilemap(graphicsBuffer, GlobalGameState->tilemap);
+        drawColorPaletteSwatch(graphicsBuffer, {0, 0}, 50);
 
         GlobalUpdateRenderPipeline->process(
             GlobalGameState->tilemap,
             dt,
-            buffer
+            graphicsBuffer
         );
         
         for (const Entity& projectile : GlobalGameState->projectiles)
@@ -419,7 +424,7 @@ namespace slurp
             {
                 const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
                 render::drawLine(
-                    buffer,
+                    graphicsBuffer,
                     projectile.position,
                     closestEnemy.position,
                     2,
@@ -430,7 +435,7 @@ namespace slurp
         }
 
         render::drawLine(
-            buffer,
+            graphicsBuffer,
             GlobalGameState->mouseCursor.position,
             GlobalGameState->player.entity.position,
             2,
@@ -440,11 +445,11 @@ namespace slurp
 #if DEBUG
         if (GlobalRecordingState->isRecording)
         {
-            render::drawBorder(buffer, 10, 0x00FF0000);
+            render::drawBorder(graphicsBuffer, 10, 0x00FF0000);
         }
         else if (GlobalRecordingState->isPlayingBack)
         {
-            render::drawBorder(buffer, 10, 0x0000FF00);
+            render::drawBorder(graphicsBuffer, 10, 0x0000FF00);
         }
 #endif
     }
