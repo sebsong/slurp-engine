@@ -1,8 +1,8 @@
 #include <iostream>
 #include <ostream>
-#include <Platform.hpp>
-#include <WinEngine.hpp>
-#include <Debug.hpp>
+#include "Platform.h"
+#include "WinEngine.h"
+#include "Debug.h"
 
 #include <shlwapi.h>
 #include <string>
@@ -42,8 +42,7 @@ static HMODULE GlobalSlurpLib;
 static WinRecordingState GlobalRecordingState;
 #endif
 
-static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
-{
+static WinScreenDimensions winGetScreenDimensions(HWND windowHandle) {
     RECT rect;
     GetClientRect(windowHandle, &rect);
     return WinScreenDimensions
@@ -55,10 +54,8 @@ static WinScreenDimensions winGetScreenDimensions(HWND windowHandle)
     };
 };
 
-static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int height)
-{
-    if (outBuffer->memory)
-    {
+static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int height) {
+    if (outBuffer->memory) {
         VirtualFree(outBuffer->memory, 0, MEM_RELEASE);
     }
 
@@ -89,8 +86,7 @@ static void winUpdateWindow(
     const WinGraphicsBuffer buffer,
     int screenWidth,
     int screenHeight
-)
-{
+) {
 #if DEBUG
     PatBlt(
         deviceContextHandle,
@@ -126,8 +122,7 @@ static void winUpdateWindow(
     );
 };
 
-static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer)
-{
+static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer) {
     PAINTSTRUCT paintStruct;
     HDC deviceContext = BeginPaint(windowHandle, &paintStruct);
     WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
@@ -136,41 +131,31 @@ static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer)
     ReleaseDC(windowHandle, deviceContext);
 }
 
-static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
-{
+static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) {
     LRESULT result = 0;
 
-    switch (message)
-    {
-    case WM_ACTIVATEAPP:
-        {
-        }
+    switch (message) {
+        case WM_ACTIVATEAPP: {}
         break;
-    case WM_SIZE:
-        {
-        }
+        case WM_SIZE: {}
         break;
-    case WM_DESTROY:
-    case WM_CLOSE:
-        {
+        case WM_DESTROY:
+        case WM_CLOSE: {
             GlobalRunning = false;
         }
         break;
-    case WM_PAINT:
-        {
+        case WM_PAINT: {
             winPaint(windowHandle, GlobalGraphicsBuffer);
         }
         break;
-    case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
-    case WM_KEYDOWN:
-    case WM_KEYUP:
-        {
+        case WM_SYSKEYDOWN:
+        case WM_SYSKEYUP:
+        case WM_KEYDOWN:
+        case WM_KEYUP: {
             assert(!"Keyboard event should not be handled in Windows handler.");
         }
         break;
-    default:
-        {
+        default: {
             result = DefWindowProcA(windowHandle, message, wParam, lParam);
         }
         break;
@@ -179,16 +164,14 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     return result;
 };
 
-static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseState)
-{
+static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseState) {
     POINT point;
     GetCursorPos(&point);
     ScreenToClient(windowHandle, &point);
     outMouseState->position = {point.x, point.y};
 
     short keyDownBit = static_cast<short>(1 << 15);
-    for (std::pair<WinMouseCode, slurp::MouseCode> entry : MouseWinCodeToSlurpCode)
-    {
+    for (std::pair<WinMouseCode, slurp::MouseCode> entry: MouseWinCodeToSlurpCode) {
         WinMouseCode winMouseCode = entry.first;
         bool isDown = GetKeyState(winMouseCode) & keyDownBit;
 
@@ -199,53 +182,46 @@ static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseSt
     }
 }
 
-static void winHandleMessages(slurp::KeyboardState* keyboardState)
-{
+static void winHandleMessages(slurp::KeyboardState* keyboardState) {
     MSG message;
-    while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE))
-    {
-        switch (message.message)
-        {
-        case WM_SYSKEYDOWN:
-        case WM_SYSKEYUP:
-        case WM_KEYDOWN:
-        case WM_KEYUP:
-            {
+    while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
+        switch (message.message) {
+            case WM_SYSKEYDOWN:
+            case WM_SYSKEYUP:
+            case WM_KEYDOWN:
+            case WM_KEYUP: {
                 WPARAM virtualKeyCode = message.wParam;
                 bool wasDown = (1 << 30) & message.lParam;
                 bool isDown = ((1 << 31) & message.lParam) == 0;
 
-                if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0)
-                {
+                if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0) {
                     slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
                     // TODO: change transition count computation once we poll multiple times per frame
                     slurp::DigitalInputState* inputState = &keyboardState->state[code];
                     inputState->transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState->isDown = isDown;
-                }
-                else
-                {
+                } else {
                     OutputDebugStringA("Windows keyboard code not registered.\n");
                 }
             }
             break;
-        case WM_QUIT:
-            {
+            case WM_QUIT: {
                 GlobalRunning = false;
             }
             break;
-        default:
-            TranslateMessage(&message);
-            DispatchMessageA(&message);
+            default:
+                TranslateMessage(&message);
+                DispatchMessageA(&message);
         }
     }
 }
 
 #define X_INPUT_GET_STATE(fnName) DWORD WINAPI fnName(DWORD dwUserIndex, XINPUT_STATE* pState)
+
 typedef X_INPUT_GET_STATE(x_input_get_state);
-X_INPUT_GET_STATE(XInputGetStateStub)
-{
+
+X_INPUT_GET_STATE(XInputGetStateStub) {
     return ERROR_DEVICE_NOT_CONNECTED;
 }
 
@@ -253,30 +229,26 @@ static x_input_get_state* XInputGetState_ = XInputGetStateStub;
 #define XInputGetState XInputGetState_
 
 #define X_INPUT_SET_STATE(fnName) DWORD WINAPI fnName(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
+
 typedef X_INPUT_SET_STATE(x_input_set_state);
-X_INPUT_SET_STATE(XInputSetStateStub)
-{
+
+X_INPUT_SET_STATE(XInputSetStateStub) {
     return ERROR_DEVICE_NOT_CONNECTED;
 }
 
 static x_input_set_state* XInputSetState_ = XInputSetStateStub;
 #define XInputSetState XInputSetState_
 
-static void winLoadXInput()
-{
+static void winLoadXInput() {
     HMODULE xInputLib = LoadLibraryA("xinput1_4.dll");
-    if (!xInputLib)
-    {
+    if (!xInputLib) {
         // TODO: log
         xInputLib = LoadLibraryA("xinput1_3.dll");
     }
-    if (xInputLib)
-    {
+    if (xInputLib) {
         XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
         XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(xInputLib, "XInputSetState"));
-    }
-    else
-    {
+    } else {
         // TODO: log
     }
 }
@@ -286,42 +258,33 @@ static void winLoadXInput()
 #define XINPUT_TRIGGER_MAG 255
 #define XINPUT_VIBRATION_MAG 65535
 
-static float winGetNormalizedStickValue(int16_t stickValue, int16_t deadZone)
-{
-    if (abs(stickValue) < deadZone)
-    {
+static float winGetNormalizedStickValue(int16_t stickValue, int16_t deadZone) {
+    if (abs(stickValue) < deadZone) {
         return 0.f;
     }
-    if (stickValue > 0)
-    {
+    if (stickValue > 0) {
         return static_cast<float>(stickValue) / XINPUT_STICK_MAG_POS;
     }
     return static_cast<float>(stickValue) / XINPUT_STICK_MAG_NEG;
 }
 
-static float winGetNormalizedTriggerValue(uint8_t triggerValue)
-{
-    if (triggerValue < XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-    {
+static float winGetNormalizedTriggerValue(uint8_t triggerValue) {
+    if (triggerValue < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
         return 0.f;
     }
     return static_cast<float>(triggerValue) / XINPUT_TRIGGER_MAG;
 }
 
-static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
-{
-    for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++)
-    {
+static void winHandleGamepadInput(slurp::GamepadState* controllerStates) {
+    for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++) {
         XINPUT_STATE xInputState;
         DWORD result = XInputGetState(controllerIdx, &xInputState);
-        if (result == ERROR_SUCCESS)
-        {
+        if (result == ERROR_SUCCESS) {
             slurp::GamepadState* gamepadState = &controllerStates[controllerIdx];
             gamepadState->isConnected = true;
 
             XINPUT_GAMEPAD gamepad = xInputState.Gamepad;
-            for (std::pair<XInputCode, slurp::GamepadCode> entry : GamepadWinCodeToSlurpCode)
-            {
+            for (std::pair<XInputCode, slurp::GamepadCode> entry: GamepadWinCodeToSlurpCode) {
                 XInputCode xInputCode = entry.first;
                 bool isDown = gamepad.wButtons & xInputCode;
 
@@ -366,9 +329,7 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
             slurp::AnalogTriggerInputState& rightTriggerState = gamepadState->rightTrigger;
             rightTriggerState.start = rightTriggerState.end;
             rightTriggerState.end = rightTriggerNormalized;
-        }
-        else
-        {
+        } else {
             // Controller is not connected
             // TODO: log
         }
@@ -376,18 +337,16 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates)
 };
 
 #define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter)
+
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
 
-static void winInitDirectSound(HWND windowHandle)
-{
+static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
-    if (dSoundLib)
-    {
+    if (dSoundLib) {
         direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
             dSoundLib, "DirectSoundCreate"));
         LPDIRECTSOUND directSound;
-        if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr)))
-        {
+        if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr))) {
             directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
 
             WAVEFORMATEX waveFormat = {};
@@ -404,14 +363,10 @@ static void winInitDirectSound(HWND windowHandle)
             dsBufferDescription.dwSize = sizeof(dsBufferDescription);
             dsBufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
             LPDIRECTSOUNDBUFFER dsPrimaryBuffer;
-            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr)))
-            {
-                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat)))
-                {
+            if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr))) {
+                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat))) {
                     OutputDebugStringA("Primary audio buffer created.\n");
-                }
-                else
-                {
+                } else {
                     // TODO: log
                 }
             }
@@ -423,32 +378,24 @@ static void winInitDirectSound(HWND windowHandle)
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
             if (SUCCEEDED(
-                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr)))
-            {
+                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr))) {
                 OutputDebugStringA("Secondary audio buffer created.\n");
-            }
-            else
-            {
+            } else {
                 //TODO: log
             }
         }
     }
 }
 
-static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
-{
+static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     DWORD numBytesToWrite = 0;
-    if (lockCursor > targetCursor)
-    {
+    if (lockCursor > targetCursor) {
         numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor;
-    }
-    else
-    {
+    } else {
         numBytesToWrite = targetCursor - lockCursor;
     }
 
-    if (numBytesToWrite == 0)
-    {
+    if (numBytesToWrite == 0) {
         return 0;
     }
 
@@ -464,8 +411,7 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
         &audioRegion2Ptr,
         &audioRegion2Bytes,
         0
-    )))
-    {
+    ))) {
         OutputDebugStringA("Audio buffer lock failed.\n");
         return 0;
     }
@@ -491,8 +437,7 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor)
     return numBytesToWrite;
 }
 
-static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
-{
+static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
     winLoadXInput();
 
     WNDCLASSA windowClass = {};
@@ -516,8 +461,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
         nullptr
     );
 
-    if (!*outWindowHandle)
-    {
+    if (!*outWindowHandle) {
         OutputDebugStringA("Failed to create window.\n");
         return false;
     }
@@ -528,8 +472,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle)
 }
 
 
-static DWORD winGetMonitorRefreshRate()
-{
+static DWORD winGetMonitorRefreshRate() {
     DEVMODEA devMode = {};
     devMode.dmSize = sizeof(devMode);
     if (!EnumDisplaySettingsExA(
@@ -537,22 +480,20 @@ static DWORD winGetMonitorRefreshRate()
         ENUM_CURRENT_SETTINGS,
         &devMode,
         EDS_RAWMODE
-    ))
-    {
+    )) {
         OutputDebugStringA("Could not fetch monitor refresh rate.\n");
         return DEFAULT_MONITOR_REFRESH_RATE;
     }
     return devMode.dmDisplayFrequency;
 }
 
-static void winAllocateGameMemory(platform::GameMemory* outGameMemory)
-{
+static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
     uint64_t permanentMemorySizeBytes = megabytes(64);
     uint64_t transientMemorySizeBytes = gigabytes(4);
     outGameMemory->permanentMemory.sizeBytes = permanentMemorySizeBytes;
     outGameMemory->transientMemory.sizeBytes = transientMemorySizeBytes;
 #if DEBUG
-    void* baseAddress = (void*)terabytes(1);
+    void* baseAddress = (void*) terabytes(1);
 #else
 	void* baseAddress = nullptr;
 #endif
@@ -569,11 +510,10 @@ static void winAllocateGameMemory(platform::GameMemory* outGameMemory)
 static float winGetFrameMillis(
     WinTimingInfo startTimingInfo,
     LARGE_INTEGER& outPerformanceCounterEnd
-)
-{
+) {
     QueryPerformanceCounter(&outPerformanceCounterEnd);
     return (outPerformanceCounterEnd.QuadPart - startTimingInfo.performanceCounter) * 1000.f /
-        startTimingInfo.performanceCounterFrequency;
+           startTimingInfo.performanceCounterFrequency;
 }
 
 #define SLEEP_STALL_MIN_LEFTOVER_MS 0.5f
@@ -582,30 +522,24 @@ static void winStallFrameToTarget(
     float targetMillisPerFrame,
     WinTimingInfo startTimingInfo,
     bool isSleepGranular
-)
-{
+) {
     LARGE_INTEGER performanceCounterEnd;
     float frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
-    if (frameMillis >= targetMillisPerFrame)
-    {
+    if (frameMillis >= targetMillisPerFrame) {
         // OutputDebugStringA("Frame too slow. Target frame rate missed.\n");
         return;
     }
-    if (isSleepGranular)
-    {
+    if (isSleepGranular) {
         float stallMs = targetMillisPerFrame - frameMillis;
         DWORD sleepMs = static_cast<DWORD>(stallMs);
-        if (sleepMs > 1 && (stallMs - sleepMs) > SLEEP_STALL_MIN_LEFTOVER_MS)
-        {
+        if (sleepMs > 1 && (stallMs - sleepMs) > SLEEP_STALL_MIN_LEFTOVER_MS) {
             sleepMs -= 1;
         }
-        if (sleepMs > 0)
-        {
+        if (sleepMs > 0) {
             Sleep(sleepMs);
         }
     }
-    while (frameMillis < targetMillisPerFrame)
-    {
+    while (frameMillis < targetMillisPerFrame) {
         frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
     }
 }
@@ -613,8 +547,7 @@ static void winStallFrameToTarget(
 static void winCaptureAndLogPerformance(
     uint64_t& startProcessorCycle,
     WinTimingInfo& startTimingInfo
-)
-{
+) {
     uint64_t processorCycleEnd = __rdtsc();
     LARGE_INTEGER performanceCounterEnd;
 
@@ -632,14 +565,12 @@ static void winCaptureAndLogPerformance(
     startTimingInfo.performanceCounter = performanceCounterEnd.QuadPart;
 }
 
-template <typename T>
-static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
-{
+template<typename T>
+static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) {
     out = reinterpret_cast<T*>(
         GetProcAddress(lib, fnName)
     );
-    if (!out)
-    {
+    if (!out) {
         char buf[256];
         sprintf_s(buf, "Failed to load lib function: %s.\n", fnName);
         OutputDebugStringA(buf);
@@ -648,16 +579,12 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib)
     }
 }
 
-static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath)
-{
+static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
     CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
-    if (!GlobalSlurpLib)
-    {
+    if (!GlobalSlurpLib) {
         OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
-    }
-    else
-    {
+    } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
             "init",
@@ -691,17 +618,14 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
     }
 }
 
-static void winUnloadSlurpLib()
-{
-    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib))
-    {
+static void winUnloadSlurpLib() {
+    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) {
         OutputDebugStringA("Failed to unload Slurp lib.\n");
     }
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath)
-{
+static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
     HANDLE dllFileHandle = CreateFileA(
         dllFilePath,
         GENERIC_READ,
@@ -714,13 +638,11 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     static FILETIME previousWriteTime;
     FILETIME writeTime;
     FILETIME _;
-    if (!GetFileTime(dllFileHandle, &_, &_, &writeTime))
-    {
+    if (!GetFileTime(dllFileHandle, &_, &_, &writeTime)) {
         OutputDebugStringA("Failed to get SlurpEngine.dll file time.\n");
     }
     CloseHandle(dllFileHandle);
-    if (CompareFileTime(&writeTime, &previousWriteTime) == 0)
-    {
+    if (CompareFileTime(&writeTime, &previousWriteTime) == 0) {
         return;
     }
 
@@ -730,8 +652,7 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     GlobalSlurpDll.init(GlobalPlatformDll, &GlobalGameMemory);
 }
 
-static std::string getLocalFilePath(LPCSTR filename)
-{
+static std::string getLocalFilePath(LPCSTR filename) {
     char exeDirPath[MAX_PATH];
     GetModuleFileNameA(nullptr, exeDirPath, MAX_PATH);
     PathRemoveFileSpecA(exeDirPath);
@@ -740,8 +661,7 @@ static std::string getLocalFilePath(LPCSTR filename)
 }
 
 #if DEBUG
-PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
-{
+PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile) {
     platform::DEBUG_FileReadResult result = {};
     HANDLE fileHandle = CreateFileA(
         fileName,
@@ -753,8 +673,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
         nullptr
     );
 
-    if (fileHandle == INVALID_HANDLE_VALUE)
-    {
+    if (fileHandle == INVALID_HANDLE_VALUE) {
         OutputDebugStringA("Invalid file handle.");
         return result;
     }
@@ -783,8 +702,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
     );
     CloseHandle(fileHandle);
 
-    if (!success || bytesRead != fileSizeTruncated)
-    {
+    if (!success || bytesRead != fileSizeTruncated) {
         OutputDebugStringA("Could not read file.");
         platform::DEBUG_freeMemory(buffer);
         return result;
@@ -795,8 +713,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
     return result;
 }
 
-PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile)
-{
+PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile) {
     HANDLE fileHandle = CreateFileA(
         fileName,
         GENERIC_WRITE,
@@ -807,8 +724,7 @@ PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile)
         nullptr
     );
 
-    if (fileHandle == INVALID_HANDLE_VALUE)
-    {
+    if (fileHandle == INVALID_HANDLE_VALUE) {
         OutputDebugStringA("Invalid file handle.");
         return false;
     }
@@ -823,29 +739,24 @@ PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile)
     );
     CloseHandle(fileHandle);
 
-    if (!success || bytesWritten != sizeBytes)
-    {
+    if (!success || bytesWritten != sizeBytes) {
         OutputDebugStringA("Could not write file.");
         return false;
     }
     return true;
 }
 
-PLATFORM_DEBUG_FREE_MEMORY(platform::DEBUG_freeMemory)
-{
-    if (memory)
-    {
+PLATFORM_DEBUG_FREE_MEMORY(platform::DEBUG_freeMemory) {
+    if (memory) {
         VirtualFree(memory, 0, MEM_RELEASE);
     }
 }
 
-PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause)
-{
+PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause) {
     GlobalRecordingState.isPaused = !GlobalRecordingState.isPaused;
 }
 
-PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
-{
+PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording) {
     GlobalRecordingState.recordingFileHandle = CreateFileA(
         getLocalFilePath(RECORDING_FILE_NAME).c_str(),
         GENERIC_WRITE,
@@ -866,9 +777,8 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
     GlobalRecordingState.isRecording = true;
 }
 
-template <typename T>
-static void winRecordStateMap(std::unordered_map<T, slurp::DigitalInputState> stateMap)
-{
+template<typename T>
+static void winRecordStateMap(std::unordered_map<T, slurp::DigitalInputState> stateMap) {
     DWORD _;
     size_t numStates = stateMap.size();
     WriteFile(
@@ -878,8 +788,7 @@ static void winRecordStateMap(std::unordered_map<T, slurp::DigitalInputState> st
         &_,
         nullptr
     );
-    for (const std::pair<const T, slurp::DigitalInputState>& entry : stateMap)
-    {
+    for (const std::pair<const T, slurp::DigitalInputState>& entry: stateMap) {
         WriteFile(
             GlobalRecordingState.recordingFileHandle,
             &entry,
@@ -894,8 +803,7 @@ static void winRecordInput(
     const slurp::MouseState& mouseState,
     const slurp::KeyboardState& keyboardState,
     slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS]
-)
-{
+) {
     DWORD _;
     // record mouse input
     WriteFile(
@@ -911,8 +819,7 @@ static void winRecordInput(
     winRecordStateMap(keyboardState.state);
 
     // record controller input
-    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
-    {
+    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
         slurp::GamepadState& gamepadState = gamepadStates[controllerIdx];
         WriteFile(
             GlobalRecordingState.recordingFileHandle,
@@ -953,14 +860,12 @@ static void winRecordInput(
     }
 }
 
-PLATFORM_DEBUG_END_RECORDING(platform::DEBUG_endRecording)
-{
+PLATFORM_DEBUG_END_RECORDING(platform::DEBUG_endRecording) {
     GlobalRecordingState.isRecording = false;
     CloseHandle(GlobalRecordingState.recordingFileHandle);
 }
 
-PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
-{
+PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback) {
     GlobalRecordingState.recordingFileHandle = CreateFileA(
         getLocalFilePath(RECORDING_FILE_NAME).c_str(),
         GENERIC_READ,
@@ -982,9 +887,8 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
     GlobalRecordingState.onPlaybackEnd = onPlaybackEnd;
 }
 
-template <typename T>
-static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>& outStateMap)
-{
+template<typename T>
+static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>& outStateMap) {
     DWORD _;
     size_t numStates = 0;
     ReadFile(
@@ -995,8 +899,7 @@ static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>
         nullptr
     );
     outStateMap.clear();
-    for (size_t i = 0; i < numStates; i++)
-    {
+    for (size_t i = 0; i < numStates; i++) {
         std::pair<const T, slurp::DigitalInputState> entry;
         ReadFile(
             GlobalRecordingState.recordingFileHandle,
@@ -1013,8 +916,7 @@ static void winReadInputRecording(
     slurp::MouseState& outMouseState,
     slurp::KeyboardState& outKeyboardState,
     slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS]
-)
-{
+) {
     DWORD bytesRead;
     // read mouse input
     ReadFile(
@@ -1024,8 +926,7 @@ static void winReadInputRecording(
         &bytesRead,
         nullptr
     );
-    if (bytesRead == 0)
-    {
+    if (bytesRead == 0) {
         GlobalRecordingState.isPlayingBack = false;
         CloseHandle(GlobalRecordingState.recordingFileHandle);
         GlobalRecordingState.onPlaybackEnd();
@@ -1038,8 +939,7 @@ static void winReadInputRecording(
     winReadInputStateMap(outKeyboardState.state);
 
     // read controller input
-    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
-    {
+    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
         slurp::GamepadState& outGamepadState = outGamepadStates[controllerIdx];
         ReadFile(
             GlobalRecordingState.recordingFileHandle,
@@ -1080,18 +980,14 @@ static void winReadInputRecording(
     }
 }
 
-void winDrawDebugLine(int drawX, uint32_t color)
-{
+void winDrawDebugLine(int drawX, uint32_t color) {
     int lineWidth = 8;
 
     byte* bitmapBytes = static_cast<byte*>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.bytesPerPixel;
-    for (int y = 0; y < GlobalGraphicsBuffer.heightPixels; y++)
-    {
+    for (int y = 0; y < GlobalGraphicsBuffer.heightPixels; y++) {
         uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
-        for (int x = 0; x < lineWidth; x++)
-        {
-            if (drawX + x >= GlobalGraphicsBuffer.widthPixels)
-            {
+        for (int x = 0; x < lineWidth; x++) {
+            if (drawX + x >= GlobalGraphicsBuffer.widthPixels) {
                 return;
             }
             *rowPixels++ = color;
@@ -1101,17 +997,15 @@ void winDrawDebugLine(int drawX, uint32_t color)
     }
 }
 
-void winDrawDebugAudioSync(DWORD cursor, uint32_t color)
-{
+void winDrawDebugAudioSync(DWORD cursor, uint32_t color) {
     int padX = 16;
     int x = static_cast<int>((static_cast<float>(cursor) / GlobalAudioBuffer.bufferSizeBytes) * (
-        GlobalGraphicsBuffer.widthPixels));
+                                 GlobalGraphicsBuffer.widthPixels));
     winDrawDebugLine(x, color);
 }
 #endif
 
-PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
-{
+PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController) {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
     XINPUT_VIBRATION vibration{
@@ -1121,13 +1015,11 @@ PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController)
     XInputSetState(controllerIdx, &vibration);
 }
 
-PLATFORM_SHUTDOWN(platform::shutdown)
-{
+PLATFORM_SHUTDOWN(platform::shutdown) {
     GlobalRunning = false;
 }
 
-static platform::PlatformDll loadPlatformDll()
-{
+static platform::PlatformDll loadPlatformDll() {
     platform::PlatformDll platformDll = {};
     platformDll.vibrateController = platform::vibrateController;
     platformDll.shutdown = platform::shutdown;
@@ -1148,11 +1040,9 @@ int WINAPI WinMain(
     HINSTANCE hPrevInstance,
     PSTR lpCmdLine,
     int nCmdShow
-)
-{
+) {
     HWND windowHandle;
-    if (!winInitialize(hInstance, &windowHandle))
-    {
+    if (!winInitialize(hInstance, &windowHandle)) {
         return 1;
     }
 
@@ -1197,25 +1087,21 @@ int WINAPI WinMain(
         performanceCounterFrequency.QuadPart
     };
 
-    while (GlobalRunning)
-    {
+    while (GlobalRunning) {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
         winHandleMouseInput(windowHandle, &mouseState);
-        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry : keyboardState.state)
-        {
+        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
         winHandleMessages(&keyboardState);
         winHandleGamepadInput(controllerStates);
 #if DEBUG
-        if (GlobalRecordingState.isRecording)
-        {
+        if (GlobalRecordingState.isRecording) {
             winRecordInput(mouseState, keyboardState, controllerStates);
         }
-        if (GlobalRecordingState.isPlayingBack)
-        {
+        if (GlobalRecordingState.isPlayingBack) {
             winReadInputRecording(mouseState, keyboardState, controllerStates);
         }
 #endif
@@ -1223,8 +1109,7 @@ int WINAPI WinMain(
         GlobalSlurpDll.handleGamepadInput(controllerStates, targetSecondsPerFrame);
 
 #if DEBUG
-        if (GlobalRecordingState.isPaused)
-        {
+        if (GlobalRecordingState.isPaused) {
             continue;
         }
 #endif
@@ -1236,17 +1121,16 @@ int WINAPI WinMain(
         };
         GlobalSlurpDll.updateAndRender(graphicsBuffer, targetSecondsPerFrame);
 
-        if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK)
-        {
+        if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK) {
             OutputDebugStringA("Get audio buffer position failed.\n");
         }
         // NOTE: We always set our targetCursor to right after the write cursor,
         // this means audio is played as soon as possible.
         // TODO: if the sound card has very low latency, we could play audio earlier than the frame flip
         DWORD targetCursor = (
-            writeCursor +
-            GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
-        ) % GlobalAudioBuffer.bufferSizeBytes;
+                                 writeCursor +
+                                 GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
+                             ) % GlobalAudioBuffer.bufferSizeBytes;
         DWORD numBytesWritten = winLoadAudio(lockCursor, targetCursor);
         lockCursor = (lockCursor + numBytesWritten) % GlobalAudioBuffer.bufferSizeBytes;
 
@@ -1263,8 +1147,7 @@ int WINAPI WinMain(
         ReleaseDC(windowHandle, deviceContext);
     }
 
-    if (isSleepGranular)
-    {
+    if (isSleepGranular) {
         timeEndPeriod(1);
     }
     return 0;

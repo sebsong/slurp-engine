@@ -1,25 +1,22 @@
-#include <Render.hpp>
-#include <Core.hpp>
-#include <Math.hpp>
-#include <Debug.hpp>
+#include "Render.h"
+#include "Core.h"
+#include "Math.h"
+#include "Debug.h"
 #include <fstream>
 #include <string>
 
-namespace render
-{
+namespace render {
 #ifdef ASSETS_DIR
     static const std::string AssetsDirectory = ASSETS_DIR;
 #else
     static const std::string AssetsDirectory = "../../../assets/";
 #endif
 
-    static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color)
-    {
+    static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
     }
 
-    static void _clampToBufferBounds(const GraphicsBuffer& buffer, slurp::Vector2<int>& point)
-    {
+    static void _clampToBufferBounds(const GraphicsBuffer& buffer, slurp::Vector2<int>& point) {
         point.x = std::min(std::max(point.x, 0), buffer.widthPixels);
         point.y = std::min(std::max(point.y, 0), buffer.heightPixels);
     }
@@ -29,14 +26,11 @@ namespace render
         slurp::Vector2<int> minPoint,
         slurp::Vector2<int> maxPoint,
         Pixel color
-    )
-    {
+    ) {
         _clampToBufferBounds(buffer, minPoint);
         _clampToBufferBounds(buffer, maxPoint);
-        for (int y = minPoint.y; y < maxPoint.y; y++)
-        {
-            for (int x = minPoint.x; x < maxPoint.x; x++)
-            {
+        for (int y = minPoint.y; y < maxPoint.y; y++) {
+            for (int x = minPoint.x; x < maxPoint.x; x++) {
                 _drawAtPoint(buffer, {x, y}, color);
             }
         }
@@ -49,8 +43,7 @@ namespace render
         float r,
         float g,
         float b
-    )
-    {
+    ) {
         uint8_t red = math::round(r * 255);
         uint8_t green = math::round(g * 255);
         uint8_t blue = math::round(b * 255);
@@ -64,8 +57,7 @@ namespace render
         const slurp::Vector2<int> maxPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
-    )
-    {
+    ) {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
         Pixel color = colorPalette.colors[colorPaletteIdx];
         _drawRect(buffer, minPoint, maxPoint, color);
@@ -77,8 +69,7 @@ namespace render
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
-    )
-    {
+    ) {
         drawRect(
             buffer,
             point,
@@ -95,8 +86,7 @@ namespace render
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
-    )
-    {
+    ) {
         _clampToBufferBounds(buffer, startPoint);
         _clampToBufferBounds(buffer, endPoint);
 
@@ -105,8 +95,7 @@ namespace render
 
         slurp::Vector2<float> currentPoint = startPoint;
         float distance = startToEnd.magnitude();
-        while (distance > 0)
-        {
+        while (distance > 0) {
             drawSquare(
                 buffer,
                 currentPoint,
@@ -119,8 +108,7 @@ namespace render
         }
     }
 
-    void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette)
-    {
+    void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette) {
         // NOTE: Sizes that are even will have an off-center position
         slurp::Vector2<int> point = entity.position - entity.positionOffset;
         drawSquare(
@@ -132,8 +120,7 @@ namespace render
         );
     }
 
-    void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color)
-    {
+    void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color) {
         _drawRect(
             buffer,
             {0, 0},
@@ -160,8 +147,7 @@ namespace render
         );
     }
 
-    ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName)
-    {
+    ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName) {
         ColorPalette palette = {};
 
         const std::string filePath = AssetsDirectory + paletteHexFileName;
@@ -170,8 +156,7 @@ namespace render
 
         uint8_t colorPaletteIdx = 0;
         std::string line;
-        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE)
-        {
+        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
             Pixel color = std::stoi(line, nullptr, 16);
             palette.colors[colorPaletteIdx] = color;
             colorPaletteIdx++;

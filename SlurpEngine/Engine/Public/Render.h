@@ -1,33 +1,29 @@
 #pragma once
-#include <Vector.hpp>
+#include "Vector.h"
 #include <cstdint>
 
 #define COLOR_PALETTE_SIZE 8
 #define TILEMAP_WIDTH 32
 #define TILEMAP_HEIGHT 18
 
-namespace slurp
-{
+namespace slurp {
     struct Entity;
 }
 
-namespace render
-{
+namespace render {
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
-    struct GraphicsBuffer
-    {
+    struct GraphicsBuffer {
         Pixel* const pixelMap; // memory byte order: XRGB
         int widthPixels;
         int heightPixels;
     };
 
-    struct ColorPalette
-    {
+    struct ColorPalette {
         Pixel colors[COLOR_PALETTE_SIZE];
     };
-    
+
     void drawRect(
         const GraphicsBuffer& buffer,
         slurp::Vector2<int> minPoint,
@@ -53,7 +49,7 @@ namespace render
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     );
-    
+
     void drawLine(
         const GraphicsBuffer& buffer,
         slurp::Vector2<int> startPoint,
@@ -62,10 +58,10 @@ namespace render
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     );
-    
+
     void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette);
-    
+
     void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color);
-    
+
     ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName);
 }

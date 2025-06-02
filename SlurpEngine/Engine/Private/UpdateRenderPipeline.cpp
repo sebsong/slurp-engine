@@ -1,19 +1,16 @@
-#include <UpdateRenderPipeline.hpp>
+#include "UpdateRenderPipeline.h"
 
-#include <Core.hpp>
-#include <Update.hpp>
-#include <Render.hpp>
+#include "Core.h"
+#include "Update.h"
+#include "Render.h"
 
-namespace slurp
-{
-    UpdateRenderPipeline::UpdateRenderPipeline(const render::ColorPalette& colorPalette)
-    {
+namespace slurp {
+    UpdateRenderPipeline::UpdateRenderPipeline(const render::ColorPalette& colorPalette) {
         this->_pipeline = std::deque<Entity*>();
         this->_colorPalette = colorPalette;
     }
 
-    void UpdateRenderPipeline::push(Entity& entity)
-    {
+    void UpdateRenderPipeline::push(Entity& entity) {
         _pipeline.push_back(&entity);
     }
 
@@ -21,13 +18,10 @@ namespace slurp
         const Tilemap& tilemap,
         float dt,
         const render::GraphicsBuffer& buffer
-    )
-    {
-        for (Entity* entity : _pipeline)
-        {
+    ) {
+        for (Entity* entity: _pipeline) {
             //TODO: handle destruction
-            if (entity->enabled)
-            {
+            if (entity->enabled) {
                 update::updatePosition(*entity, tilemap, dt);
                 render::drawEntity(buffer, *entity, _colorPalette);
             }

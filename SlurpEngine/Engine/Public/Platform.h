@@ -1,25 +1,21 @@
 #pragma once
-#include <DynamicDeclaration.hpp>
+#include <DynamicDeclaration.h>
 #include <cstdint>
 #include <functional>
 
-namespace platform
-{
-    struct MemoryBlock
-    {
+namespace platform {
+    struct MemoryBlock {
         uint64_t sizeBytes;
         void* memory;
     };
 
-    struct GameMemory
-    {
+    struct GameMemory {
         MemoryBlock permanentMemory;
         MemoryBlock transientMemory;
     };
-    
+
 #if DEBUG
-    struct DEBUG_FileReadResult
-    {
+    struct DEBUG_FileReadResult {
         void* fileContents;
         uint32_t sizeBytes;
     };
@@ -38,20 +34,26 @@ namespace platform
 #endif
 
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_VIBRATE_CONTROLLER, vibrateController)
+
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_SHUTDOWN, shutdown)
 #if DEBUG
     SLURP_DECLARE_DYNAMIC_RETURN(PLATFORM_DEBUG_READ_FILE, DEBUG_readFile, platform::DEBUG_FileReadResult())
+
     SLURP_DECLARE_DYNAMIC_RETURN(PLATFORM_DEBUG_WRITE_FILE, DEBUG_writeFile, false)
+
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_FREE_MEMORY, DEBUG_freeMemory)
+
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_TOGGLE_PAUSE, DEBUG_togglePause)
+
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_RECORDING, DEBUG_beginRecording)
+
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_END_RECORDING, DEBUG_endRecording)
+
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_PLAYBACK, DEBUG_beginPlayback)
 #endif
 
     // TODO: assert that we actually replace these stubs properly
-    struct PlatformDll
-    {
+    struct PlatformDll {
         dyn_vibrateController* vibrateController = stub_vibrateController;
         dyn_shutdown* shutdown = stub_shutdown;
 #if DEBUG

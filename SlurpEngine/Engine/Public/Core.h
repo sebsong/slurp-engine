@@ -1,12 +1,10 @@
 ﻿#pragma once
-#include <Render.hpp>
-#include <Vector.hpp>
+#include "Render.h"
+#include "Vector.h"
 #include <array>
 
-namespace slurp
-{
-    struct Entity
-    {
+namespace slurp {
+    struct Entity {
         int size;
         render::ColorPaletteIdx color;
         float speed;
@@ -18,10 +16,8 @@ namespace slurp
         bool shouldDestroy;
     };
 
-    struct Tilemap
-    {
+    struct Tilemap {
         std::array<std::array<render::ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> map;
         uint8_t tileSize;
     };
-
 }

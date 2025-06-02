@@ -1,8 +1,8 @@
 # PREPROCESSOR MACROS
 add_compile_definitions(PLATFORM_WINDOWS)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(DEBUG)
-endif()
+endif ()
 add_compile_definitions(ASSETS_DIR="C:/Users/sebys/Workspace/slurp-engine/SlurpEngine/assets/")
 
 # COMPILER AND LINKER FLAGS

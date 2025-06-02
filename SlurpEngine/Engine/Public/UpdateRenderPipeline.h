@@ -1,22 +1,21 @@
 #pragma once
 #include <queue>
 
-namespace render
-{
+namespace render {
     struct GraphicsBuffer;
     struct ColorPalette;
 }
 
-namespace slurp
-{
+namespace slurp {
     struct Entity;
     struct Tilemap;
 
-    class UpdateRenderPipeline
-    {
+    class UpdateRenderPipeline {
     public:
         UpdateRenderPipeline(const render::ColorPalette& colorPalette);
+
         void push(Entity& entity);
+
         void process(
             const Tilemap& tilemap,
             float dt,

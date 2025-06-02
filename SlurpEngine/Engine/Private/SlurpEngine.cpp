@@ -1,12 +1,12 @@
-﻿#include <SlurpEngine.hpp>
-#include <Random.hpp>
-#include <Debug.hpp>
+﻿#include "SlurpEngine.h"
+#include "Random.h"
+#include "Debug.h"
 
 // Single translation unit, unity build
-#include <Update.cpp>
-#include <Render.cpp>
-#include <UpdateRenderPipeline.cpp>
-#include <Timer.cpp>
+#include "Update.cpp"
+#include "Render.cpp"
+#include "UpdateRenderPipeline.cpp"
+#include "Timer.cpp"
 
 typedef unsigned char byte;
 
@@ -340,8 +340,7 @@ namespace slurp {
         }
     }
 
-    SLURP_LOAD_AUDIO(loadAudio) {
-    }
+    SLURP_LOAD_AUDIO(loadAudio) {}
 
     static const Entity& findClosest(const Vector2<int>& position, const Entity* entities, int numEntities) {
         assert(numEntities > 0);

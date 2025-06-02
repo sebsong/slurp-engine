@@ -1,28 +1,25 @@
 #pragma once
 
-#include <Platform.hpp>
-#include <DynamicDeclaration.hpp>
-#include <Core.hpp>
-#include <Input.hpp>
-#include <Audio.hpp>
-#include <Render.hpp>
+#include "Platform.h"
+#include "DynamicDeclaration.h"
+#include "Core.h"
+#include "Input.h"
+#include "Audio.h"
+#include "Render.h"
 
-#include <UpdateRenderPipeline.hpp>
+#include "UpdateRenderPipeline.h"
 
 #define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 1000
 
-namespace slurp
-{
-    struct Player
-    {
+namespace slurp {
+    struct Player {
         Entity entity;
         bool isParryActive;
     };
 
-    struct GameState
-    {
+    struct GameState {
         uint32_t randomSeed;
         Tilemap tilemap;
         bool isInitialized;
@@ -33,16 +30,14 @@ namespace slurp
         Entity projectiles[PROJECTILE_POOL_SIZE];
         Entity mouseCursor;
     };
-    
-    struct MemorySections
-    {
+
+    struct MemorySections {
         UpdateRenderPipeline updateRenderPipeline;
         GameState gameState;
     };
 
 #if DEBUG
-    struct RecordingState
-    {
+    struct RecordingState {
         bool isRecording;
         bool isPlayingBack;
     };
@@ -55,13 +50,16 @@ namespace slurp
 #define SLURP_UPDATE_AND_RENDER(fnName) void fnName(render::GraphicsBuffer graphicsBuffer, float dt)
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
+
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT, handleMouseAndKeyboardInput)
+
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_GAMEPAD_INPUT, handleGamepadInput)
+
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_LOAD_AUDIO, loadAudio)
+
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE_AND_RENDER, updateAndRender)
 
-    struct SlurpDll
-    {
+    struct SlurpDll {
         dyn_init* init = stub_init;
         dyn_handleMouseAndKeyboardInput* handleMouseAndKeyboardInput = stub_handleMouseAndKeyboardInput;
         dyn_handleGamepadInput* handleGamepadInput = stub_handleGamepadInput;

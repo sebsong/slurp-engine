@@ -459,21 +459,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Public\Audio.hpp" />
-    <ClInclude Include="Public\Core.hpp" />
-    <ClInclude Include="Public\Debug.hpp" />
-    <ClInclude Include="Public\DynamicDeclaration.hpp" />
-    <ClInclude Include="Public\Input.hpp" />
-    <ClInclude Include="Public\Math.hpp" />
-    <ClInclude Include="Public\Platform.hpp" />
-    <ClInclude Include="Public\Random.hpp" />
-    <ClInclude Include="Public\Render.hpp" />
-    <ClInclude Include="Public\SlurpEngine.hpp" />
-    <ClInclude Include="Public\Timer.hpp" />
-    <ClInclude Include="Public\Update.hpp" />
-    <ClInclude Include="Public\UpdateRenderPipeline.hpp" />
-    <ClInclude Include="Public\Vector.hpp" />
-    <ClInclude Include="Public\WinEngine.hpp" />
+    <ClInclude Include="Public\Audio.h" />
+    <ClInclude Include="Public\Core.h" />
+    <ClInclude Include="Public\Debug.h" />
+    <ClInclude Include="Public\DynamicDeclaration.h" />
+    <ClInclude Include="Public\Input.h" />
+    <ClInclude Include="Public\Math.h" />
+    <ClInclude Include="Public\Platform.h" />
+    <ClInclude Include="Public\Random.h" />
+    <ClInclude Include="Public\Render.h" />
+    <ClInclude Include="Public\SlurpEngine.h" />
+    <ClInclude Include="Public\Timer.h" />
+    <ClInclude Include="Public\Update.h" />
+    <ClInclude Include="Public\UpdateRenderPipeline.h" />
+    <ClInclude Include="Public\Vector.h" />
+    <ClInclude Include="Public\WinEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

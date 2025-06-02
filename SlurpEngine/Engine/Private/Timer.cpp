@@ -1,19 +1,16 @@
-﻿#include <Timer.hpp>
+﻿#include "Timer.h"
 #include <set>
 
-namespace timer
-{
+namespace timer {
     // TODO: allocate memory from the shared memory block
     static std::unordered_map<timer_handle, TimerInfo> GlobalTimerMap;
     static timer_handle GlobalNextTimerHandle;
-    
-    void delay(float delayDuration, std::function<void()>&& callback)
-    {
+
+    void delay(float delayDuration, std::function<void()>&& callback) {
         registerTimer(delayDuration, false, std::move(callback));
     }
 
-    timer_handle registerTimer(float duration, bool shouldLoop, std::function<void()>&& callback)
-    {
+    timer_handle registerTimer(float duration, bool shouldLoop, std::function<void()>&& callback) {
         timer_handle handle = GlobalNextTimerHandle++;
         TimerInfo info
         {
@@ -27,35 +24,28 @@ namespace timer
         return handle;
     }
 
-    void tick(float dt)
-    {
+    void tick(float dt) {
         std::set<timer_handle> timersToCancel;
-        for (auto& entry : GlobalTimerMap)
-        {
+        for (auto& entry: GlobalTimerMap) {
             TimerInfo& info = entry.second;
             info.timer += dt;
-            if (info.timer >= info.duration)
-            {
+            if (info.timer >= info.duration) {
                 info.callback();
-                
-                if (info.shouldLoop)
-                {
+
+                if (info.shouldLoop) {
                     info.timer = 0;
-                } else
-                {
+                } else {
                     timersToCancel.insert(info.handle);
                 }
             }
         }
 
-        for (timer_handle handle : timersToCancel)
-        {
+        for (timer_handle handle: timersToCancel) {
             cancelTimer(handle);
         }
     }
 
-    void cancelTimer(timer_handle handle)
-    {
+    void cancelTimer(timer_handle handle) {
         GlobalTimerMap.erase(handle);
     }
 }

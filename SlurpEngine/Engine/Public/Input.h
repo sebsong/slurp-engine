@@ -1,30 +1,25 @@
 #pragma once
-#include <Vector.hpp>
+#include "Vector.h"
 #include <cstdint>
 #include <unordered_map>
 
-namespace slurp
-{
-    struct DigitalInputState
-    {
+namespace slurp {
+    struct DigitalInputState {
         int transitionCount;
         bool isDown;
     };
 
-    struct AnalogStickInputState
-    {
+    struct AnalogStickInputState {
         Vector2<float> start = {0, 0};
         Vector2<float> end = {0, 0};
     };
 
-    struct AnalogTriggerInputState
-    {
+    struct AnalogTriggerInputState {
         float start;
         float end;
     };
 
-    enum class MouseCode: uint8_t
-    {
+    enum class MouseCode: uint8_t {
         LeftClick,
         RightClick,
         MiddleClick,
@@ -33,45 +28,37 @@ namespace slurp
     };
 
     typedef std::pair<const slurp::MouseCode, slurp::DigitalInputState> mouse_state_entry;
-    
-    struct MouseState
-    {
+
+    struct MouseState {
         Vector2<int> position;
         std::unordered_map<MouseCode, DigitalInputState> state;
 
-        bool getState(MouseCode code, DigitalInputState& outInputState) const
-        {
-            if (state.count(code) > 0)
-            {
+        bool getState(MouseCode code, DigitalInputState& outInputState) const {
+            if (state.count(code) > 0) {
                 outInputState = state.at(code);
                 return true;
             }
             return false;
         }
 
-        bool isDown(MouseCode code) const
-        {
+        bool isDown(MouseCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return inputState.isDown;
             }
             return false;
         }
 
-        bool justPressed(MouseCode code) const
-        {
+        bool justPressed(MouseCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return inputState.isDown && inputState.transitionCount != 0;
             }
             return false;
         }
     };
 
-    enum class KeyboardCode: uint8_t
-    {
+    enum class KeyboardCode: uint8_t {
         W,
         A,
         S,
@@ -87,53 +74,43 @@ namespace slurp
 
     typedef std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> keyboard_state_entry;
 
-    struct KeyboardState
-    {
+    struct KeyboardState {
         std::unordered_map<KeyboardCode, DigitalInputState> state;
 
-        bool getState(KeyboardCode code, DigitalInputState& outInputState) const
-        {
-            if (state.count(code) > 0)
-            {
+        bool getState(KeyboardCode code, DigitalInputState& outInputState) const {
+            if (state.count(code) > 0) {
                 outInputState = state.at(code);
                 return true;
             }
             return false;
         }
 
-        bool isDown(KeyboardCode code) const
-        {
+        bool isDown(KeyboardCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return inputState.isDown;
             }
             return false;
         }
 
-        bool justPressed(KeyboardCode code) const
-        {
+        bool justPressed(KeyboardCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return inputState.isDown && inputState.transitionCount != 0;
             }
             return false;
         }
 
-        bool justReleased(KeyboardCode code) const
-        {
+        bool justReleased(KeyboardCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return !inputState.isDown && inputState.transitionCount != 0;
             }
             return false;
         }
     };
 
-    enum class GamepadCode: uint8_t
-    {
+    enum class GamepadCode: uint8_t {
         DPAD_UP,
         DPAD_DOWN,
         DPAD_LEFT,
@@ -152,8 +129,7 @@ namespace slurp
 
     typedef std::pair<const slurp::GamepadCode, slurp::DigitalInputState> gamepad_state_entry;
 
-    struct GamepadState
-    {
+    struct GamepadState {
         bool isConnected = false;
         AnalogStickInputState leftStick;
         AnalogStickInputState rightStick;
@@ -161,41 +137,33 @@ namespace slurp
         AnalogTriggerInputState rightTrigger;
         std::unordered_map<GamepadCode, DigitalInputState> state;
 
-        bool getState(GamepadCode code, DigitalInputState& outState) const
-        {
-            if (state.count(code) > 0)
-            {
+        bool getState(GamepadCode code, DigitalInputState& outState) const {
+            if (state.count(code) > 0) {
                 outState = state.at(code);
                 return true;
             }
             return false;
         }
 
-        bool isDown(GamepadCode code) const
-        {
+        bool isDown(GamepadCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return inputState.isDown;
             }
             return false;
         }
 
-        bool justPressed(GamepadCode code) const
-        {
+        bool justPressed(GamepadCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return inputState.isDown && inputState.transitionCount != 0;
             }
             return false;
         }
 
-        bool justReleased(GamepadCode code) const
-        {
+        bool justReleased(GamepadCode code) const {
             DigitalInputState inputState;
-            if (getState(code, inputState))
-            {
+            if (getState(code, inputState)) {
                 return !inputState.isDown && inputState.transitionCount != 0;
             }
             return false;

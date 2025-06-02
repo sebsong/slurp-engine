@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SlurpEngine.hpp>
+#include "SlurpEngine.h"
 
 #include <windows.h>
 #include <dsound.h>
@@ -9,8 +9,7 @@
 
 typedef uint32_t bool32;
 
-struct WinGraphicsBuffer
-{
+struct WinGraphicsBuffer {
     BITMAPINFO info;
     void* memory;
     int widthPixels;
@@ -19,16 +18,14 @@ struct WinGraphicsBuffer
     int pitchBytes;
 };
 
-struct WinScreenDimensions
-{
+struct WinScreenDimensions {
     int x;
     int y;
     int width;
     int height;
 };
 
-struct WinAudioBuffer
-{
+struct WinAudioBuffer {
     LPDIRECTSOUNDBUFFER buffer;
     int samplesPerSec = 48000;
     int bytesPerSample = sizeof(int16_t) * 2; // Stereo L + R
@@ -81,15 +78,13 @@ static const std::unordered_map<XInputCode, slurp::GamepadCode> GamepadWinCodeTo
     {XINPUT_GAMEPAD_Y, slurp::GamepadCode::Y},
 };
 
-struct WinTimingInfo
-{
+struct WinTimingInfo {
     int64_t performanceCounter;
     int64_t performanceCounterFrequency;
 };
 
 #if DEBUG
-struct WinRecordingState
-{
+struct WinRecordingState {
     bool isPaused;
     bool isRecording;
     bool isPlayingBack;
