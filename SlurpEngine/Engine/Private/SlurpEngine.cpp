@@ -10,8 +10,7 @@
 
 typedef unsigned char byte;
 
-namespace slurp
-{
+namespace slurp {
     static platform::PlatformDll GlobalPlatformDll;
     static GameState* GlobalGameState;
     static UpdateRenderPipeline* GlobalUpdateRenderPipeline;
@@ -77,8 +76,7 @@ namespace slurp
         Vector2<int> mousePosition,
         int size,
         render::ColorPaletteIdx colorPaletteIdx
-    )
-    {
+    ) {
         Vector2<int> point = mousePosition - Vector2<int>::Unit * size / 2;
         drawSquare(
             buffer,
@@ -92,12 +90,9 @@ namespace slurp
     static void drawTilemap(
         const render::GraphicsBuffer& buffer,
         const Tilemap tilemap
-    )
-    {
-        for (int y = 0; y < TILEMAP_HEIGHT; y++)
-        {
-            for (int x = 0; x < TILEMAP_WIDTH; x++)
-            {
+    ) {
+        for (int y = 0; y < TILEMAP_HEIGHT; y++) {
+            for (int x = 0; x < TILEMAP_WIDTH; x++) {
                 uint8_t colorPaletteIdx = tilemap.map[y][x];
                 drawSquare(
                     buffer,
@@ -110,11 +105,9 @@ namespace slurp
         }
     }
 
-    static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size)
-    {
+    static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size) {
         Vector2<int> position = point;
-        for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++)
-        {
+        for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
             drawSquare(
                 buffer,
                 position,
@@ -126,45 +119,38 @@ namespace slurp
         }
     }
 
-    static void setSquareCollisionPoints(Entity& entity)
-    {
+    static void setSquareCollisionPoints(Entity& entity) {
         int sizeCoord = entity.size - 1;
         entity.relativeCollisionPoints[0] = {0, 0};
         entity.relativeCollisionPoints[1] = {sizeCoord, 0};
         entity.relativeCollisionPoints[2] = {0, sizeCoord};
         entity.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
 
-        for (Vector2<int>& collisionPoint : entity.relativeCollisionPoints)
-        {
+        for (Vector2<int>& collisionPoint: entity.relativeCollisionPoints) {
             collisionPoint -= entity.positionOffset;
         }
     }
 
-    static void setRandomDirection(Entity& entity)
-    {
+    static void setRandomDirection(Entity& entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
         entity.direction = Vector2<float>(randX, randY).normalize();
     }
 
-    static float getRandomDirectionChangeDelay()
-    {
+    static float getRandomDirectionChangeDelay() {
         float minDelay = BaseEnemyDirectionChangeDelay - EnemyDirectionChangeDelayDelta;
         float maxDelay = BaseEnemyDirectionChangeDelay + EnemyDirectionChangeDelayDelta;
         return random::randomFloat(minDelay, maxDelay);
     }
 
-    static void startUpdateEnemyDirection(Entity& enemy)
-    {
+    static void startUpdateEnemyDirection(Entity& enemy) {
         setRandomDirection(enemy);
-        timer::delay(getRandomDirectionChangeDelay(), [&]
-        {
+        timer::delay(getRandomDirectionChangeDelay(), [&] {
             startUpdateEnemyDirection(enemy);
         });
     }
 
-    SLURP_INIT(init)
-    {
+    SLURP_INIT(init) {
         GlobalPlatformDll = platformDll;
 
         assert(sizeof(MemorySections) <= gameMemory->permanentMemory.sizeBytes);
@@ -177,56 +163,60 @@ namespace slurp
 
         GlobalGameState = &sections->gameState;
         GlobalGameState->colorPalette = colorPalette;
-        if (!GlobalGameState->isInitialized)
-        {
-            GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
+        GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
-            GlobalGameState->tilemap.map = BaseTileMap;
-            GlobalGameState->tilemap.tileSize = BaseTileSize;
+        GlobalGameState->tilemap.map = BaseTileMap;
+        GlobalGameState->tilemap.tileSize = BaseTileSize;
 
-            Entity& mouseCursor = GlobalGameState->mouseCursor;
-            mouseCursor.enabled = true;
-            mouseCursor.size = MouseCursorSizePixels;
-            mouseCursor.color = MouseCursorColorPalletIdx;
-            mouseCursor.positionOffset = Vector2<int>::Unit * mouseCursor.size / 2;
-            GlobalUpdateRenderPipeline->push(mouseCursor);
+        Entity& mouseCursor = GlobalGameState->mouseCursor;
+        mouseCursor.enabled = true;
+        mouseCursor.size = MouseCursorSizePixels;
+        mouseCursor.color = MouseCursorColorPalletIdx;
+        mouseCursor.positionOffset = Vector2<int>::Unit * mouseCursor.size / 2;
+        GlobalUpdateRenderPipeline->push(mouseCursor);
 
-            Entity& playerEntity = GlobalGameState->player.entity;
-            playerEntity.enabled = true;
-            playerEntity.size = BasePlayerSizePixels;
-            playerEntity.color = PlayerColorPalletIdx;
-            playerEntity.speed = BasePlayerSpeed;
+        Entity& playerEntity = GlobalGameState->player.entity;
+        playerEntity.enabled = true;
+        playerEntity.size = BasePlayerSizePixels;
+        playerEntity.color = PlayerColorPalletIdx;
+        playerEntity.speed = BasePlayerSpeed;
+        playerEntity.positionOffset = Vector2<int>::Unit * playerEntity.size /
+                                      2;
+        setSquareCollisionPoints(playerEntity);
+        GlobalUpdateRenderPipeline->push(playerEntity);
+
+        for (int i = 0; i < NUM_ENEMIES; i++) {
+            Entity& enemy = GlobalGameState->enemies[i];
+            enemy.enabled = true;
+            enemy.size = BaseEnemySizePixels;
+            enemy.speed = BaseEnemySpeed;
+            enemy.color = EnemyColorPalletIdx;
+            enemy.positionOffset = Vector2<int>::Unit * enemy.size / 2;
+            setSquareCollisionPoints(enemy);
+            startUpdateEnemyDirection(enemy);
+            GlobalUpdateRenderPipeline->push(enemy);
+        }
+
+        for (Entity& projectile: GlobalGameState->projectiles) {
+            projectile.enabled = false;
+            projectile.size = ProjectileSizePixels;
+            projectile.positionOffset = {.5, .5};
+            projectile.color = ProjectileColorPalletIdx;
+            projectile.speed = BaseProjectileSpeed;
+            setSquareCollisionPoints(projectile);
+            GlobalUpdateRenderPipeline->push(projectile);
+        }
+
+        if (!GlobalGameState->isInitialized) {
+            // NOTE: anything that shouldn't be hot reloaded goes here
             playerEntity.position = PlayerStartPos;
-            playerEntity.positionOffset = Vector2<int>::Unit * playerEntity.size /
-                2;
-            setSquareCollisionPoints(playerEntity);
-            GlobalUpdateRenderPipeline->push(playerEntity);
-
-            for (int i = 0; i < NUM_ENEMIES; i++)
-            {
+            for (int i = 0; i < NUM_ENEMIES; i++) {
                 Entity& enemy = GlobalGameState->enemies[i];
-                enemy.enabled = true;
-                enemy.size = BaseEnemySizePixels;
-                enemy.speed = BaseEnemySpeed;
-                enemy.color = EnemyColorPalletIdx;
                 enemy.position = EnemyStartPos + (EnemyPosOffset * i);
-                enemy.positionOffset = Vector2<int>::Unit * enemy.size / 2;
-                setSquareCollisionPoints(enemy);
-                startUpdateEnemyDirection(enemy);
-                GlobalUpdateRenderPipeline->push(enemy);
             }
-
-            for (Entity& projectile : GlobalGameState->projectiles)
-            {
+            for (Entity& projectile: GlobalGameState->projectiles) {
                 projectile.enabled = false;
-                projectile.size = ProjectileSizePixels;
-                projectile.positionOffset = {.5, .5};
-                projectile.color = ProjectileColorPalletIdx;
-                projectile.speed = BaseProjectileSpeed;
-                setSquareCollisionPoints(projectile);
-                GlobalUpdateRenderPipeline->push(projectile);
             }
-
             GlobalGameState->isInitialized = true;
         }
 
@@ -238,131 +228,104 @@ namespace slurp
 #endif
     }
 
-    static void activateParry(Player& player)
-    {
+    static void activateParry(Player& player) {
         player.isParryActive = true;
         player.entity.color = PlayerParryColorPalletIdx;
     }
 
-    static void deactivateParry(Player& player)
-    {
+    static void deactivateParry(Player& player) {
         player.isParryActive = false;
         player.entity.color = PlayerColorPalletIdx;
     }
 
-    SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput)
-    {
+    SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
         GlobalGameState->mouseCursor.position = mouseState.position;
 
-        if (mouseState.justPressed(MouseCode::LeftClick))
-        {
+        if (mouseState.justPressed(MouseCode::LeftClick)) {
             Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
             projectile.enabled = true;
             projectile.position = GlobalGameState->player.entity.position;
             projectile.direction =
-                static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity.position).normalize();
+                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity.position).
+                    normalize();
             GlobalGameState->projectileIdx++;
-            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE)
-            {
+            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) {
                 GlobalGameState->projectileIdx = 0;
             }
         }
 
-        if (mouseState.justPressed(MouseCode::RightClick))
-        {
+        if (mouseState.justPressed(MouseCode::RightClick)) {
             activateParry(GlobalGameState->player);
             timer::delay(ParryActiveDuration, [] { deactivateParry(GlobalGameState->player); });
         }
 
-        if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4))
-        {
+        if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4)) {
             GlobalPlatformDll.shutdown();
         }
 
         Vector2<float> direction;
-        if (keyboardState.isDown(KeyboardCode::W))
-        {
+        if (keyboardState.isDown(KeyboardCode::W)) {
             direction.y -= 1;
         }
-        if (keyboardState.isDown(KeyboardCode::A))
-        {
+        if (keyboardState.isDown(KeyboardCode::A)) {
             direction.x -= 1;
         }
-        if (keyboardState.isDown(KeyboardCode::S))
-        {
+        if (keyboardState.isDown(KeyboardCode::S)) {
             direction.y += 1;
         }
-        if (keyboardState.isDown(KeyboardCode::D))
-        {
+        if (keyboardState.isDown(KeyboardCode::D)) {
             direction.x += 1;
         }
         GlobalGameState->player.entity.direction = direction.normalize();
 
 
-        if (keyboardState.justPressed(KeyboardCode::SPACE))
-        {
+        if (keyboardState.justPressed(KeyboardCode::SPACE)) {
             GlobalGameState->player.entity.speed = SprintPlayerSpeed;
-        }
-        else if (keyboardState.justReleased(KeyboardCode::SPACE))
-        {
+        } else if (keyboardState.justReleased(KeyboardCode::SPACE)) {
             GlobalGameState->player.entity.speed = BasePlayerSpeed;
         }
 
 #if DEBUG
-        if (keyboardState.justPressed(KeyboardCode::P))
-        {
+        if (keyboardState.justPressed(KeyboardCode::P)) {
             GlobalPlatformDll.DEBUG_togglePause();
         }
-        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack)
-        {
-            if (!GlobalRecordingState->isRecording)
-            {
+        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack) {
+            if (!GlobalRecordingState->isRecording) {
                 GlobalRecordingState->isRecording = true;
                 GlobalPlatformDll.DEBUG_beginRecording();
-            }
-            else
-            {
+            } else {
                 GlobalPlatformDll.DEBUG_endRecording();
                 GlobalRecordingState->isRecording = false;
             }
         }
-        if (keyboardState.justPressed(KeyboardCode::T))
-        {
+        if (keyboardState.justPressed(KeyboardCode::T)) {
             GlobalRecordingState->isPlayingBack = true;
             auto onPlaybackEnd = []() -> void { GlobalRecordingState->isPlayingBack = false; };
             GlobalPlatformDll.DEBUG_beginPlayback(onPlaybackEnd);
         }
 #endif
 
-        if (keyboardState.isDown(KeyboardCode::ESC))
-        {
+        if (keyboardState.isDown(KeyboardCode::ESC)) {
             GlobalPlatformDll.shutdown();
         }
     }
 
-    SLURP_HANDLE_GAMEPAD_INPUT(handleGamepadInput)
-    {
-        for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++)
-        {
+    SLURP_HANDLE_GAMEPAD_INPUT(handleGamepadInput) {
+        for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
             GamepadState gamepadState = controllerStates[controllerIdx];
-            if (!gamepadState.isConnected)
-            {
+            if (!gamepadState.isConnected) {
                 continue;
             }
 
-            if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B))
-            {
+            if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B)) {
                 GlobalPlatformDll.shutdown();
             }
 
             if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
-                GamepadCode::RIGHT_SHOULDER))
-            {
+                    GamepadCode::RIGHT_SHOULDER)) {
                 GlobalGameState->player.entity.speed = SprintPlayerSpeed;
-            }
-            else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
-                GamepadCode::RIGHT_SHOULDER))
-            {
+            } else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
+                           GamepadCode::RIGHT_SHOULDER)) {
                 GlobalGameState->player.entity.speed = BasePlayerSpeed;
             }
 
@@ -377,23 +340,19 @@ namespace slurp
         }
     }
 
-    SLURP_LOAD_AUDIO(loadAudio)
-    {
+    SLURP_LOAD_AUDIO(loadAudio) {
     }
 
-    static const Entity& findClosest(const Vector2<int>& position, const Entity* entities, int numEntities)
-    {
+    static const Entity& findClosest(const Vector2<int>& position, const Entity* entities, int numEntities) {
         assert(numEntities > 0);
 
         int minIdx = 0;
         float minDistance = position.distanceTo(entities[0].position);
 
-        for (int i = 1; i < numEntities; i++)
-        {
+        for (int i = 1; i < numEntities; i++) {
             const Entity& entity = entities[i];
             float distance = position.distanceTo(entity.position);
-            if (distance < minDistance)
-            {
+            if (distance < minDistance) {
                 minIdx = i;
                 minDistance = distance;
             }
@@ -402,8 +361,7 @@ namespace slurp
         return entities[minIdx];
     }
 
-    SLURP_UPDATE_AND_RENDER(updateAndRender)
-    {
+    SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
         // Draw background
@@ -423,10 +381,8 @@ namespace slurp
             graphicsBuffer
         );
 
-        for (const Entity& projectile : GlobalGameState->projectiles)
-        {
-            if (projectile.enabled)
-            {
+        for (const Entity& projectile: GlobalGameState->projectiles) {
+            if (projectile.enabled) {
                 const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
                 render::drawLine(
                     graphicsBuffer,
@@ -448,12 +404,9 @@ namespace slurp
             GlobalGameState->colorPalette
         );
 #if DEBUG
-        if (GlobalRecordingState->isRecording)
-        {
+        if (GlobalRecordingState->isRecording) {
             render::drawBorder(graphicsBuffer, 10, 0x00FF0000);
-        }
-        else if (GlobalRecordingState->isPlayingBack)
-        {
+        } else if (GlobalRecordingState->isPlayingBack) {
             render::drawBorder(graphicsBuffer, 10, 0x0000FF00);
         }
 #endif

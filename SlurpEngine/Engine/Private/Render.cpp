@@ -7,7 +7,11 @@
 
 namespace render
 {
-    static const std::string AssetsDirectory = "../../../assets/"; // TODO: make this more robust
+#ifdef ASSETS_DIR
+    static const std::string AssetsDirectory = ASSETS_DIR;
+#else
+    static const std::string AssetsDirectory = "../../../assets/";
+#endif
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color)
     {
@@ -162,6 +166,7 @@ namespace render
 
         const std::string filePath = AssetsDirectory + paletteHexFileName;
         std::ifstream file(filePath);
+        assert(file.is_open());
 
         uint8_t colorPaletteIdx = 0;
         std::string line;

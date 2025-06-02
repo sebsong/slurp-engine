@@ -3,10 +3,11 @@
 SETLOCAL
 
 set source_dir=%engine_dir%\Private
+set assets_dir=%slurp_dir%\assets\
 
 set includes=-I %engine_dir%\Public\ -I %engine_dir%\Private\
 set warning_flags=-WX -W4 -wd4100 -wd4189 -wd4505
-set macros=-D PLATFORM_WINDOWS
+set macros=-D PLATFORM_WINDOWS -D ASSETS_DIR=\"%assets_dir:\=/%\"
 set compiler_flags=-nologo -FC -EHsc -Oi -std:c++20
 
 set debug_flags=-Od -Z7 -FmWinEngine.map -MDd
