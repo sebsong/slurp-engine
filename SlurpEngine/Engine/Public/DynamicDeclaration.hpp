@@ -13,5 +13,5 @@ typedef fnMacro(dyn_##fnName);                                    \
 fnMacro(stub_##fnName){ stubReturn }                              \
 fnPrefix fnMacro(fnName);
 #define SLURP_DECLARE_DYNAMIC_VOID(fnMacro, fnName) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, NO_ARG, NO_ARG)
-#define SLURP_DECLARE_DYNAMIC_RETURN(fnMacro, fnName, stubReturn) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, NO_ARG, return stubReturn##;)
+#define SLURP_DECLARE_DYNAMIC_RETURN(fnMacro, fnName, stubReturn) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, NO_ARG, return stubReturn;)
 #define SLURP_DECLARE_DYNAMIC_DLL_VOID(fnMacro, fnName) _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, extern "C" DLL_EXPORT, NO_ARG)

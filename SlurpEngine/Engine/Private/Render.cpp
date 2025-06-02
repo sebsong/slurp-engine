@@ -7,7 +7,7 @@
 
 namespace render
 {
-    static const std::string AssetsDirectory = "../assets/";
+    static const std::string AssetsDirectory = "../../../assets/"; // TODO: make this more robust
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color)
     {

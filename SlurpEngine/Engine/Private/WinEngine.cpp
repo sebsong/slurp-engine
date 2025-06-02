@@ -706,10 +706,10 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
         dllFilePath,
         GENERIC_READ,
         FILE_SHARE_READ,
-        NULL,
+        nullptr,
         OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL,
-        NULL
+        nullptr
     );
     static FILETIME previousWriteTime;
     FILETIME writeTime;
@@ -747,10 +747,10 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile)
         fileName,
         GENERIC_READ,
         FILE_SHARE_READ,
-        NULL,
+        nullptr,
         OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL,
-        NULL
+        nullptr
     );
 
     if (fileHandle == INVALID_HANDLE_VALUE)
@@ -801,10 +801,10 @@ PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile)
         fileName,
         GENERIC_WRITE,
         FILE_SHARE_DELETE,
-        NULL,
+        nullptr,
         CREATE_ALWAYS,
         FILE_ATTRIBUTE_NORMAL,
-        NULL
+        nullptr
     );
 
     if (fileHandle == INVALID_HANDLE_VALUE)
@@ -849,11 +849,11 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording)
     GlobalRecordingState.recordingFileHandle = CreateFileA(
         getLocalFilePath(RECORDING_FILE_NAME).c_str(),
         GENERIC_WRITE,
-        NULL,
-        NULL,
+        0,
+        nullptr,
         CREATE_ALWAYS,
         FILE_ATTRIBUTE_NORMAL,
-        NULL
+        nullptr
     );
     DWORD _;
     WriteFile(
@@ -965,10 +965,10 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback)
         getLocalFilePath(RECORDING_FILE_NAME).c_str(),
         GENERIC_READ,
         FILE_SHARE_READ,
-        NULL,
+        nullptr,
         OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL,
-        NULL
+        nullptr
     );
     DWORD _;
     ReadFile(
@@ -995,7 +995,7 @@ static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>
         nullptr
     );
     outStateMap.clear();
-    for (int i = 0; i < numStates; i++)
+    for (size_t i = 0; i < numStates; i++)
     {
         std::pair<const T, slurp::DigitalInputState> entry;
         ReadFile(
@@ -1185,7 +1185,7 @@ int WINAPI WinMain(
     DWORD playCursor = 0;
     DWORD writeCursor = 0;
     DWORD lockCursor = 0;
-    GlobalAudioBuffer.buffer->Play(NULL, NULL, DSBPLAY_LOOPING);
+    GlobalAudioBuffer.buffer->Play(0, 0, DSBPLAY_LOOPING);
 
     uint64_t startProcessorCycle = __rdtsc();
     LARGE_INTEGER startPerformanceCounter;
@@ -1230,7 +1230,7 @@ int WINAPI WinMain(
 #endif
 
         render::GraphicsBuffer graphicsBuffer = {
-            static_cast<render::Pixel* const>(GlobalGraphicsBuffer.memory),
+            static_cast<render::Pixel*>(GlobalGraphicsBuffer.memory),
             GlobalGraphicsBuffer.widthPixels,
             GlobalGraphicsBuffer.heightPixels
         };

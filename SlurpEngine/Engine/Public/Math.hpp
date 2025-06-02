@@ -1,8 +1,6 @@
 #pragma once
 #include <cstdint>
 
-#define INT_MAX 2147483647
-
 namespace math
 {
     inline uint8_t round(float num)
