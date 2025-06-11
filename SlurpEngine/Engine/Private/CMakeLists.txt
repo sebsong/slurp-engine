@@ -3,7 +3,7 @@ add_compile_definitions(PLATFORM_WINDOWS)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(DEBUG)
 endif ()
-add_compile_definitions(ASSETS_DIR="C:/Users/sebys/Workspace/slurp-engine/SlurpEngine/assets/")
+#add_compile_definitions(ASSETS_DIR="C:/Users/sebys/Workspace/slurp-engine/SlurpEngine/assets/")
 
 # COMPILER AND LINKER FLAGS
 set(libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib)
@@ -11,7 +11,7 @@ if (MSVC)
     set(compiler_flags -nologo -FC -EHsc -Oi -std:c++20)
     set(warning_flags -WX -W4 -wd4100 -wd4189 -wd4505)
     set(debug_flags -Od -Z7 -FmWinEngine.map -MDd)
-    set(release_flags -O2 -MD)
+    set(release_flags /O2 -MD)
 
     set(linker_flags -opt:ref)
 else ()
