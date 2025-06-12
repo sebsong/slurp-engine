@@ -16,21 +16,23 @@ namespace render {
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
     }
 
-    static void _clampToBufferBounds(const GraphicsBuffer& buffer, slurp::Vector2<int>& point) {
-        point.x = std::min(std::max(point.x, 0), buffer.widthPixels);
-        point.y = std::min(std::max(point.y, 0), buffer.heightPixels);
+    static slurp::Vector2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point) {
+        return {
+            std::min(std::max(point.x, 0), buffer.widthPixels),
+            std::min(std::max(point.y, 0), buffer.heightPixels)
+        };
     }
 
     static void _drawRect(
         const GraphicsBuffer& buffer,
-        slurp::Vector2<int> minPoint,
-        slurp::Vector2<int> maxPoint,
+        const slurp::Vector2<int>& minPoint,
+        const slurp::Vector2<int>& maxPoint,
         Pixel color
     ) {
-        _clampToBufferBounds(buffer, minPoint);
-        _clampToBufferBounds(buffer, maxPoint);
-        for (int y = minPoint.y; y < maxPoint.y; y++) {
-            for (int x = minPoint.x; x < maxPoint.x; x++) {
+        const slurp::Vector2<int> clampedMinPoint = _getClamped(buffer, minPoint);
+        const slurp::Vector2<int> clampedMaxPoint = _getClamped(buffer, maxPoint);
+        for (int y = clampedMinPoint.y; y < clampedMaxPoint.y; y++) {
+            for (int x = clampedMinPoint.x; x < clampedMaxPoint.x; x++) {
                 _drawAtPoint(buffer, {x, y}, color);
             }
         }
@@ -38,34 +40,34 @@ namespace render {
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int> minPoint,
-        const slurp::Vector2<int> maxPoint,
+        const slurp::Vector2<int>& minPoint,
+        const slurp::Vector2<int>& maxPoint,
         float r,
         float g,
         float b
     ) {
-        uint8_t red = math::round(r * 255);
-        uint8_t green = math::round(g * 255);
-        uint8_t blue = math::round(b * 255);
-        Pixel color = (red << 16) | (green << 8) | blue;
+        const uint8_t red = math::round(r * 255);
+        const uint8_t green = math::round(g * 255);
+        const uint8_t blue = math::round(b * 255);
+        const Pixel color = (red << 16) | (green << 8) | blue;
         _drawRect(buffer, minPoint, maxPoint, color);
     }
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int> minPoint,
-        const slurp::Vector2<int> maxPoint,
+        const slurp::Vector2<int>& minPoint,
+        const slurp::Vector2<int>& maxPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     ) {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        Pixel color = colorPalette.colors[colorPaletteIdx];
+        const Pixel color = colorPalette.colors[colorPaletteIdx];
         _drawRect(buffer, minPoint, maxPoint, color);
     }
 
     void drawSquare(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int> point,
+        const slurp::Vector2<int>& point,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
@@ -81,19 +83,19 @@ namespace render {
 
     void drawLine(
         const GraphicsBuffer& buffer,
-        slurp::Vector2<int> startPoint,
-        slurp::Vector2<int> endPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     ) {
-        _clampToBufferBounds(buffer, startPoint);
-        _clampToBufferBounds(buffer, endPoint);
+        const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
+        const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
 
-        slurp::Vector2<int> startToEnd = endPoint - startPoint;
-        slurp::Vector2<float> direction = static_cast<slurp::Vector2<float>>(startToEnd).normalize();
+        const slurp::Vector2<int> startToEnd = clampedEndPoint - startPoint;
+        const slurp::Vector2<float> direction = static_cast<slurp::Vector2<float>>(startToEnd).normalize();
 
-        slurp::Vector2<float> currentPoint = startPoint;
+        slurp::Vector2<float> currentPoint = clampedStartPoint;
         float distance = startToEnd.magnitude();
         while (distance > 0) {
             drawSquare(
@@ -120,7 +122,7 @@ namespace render {
         );
     }
 
-    void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color) {
+    void drawBorder(const GraphicsBuffer& buffer, uint8_t const borderThickness, const uint32_t color) {
         _drawRect(
             buffer,
             {0, 0},

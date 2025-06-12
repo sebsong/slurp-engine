@@ -26,8 +26,8 @@ namespace render {
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        slurp::Vector2<int> minPoint,
-        slurp::Vector2<int> maxPoint,
+        const slurp::Vector2<int>& minPoint,
+        const slurp::Vector2<int>& maxPoint,
         float r,
         float g,
         float b
@@ -36,15 +36,15 @@ namespace render {
     // TODO: maybe register/save graphics buffer and color palette so we don't need to pass it in every time?
     void drawRect(
         const GraphicsBuffer& buffer,
-        slurp::Vector2<int> minPoint,
-        slurp::Vector2<int> maxPoint,
+        const slurp::Vector2<int>& minPoint,
+        const slurp::Vector2<int>& maxPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     );
 
     void drawSquare(
         const GraphicsBuffer& buffer,
-        slurp::Vector2<int> point,
+        const slurp::Vector2<int>& point,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
@@ -52,8 +52,8 @@ namespace render {
 
     void drawLine(
         const GraphicsBuffer& buffer,
-        slurp::Vector2<int> startPoint,
-        slurp::Vector2<int> endPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         int size,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette

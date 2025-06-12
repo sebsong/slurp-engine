@@ -16,7 +16,7 @@ namespace slurp {
 
     void UpdateRenderPipeline::process(
         const Tilemap& tilemap,
-        float dt,
+        const float dt,
         const render::GraphicsBuffer& buffer
     ) {
         for (Entity* entity: _pipeline) {

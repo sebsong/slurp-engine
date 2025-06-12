@@ -4,10 +4,10 @@
 
 namespace update {
     static int getAxisPositionUpdate(
-        int currentAxisPosition,
-        int targetAxisPositionUpdate,
-        render::ColorPaletteIdx targetTilemapValue,
-        uint8_t tileSize
+        const int currentAxisPosition,
+        const int targetAxisPositionUpdate,
+        const render::ColorPaletteIdx targetTilemapValue,
+        const uint8_t tileSize
     ) {
         if (targetTilemapValue == EMPTY_COLOR_PALETTE_IDX) // TODO: probably have a collision map
         {
@@ -31,12 +31,14 @@ namespace update {
         return 0;
     }
 
-    static slurp::Vector2<int> getPositionUpdate(slurp::Vector2<int> currentPosition,
-                                                 slurp::Vector2<int> targetPositionUpdate,
-                                                 slurp::Tilemap tilemap) {
-        slurp::Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
-        slurp::Vector2<int> targetPosition = currentPosition + targetPositionUpdate;
-        slurp::Vector2<int> targetTilemapPosition = targetPosition / tilemap.tileSize;
+    static slurp::Vector2<int> getPositionUpdate(
+        const slurp::Vector2<int>& currentPosition,
+        const slurp::Vector2<int>& targetPositionUpdate,
+        const slurp::Tilemap& tilemap
+    ) {
+        const slurp::Vector2<int> currentTilemapPosition = currentPosition / tilemap.tileSize;
+        const slurp::Vector2<int> targetPosition = currentPosition + targetPositionUpdate;
+        const slurp::Vector2<int> targetTilemapPosition = targetPosition / tilemap.tileSize;
         if (
             targetTilemapPosition.x >= 0 && targetTilemapPosition.x < TILEMAP_WIDTH &&
             targetTilemapPosition.y >= 0 && targetTilemapPosition.y < TILEMAP_HEIGHT
