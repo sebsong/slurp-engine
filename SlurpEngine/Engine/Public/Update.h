@@ -8,5 +8,10 @@ namespace slurp {
 }
 
 namespace update {
+    struct CollisionSquare {
+        int radius;
+    };
+
     void updatePosition(slurp::Entity& entity, const slurp::Tilemap& tilemap, float dt);
+    void updatePosition(slurp::Entity& entity, const std::iterator_traits<slurp::Entity&>& allEntities, float dt);
 }
