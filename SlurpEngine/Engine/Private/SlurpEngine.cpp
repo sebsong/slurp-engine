@@ -129,6 +129,8 @@ namespace slurp {
         for (Vector2<int>& collisionPoint: entity.relativeCollisionPoints) {
             collisionPoint -= entity.positionOffset;
         }
+
+        entity.collisionSquare.radius = sizeCoord;
     }
 
     static void setRandomDirection(Entity& entity) {

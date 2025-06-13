@@ -85,4 +85,37 @@ namespace update {
         }
         entity.position += positionUpdate;
     }
+
+    static CollisionSquare getMinkowskiSum(const CollisionSquare& a, const CollisionSquare& b) {
+        return CollisionSquare{ a.radius + b.radius };
+    }
+
+    static bool inRange(int n, int min, int max) {
+        return min <= n && n <= max;
+    }
+
+    template <typename EntityCollection>
+    void updatePosition(slurp::Entity& entity, const EntityCollection& allEntities, float dt) {
+        slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
+        // slurp::Vector2<int> positionUpdate = targetPositionUpdate;
+
+        for (const slurp::Entity* otherEntity : allEntities) {
+            if (*otherEntity == entity) {
+                continue;
+            }
+
+            CollisionSquare minkowskiSum = getMinkowskiSum(entity.collisionSquare, otherEntity->collisionSquare);
+            int minkowskiMinX = otherEntity->position.x - minkowskiSum.radius;
+            int minkowskiMaxX = otherEntity->position.x + minkowskiSum.radius;
+            int minkowskiMinY = otherEntity->position.y - minkowskiSum.radius;
+            int minkowskiMaxY = otherEntity->position.y + minkowskiSum.radius;
+            if (
+                inRange(targetPositionUpdate.x, minkowskiMinX, minkowskiMaxX) &&
+                inRange(targetPositionUpdate.y, minkowskiMinY, minkowskiMaxY)
+            ) {
+                return;
+            }
+        }
+        entity.position += targetPositionUpdate;
+    }
 }
