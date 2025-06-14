@@ -94,13 +94,16 @@ namespace update {
         return min <= n && n <= max;
     }
 
-    template <typename EntityCollection>
+    template <typename EntityCollection> // TODO: constrain this type
     void updatePosition(slurp::Entity& entity, const EntityCollection& allEntities, float dt) {
         slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
+        if (!entity.collisionEnabled) {
+            entity.position += targetPositionUpdate;
+        }
         // slurp::Vector2<int> positionUpdate = targetPositionUpdate;
 
         for (const slurp::Entity* otherEntity : allEntities) {
-            if (*otherEntity == entity) {
+            if (!otherEntity->collisionEnabled || *otherEntity == entity) {
                 continue;
             }
 
@@ -116,6 +119,6 @@ namespace update {
                 return;
             }
         }
-        entity.position += targetPositionUpdate;
+       entity.position += targetPositionUpdate;
     }
 }

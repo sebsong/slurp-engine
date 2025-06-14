@@ -11,7 +11,7 @@
 
 #define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
-#define PROJECTILE_POOL_SIZE 1000
+#define PROJECTILE_POOL_SIZE 1
 
 namespace slurp {
     struct Player {

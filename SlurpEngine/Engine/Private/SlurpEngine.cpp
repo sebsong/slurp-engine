@@ -131,6 +131,7 @@ namespace slurp {
         }
 
         entity.collisionSquare.radius = sizeCoord;
+        entity.collisionEnabled = true;
     }
 
     static void setRandomDirection(Entity& entity) {

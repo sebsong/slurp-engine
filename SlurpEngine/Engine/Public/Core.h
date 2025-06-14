@@ -16,6 +16,7 @@ namespace slurp {
         Vector2<int> relativeCollisionPoints[4];
         update::CollisionSquare collisionSquare;
         bool enabled;
+        bool collisionEnabled;
         bool shouldDestroy;
 
         // TODO: should probably just have a unique entity id to compare
