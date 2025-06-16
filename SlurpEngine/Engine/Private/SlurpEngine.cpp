@@ -130,7 +130,7 @@ namespace slurp {
             collisionPoint -= entity.positionOffset;
         }
 
-        entity.collisionSquare.radius = sizeCoord;
+        entity.collisionSquare.radius = entity.size / 2;
         entity.collisionEnabled = true;
     }
 
@@ -196,19 +196,19 @@ namespace slurp {
             enemy.color = EnemyColorPalletIdx;
             enemy.positionOffset = Vector2<int>::Unit * enemy.size / 2;
             setSquareCollisionPoints(enemy);
-            startUpdateEnemyDirection(enemy);
+            // startUpdateEnemyDirection(enemy);
             GlobalUpdateRenderPipeline->push(enemy);
         }
 
-        for (Entity& projectile: GlobalGameState->projectiles) {
-            projectile.enabled = false;
-            projectile.size = ProjectileSizePixels;
-            projectile.positionOffset = {.5, .5};
-            projectile.color = ProjectileColorPalletIdx;
-            projectile.speed = BaseProjectileSpeed;
-            setSquareCollisionPoints(projectile);
-            GlobalUpdateRenderPipeline->push(projectile);
-        }
+        // for (Entity& projectile: GlobalGameState->projectiles) {
+        //     projectile.enabled = false;
+        //     projectile.size = ProjectileSizePixels;
+        //     projectile.positionOffset = {.5, .5};
+        //     projectile.color = ProjectileColorPalletIdx;
+        //     projectile.speed = BaseProjectileSpeed;
+        //     setSquareCollisionPoints(projectile);
+        //     GlobalUpdateRenderPipeline->push(projectile);
+        // }
 
         if (!GlobalGameState->isInitialized) {
             // NOTE: anything that shouldn't be hot reloaded goes here
@@ -217,9 +217,9 @@ namespace slurp {
                 Entity& enemy = GlobalGameState->enemies[i];
                 enemy.position = EnemyStartPos + (EnemyPosOffset * i);
             }
-            for (Entity& projectile: GlobalGameState->projectiles) {
-                projectile.enabled = false;
-            }
+            // for (Entity& projectile: GlobalGameState->projectiles) {
+            //     projectile.enabled = false;
+            // }
             GlobalGameState->isInitialized = true;
         }
 
@@ -244,18 +244,18 @@ namespace slurp {
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
         GlobalGameState->mouseCursor.position = mouseState.position;
 
-        if (mouseState.justPressed(MouseCode::LeftClick)) {
-            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
-            projectile.enabled = true;
-            projectile.position = GlobalGameState->player.entity.position;
-            projectile.direction =
-                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity.position).
-                    normalize();
-            GlobalGameState->projectileIdx++;
-            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) {
-                GlobalGameState->projectileIdx = 0;
-            }
-        }
+        // if (mouseState.justPressed(MouseCode::LeftClick)) {
+        //     Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+        //     projectile.enabled = true;
+        //     projectile.position = GlobalGameState->player.entity.position;
+        //     projectile.direction =
+        //             static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity.position).
+        //             normalize();
+        //     GlobalGameState->projectileIdx++;
+        //     if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) {
+        //         GlobalGameState->projectileIdx = 0;
+        //     }
+        // }
 
         if (mouseState.justPressed(MouseCode::RightClick)) {
             activateParry(GlobalGameState->player);
@@ -383,19 +383,19 @@ namespace slurp {
             graphicsBuffer
         );
 
-        for (const Entity& projectile: GlobalGameState->projectiles) {
-            if (projectile.enabled) {
-                const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
-                render::drawLine(
-                    graphicsBuffer,
-                    projectile.position,
-                    closestEnemy.position,
-                    2,
-                    0,
-                    GlobalGameState->colorPalette
-                );
-            }
-        }
+        // for (const Entity& projectile: GlobalGameState->projectiles) {
+        //     if (projectile.enabled) {
+        //         const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
+        //         render::drawLine(
+        //             graphicsBuffer,
+        //             projectile.position,
+        //             closestEnemy.position,
+        //             2,
+        //             0,
+        //             GlobalGameState->colorPalette
+        //         );
+        //     }
+        // }
 
         render::drawLine(
             graphicsBuffer,
@@ -405,11 +405,50 @@ namespace slurp {
             5,
             GlobalGameState->colorPalette
         );
+
+        render::drawSquare(
+            graphicsBuffer,
+            GlobalGameState->player.entity.position,
+            2,
+            0,
+            GlobalGameState->colorPalette
+        );
+        render::drawSquare(
+            graphicsBuffer,
+            GlobalGameState->enemies[0].position,
+            2,
+            0,
+            GlobalGameState->colorPalette
+        );
+
+        // int minkowskiRadius = GlobalGameState->player.entity.collisionSquare.radius + GlobalGameState->enemies[0].
+        //                       collisionSquare.radius;
+        // Vector2<int> startPoint = GlobalGameState->enemies[0].position - Vector2<int>::Unit * minkowskiRadius;
+        // Vector2<int> endPoint = GlobalGameState->enemies[0].position + Vector2<int>::Unit * minkowskiRadius;
+        // render::drawBorder(
+        //     graphicsBuffer,
+        //     startPoint,
+        //     endPoint,
+        //     3,
+        //     0x0000FF00
+        // );
 #if DEBUG
         if (GlobalRecordingState->isRecording) {
-            render::drawBorder(graphicsBuffer, 10, 0x00FF0000);
+            render::drawBorder(
+                graphicsBuffer,
+                {0, 0},
+                {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
+                10,
+                0x00FF0000
+            );
         } else if (GlobalRecordingState->isPlayingBack) {
-            render::drawBorder(graphicsBuffer, 10, 0x0000FF00);
+            render::drawBorder(
+                graphicsBuffer,
+                {0, 0},
+                {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
+                10,
+                0x0000FF00
+            );
         }
 #endif
     }

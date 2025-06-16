@@ -1,4 +1,7 @@
 #include "Update.h"
+
+#include <iostream>
+
 #include "Core.h"
 #include "Render.h"
 
@@ -87,22 +90,22 @@ namespace update {
     }
 
     static CollisionSquare getMinkowskiSum(const CollisionSquare& a, const CollisionSquare& b) {
-        return CollisionSquare{ a.radius + b.radius };
+        return CollisionSquare{a.radius + b.radius};
     }
 
     static bool inRange(int n, int min, int max) {
         return min <= n && n <= max;
     }
 
-    template <typename EntityCollection> // TODO: constrain this type
+    template<typename EntityCollection> // TODO: constrain this type
     void updatePosition(slurp::Entity& entity, const EntityCollection& allEntities, float dt) {
         slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
+        slurp::Vector2<int> targetPosition = entity.position + targetPositionUpdate;
         if (!entity.collisionEnabled) {
             entity.position += targetPositionUpdate;
         }
-        // slurp::Vector2<int> positionUpdate = targetPositionUpdate;
-
-        for (const slurp::Entity* otherEntity : allEntities) {
+        slurp::Vector2<int> positionUpdate = targetPositionUpdate;
+        for (const slurp::Entity* otherEntity: allEntities) {
             if (!otherEntity->collisionEnabled || *otherEntity == entity) {
                 continue;
             }
@@ -113,12 +116,35 @@ namespace update {
             int minkowskiMinY = otherEntity->position.y - minkowskiSum.radius;
             int minkowskiMaxY = otherEntity->position.y + minkowskiSum.radius;
             if (
-                inRange(targetPositionUpdate.x, minkowskiMinX, minkowskiMaxX) &&
-                inRange(targetPositionUpdate.y, minkowskiMinY, minkowskiMaxY)
+                inRange(targetPosition.x, minkowskiMinX, minkowskiMaxX) &&
+                inRange(targetPosition.y, minkowskiMinY, minkowskiMaxY)
             ) {
+                if (inRange(entity.position.y, minkowskiMinY, minkowskiMaxY)) {
+                    int xAxisPositionUpdate = positionUpdate.x;
+                    if (entity.position.x < otherEntity->position.x) {
+                        xAxisPositionUpdate = minkowskiMinX - entity.position.x;
+                    } else {
+                        xAxisPositionUpdate = minkowskiMaxX - entity.position.x;
+                    }
+                    if (std::abs(xAxisPositionUpdate) < std::abs(positionUpdate.x)) {
+                        positionUpdate.x = xAxisPositionUpdate;
+                    }
+                }
+                if (inRange(entity.position.x, minkowskiMinX, minkowskiMaxX)) {
+                    int yAxisPositionUpdate = positionUpdate.y;
+                    if (entity.position.y < otherEntity->position.y) {
+                        yAxisPositionUpdate = minkowskiMinY - entity.position.y;
+                    } else {
+                        yAxisPositionUpdate = minkowskiMaxY - entity.position.y;
+                    }
+                    if (std::abs(yAxisPositionUpdate) < std::abs(positionUpdate.y)) {
+                        positionUpdate.y = yAxisPositionUpdate;
+                    }
+                }
+                entity.position += positionUpdate;
                 return;
             }
         }
-       entity.position += targetPositionUpdate;
+        entity.position += targetPositionUpdate;
     }
 }

@@ -61,7 +61,13 @@ namespace render {
 
     void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette);
 
-    void drawBorder(const GraphicsBuffer& buffer, uint8_t borderThickness, uint32_t color);
+    void drawBorder(
+        const GraphicsBuffer& buffer,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
+        uint8_t borderThickness,
+        uint32_t color
+    );
 
     ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName);
 }

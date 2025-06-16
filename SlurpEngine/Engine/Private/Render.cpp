@@ -65,6 +65,20 @@ namespace render {
         _drawRect(buffer, minPoint, maxPoint, color);
     }
 
+    static void _drawSquare(
+        const GraphicsBuffer& buffer,
+        const slurp::Vector2<int>& point,
+        int size,
+        Pixel color
+    ) {
+        _drawRect(
+            buffer,
+            point,
+            {point.x + size, point.y + size},
+            color
+        );
+    }
+
     void drawSquare(
         const GraphicsBuffer& buffer,
         const slurp::Vector2<int>& point,
@@ -81,13 +95,12 @@ namespace render {
         );
     }
 
-    void drawLine(
+    static void _drawLine(
         const GraphicsBuffer& buffer,
         const slurp::Vector2<int>& startPoint,
         const slurp::Vector2<int>& endPoint,
         int size,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
+        Pixel color
     ) {
         const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
         const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
@@ -98,16 +111,34 @@ namespace render {
         slurp::Vector2<float> currentPoint = clampedStartPoint;
         float distance = startToEnd.magnitude();
         while (distance > 0) {
-            drawSquare(
+            _drawSquare(
                 buffer,
                 currentPoint,
                 size,
-                colorPaletteIdx,
-                colorPalette
+                color
             );
             currentPoint += direction;
             distance--;
         }
+    }
+
+    void drawLine(
+        const GraphicsBuffer& buffer,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
+        int size,
+        ColorPaletteIdx colorPaletteIdx,
+        const ColorPalette& colorPalette
+    ) {
+        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
+        const Pixel color = colorPalette.colors[colorPaletteIdx];
+        _drawLine(
+            buffer,
+            startPoint,
+            endPoint,
+            size,
+            color
+        );
     }
 
     void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette) {
@@ -122,29 +153,39 @@ namespace render {
         );
     }
 
-    void drawBorder(const GraphicsBuffer& buffer, uint8_t const borderThickness, const uint32_t color) {
-        _drawRect(
+    void drawBorder(
+        const GraphicsBuffer& buffer,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
+        const uint8_t borderThickness,
+        const Pixel color
+    ) {
+        _drawLine(
             buffer,
-            {0, 0},
-            {buffer.widthPixels, borderThickness},
+            startPoint,
+            {endPoint.x, startPoint.y},
+            borderThickness,
             color
         );
-        _drawRect(
+        _drawLine(
             buffer,
-            {0, 0},
-            {borderThickness, buffer.heightPixels},
+            {endPoint.x, startPoint.y},
+            endPoint,
+            borderThickness,
             color
         );
-        _drawRect(
+        _drawLine(
             buffer,
-            {buffer.widthPixels - borderThickness, 0},
-            {buffer.widthPixels, buffer.heightPixels},
+            endPoint,
+            {startPoint.x, endPoint.y},
+            borderThickness,
             color
         );
-        _drawRect(
+        _drawLine(
             buffer,
-            {0, buffer.heightPixels - borderThickness},
-            {buffer.widthPixels, buffer.heightPixels},
+            {startPoint.x, endPoint.y},
+            startPoint,
+            borderThickness,
             color
         );
     }

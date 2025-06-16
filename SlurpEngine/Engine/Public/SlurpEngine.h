@@ -10,7 +10,7 @@
 #include "UpdateRenderPipeline.h"
 
 #define MAX_NUM_CONTROLLERS 4
-#define NUM_ENEMIES 4
+#define NUM_ENEMIES 1
 #define PROJECTILE_POOL_SIZE 1
 
 namespace slurp {
@@ -26,8 +26,8 @@ namespace slurp {
         render::ColorPalette colorPalette;
         Player player;
         Entity enemies[NUM_ENEMIES];
-        uint32_t projectileIdx;
-        Entity projectiles[PROJECTILE_POOL_SIZE];
+        // uint32_t projectileIdx;
+        // Entity projectiles[PROJECTILE_POOL_SIZE];
         Entity mouseCursor;
     };
 
