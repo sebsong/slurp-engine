@@ -7,6 +7,7 @@
 
 namespace slurp {
     struct Entity {
+        std::string name;
         bool enabled;
         bool isStatic;
         bool collisionEnabled;

@@ -10,8 +10,8 @@
 #include "UpdateRenderPipeline.h"
 
 #define MAX_NUM_CONTROLLERS 4
-#define NUM_ENEMIES 1
-#define PROJECTILE_POOL_SIZE 1
+#define NUM_ENEMIES 4
+#define PROJECTILE_POOL_SIZE 1000
 
 namespace slurp {
     struct Player {
@@ -21,14 +21,16 @@ namespace slurp {
 
     struct GameState {
         uint32_t randomSeed;
-        Tilemap tilemap;
+        // Tilemap tilemap;
         bool isInitialized;
         render::ColorPalette colorPalette;
+
+        Entity obstacle1;
+        Entity mouseCursor;
         Player player;
         Entity enemies[NUM_ENEMIES];
-        // uint32_t projectileIdx;
-        // Entity projectiles[PROJECTILE_POOL_SIZE];
-        Entity mouseCursor;
+        uint32_t projectileIdx;
+        Entity projectiles[PROJECTILE_POOL_SIZE];
     };
 
     struct MemorySections {
