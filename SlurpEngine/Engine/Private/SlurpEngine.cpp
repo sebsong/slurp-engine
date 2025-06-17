@@ -170,6 +170,7 @@ namespace slurp {
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
         // TODO: make walls
+        // TODO: have a method for creating entities and registering them with an id
 
         new (&GlobalGameState->obstacle1) Entity();
         Entity& obstacle1 = GlobalGameState->obstacle1;
