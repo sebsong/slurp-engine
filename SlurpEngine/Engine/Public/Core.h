@@ -3,8 +3,15 @@
 #include "Vector.h"
 #include <array>
 
+#include "Collision.h"
+
 namespace slurp {
     struct Entity {
+        std::string name;
+        bool enabled;
+        bool isStatic;
+        bool collisionEnabled;
+        bool shouldDestroy;
         int size;
         render::ColorPaletteIdx color;
         float speed;
@@ -12,8 +19,13 @@ namespace slurp {
         Vector2<float> positionOffset;
         Vector2<float> direction;
         Vector2<int> relativeCollisionPoints[4];
-        bool enabled;
-        bool shouldDestroy;
+        collision::CollisionSquare collisionSquare;
+
+        // TODO: should probably just have a unique entity id to compare
+        bool operator==(const Entity& other) const {
+            return position == other.position;
+        }
+
     };
 
     struct Tilemap {

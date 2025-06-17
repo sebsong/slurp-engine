@@ -21,14 +21,16 @@ namespace slurp {
 
     struct GameState {
         uint32_t randomSeed;
-        Tilemap tilemap;
+        // Tilemap tilemap;
         bool isInitialized;
         render::ColorPalette colorPalette;
+
+        Entity obstacle1;
+        Entity mouseCursor;
         Player player;
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         Entity projectiles[PROJECTILE_POOL_SIZE];
-        Entity mouseCursor;
     };
 
     struct MemorySections {
