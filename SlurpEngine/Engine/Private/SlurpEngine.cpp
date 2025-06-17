@@ -4,6 +4,7 @@
 
 // Single translation unit, unity build
 #include "Update.cpp"
+#include "Collision.cpp"
 #include "Render.cpp"
 #include "UpdateRenderPipeline.cpp"
 #include "Timer.cpp"

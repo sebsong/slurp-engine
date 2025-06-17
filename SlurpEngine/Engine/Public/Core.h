@@ -3,10 +3,14 @@
 #include "Vector.h"
 #include <array>
 
-#include "Update.h"
+#include "Collision.h"
 
 namespace slurp {
     struct Entity {
+        bool enabled;
+        bool isStatic;
+        bool collisionEnabled;
+        bool shouldDestroy;
         int size;
         render::ColorPaletteIdx color;
         float speed;
@@ -14,10 +18,7 @@ namespace slurp {
         Vector2<float> positionOffset;
         Vector2<float> direction;
         Vector2<int> relativeCollisionPoints[4];
-        update::CollisionSquare collisionSquare;
-        bool enabled;
-        bool collisionEnabled;
-        bool shouldDestroy;
+        collision::CollisionSquare collisionSquare;
 
         // TODO: should probably just have a unique entity id to compare
         bool operator==(const Entity& other) const {

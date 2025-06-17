@@ -1,9 +1,9 @@
 #include "Update.h"
 
-#include <iostream>
-
 #include "Core.h"
+#include "Math.h"
 #include "Render.h"
+#include "Collision.h"
 
 namespace update {
     static int getAxisPositionUpdate(
@@ -89,14 +89,6 @@ namespace update {
         entity.position += positionUpdate;
     }
 
-    static CollisionSquare getMinkowskiSum(const CollisionSquare& a, const CollisionSquare& b) {
-        return CollisionSquare{a.radius + b.radius};
-    }
-
-    static bool inRange(int n, int min, int max) {
-        return min <= n && n <= max;
-    }
-
     template<typename EntityCollection> // TODO: constrain this type
     void updatePosition(slurp::Entity& entity, const EntityCollection& allEntities, float dt) {
         slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
@@ -110,16 +102,16 @@ namespace update {
                 continue;
             }
 
-            CollisionSquare minkowskiSum = getMinkowskiSum(entity.collisionSquare, otherEntity->collisionSquare);
+            collision::CollisionSquare minkowskiSum = collision::getMinkowskiSum(entity.collisionSquare, otherEntity->collisionSquare);
             int minkowskiMinX = otherEntity->position.x - minkowskiSum.radius;
             int minkowskiMaxX = otherEntity->position.x + minkowskiSum.radius;
             int minkowskiMinY = otherEntity->position.y - minkowskiSum.radius;
             int minkowskiMaxY = otherEntity->position.y + minkowskiSum.radius;
             if (
-                inRange(targetPosition.x, minkowskiMinX, minkowskiMaxX) &&
-                inRange(targetPosition.y, minkowskiMinY, minkowskiMaxY)
+                math::inRange(targetPosition.x, minkowskiMinX, minkowskiMaxX) &&
+                math::inRange(targetPosition.y, minkowskiMinY, minkowskiMaxY)
             ) {
-                if (inRange(entity.position.y, minkowskiMinY, minkowskiMaxY)) {
+                if (math::inRange(entity.position.y, minkowskiMinY, minkowskiMaxY)) {
                     int xAxisPositionUpdate = positionUpdate.x;
                     if (entity.position.x < otherEntity->position.x) {
                         xAxisPositionUpdate = minkowskiMinX - entity.position.x;
@@ -130,7 +122,7 @@ namespace update {
                         positionUpdate.x = xAxisPositionUpdate;
                     }
                 }
-                if (inRange(entity.position.x, minkowskiMinX, minkowskiMaxX)) {
+                if (math::inRange(entity.position.x, minkowskiMinX, minkowskiMaxX)) {
                     int yAxisPositionUpdate = positionUpdate.y;
                     if (entity.position.y < otherEntity->position.y) {
                         yAxisPositionUpdate = minkowskiMinY - entity.position.y;

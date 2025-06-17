@@ -22,8 +22,9 @@ namespace slurp {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
-                // update::updatePosition(*entity, tilemap, dt);
-                update::updatePosition(*entity, _pipeline, dt);
+                if (!entity->isStatic) {
+                    update::updatePosition(*entity, _pipeline, dt);
+                }
                 render::drawEntity(buffer, *entity, _colorPalette);
             }
         }

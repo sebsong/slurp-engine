@@ -102,13 +102,15 @@ namespace render {
         int size,
         Pixel color
     ) {
-        const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
-        const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
+        const float radius = static_cast<float>(size) / 2;
+        const slurp::Vector2<int> sizeOffset = slurp::Vector2<int>::Unit * -math::getHypotenuse(radius, radius / 2);
+        const slurp::Vector2<int> offsetStartPoint = startPoint + sizeOffset;
+        const slurp::Vector2<int> offsetEndPoint = endPoint + sizeOffset;
 
-        const slurp::Vector2<int> startToEnd = clampedEndPoint - startPoint;
+        const slurp::Vector2<int> startToEnd = offsetEndPoint - offsetStartPoint;
         const slurp::Vector2<float> direction = static_cast<slurp::Vector2<float>>(startToEnd).normalize();
 
-        slurp::Vector2<float> currentPoint = clampedStartPoint;
+        slurp::Vector2<float> currentPoint = offsetStartPoint;
         float distance = startToEnd.magnitude();
         while (distance > 0) {
             _drawSquare(
