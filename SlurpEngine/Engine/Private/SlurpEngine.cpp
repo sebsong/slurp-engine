@@ -172,68 +172,62 @@ namespace slurp {
         // TODO: make walls
         // TODO: have a method for creating entities and registering them with an id
 
-        new (&GlobalGameState->obstacle1) Entity();
-        Entity& obstacle1 = GlobalGameState->obstacle1;
-        obstacle1.name = "Obstacle1";
-        obstacle1.enabled = true;
-        obstacle1.collisionEnabled = true;
-        obstacle1.isStatic = true;
-        obstacle1.size = 150;
-        obstacle1.color = 5;
-        obstacle1.position = {200, 500};
-        obstacle1.renderOffset = Vector2<int>::Unit * obstacle1.size / 2;
-        setSquareCollisionPoints(obstacle1);
-        GlobalUpdateRenderPipeline->push(obstacle1);
+        GlobalGameState->obstacle1 = &GlobalUpdateRenderPipeline->createEntity(
+            "Obstacle1",
+            150,
+            {200, 500},
+            5,
+            true
+        );
+        GlobalGameState->obstacle1->enableCollision(true);
 
         // GlobalGameState->tilemap.map = BaseTileMap;
         // GlobalGameState->tilemap.tileSize = BaseTileSize;
 
-        Entity& mouseCursor = GlobalGameState->mouseCursor;
-        mouseCursor.name = "MouseCursor";
-        mouseCursor.enabled = true;
-        mouseCursor.size = MouseCursorSizePixels;
-        mouseCursor.color = MouseCursorColorPalletIdx;
-        mouseCursor.renderOffset = Vector2<int>::Unit * mouseCursor.size / 2;
-        GlobalUpdateRenderPipeline->push(mouseCursor);
+        GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
+            "MouseCursor",
+            MouseCursorSizePixels,
+            {},
+            MouseCursorColorPalletIdx,
+            true
+        );
 
-        Entity& playerEntity = GlobalGameState->player.entity;
-        playerEntity.name = "Player";
-        playerEntity.enabled = true;
-        playerEntity.size = BasePlayerSizePixels;
-        playerEntity.color = PlayerColorPalletIdx;
-        playerEntity.speed = BasePlayerSpeed;
-        playerEntity.position = PlayerStartPos;
-        playerEntity.renderOffset = Vector2<int>::Unit * playerEntity.size /
-                                      2;
-        setSquareCollisionPoints(playerEntity);
-        GlobalUpdateRenderPipeline->push(playerEntity);
+        GlobalGameState->player.entity = &GlobalUpdateRenderPipeline->createEntity(
+            "Player",
+            BasePlayerSizePixels,
+            PlayerStartPos,
+            PlayerColorPalletIdx,
+            true
+        );
+        GlobalGameState->player.entity->speed = BasePlayerSpeed;
+        GlobalGameState->player.entity->enableCollision(false);
 
         for (int i = 0; i < NUM_ENEMIES; i++) {
-            Entity& enemy = GlobalGameState->enemies[i];
-            new (&enemy) Entity();
-            enemy.name = "enemy" + std::to_string(i);
-            enemy.enabled = true;
-            enemy.size = BaseEnemySizePixels;
+            Entity* enemy = GlobalGameState->enemies[i];
+            enemy = GlobalUpdateRenderPipeline->createEntity(
+                "Enemy" + std::to_string(i),
+                BaseEnemySizePixels,
+                EnemyStartPos + (EnemyPosOffset * i),
+                EnemyColorPalletIdx,
+                true
+            );
             enemy.speed = BaseEnemySpeed;
-            enemy.position = EnemyStartPos + (EnemyPosOffset * i);
-            enemy.color = EnemyColorPalletIdx;
-            enemy.renderOffset = Vector2<int>::Unit * enemy.size / 2;
-            setSquareCollisionPoints(enemy);
+            enemy.enableCollision(false);
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
-            GlobalUpdateRenderPipeline->push(enemy);
         }
 
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             Entity& projectile = GlobalGameState->projectiles[i];
-            new (&projectile) Entity();
-            projectile.name = "projectile" + std::to_string(i);
+            projectile = GlobalUpdateRenderPipeline->createEntity(
+                "Projectile" + std::to_string(i),
+                ProjectileSizePixels,
+                {},
+                ProjectileColorPalletIdx,
+                true
+            );
             projectile.enabled = false;
-            projectile.size = ProjectileSizePixels;
-            projectile.renderOffset = Vector2<int>::Unit * projectile.size / 2;
-            projectile.color = ProjectileColorPalletIdx;
             projectile.speed = BaseProjectileSpeed;
-            setSquareCollisionPoints(projectile);
-            GlobalUpdateRenderPipeline->push(projectile);
+            projectile.enableCollision(false);
         }
 
         if (!GlobalGameState->isInitialized) {
