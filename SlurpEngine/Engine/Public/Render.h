@@ -5,6 +5,7 @@
 #define COLOR_PALETTE_SIZE 8
 #define TILEMAP_WIDTH 32
 #define TILEMAP_HEIGHT 18
+#define DEBUG_DRAW_COLOR 0x0000FF00
 
 namespace slurp {
     struct Entity;
@@ -61,7 +62,7 @@ namespace render {
 
     void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette);
 
-    void drawBorder(
+    void drawRectBorder(
         const GraphicsBuffer& buffer,
         const slurp::Vector2<int>& startPoint,
         const slurp::Vector2<int>& endPoint,

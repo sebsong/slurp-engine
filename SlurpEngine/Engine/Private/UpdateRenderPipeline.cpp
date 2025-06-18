@@ -23,6 +23,18 @@ namespace slurp {
                     update::updatePosition(*entity, _pipeline, dt);
                 }
                 render::drawEntity(buffer, *entity, _colorPalette);
+#if DEBUG
+                if (entity->drawDebugCollisionShape) {
+                    const Vector2<int>& collisionOffset = Vector2<int>::Unit * entity->collisionSquare.radius;
+                    render::drawRectBorder(
+                        buffer,
+                        entity->position - collisionOffset,
+                        entity->position + collisionOffset,
+                        1,
+                        DEBUG_DRAW_COLOR
+                    );
+                }
+#endif
             }
         }
     }

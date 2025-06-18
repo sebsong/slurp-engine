@@ -145,7 +145,7 @@ namespace render {
 
     void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette) {
         // NOTE: Sizes that are even will have an off-center position
-        slurp::Vector2<int> point = entity.position - entity.positionOffset;
+        slurp::Vector2<int> point = entity.position - entity.renderOffset;
         drawSquare(
             buffer,
             point,
@@ -155,7 +155,7 @@ namespace render {
         );
     }
 
-    void drawBorder(
+    void drawRectBorder(
         const GraphicsBuffer& buffer,
         const slurp::Vector2<int>& startPoint,
         const slurp::Vector2<int>& endPoint,

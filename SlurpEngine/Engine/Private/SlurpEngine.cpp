@@ -128,7 +128,7 @@ namespace slurp {
         entity.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
 
         for (Vector2<int>& collisionPoint: entity.relativeCollisionPoints) {
-            collisionPoint -= entity.positionOffset;
+            collisionPoint -= entity.renderOffset;
         }
 
         entity.collisionSquare.radius = entity.size / 2;
@@ -181,7 +181,7 @@ namespace slurp {
         obstacle1.size = 150;
         obstacle1.color = 5;
         obstacle1.position = {200, 500};
-        obstacle1.positionOffset = Vector2<int>::Unit * obstacle1.size / 2;
+        obstacle1.renderOffset = Vector2<int>::Unit * obstacle1.size / 2;
         setSquareCollisionPoints(obstacle1);
         GlobalUpdateRenderPipeline->push(obstacle1);
 
@@ -193,7 +193,7 @@ namespace slurp {
         mouseCursor.enabled = true;
         mouseCursor.size = MouseCursorSizePixels;
         mouseCursor.color = MouseCursorColorPalletIdx;
-        mouseCursor.positionOffset = Vector2<int>::Unit * mouseCursor.size / 2;
+        mouseCursor.renderOffset = Vector2<int>::Unit * mouseCursor.size / 2;
         GlobalUpdateRenderPipeline->push(mouseCursor);
 
         Entity& playerEntity = GlobalGameState->player.entity;
@@ -203,7 +203,7 @@ namespace slurp {
         playerEntity.color = PlayerColorPalletIdx;
         playerEntity.speed = BasePlayerSpeed;
         playerEntity.position = PlayerStartPos;
-        playerEntity.positionOffset = Vector2<int>::Unit * playerEntity.size /
+        playerEntity.renderOffset = Vector2<int>::Unit * playerEntity.size /
                                       2;
         setSquareCollisionPoints(playerEntity);
         GlobalUpdateRenderPipeline->push(playerEntity);
@@ -217,7 +217,7 @@ namespace slurp {
             enemy.speed = BaseEnemySpeed;
             enemy.position = EnemyStartPos + (EnemyPosOffset * i);
             enemy.color = EnemyColorPalletIdx;
-            enemy.positionOffset = Vector2<int>::Unit * enemy.size / 2;
+            enemy.renderOffset = Vector2<int>::Unit * enemy.size / 2;
             setSquareCollisionPoints(enemy);
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
             GlobalUpdateRenderPipeline->push(enemy);
@@ -229,7 +229,7 @@ namespace slurp {
             projectile.name = "projectile" + std::to_string(i);
             projectile.enabled = false;
             projectile.size = ProjectileSizePixels;
-            projectile.positionOffset = {.5, .5};
+            projectile.renderOffset = Vector2<int>::Unit * projectile.size / 2;
             projectile.color = ProjectileColorPalletIdx;
             projectile.speed = BaseProjectileSpeed;
             setSquareCollisionPoints(projectile);
@@ -421,7 +421,7 @@ namespace slurp {
 
 #if DEBUG
         if (GlobalRecordingState->isRecording) {
-            render::drawBorder(
+            render::drawRectBorder(
                 graphicsBuffer,
                 {0, 0},
                 {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
@@ -429,7 +429,7 @@ namespace slurp {
                 0x00FF0000
             );
         } else if (GlobalRecordingState->isPlayingBack) {
-            render::drawBorder(
+            render::drawRectBorder(
                 graphicsBuffer,
                 {0, 0},
                 {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},

@@ -16,10 +16,13 @@ namespace slurp {
         render::ColorPaletteIdx color;
         float speed;
         Vector2<int> position;
-        Vector2<float> positionOffset;
+        Vector2<float> renderOffset;
         Vector2<float> direction;
         Vector2<int> relativeCollisionPoints[4];
         collision::CollisionSquare collisionSquare;
+#if DEBUG
+        bool drawDebugCollisionShape;
+#endif
 
         // TODO: should probably just have a unique entity id to compare
         bool operator==(const Entity& other) const {
