@@ -15,7 +15,7 @@
 
 namespace slurp {
     struct Player {
-        Entity entity;
+        Entity* entity;
         bool isParryActive;
     };
 
@@ -25,12 +25,11 @@ namespace slurp {
         bool isInitialized;
         render::ColorPalette colorPalette;
 
-        Entity obstacle1;
-        Entity mouseCursor;
+        Entity* mouseCursor;
         Player player;
-        Entity enemies[NUM_ENEMIES];
+        Entity* enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
-        Entity projectiles[PROJECTILE_POOL_SIZE];
+        Entity* projectiles[PROJECTILE_POOL_SIZE];
     };
 
     struct MemorySections {

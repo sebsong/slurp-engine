@@ -135,10 +135,10 @@ namespace slurp {
         entity.collisionEnabled = true;
     }
 
-    static void setRandomDirection(Entity& entity) {
+    static void setRandomDirection(Entity* entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
-        entity.direction = Vector2<float>(randX, randY).normalize();
+        entity->direction = Vector2<float>(randX, randY).normalize();
     }
 
     static float getRandomDirectionChangeDelay() {
@@ -147,7 +147,7 @@ namespace slurp {
         return random::randomFloat(minDelay, maxDelay);
     }
 
-    static void startUpdateEnemyDirection(Entity& enemy) {
+    static void startUpdateEnemyDirection(Entity* enemy) {
         setRandomDirection(enemy);
         timer::delay(getRandomDirectionChangeDelay(), [&] {
             startUpdateEnemyDirection(enemy);
@@ -170,70 +170,69 @@ namespace slurp {
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
         // TODO: make walls
-        // TODO: have a method for creating entities and registering them with an id
+       //  GlobalUpdateRenderPipeline->createEntity(
+       //     "WallUp",
+       //     2000,
+       //     {600, -450},
+       //     5,
+       //     true
+       // ).enableCollision(true);
 
-        new (&GlobalGameState->obstacle1) Entity();
-        Entity& obstacle1 = GlobalGameState->obstacle1;
-        obstacle1.name = "Obstacle1";
-        obstacle1.enabled = true;
-        obstacle1.collisionEnabled = true;
-        obstacle1.isStatic = true;
-        obstacle1.size = 150;
-        obstacle1.color = 5;
-        obstacle1.position = {200, 500};
-        obstacle1.renderOffset = Vector2<int>::Unit * obstacle1.size / 2;
-        setSquareCollisionPoints(obstacle1);
-        GlobalUpdateRenderPipeline->push(obstacle1);
+         GlobalUpdateRenderPipeline->createEntity(
+            "Obstacle1",
+            150,
+            {200, 500},
+            5,
+            true
+        ).enableCollision(true);
 
         // GlobalGameState->tilemap.map = BaseTileMap;
         // GlobalGameState->tilemap.tileSize = BaseTileSize;
 
-        Entity& mouseCursor = GlobalGameState->mouseCursor;
-        mouseCursor.name = "MouseCursor";
-        mouseCursor.enabled = true;
-        mouseCursor.size = MouseCursorSizePixels;
-        mouseCursor.color = MouseCursorColorPalletIdx;
-        mouseCursor.renderOffset = Vector2<int>::Unit * mouseCursor.size / 2;
-        GlobalUpdateRenderPipeline->push(mouseCursor);
+        GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
+            "MouseCursor",
+            MouseCursorSizePixels,
+            {},
+            MouseCursorColorPalletIdx,
+            true
+        );
 
-        Entity& playerEntity = GlobalGameState->player.entity;
-        playerEntity.name = "Player";
-        playerEntity.enabled = true;
-        playerEntity.size = BasePlayerSizePixels;
-        playerEntity.color = PlayerColorPalletIdx;
-        playerEntity.speed = BasePlayerSpeed;
-        playerEntity.position = PlayerStartPos;
-        playerEntity.renderOffset = Vector2<int>::Unit * playerEntity.size /
-                                      2;
-        setSquareCollisionPoints(playerEntity);
-        GlobalUpdateRenderPipeline->push(playerEntity);
+        GlobalGameState->player.entity = &GlobalUpdateRenderPipeline->createEntity(
+            "Player",
+            BasePlayerSizePixels,
+            PlayerStartPos,
+            PlayerColorPalletIdx,
+            true
+        );
+        GlobalGameState->player.entity->speed = BasePlayerSpeed;
+        GlobalGameState->player.entity->enableCollision(false);
 
         for (int i = 0; i < NUM_ENEMIES; i++) {
-            Entity& enemy = GlobalGameState->enemies[i];
-            new (&enemy) Entity();
-            enemy.name = "enemy" + std::to_string(i);
-            enemy.enabled = true;
-            enemy.size = BaseEnemySizePixels;
-            enemy.speed = BaseEnemySpeed;
-            enemy.position = EnemyStartPos + (EnemyPosOffset * i);
-            enemy.color = EnemyColorPalletIdx;
-            enemy.renderOffset = Vector2<int>::Unit * enemy.size / 2;
-            setSquareCollisionPoints(enemy);
+            Entity*& enemy = GlobalGameState->enemies[i];
+            enemy = &GlobalUpdateRenderPipeline->createEntity(
+                "Enemy" + std::to_string(i),
+                BaseEnemySizePixels,
+                EnemyStartPos + (EnemyPosOffset * i),
+                EnemyColorPalletIdx,
+                true
+            );
+            enemy->speed = BaseEnemySpeed;
+            enemy->enableCollision(false);
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
-            GlobalUpdateRenderPipeline->push(enemy);
         }
 
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
-            Entity& projectile = GlobalGameState->projectiles[i];
-            new (&projectile) Entity();
-            projectile.name = "projectile" + std::to_string(i);
-            projectile.enabled = false;
-            projectile.size = ProjectileSizePixels;
-            projectile.renderOffset = Vector2<int>::Unit * projectile.size / 2;
-            projectile.color = ProjectileColorPalletIdx;
-            projectile.speed = BaseProjectileSpeed;
-            setSquareCollisionPoints(projectile);
-            GlobalUpdateRenderPipeline->push(projectile);
+            Entity*& projectile = GlobalGameState->projectiles[i];
+            projectile = &GlobalUpdateRenderPipeline->createEntity(
+                "Projectile" + std::to_string(i),
+                ProjectileSizePixels,
+                {},
+                ProjectileColorPalletIdx,
+                true
+            );
+            projectile->enabled = false;
+            projectile->speed = BaseProjectileSpeed;
+            projectile->enableCollision(false);
         }
 
         if (!GlobalGameState->isInitialized) {
@@ -251,23 +250,23 @@ namespace slurp {
 
     static void activateParry(Player& player) {
         player.isParryActive = true;
-        player.entity.color = PlayerParryColorPalletIdx;
+        player.entity->color = PlayerParryColorPalletIdx;
     }
 
     static void deactivateParry(Player& player) {
         player.isParryActive = false;
-        player.entity.color = PlayerColorPalletIdx;
+        player.entity->color = PlayerColorPalletIdx;
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
-        GlobalGameState->mouseCursor.position = mouseState.position;
+        GlobalGameState->mouseCursor->position = mouseState.position;
 
         if (mouseState.justPressed(MouseCode::LeftClick)) {
-            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
-            projectile.enabled = true;
-            projectile.position = GlobalGameState->player.entity.position;
-            projectile.direction =
-                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity.position).
+            Entity* projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            projectile->enabled = true;
+            projectile->position = GlobalGameState->player.entity->position;
+            projectile->direction =
+                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity->position).
                     normalize();
             GlobalGameState->projectileIdx++;
             if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) {
@@ -297,13 +296,13 @@ namespace slurp {
         if (keyboardState.isDown(KeyboardCode::D)) {
             direction.x += 1;
         }
-        GlobalGameState->player.entity.direction = direction.normalize();
+        GlobalGameState->player.entity->direction = direction.normalize();
 
 
         if (keyboardState.justPressed(KeyboardCode::SPACE)) {
-            GlobalGameState->player.entity.speed = SprintPlayerSpeed;
+            GlobalGameState->player.entity->speed = SprintPlayerSpeed;
         } else if (keyboardState.justReleased(KeyboardCode::SPACE)) {
-            GlobalGameState->player.entity.speed = BasePlayerSpeed;
+            GlobalGameState->player.entity->speed = BasePlayerSpeed;
         }
 
 #if DEBUG
@@ -344,16 +343,16 @@ namespace slurp {
 
             if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
                     GamepadCode::RIGHT_SHOULDER)) {
-                GlobalGameState->player.entity.speed = SprintPlayerSpeed;
+                GlobalGameState->player.entity->speed = SprintPlayerSpeed;
             } else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
                            GamepadCode::RIGHT_SHOULDER)) {
-                GlobalGameState->player.entity.speed = BasePlayerSpeed;
+                GlobalGameState->player.entity->speed = BasePlayerSpeed;
             }
 
             Vector2<float> leftStick = gamepadState.leftStick.end;
             Vector2<float> direction = leftStick;
             direction.y *= -1;
-            GlobalGameState->player.entity.direction = direction.normalize();
+            GlobalGameState->player.entity->direction = direction.normalize();
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
@@ -363,15 +362,15 @@ namespace slurp {
 
     SLURP_LOAD_AUDIO(loadAudio) {}
 
-    static const Entity& findClosest(const Vector2<int>& position, const Entity* entities, int numEntities) {
+    static const Entity* findClosest(const Vector2<int>& position, Entity* entities[NUM_ENEMIES], int numEntities) {
         assert(numEntities > 0);
 
         int minIdx = 0;
-        float minDistance = position.distanceTo(entities[0].position);
+        float minDistance = position.distanceTo(entities[0]->position);
 
         for (int i = 1; i < numEntities; i++) {
-            const Entity& entity = entities[i];
-            float distance = position.distanceTo(entity.position);
+            const Entity* entity = entities[i];
+            float distance = position.distanceTo(entity->position);
             if (distance < minDistance) {
                 minIdx = i;
                 minDistance = distance;
@@ -396,13 +395,13 @@ namespace slurp {
 
         GlobalUpdateRenderPipeline->process(graphicsBuffer, dt);
 
-        for (const Entity& projectile: GlobalGameState->projectiles) {
-            if (projectile.enabled) {
-                const Entity& closestEnemy = findClosest(projectile.position, GlobalGameState->enemies, NUM_ENEMIES);
+        for (const Entity* projectile: GlobalGameState->projectiles) {
+            if (projectile->enabled) {
+                const Entity* closestEnemy = findClosest(projectile->position, GlobalGameState->enemies, NUM_ENEMIES);
                 render::drawLine(
                     graphicsBuffer,
-                    projectile.position,
-                    closestEnemy.position,
+                    projectile->position,
+                    closestEnemy->position,
                     2,
                     0,
                     GlobalGameState->colorPalette
@@ -412,8 +411,8 @@ namespace slurp {
 
         render::drawLine(
             graphicsBuffer,
-            GlobalGameState->mouseCursor.position,
-            GlobalGameState->player.entity.position,
+            GlobalGameState->mouseCursor->position,
+            GlobalGameState->player.entity->position,
             2,
             5,
             GlobalGameState->colorPalette
