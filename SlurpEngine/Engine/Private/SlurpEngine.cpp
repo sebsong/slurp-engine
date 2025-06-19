@@ -135,10 +135,10 @@ namespace slurp {
         entity.collisionEnabled = true;
     }
 
-    static void setRandomDirection(Entity& entity) {
+    static void setRandomDirection(Entity* entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
-        entity.direction = Vector2<float>(randX, randY).normalize();
+        entity->direction = Vector2<float>(randX, randY).normalize();
     }
 
     static float getRandomDirectionChangeDelay() {
@@ -147,7 +147,7 @@ namespace slurp {
         return random::randomFloat(minDelay, maxDelay);
     }
 
-    static void startUpdateEnemyDirection(Entity& enemy) {
+    static void startUpdateEnemyDirection(Entity* enemy) {
         setRandomDirection(enemy);
         timer::delay(getRandomDirectionChangeDelay(), [&] {
             startUpdateEnemyDirection(enemy);
@@ -170,16 +170,21 @@ namespace slurp {
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
         // TODO: make walls
-        // TODO: have a method for creating entities and registering them with an id
+       //  GlobalUpdateRenderPipeline->createEntity(
+       //     "WallUp",
+       //     2000,
+       //     {600, -450},
+       //     5,
+       //     true
+       // ).enableCollision(true);
 
-        GlobalGameState->obstacle1 = &GlobalUpdateRenderPipeline->createEntity(
+         GlobalUpdateRenderPipeline->createEntity(
             "Obstacle1",
             150,
             {200, 500},
             5,
             true
-        );
-        GlobalGameState->obstacle1->enableCollision(true);
+        ).enableCollision(true);
 
         // GlobalGameState->tilemap.map = BaseTileMap;
         // GlobalGameState->tilemap.tileSize = BaseTileSize;

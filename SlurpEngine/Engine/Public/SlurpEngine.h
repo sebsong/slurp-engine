@@ -25,7 +25,6 @@ namespace slurp {
         bool isInitialized;
         render::ColorPalette colorPalette;
 
-        Entity* obstacle1;
         Entity* mouseCursor;
         Player player;
         Entity* enemies[NUM_ENEMIES];
