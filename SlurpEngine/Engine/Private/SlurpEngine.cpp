@@ -47,65 +47,6 @@ namespace slurp {
     static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
     static constexpr int BaseProjectileSpeed = 500;
 
-    static constexpr uint8_t BaseTileSize = 40;
-    static constexpr std::array<std::array<render::ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> BaseTileMap =
-    {
-        {
-            {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 3, 3, 3, 6, 6, 6, 6, 6, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 3, 3, 3, 1, 1, 1, 1, 1, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 3, 3, 3, 6, 6, 6, 6, 6, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7}},
-            {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}},
-        }
-    };
-
-    static void drawMouse(
-        const render::GraphicsBuffer& buffer,
-        Vector2<int> mousePosition,
-        int size,
-        render::ColorPaletteIdx colorPaletteIdx
-    ) {
-        Vector2<int> point = mousePosition - Vector2<int>::Unit * size / 2;
-        drawSquare(
-            buffer,
-            point,
-            size,
-            colorPaletteIdx,
-            GlobalGameState->colorPalette
-        );
-    }
-
-    static void drawTilemap(
-        const render::GraphicsBuffer& buffer,
-        const Tilemap tilemap
-    ) {
-        for (int y = 0; y < TILEMAP_HEIGHT; y++) {
-            for (int x = 0; x < TILEMAP_WIDTH; x++) {
-                uint8_t colorPaletteIdx = tilemap.map[y][x];
-                drawSquare(
-                    buffer,
-                    {x * tilemap.tileSize, y * tilemap.tileSize},
-                    tilemap.tileSize,
-                    colorPaletteIdx,
-                    GlobalGameState->colorPalette
-                );
-            }
-        }
-    }
-
     static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size) {
         Vector2<int> position = point;
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
@@ -118,21 +59,6 @@ namespace slurp {
             );
             position.x += size;
         }
-    }
-
-    static void setSquareCollisionPoints(Entity& entity) {
-        int sizeCoord = entity.size - 1;
-        entity.relativeCollisionPoints[0] = {0, 0};
-        entity.relativeCollisionPoints[1] = {sizeCoord, 0};
-        entity.relativeCollisionPoints[2] = {0, sizeCoord};
-        entity.relativeCollisionPoints[3] = {sizeCoord, sizeCoord};
-
-        for (Vector2<int>& collisionPoint: entity.relativeCollisionPoints) {
-            collisionPoint -= entity.renderOffset;
-        }
-
-        entity.collisionSquare.radius = entity.size / 2;
-        entity.collisionEnabled = true;
     }
 
     static void setRandomDirection(Entity* entity) {
@@ -185,9 +111,6 @@ namespace slurp {
             5,
             true
         ).enableCollision(true);
-
-        // GlobalGameState->tilemap.map = BaseTileMap;
-        // GlobalGameState->tilemap.tileSize = BaseTileSize;
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",

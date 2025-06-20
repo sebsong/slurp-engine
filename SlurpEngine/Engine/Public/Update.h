@@ -4,10 +4,8 @@
 
 namespace slurp {
     struct Entity;
-    struct Tilemap;
 }
 
 namespace update {
-    void updatePosition(slurp::Entity& entity, const slurp::Tilemap& tilemap, float dt);
     void updatePosition(slurp::Entity& entity, const std::iterator_traits<slurp::Entity&>& allEntities, float dt);
 }

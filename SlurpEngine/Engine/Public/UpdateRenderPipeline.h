@@ -8,7 +8,6 @@ namespace render {
 
 namespace slurp {
     struct Entity;
-    struct Tilemap;
 
     class UpdateRenderPipeline {
     public:

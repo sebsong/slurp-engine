@@ -21,7 +21,6 @@ namespace slurp {
 
     struct GameState {
         uint32_t randomSeed;
-        // Tilemap tilemap;
         bool isInitialized;
         render::ColorPalette colorPalette;
 

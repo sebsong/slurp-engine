@@ -16,7 +16,6 @@ namespace slurp {
         Vector2<float> renderOffset;
         float speed;
         Vector2<float> direction;
-        Vector2<int> relativeCollisionPoints[4]; // TODO: get rid of this
         bool collisionEnabled;
         bool isStatic;
         collision::CollisionSquare collisionSquare;
@@ -36,10 +35,5 @@ namespace slurp {
             return position == other.position;
         }
 
-    };
-
-    struct Tilemap {
-        std::array<std::array<render::ColorPaletteIdx, TILEMAP_WIDTH>, TILEMAP_HEIGHT> map;
-        uint8_t tileSize;
     };
 }
