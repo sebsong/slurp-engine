@@ -7,7 +7,7 @@
 
 namespace slurp {
     struct Entity {
-        int id;
+        uint32_t id;
         std::string name;
         bool enabled;
         render::ColorPaletteIdx color;

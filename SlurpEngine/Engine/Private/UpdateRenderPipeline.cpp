@@ -18,9 +18,10 @@ namespace slurp {
         render::ColorPaletteIdx color,
         bool centerPosition
     ) {
+        uint32_t id = _pipeline.size();
         _pipeline.emplace_back();
         Entity& entity = _pipeline.back();
-        entity.id = _pipeline.size() - 1;
+        entity.id = id;
         entity.name = std::move(name);
         entity.enabled = true;
         entity.size = size;
