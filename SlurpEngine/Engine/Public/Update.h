@@ -12,7 +12,7 @@ namespace update {
     concept Iterable = std::ranges::range<Container> && std::is_same_v<std::ranges::range_value_t<Container>, Value>;
 
     template<typename T>
-    requires Iterable<T, slurp::Entity>
+        requires Iterable<T, slurp::Entity>
     void updatePosition(slurp::Entity& entity, const T& allEntities, float dt) {
         slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
         slurp::Vector2<int> targetPosition = entity.position + targetPositionUpdate;
@@ -25,7 +25,8 @@ namespace update {
                 continue;
             }
 
-            collision::CollisionSquare minkowskiSum = collision::getMinkowskiSum(entity.collisionSquare, otherEntity.collisionSquare);
+            collision::CollisionSquare minkowskiSum = collision::getMinkowskiSum(
+                entity.collisionSquare, otherEntity.collisionSquare);
             int minkowskiMinX = otherEntity.position.x - minkowskiSum.radius;
             int minkowskiMaxX = otherEntity.position.x + minkowskiSum.radius;
             int minkowskiMinY = otherEntity.position.y - minkowskiSum.radius;
@@ -57,6 +58,9 @@ namespace update {
                     }
                 }
                 entity.position += positionUpdate;
+                if (entity.onCollision) {
+                    entity.onCollision(otherEntity);
+                }
                 return;
             }
         }

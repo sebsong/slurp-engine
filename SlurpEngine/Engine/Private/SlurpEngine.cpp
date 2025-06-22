@@ -3,6 +3,8 @@
 #include "Debug.h"
 
 // Single translation unit, unity build
+#include <iostream>
+
 #include "Update.cpp"
 #include "Collision.cpp"
 #include "Render.cpp"
@@ -96,15 +98,15 @@ namespace slurp {
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
         // TODO: make walls
-       //  GlobalUpdateRenderPipeline->createEntity(
-       //     "WallUp",
-       //     2000,
-       //     {600, -450},
-       //     5,
-       //     true
-       // ).enableCollision(true);
+        //  GlobalUpdateRenderPipeline->createEntity(
+        //     "WallUp",
+        //     2000,
+        //     {600, -450},
+        //     5,
+        //     true
+        // ).enableCollision(true);
 
-         GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->createEntity(
             "Obstacle1",
             150,
             {200, 500},
@@ -128,7 +130,9 @@ namespace slurp {
             true
         );
         GlobalGameState->player.entity->speed = BasePlayerSpeed;
-        GlobalGameState->player.entity->enableCollision(false);
+        GlobalGameState->player.entity->enableCollision(false, [](const Entity& otherEntity) {
+            std::cout << otherEntity.name << std::endl;
+        });
 
         for (int i = 0; i < NUM_ENEMIES; i++) {
             Entity*& enemy = GlobalGameState->enemies[i];

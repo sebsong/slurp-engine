@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Render.h"
 #include "Vector.h"
-#include <array>
+#include <functional>
 
 #include "Collision.h"
 
@@ -19,15 +19,21 @@ namespace slurp {
         bool collisionEnabled;
         bool isStatic;
         collision::CollisionSquare collisionSquare;
+        std::function<void(const Entity&)> onCollision;
 #if DEBUG
         bool drawDebugCollisionShape;
 #endif
         bool shouldDestroy;
 
-        void enableCollision(bool isStatic) {
+        void enableCollision(bool isStatic, const std::function<void(const Entity&)>& onCollision) {
             this->collisionEnabled = true;
             this->collisionSquare.radius = this->size / 2;
             this->isStatic = isStatic;
+            this->onCollision = onCollision;
+        }
+
+        void enableCollision(bool isStatic) {
+            enableCollision(isStatic, [](const Entity&){});
         }
 
         // TODO: should probably just have a unique entity id to compare
