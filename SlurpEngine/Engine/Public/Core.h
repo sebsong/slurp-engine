@@ -30,9 +30,8 @@ namespace slurp {
             enableCollision(isStatic, [](const Entity&){});
         }
 
-        // TODO: should probably just have a unique entity id to compare
         bool operator==(const Entity& other) const {
-            return position == other.position;
+            return id == other.id;
         }
 
     };
