@@ -1,4 +1,5 @@
 #pragma once
+#include <set>
 
 namespace collision {
     struct CollisionSquare {
@@ -18,7 +19,7 @@ namespace collision {
         bool drawDebugCollisionShape;
 #endif
         CollisionSquare collisionSquare;
-        CollisionState collisionState;
+        std::set<slurp::Entity*> collidingWith;
         std::function<void(const slurp::Entity&)> onCollision;
     };
 
