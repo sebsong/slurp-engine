@@ -1,6 +1,7 @@
 #pragma once
 
 #define EMPTY_COLOR_PALETTE_IDX 6
+#include "Collision.h"
 #include "Math.h"
 
 namespace slurp {
@@ -13,14 +14,19 @@ namespace update {
 
     template<typename T>
         requires Iterable<T, slurp::Entity>
-    void updatePosition(slurp::Entity& entity, const T& allEntities, float dt) {
+    void updatePosition(slurp::Entity& entity, T& allEntities, float dt) {
         slurp::Vector2<int> targetPositionUpdate = (entity.direction * entity.speed * dt);
+        if (targetPositionUpdate == slurp::Vector2<int>::Zero) {
+            return;
+        }
         slurp::Vector2<int> targetPosition = entity.position + targetPositionUpdate;
         if (!entity.collisionEnabled) {
             entity.position += targetPositionUpdate;
         }
+
+        bool didCollide = false;
         slurp::Vector2<int> positionUpdate = targetPositionUpdate;
-        for (const slurp::Entity& otherEntity: allEntities) {
+        for (slurp::Entity& otherEntity: allEntities) {
             if (!otherEntity.collisionEnabled || otherEntity == entity) {
                 continue;
             }
@@ -35,6 +41,7 @@ namespace update {
                 math::inRange(targetPosition.x, minkowskiMinX, minkowskiMaxX) &&
                 math::inRange(targetPosition.y, minkowskiMinY, minkowskiMaxY)
             ) {
+                didCollide = true;
                 if (math::inRange(entity.position.y, minkowskiMinY, minkowskiMaxY)) {
                     int xAxisPositionUpdate = positionUpdate.x;
                     if (entity.position.x < otherEntity.position.x) {
@@ -57,13 +64,21 @@ namespace update {
                         positionUpdate.y = yAxisPositionUpdate;
                     }
                 }
-                entity.position += positionUpdate;
-                if (entity.onCollision) {
+                // TODO: need to track which entities have already collided,
+                // TODO(cont): the current check means we can't have multiple collisions
+                if (entity.onCollision && entity.collisionState != collision::CollisionState::Colliding) {
                     entity.onCollision(otherEntity);
                 }
-                return;
+                if (otherEntity.onCollision && otherEntity.collisionState != collision::CollisionState::Colliding) {
+                    otherEntity.onCollision(entity);
+                }
+                entity.collisionState = collision::CollisionState::Colliding;
+                otherEntity.collisionState = collision::CollisionState::Colliding;
             }
         }
-        entity.position += targetPositionUpdate;
+        if (!didCollide) {
+            entity.collisionState = collision::CollisionState::None;
+        }
+        entity.position += positionUpdate;
     }
 }

@@ -20,6 +20,7 @@ namespace slurp {
         bool isStatic;
         collision::CollisionSquare collisionSquare;
         std::function<void(const Entity&)> onCollision;
+        collision::CollisionState collisionState;
 #if DEBUG
         bool drawDebugCollisionShape;
 #endif
