@@ -37,13 +37,14 @@ namespace slurp {
         for (Entity& entity: _pipeline) {
             //TODO: handle destruction
             if (entity.enabled) {
-                if (!entity.isStatic) {
+                if (!entity.collisionInfo.isStatic) {
                     update::updatePosition(entity, _pipeline, dt);
                 }
                 render::drawEntity(buffer, entity, _colorPalette);
 #if DEBUG
-                if (entity.drawDebugCollisionShape) {
-                    const Vector2<int>& collisionOffset = Vector2<int>::Unit * entity.collisionSquare.radius;
+                if (entity.collisionInfo.drawDebugCollisionShape) {
+                    const Vector2<int>& collisionOffset = Vector2<int>::Unit *
+                                                          entity.collisionInfo.collisionSquare.radius;
                     render::drawRectBorder(
                         buffer,
                         entity.position - collisionOffset,

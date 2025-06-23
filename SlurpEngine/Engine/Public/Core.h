@@ -16,21 +16,14 @@ namespace slurp {
         Vector2<float> renderOffset;
         float speed;
         Vector2<float> direction;
-        bool collisionEnabled;
-        bool isStatic;
-        collision::CollisionSquare collisionSquare;
-        std::function<void(const Entity&)> onCollision;
-        collision::CollisionState collisionState;
-#if DEBUG
-        bool drawDebugCollisionShape;
-#endif
+        collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
         void enableCollision(bool isStatic, const std::function<void(const Entity&)>& onCollision) {
-            this->collisionEnabled = true;
-            this->collisionSquare.radius = this->size / 2;
-            this->isStatic = isStatic;
-            this->onCollision = onCollision;
+            this->collisionInfo.collisionEnabled = true;
+            this->collisionInfo.collisionSquare.radius = this->size / 2;
+            this->collisionInfo.isStatic = isStatic;
+            this->collisionInfo.onCollision = onCollision;
         }
 
         void enableCollision(bool isStatic) {

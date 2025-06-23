@@ -20,19 +20,21 @@ namespace update {
             return;
         }
         slurp::Vector2<int> targetPosition = entity.position + targetPositionUpdate;
-        if (!entity.collisionEnabled) {
+        collision::CollisionInfo& collisionInfo = entity.collisionInfo;
+        if (!collisionInfo.collisionEnabled) {
             entity.position += targetPositionUpdate;
         }
 
         bool didCollide = false;
         slurp::Vector2<int> positionUpdate = targetPositionUpdate;
         for (slurp::Entity& otherEntity: allEntities) {
-            if (!otherEntity.collisionEnabled || otherEntity == entity) {
+            collision::CollisionInfo& otherCollisionInfo = otherEntity.collisionInfo;
+            if (!otherCollisionInfo.collisionEnabled || otherEntity == entity) {
                 continue;
             }
 
             collision::CollisionSquare minkowskiSum = collision::getMinkowskiSum(
-                entity.collisionSquare, otherEntity.collisionSquare);
+                collisionInfo.collisionSquare, otherCollisionInfo.collisionSquare);
             int minkowskiMinX = otherEntity.position.x - minkowskiSum.radius;
             int minkowskiMaxX = otherEntity.position.x + minkowskiSum.radius;
             int minkowskiMinY = otherEntity.position.y - minkowskiSum.radius;
@@ -66,18 +68,18 @@ namespace update {
                 }
                 // TODO: need to track which entities have already collided,
                 // TODO(cont): the current check means we can't have multiple collisions
-                if (entity.onCollision && entity.collisionState != collision::CollisionState::Colliding) {
-                    entity.onCollision(otherEntity);
+                if (collisionInfo.onCollision && collisionInfo.collisionState != collision::CollisionState::Colliding) {
+                    collisionInfo.onCollision(otherEntity);
                 }
-                if (otherEntity.onCollision && otherEntity.collisionState != collision::CollisionState::Colliding) {
-                    otherEntity.onCollision(entity);
+                if (otherCollisionInfo.onCollision && otherCollisionInfo.collisionState != collision::CollisionState::Colliding) {
+                    otherCollisionInfo.onCollision(entity);
                 }
-                entity.collisionState = collision::CollisionState::Colliding;
-                otherEntity.collisionState = collision::CollisionState::Colliding;
+                collisionInfo.collisionState = collision::CollisionState::Colliding;
+                otherCollisionInfo.collisionState = collision::CollisionState::Colliding;
             }
         }
         if (!didCollide) {
-            entity.collisionState = collision::CollisionState::None;
+            collisionInfo.collisionState = collision::CollisionState::None;
         }
         entity.position += positionUpdate;
     }

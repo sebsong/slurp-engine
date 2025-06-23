@@ -11,5 +11,16 @@ namespace collision {
         Colliding
     };
 
+    struct CollisionInfo {
+        bool collisionEnabled;
+        bool isStatic;
+#if DEBUG
+        bool drawDebugCollisionShape;
+#endif
+        CollisionSquare collisionSquare;
+        CollisionState collisionState;
+        std::function<void(const slurp::Entity&)> onCollision;
+    };
+
     CollisionSquare getMinkowskiSum(const CollisionSquare& a, const CollisionSquare& b);
 }
