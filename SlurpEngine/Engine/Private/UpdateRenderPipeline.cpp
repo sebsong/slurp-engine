@@ -13,8 +13,8 @@ namespace slurp {
 
     Entity& UpdateRenderPipeline::createEntity(
         std::string&& name,
-        int size,
         const Vector2<int>& position,
+        const geometry::Shape& renderShape,
         render::ColorPaletteIdx color,
         bool centerPosition
     ) {
@@ -24,12 +24,13 @@ namespace slurp {
         entity.id = id;
         entity.name = std::move(name);
         entity.enabled = true;
-        entity.size = size;
         entity.position = position;
+        entity.renderShape.shape = renderShape;
         if (centerPosition) {
-            entity.renderOffset = Vector2<int>::Unit * entity.size / 2;
+            entity.renderShape.renderOffset = renderShape.dimensions / 2;
         }
-        entity.color = color;
+        assert(color < COLOR_PALETTE_SIZE);
+        entity.renderShape.color = _colorPalette.colors[color];
         return entity;
     }
 
@@ -40,19 +41,19 @@ namespace slurp {
                 if (!entity.collisionInfo.isStatic) {
                     update::updatePosition(entity, _pipeline, dt);
                 }
-                render::drawEntity(buffer, entity, _colorPalette);
+                render::drawRenderable(buffer, entity);
 #if DEBUG
-                if (entity.collisionInfo.drawDebugCollisionShape) {
-                    const Vector2<int>& collisionOffset = Vector2<int>::Unit *
-                                                          entity.collisionInfo.collisionSquare.radius;
-                    render::drawRectBorder(
-                        buffer,
-                        entity.position - collisionOffset,
-                        entity.position + collisionOffset,
-                        1,
-                        DEBUG_DRAW_COLOR
-                    );
-                }
+#if DEBUG_DRAW_COLLISION
+                const Vector2<int>& collisionOffset = Vector2<int>::Unit *
+                                                      entity.collisionInfo.collisionSquare.radius;
+                render::drawRectBorder(
+                    buffer,
+                    entity.position - collisionOffset,
+                    entity.position + collisionOffset,
+                    1,
+                    DEBUG_DRAW_COLOR
+                );
+#endif
 #endif
             }
         }

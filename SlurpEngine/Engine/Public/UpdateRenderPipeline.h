@@ -15,8 +15,8 @@ namespace slurp {
 
         Entity& createEntity(
             std::string&& name,
-            int size,
             const Vector2<int>& position,
+            const geometry::Shape& renderShape,
             render::ColorPaletteIdx color,
             bool centerPosition
         );

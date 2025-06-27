@@ -2,6 +2,7 @@
 #include <set>
 
 namespace collision {
+    // TODO: convert to CollisionShape
     struct CollisionSquare {
         int radius;
     };

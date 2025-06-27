@@ -1,9 +1,9 @@
 #pragma once
 #include "Vector.h"
+#include "Geometry.h"
 #include <cstdint>
 
 #define COLOR_PALETTE_SIZE 8
-#define DEBUG_DRAW_COLOR 0x0000FF00
 
 namespace slurp {
     struct Entity;
@@ -23,20 +23,33 @@ namespace render {
         Pixel colors[COLOR_PALETTE_SIZE];
     };
 
+    struct RenderShape {
+        geometry::Shape shape;
+        Pixel color;
+        slurp::Vector2<int> renderOffset;
+
+        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const;
+    };
+
+    template<typename T>
+    concept Renderable = requires(T renderable) {
+        { renderable.renderShape } -> std::same_as<RenderShape&>;
+        { renderable.position } -> std::same_as<slurp::Vector2<int>&>;
+    };
+
     void drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& minPoint,
-        const slurp::Vector2<int>& maxPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         float r,
         float g,
         float b
     );
 
-    // TODO: maybe register/save graphics buffer and color palette so we don't need to pass it in every time?
     void drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& minPoint,
-        const slurp::Vector2<int>& maxPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     );
@@ -58,7 +71,10 @@ namespace render {
         const ColorPalette& colorPalette
     );
 
-    void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette);
+    template<Renderable T>
+    void drawRenderable(const GraphicsBuffer& buffer, const T& renderable) {
+        renderable.renderShape.draw(buffer, renderable.position);
+    }
 
     void drawRectBorder(
         const GraphicsBuffer& buffer,

@@ -25,14 +25,14 @@ namespace render {
 
     static void _drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& minPoint,
-        const slurp::Vector2<int>& maxPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         Pixel color
     ) {
-        const slurp::Vector2<int> clampedMinPoint = _getClamped(buffer, minPoint);
-        const slurp::Vector2<int> clampedMaxPoint = _getClamped(buffer, maxPoint);
-        for (int y = clampedMinPoint.y; y < clampedMaxPoint.y; y++) {
-            for (int x = clampedMinPoint.x; x < clampedMaxPoint.x; x++) {
+        const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
+        const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
+        for (int y = clampedStartPoint.y; y < clampedEndPoint.y; y++) {
+            for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) {
                 _drawAtPoint(buffer, {x, y}, color);
             }
         }
@@ -40,8 +40,8 @@ namespace render {
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& minPoint,
-        const slurp::Vector2<int>& maxPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         float r,
         float g,
         float b
@@ -50,19 +50,19 @@ namespace render {
         const uint8_t green = math::round(g * 255);
         const uint8_t blue = math::round(b * 255);
         const Pixel color = (red << 16) | (green << 8) | blue;
-        _drawRect(buffer, minPoint, maxPoint, color);
+        _drawRect(buffer, startPoint, endPoint, color);
     }
 
     void drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& minPoint,
-        const slurp::Vector2<int>& maxPoint,
+        const slurp::Vector2<int>& startPoint,
+        const slurp::Vector2<int>& endPoint,
         ColorPaletteIdx colorPaletteIdx,
         const ColorPalette& colorPalette
     ) {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
         const Pixel color = colorPalette.colors[colorPaletteIdx];
-        _drawRect(buffer, minPoint, maxPoint, color);
+        _drawRect(buffer, startPoint, endPoint, color);
     }
 
     static void _drawSquare(
@@ -143,18 +143,6 @@ namespace render {
         );
     }
 
-    void drawEntity(const GraphicsBuffer& buffer, const slurp::Entity& entity, const ColorPalette& colorPalette) {
-        // NOTE: Sizes that are even will have an off-center position
-        slurp::Vector2<int> point = entity.position - entity.renderOffset;
-        drawSquare(
-            buffer,
-            point,
-            entity.size,
-            entity.color,
-            colorPalette
-        );
-    }
-
     void drawRectBorder(
         const GraphicsBuffer& buffer,
         const slurp::Vector2<int>& startPoint,
@@ -190,6 +178,23 @@ namespace render {
             borderThickness,
             color
         );
+    }
+
+    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const {
+        const slurp::Vector2<int> startPoint = position - renderOffset;
+        const slurp::Vector2<int> endPoint = startPoint + shape.dimensions;
+        switch (shape.type) {
+            case geometry::Rect: {
+                _drawRect(buffer, startPoint, endPoint, color);
+                break;
+            }
+            case geometry::Square: {
+                assert(shape.dimensions.x == shape.dimensions.y);
+                _drawRect(buffer, startPoint, endPoint, color);
+                break;
+            }
+            default: { assert(false); }
+        }
     }
 
     ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName) {
