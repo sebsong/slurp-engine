@@ -108,43 +108,54 @@ namespace slurp {
 
         GlobalUpdateRenderPipeline->createEntity(
             "Obstacle1",
-            150,
             {200, 500},
+            {geometry::Square, {150, 150}},
             5,
             true
-        ).enableCollision(true);
+        ).enableCollision(true, 150 / 2);
+
+        GlobalUpdateRenderPipeline->createEntity(
+            "Obstacle2",
+            {500, 500},
+            {geometry::Rect, {300, 200}},
+            5,
+            true
+        ).enableCollision(true, 200 / 2);
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",
-            MouseCursorSizePixels,
             {},
+            {geometry::Square, {MouseCursorSizePixels, MouseCursorSizePixels}},
             MouseCursorColorPalletIdx,
             true
         );
 
         GlobalGameState->player.entity = &GlobalUpdateRenderPipeline->createEntity(
             "Player",
-            BasePlayerSizePixels,
             PlayerStartPos,
+            {geometry::Square, {BasePlayerSizePixels, BasePlayerSizePixels}},
             PlayerColorPalletIdx,
             true
         );
         GlobalGameState->player.entity->speed = BasePlayerSpeed;
-        GlobalGameState->player.entity->enableCollision(false, [](const Entity& otherEntity) {
-            std::cout << otherEntity.name << std::endl;
-        });
+        GlobalGameState->player.entity->enableCollision(
+            false,
+            BasePlayerSizePixels / 2,
+            [](const Entity& otherEntity) {
+                std::cout << otherEntity.name << std::endl;
+            });
 
         for (int i = 0; i < NUM_ENEMIES; i++) {
             Entity*& enemy = GlobalGameState->enemies[i];
             enemy = &GlobalUpdateRenderPipeline->createEntity(
                 "Enemy" + std::to_string(i),
-                BaseEnemySizePixels,
                 EnemyStartPos + (EnemyPosOffset * i),
+                {geometry::Square, {BaseEnemySizePixels, BaseEnemySizePixels}},
                 EnemyColorPalletIdx,
                 true
             );
             enemy->speed = BaseEnemySpeed;
-            enemy->enableCollision(false);
+            enemy->enableCollision(false, BaseEnemySizePixels / 2);
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
         }
 
@@ -152,14 +163,14 @@ namespace slurp {
             Entity*& projectile = GlobalGameState->projectiles[i];
             projectile = &GlobalUpdateRenderPipeline->createEntity(
                 "Projectile" + std::to_string(i),
-                ProjectileSizePixels,
                 {},
+                {geometry::Square, {ProjectileSizePixels, ProjectileSizePixels}},
                 ProjectileColorPalletIdx,
                 true
             );
             projectile->enabled = false;
             projectile->speed = BaseProjectileSpeed;
-            projectile->enableCollision(false);
+            projectile->enableCollision(false, ProjectileSizePixels / 2);
         }
 
         if (!GlobalGameState->isInitialized) {
@@ -177,12 +188,12 @@ namespace slurp {
 
     static void activateParry(Player& player) {
         player.isParryActive = true;
-        player.entity->color = PlayerParryColorPalletIdx;
+        player.entity->renderShape.color = PlayerParryColorPalletIdx;
     }
 
     static void deactivateParry(Player& player) {
         player.isParryActive = false;
-        player.entity->color = PlayerColorPalletIdx;
+        player.entity->renderShape.color = PlayerColorPalletIdx;
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {

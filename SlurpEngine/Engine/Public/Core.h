@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Render.h"
 #include "Vector.h"
+#include "Render.h"
 #include <functional>
 
 #include "Collision.h"
@@ -10,8 +10,7 @@ namespace slurp {
         uint32_t id;
         std::string name;
         bool enabled;
-        render::ColorPaletteIdx color;
-        int size;
+        render::RenderShape renderShape;
         Vector2<int> position;
         Vector2<float> renderOffset;
         float speed;
@@ -19,20 +18,21 @@ namespace slurp {
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
-        void enableCollision(bool isStatic, const std::function<void(const Entity&)>& onCollision) {
+        Entity& enableCollision(bool isStatic, int radius, const std::function<void(const Entity&)>& onCollision) {
             this->collisionInfo.collisionEnabled = true;
-            this->collisionInfo.collisionSquare.radius = this->size / 2;
+            this->collisionInfo.collisionSquare.radius = radius;
             this->collisionInfo.isStatic = isStatic;
             this->collisionInfo.onCollision = onCollision;
+            return *this;
         }
 
-        void enableCollision(bool isStatic) {
-            enableCollision(isStatic, [](const Entity&){});
+        Entity& enableCollision(bool isStatic, int radius) {
+            enableCollision(isStatic, radius, [](const Entity&) {});
+            return *this;
         }
 
         bool operator==(const Entity& other) const {
             return id == other.id;
         }
-
     };
 }
