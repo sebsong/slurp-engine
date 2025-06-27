@@ -2,9 +2,8 @@
 #include <set>
 
 namespace collision {
-    // TODO: convert to CollisionShape
-    struct CollisionSquare {
-        int radius;
+    struct CollisionShape {
+        geometry::Shape shape;
     };
 
     // TODO: distinguish between enter and exit collision
@@ -16,13 +15,8 @@ namespace collision {
     struct CollisionInfo {
         bool collisionEnabled;
         bool isStatic;
-#if DEBUG
-        bool drawDebugCollisionShape;
-#endif
-        CollisionSquare collisionSquare;
+        CollisionShape shape;
         std::set<slurp::Entity*> collidingWith;
         std::function<void(const slurp::Entity&)> onCollision;
     };
-
-    CollisionSquare getMinkowskiSum(const CollisionSquare& a, const CollisionSquare& b);
 }

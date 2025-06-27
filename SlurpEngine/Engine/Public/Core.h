@@ -18,16 +18,17 @@ namespace slurp {
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
-        Entity& enableCollision(bool isStatic, int radius, const std::function<void(const Entity&)>& onCollision) {
+        Entity& enableCollision(bool isStatic, const geometry::Shape shape, const std::function<void(const Entity&)>& onCollision) {
             this->collisionInfo.collisionEnabled = true;
-            this->collisionInfo.collisionSquare.radius = radius;
+            this->collisionInfo.shape.shape = shape;
             this->collisionInfo.isStatic = isStatic;
             this->collisionInfo.onCollision = onCollision;
             return *this;
         }
 
-        Entity& enableCollision(bool isStatic, int radius) {
-            enableCollision(isStatic, radius, [](const Entity&) {});
+        // TODO: overload that allows you to just re-use render shape
+        Entity& enableCollision(bool isStatic, const geometry::Shape shape) {
+            enableCollision(isStatic, shape, [](const Entity&) {});
             return *this;
         }
 

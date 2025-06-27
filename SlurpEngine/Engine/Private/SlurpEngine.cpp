@@ -106,21 +106,23 @@ namespace slurp {
         //     true
         // ).enableCollision(true);
 
+        geometry::Shape obstacle1Shape = {geometry::Square, {150, 150}};
         GlobalUpdateRenderPipeline->createEntity(
             "Obstacle1",
             {200, 500},
-            {geometry::Square, {150, 150}},
+            obstacle1Shape,
             5,
             true
-        ).enableCollision(true, 150 / 2);
+        ).enableCollision(true, obstacle1Shape);
 
+        geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         GlobalUpdateRenderPipeline->createEntity(
             "Obstacle2",
             {500, 500},
-            {geometry::Rect, {300, 200}},
+            obstacle2Shape,
             5,
             true
-        ).enableCollision(true, 200 / 2);
+        ).enableCollision(true, {geometry::Square, {200, 200}});
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",
@@ -130,47 +132,50 @@ namespace slurp {
             true
         );
 
+        geometry::Shape playerShape = {geometry::Square, {BasePlayerSizePixels, BasePlayerSizePixels}};
         GlobalGameState->player.entity = &GlobalUpdateRenderPipeline->createEntity(
             "Player",
             PlayerStartPos,
-            {geometry::Square, {BasePlayerSizePixels, BasePlayerSizePixels}},
+            playerShape,
             PlayerColorPalletIdx,
             true
         );
         GlobalGameState->player.entity->speed = BasePlayerSpeed;
         GlobalGameState->player.entity->enableCollision(
             false,
-            BasePlayerSizePixels / 2,
+            playerShape,
             [](const Entity& otherEntity) {
                 std::cout << otherEntity.name << std::endl;
             });
 
+        geometry::Shape enemyShape = {geometry::Square, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {
             Entity*& enemy = GlobalGameState->enemies[i];
             enemy = &GlobalUpdateRenderPipeline->createEntity(
                 "Enemy" + std::to_string(i),
                 EnemyStartPos + (EnemyPosOffset * i),
-                {geometry::Square, {BaseEnemySizePixels, BaseEnemySizePixels}},
+                enemyShape,
                 EnemyColorPalletIdx,
                 true
             );
             enemy->speed = BaseEnemySpeed;
-            enemy->enableCollision(false, BaseEnemySizePixels / 2);
+            enemy->enableCollision(false, enemyShape);
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
         }
 
+        geometry::Shape projectileShape = {geometry::Square, {ProjectileSizePixels, ProjectileSizePixels}};
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             Entity*& projectile = GlobalGameState->projectiles[i];
             projectile = &GlobalUpdateRenderPipeline->createEntity(
                 "Projectile" + std::to_string(i),
                 {},
-                {geometry::Square, {ProjectileSizePixels, ProjectileSizePixels}},
+                projectileShape,
                 ProjectileColorPalletIdx,
                 true
             );
             projectile->enabled = false;
             projectile->speed = BaseProjectileSpeed;
-            projectile->enableCollision(false, ProjectileSizePixels / 2);
+            projectile->enableCollision(false, projectileShape);
         }
 
         if (!GlobalGameState->isInitialized) {

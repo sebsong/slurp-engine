@@ -31,12 +31,14 @@ namespace update {
                 continue;
             }
 
-            collision::CollisionSquare minkowskiSum = collision::getMinkowskiSum(
-                collisionInfo.collisionSquare, otherCollisionInfo.collisionSquare);
-            int minkowskiMinX = otherEntity.position.x - minkowskiSum.radius;
-            int minkowskiMaxX = otherEntity.position.x + minkowskiSum.radius;
-            int minkowskiMinY = otherEntity.position.y - minkowskiSum.radius;
-            int minkowskiMaxY = otherEntity.position.y + minkowskiSum.radius;
+            geometry::Shape minkowskiSum = geometry::getMinkowskiSum(
+                collisionInfo.shape.shape,
+                otherCollisionInfo.shape.shape
+            );
+            int minkowskiMinX = otherEntity.position.x - minkowskiSum.dimensions.x / 2;
+            int minkowskiMaxX = otherEntity.position.x + minkowskiSum.dimensions.x / 2;
+            int minkowskiMinY = otherEntity.position.y - minkowskiSum.dimensions.y / 2;
+            int minkowskiMaxY = otherEntity.position.y + minkowskiSum.dimensions.y / 2;
             if (slurp::Vector2<int> targetPosition = entity.position + positionUpdate;
                 math::inRange(targetPosition.x, minkowskiMinX, minkowskiMaxX) &&
                 math::inRange(targetPosition.y, minkowskiMinY, minkowskiMaxY)
