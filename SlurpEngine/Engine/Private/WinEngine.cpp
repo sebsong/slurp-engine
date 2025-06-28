@@ -1,9 +1,9 @@
-#include <iostream>
-#include <ostream>
 #include "Platform.h"
 #include "WinEngine.h"
 #include "Debug.h"
 
+#include <iostream>
+#include <format>
 #include <shlwapi.h>
 #include <string>
 
@@ -19,8 +19,9 @@
 #define DISPLAY_WIDTH 2560
 #define DISPLAY_HEIGHT 1440
 #endif
+#define FIT_TO_SCREEN 1
 #define DEFAULT_MONITOR_REFRESH_RATE 144
-#define DEBUG_MONITOR_REFRESH_RATE 60
+#define DEBUG_MONITOR_REFRESH_RATE 120
 #define VERBOSE 0
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
@@ -83,11 +84,11 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
 
 static void winUpdateWindow(
     HDC deviceContextHandle,
-    const WinGraphicsBuffer buffer,
+    const WinGraphicsBuffer& buffer,
     int screenWidth,
     int screenHeight
 ) {
-#if DEBUG
+#if !FIT_TO_SCREEN
     PatBlt(
         deviceContextHandle,
         0,
@@ -109,10 +110,10 @@ static void winUpdateWindow(
     // TODO: aspect ratio correction
     StretchDIBits(
         deviceContextHandle,
-#if 1
-        0, 0, buffer.widthPixels, buffer.heightPixels, // for pixel perfect scaling
-#else
+#if FIT_TO_SCREEN
         0, 0, screenWidth, screenHeight,
+#else
+        0, 0, buffer.widthPixels, buffer.heightPixels, // for pixel perfect scaling
 #endif
         0, 0, buffer.widthPixels, buffer.heightPixels,
         buffer.memory,
@@ -164,10 +165,23 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     return result;
 };
 
-static void winHandleMouseInput(HWND windowHandle, slurp::MouseState* outMouseState) {
+static void winHandleMouseInput(
+    HWND windowHandle,
+    slurp::MouseState* outMouseState,
+    const WinScreenDimensions& screenDimensions,
+    const WinGraphicsBuffer& buffer
+) {
     POINT point;
     GetCursorPos(&point);
     ScreenToClient(windowHandle, &point);
+#if FIT_TO_SCREEN
+    if (screenDimensions.width) {
+        point.x = point.x * buffer.widthPixels / screenDimensions.width;
+    }
+    if (screenDimensions.height) {
+        point.y = point.y * buffer.heightPixels / screenDimensions.height;
+    }
+#endif
     outMouseState->position = {point.x, point.y};
 
     short keyDownBit = static_cast<short>(1 << 15);
@@ -453,7 +467,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
         WS_EX_TOPMOST,
         windowClass.lpszClassName,
         "Slurp's Up!",
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
+        WS_MAXIMIZE | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         nullptr,
         nullptr,
@@ -556,9 +570,7 @@ static void winCaptureAndLogPerformance(
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
 #if VERBOSE
-    char buf[256];
-    sprintf_s(buf, "Frame: %.2fms %dfps %d processor mega-cycles\n", frameMillis, fps, frameProcessorMCycles);
-    OutputDebugStringA(buf);
+    std::cout << std::format("Frame: {:.2f}ms {}fps {} processor mega-cycles", frameMillis, fps, frameProcessorMCycles) << std::endl;
 #endif
 
     startProcessorCycle = processorCycleEnd;
@@ -1090,7 +1102,8 @@ int WINAPI WinMain(
     while (GlobalRunning) {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
-        winHandleMouseInput(windowHandle, &mouseState);
+        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
+        winHandleMouseInput(windowHandle, &mouseState, dimensions, GlobalGraphicsBuffer);
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
@@ -1137,7 +1150,6 @@ int WINAPI WinMain(
         winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
         winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
 
-        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
 #if 0
         winDrawDebugAudioSync(playCursor, 0x00000000);
         winDrawDebugAudioSync(lockCursor, 0x00FF0000);
