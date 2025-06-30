@@ -12,23 +12,26 @@ namespace slurp {
         bool enabled;
         render::RenderShape renderShape;
         Vector2<int> position;
-        Vector2<float> renderOffset;
         float speed;
         Vector2<float> direction;
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
-        Entity& enableCollision(bool isStatic, const geometry::Shape shape, const std::function<void(const Entity&)>& onCollision) {
+        Entity& enableCollision(bool isStatic, const geometry::Shape shape, bool centerPosition,
+                                const std::function<void(const Entity&)>& onCollision) {
             this->collisionInfo.collisionEnabled = true;
             this->collisionInfo.shape.shape = shape;
+            if (centerPosition) {
+                this->collisionInfo.shape.offset = shape.dimensions / 2;
+            }
             this->collisionInfo.isStatic = isStatic;
             this->collisionInfo.onCollision = onCollision;
             return *this;
         }
 
         // TODO: overload that allows you to just re-use render shape
-        Entity& enableCollision(bool isStatic, const geometry::Shape shape) {
-            enableCollision(isStatic, shape, [](const Entity&) {});
+        Entity& enableCollision(bool isStatic, const geometry::Shape shape, bool centerPosition) {
+            enableCollision(isStatic, shape, centerPosition, [](const Entity&) {});
             return *this;
         }
 

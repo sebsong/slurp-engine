@@ -35,6 +35,7 @@ namespace update {
                 collisionInfo.shape.shape,
                 otherCollisionInfo.shape.shape
             );
+            // TODO: account for collision offset here
             int minkowskiMinX = otherEntity.position.x - minkowskiSum.dimensions.x / 2;
             int minkowskiMaxX = otherEntity.position.x + minkowskiSum.dimensions.x / 2;
             int minkowskiMinY = otherEntity.position.y - minkowskiSum.dimensions.y / 2;

@@ -188,11 +188,6 @@ namespace render {
                 _drawRect(buffer, startPoint, endPoint, color);
                 break;
             }
-            case geometry::Square: {
-                assert(shape.dimensions.x == shape.dimensions.y);
-                _drawRect(buffer, startPoint, endPoint, color);
-                break;
-            }
             default: { assert(false); }
         }
     }
