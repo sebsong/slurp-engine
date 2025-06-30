@@ -193,12 +193,12 @@ namespace slurp {
 
     static void activateParry(Player& player) {
         player.isParryActive = true;
-        player.entity->renderShape.color = PlayerParryColorPalletIdx;
+        player.entity->renderShape.color = GlobalGameState->colorPalette.colors[PlayerParryColorPalletIdx];
     }
 
     static void deactivateParry(Player& player) {
         player.isParryActive = false;
-        player.entity->renderShape.color = PlayerColorPalletIdx;
+        player.entity->renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
@@ -217,7 +217,7 @@ namespace slurp {
             }
         }
 
-        if (mouseState.justPressed(MouseCode::RightClick)) {
+        if (mouseState.justPressed(MouseCode::RightClick) || keyboardState.justPressed(KeyboardCode::E)) {
             activateParry(GlobalGameState->player);
             timer::delay(ParryActiveDuration, [] { deactivateParry(GlobalGameState->player); });
         }

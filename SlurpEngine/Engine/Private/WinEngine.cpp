@@ -3,9 +3,10 @@
 #include "Debug.h"
 
 #include <iostream>
+#include <string>
 #include <format>
 #include <shlwapi.h>
-#include <string>
+#include <windowsx.h>
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
@@ -165,38 +166,18 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     return result;
 };
 
-static void winHandleMouseInput(
-    HWND windowHandle,
-    slurp::MouseState* outMouseState,
+static void updateMouseButtonState(slurp::MouseState& outMouseState, slurp::MouseCode mouseCode, bool isDown) {
+    slurp::DigitalInputState& inputState = outMouseState.state[mouseCode];
+    inputState.transitionCount = inputState.isDown != isDown ? 1 : 0;;
+    inputState.isDown = isDown;
+}
+
+static void winHandleMessages(
+    slurp::KeyboardState& outKeyboardState,
+    slurp::MouseState& outMouseState,
     const WinScreenDimensions& screenDimensions,
     const WinGraphicsBuffer& buffer
 ) {
-    POINT point;
-    GetCursorPos(&point);
-    ScreenToClient(windowHandle, &point);
-#if FIT_TO_SCREEN
-    if (screenDimensions.width) {
-        point.x = point.x * buffer.widthPixels / screenDimensions.width;
-    }
-    if (screenDimensions.height) {
-        point.y = point.y * buffer.heightPixels / screenDimensions.height;
-    }
-#endif
-    outMouseState->position = {point.x, point.y};
-
-    short keyDownBit = static_cast<short>(1 << 15);
-    for (std::pair<WinMouseCode, slurp::MouseCode> entry: MouseWinCodeToSlurpCode) {
-        WinMouseCode winMouseCode = entry.first;
-        bool isDown = GetKeyState(winMouseCode) & keyDownBit;
-
-        slurp::MouseCode mouseCode = entry.second;
-        slurp::DigitalInputState* inputState = &outMouseState->state[mouseCode];
-        inputState->transitionCount = inputState->isDown != isDown ? 1 : 0;
-        inputState->isDown = isDown;
-    }
-}
-
-static void winHandleMessages(slurp::KeyboardState* keyboardState) {
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
         switch (message.message) {
@@ -211,13 +192,54 @@ static void winHandleMessages(slurp::KeyboardState* keyboardState) {
                 if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0) {
                     slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
                     // TODO: change transition count computation once we poll multiple times per frame
-                    slurp::DigitalInputState* inputState = &keyboardState->state[code];
-                    inputState->transitionCount = wasDown != isDown ? 1 : 0;
+                    slurp::DigitalInputState& inputState = outKeyboardState.state[code];
+                    inputState.transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
-                    inputState->isDown = isDown;
+                    inputState.isDown = isDown;
                 } else {
                     OutputDebugStringA("Windows keyboard code not registered.\n");
                 }
+            }
+            break;
+            case WM_LBUTTONDOWN:
+            case WM_LBUTTONUP: {
+                bool isDown = message.wParam & MK_LBUTTON;
+                updateMouseButtonState(outMouseState, slurp::MouseCode::LeftClick, isDown);
+            }
+            break;
+            case WM_MBUTTONDOWN:
+            case WM_MBUTTONUP: {
+                bool isDown = message.wParam & MK_MBUTTON;
+                updateMouseButtonState(outMouseState, slurp::MouseCode::MiddleClick, isDown);
+            }
+            break;
+            case WM_RBUTTONDOWN:
+            case WM_RBUTTONUP: {
+                bool isDown = message.wParam & MK_RBUTTON;
+                updateMouseButtonState(outMouseState, slurp::MouseCode::RightClick, isDown);
+            }
+            break;
+            case WM_XBUTTONDOWN:
+            case WM_XBUTTONUP: {
+                bool isXButton1Down = message.wParam & MK_XBUTTON1;
+                updateMouseButtonState(outMouseState, slurp::MouseCode::Button1, isXButton1Down);
+
+                bool isXButton2Down = message.wParam & MK_XBUTTON2;
+                updateMouseButtonState(outMouseState, slurp::MouseCode::Button2, isXButton2Down);
+            }
+            break;
+            case WM_MOUSEMOVE: {
+                int xPosition = GET_X_LPARAM(message.lParam);
+                int yPosition = GET_Y_LPARAM(message.lParam);
+#if FIT_TO_SCREEN
+                if (screenDimensions.width) {
+                    xPosition *= (static_cast<float>(buffer.widthPixels) / screenDimensions.width);
+                }
+                if (screenDimensions.height) {
+                    yPosition *= (static_cast<float>(buffer.heightPixels) / screenDimensions.height);
+                }
+#endif
+                outMouseState.position = {xPosition, yPosition};
             }
             break;
             case WM_QUIT: {
@@ -1102,13 +1124,16 @@ int WINAPI WinMain(
     while (GlobalRunning) {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
-        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
-        winHandleMouseInput(windowHandle, &mouseState, dimensions, GlobalGraphicsBuffer);
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
-        winHandleMessages(&keyboardState);
+        for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
+            slurp::DigitalInputState& inputState = entry.second;
+            inputState.transitionCount = 0;
+        }
+        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
+        winHandleMessages(keyboardState, mouseState, dimensions, GlobalGraphicsBuffer);
         winHandleGamepadInput(controllerStates);
 #if DEBUG
         if (GlobalRecordingState.isRecording) {

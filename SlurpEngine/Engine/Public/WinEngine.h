@@ -50,6 +50,7 @@ static const std::unordered_map<WinKbCode, slurp::KeyboardCode> KeyboardWinCodeT
     {'A', slurp::KeyboardCode::A},
     {'S', slurp::KeyboardCode::S},
     {'D', slurp::KeyboardCode::D},
+    {'E', slurp::KeyboardCode::E},
     {'R', slurp::KeyboardCode::R},
     {'T', slurp::KeyboardCode::T},
     {'P', slurp::KeyboardCode::P},

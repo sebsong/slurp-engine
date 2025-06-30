@@ -64,6 +64,7 @@ namespace slurp {
         S,
         D,
         P,
+        E,
         R,
         T,
         ESC,
