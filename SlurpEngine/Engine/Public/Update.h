@@ -36,34 +36,35 @@ namespace update {
                 otherCollisionInfo.shape.shape
             );
             // TODO: account for collision offset here
-            const slurp::Vector2<int> minkowskiMinPoint = otherEntity.position;
+            const slurp::Vector2<int> entityOffsetPosition = entity.position + entity.collisionInfo.shape.shape.dimensions - collisionInfo.shape.offset;
+            // const slurp::Vector2<int> otherEntityOffsetPosition = otherEntity.position - otherCollisionInfo.shape.shape.dimensions - collisionInfo.shape.offset;
+            const slurp::Vector2<int> minkowskiMinPoint = otherEntity.position - otherCollisionInfo.shape.offset;
             const slurp::Vector2<int> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
             int minkowskiMinX = minkowskiMinPoint.x;
             int minkowskiMaxX = minkowskiMaxPoint.x;
             int minkowskiMinY = minkowskiMinPoint.y;
             int minkowskiMaxY = minkowskiMaxPoint.y;
-            const slurp::Vector2<int> offsetEntityPosition = entity.position + entity.collisionInfo.shape.shape.dimensions;
-            if (slurp::Vector2<int> targetPosition = offsetEntityPosition + positionUpdate;
+            if (slurp::Vector2<int> targetPosition = entityOffsetPosition + positionUpdate;
                 math::inRange(targetPosition.x, minkowskiMinX, minkowskiMaxX) &&
                 math::inRange(targetPosition.y, minkowskiMinY, minkowskiMaxY)
             ) {
-                if (math::inRange(offsetEntityPosition.y, minkowskiMinY, minkowskiMaxY)) {
+                if (math::inRange(entityOffsetPosition.y, minkowskiMinY, minkowskiMaxY)) {
                     int xAxisPositionUpdate = positionUpdate.x;
-                    if (offsetEntityPosition.x <= otherEntity.position.x) {
-                        xAxisPositionUpdate = minkowskiMinX - offsetEntityPosition.x;
+                    if (entityOffsetPosition.x <= otherEntity.position.x) {
+                        xAxisPositionUpdate = minkowskiMinX - entityOffsetPosition.x;
                     } else {
-                        xAxisPositionUpdate = minkowskiMaxX - offsetEntityPosition.x;
+                        xAxisPositionUpdate = minkowskiMaxX - entityOffsetPosition.x;
                     }
                     if (std::abs(xAxisPositionUpdate) < std::abs(positionUpdate.x)) {
                         positionUpdate.x = xAxisPositionUpdate;
                     }
                 }
-                if (math::inRange(offsetEntityPosition.x, minkowskiMinX, minkowskiMaxX)) {
+                if (math::inRange(entityOffsetPosition.x, minkowskiMinX, minkowskiMaxX)) {
                     int yAxisPositionUpdate = positionUpdate.y;
-                    if (offsetEntityPosition.y <= otherEntity.position.y) {
-                        yAxisPositionUpdate = minkowskiMinY - offsetEntityPosition.y;
+                    if (entityOffsetPosition.y <= otherEntity.position.y) {
+                        yAxisPositionUpdate = minkowskiMinY - entityOffsetPosition.y;
                     } else {
-                        yAxisPositionUpdate = minkowskiMaxY - offsetEntityPosition.y;
+                        yAxisPositionUpdate = minkowskiMaxY - entityOffsetPosition.y;
                     }
                     if (std::abs(yAxisPositionUpdate) < std::abs(positionUpdate.y)) {
                         positionUpdate.y = yAxisPositionUpdate;

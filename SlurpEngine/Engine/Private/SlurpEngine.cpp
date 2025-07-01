@@ -131,7 +131,7 @@ namespace slurp {
             obstacle2Shape,
             5,
             true
-        ).enableCollision(true, {geometry::Rect, {250, 200}}, false);
+        ).enableCollision(true, {geometry::Rect, {250, 200}}, false).collisionInfo.shape.offset = {500, 300};
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",
@@ -153,7 +153,7 @@ namespace slurp {
         GlobalGameState->player.entity->enableCollision(
             false,
             playerShape,
-            false,
+            true,
             [](const Entity& otherEntity) {
                 std::cout << otherEntity.name << std::endl;
             });
