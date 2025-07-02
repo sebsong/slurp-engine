@@ -97,23 +97,41 @@ namespace slurp {
         GlobalGameState->colorPalette = colorPalette;
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
-        // TODO: make walls
-        //  GlobalUpdateRenderPipeline->createEntity(
-        //     "WallUp",
-        //     2000,
-        //     {600, -450},
-        //     5,
-        //     true
-        // ).enableCollision(true);
-
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         GlobalUpdateRenderPipeline->createEntity(
-            "Wall1",
+            "WallUp",
             {0, 0},
             wallUpShape,
             5,
             false
         ).enableCollision(true, wallUpShape, false);
+
+        geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
+        GlobalUpdateRenderPipeline->createEntity(
+            "WallDown",
+            {0, 700},
+            wallDownShape,
+            5,
+            false
+        ).enableCollision(true, wallDownShape, false);
+
+        geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
+        GlobalUpdateRenderPipeline->createEntity(
+            "WallLeft",
+            {0, 0},
+            wallLeftShape,
+            5,
+            false
+        ).enableCollision(true, wallLeftShape, false);
+
+        geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
+        GlobalUpdateRenderPipeline->createEntity(
+            "WallRight",
+            {1260, 0},
+            wallRightShape,
+            5,
+            false
+        ).enableCollision(true, wallRightShape, false);
 
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         GlobalUpdateRenderPipeline->createEntity(
@@ -131,7 +149,7 @@ namespace slurp {
                     obstacle2Shape,
                     5,
                     true
-                ).enableCollision(true, {geometry::Rect, {250, 200}}, trueaa);
+                ).enableCollision(true, {geometry::Rect, {250, 200}}, true);
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",
