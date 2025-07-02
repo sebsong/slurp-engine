@@ -44,7 +44,7 @@ namespace slurp {
                 render::drawRenderable(buffer, entity);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
-                const Vector2<int>& offsetPosition = entity.position - entity.collisionInfo.shape.offset;
+                const Vector2<int>& offsetPosition = entity.position - entity.collisionInfo.shape.offset; // TODO: this should add the offset instead of subtract
                 render::drawRectBorder(
                     buffer,
                     offsetPosition,

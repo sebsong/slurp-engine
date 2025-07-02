@@ -36,8 +36,8 @@ namespace update {
                 otherCollisionInfo.shape.shape
             );
             // TODO: account for collision offset here
-            const slurp::Vector2<int> entityOffsetPosition = entity.position + entity.collisionInfo.shape.shape.dimensions - collisionInfo.shape.offset;
-            // const slurp::Vector2<int> otherEntityOffsetPosition = otherEntity.position - otherCollisionInfo.shape.shape.dimensions - collisionInfo.shape.offset;
+            const slurp::Vector2<int> entityOffsetPosition = entity.position - collisionInfo.shape.offset + entity.collisionInfo.shape.shape.dimensions;
+            const slurp::Vector2<int> otherEntityOffsetPosition = otherEntity.position - otherCollisionInfo.shape.offset;
             const slurp::Vector2<int> minkowskiMinPoint = otherEntity.position - otherCollisionInfo.shape.offset;
             const slurp::Vector2<int> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
             int minkowskiMinX = minkowskiMinPoint.x;
@@ -50,7 +50,7 @@ namespace update {
             ) {
                 if (math::inRange(entityOffsetPosition.y, minkowskiMinY, minkowskiMaxY)) {
                     int xAxisPositionUpdate = positionUpdate.x;
-                    if (entityOffsetPosition.x <= otherEntity.position.x) {
+                    if (entityOffsetPosition.x <= otherEntityOffsetPosition.x) {
                         xAxisPositionUpdate = minkowskiMinX - entityOffsetPosition.x;
                     } else {
                         xAxisPositionUpdate = minkowskiMaxX - entityOffsetPosition.x;
@@ -61,7 +61,7 @@ namespace update {
                 }
                 if (math::inRange(entityOffsetPosition.x, minkowskiMinX, minkowskiMaxX)) {
                     int yAxisPositionUpdate = positionUpdate.y;
-                    if (entityOffsetPosition.y <= otherEntity.position.y) {
+                    if (entityOffsetPosition.y <= otherEntityOffsetPosition.y) {
                         yAxisPositionUpdate = minkowskiMinY - entityOffsetPosition.y;
                     } else {
                         yAxisPositionUpdate = minkowskiMaxY - entityOffsetPosition.y;

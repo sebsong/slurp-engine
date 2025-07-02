@@ -126,12 +126,12 @@ namespace slurp {
 
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         GlobalUpdateRenderPipeline->createEntity(
-            "Obstacle2",
-            {500, 500},
-            obstacle2Shape,
-            5,
-            true
-        ).enableCollision(true, {geometry::Rect, {250, 200}}, false).collisionInfo.shape.offset = {500, 300};
+                    "Obstacle2",
+                    {500, 500},
+                    obstacle2Shape,
+                    5,
+                    true
+                ).enableCollision(true, {geometry::Rect, {250, 200}}, trueaa);
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",
