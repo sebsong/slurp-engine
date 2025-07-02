@@ -97,6 +97,14 @@ namespace slurp {
         GlobalGameState->colorPalette = colorPalette;
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
+        GlobalUpdateRenderPipeline->createEntity(
+            "WallUp",
+            {0, 0},
+            {geometry::Rect, {1280, 720}},
+            7,
+            false
+        );
+
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         GlobalUpdateRenderPipeline->createEntity(
             "WallUp",
@@ -144,12 +152,12 @@ namespace slurp {
 
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         GlobalUpdateRenderPipeline->createEntity(
-                    "Obstacle2",
-                    {500, 500},
-                    obstacle2Shape,
-                    5,
-                    true
-                ).enableCollision(true, {geometry::Rect, {250, 200}}, true);
+            "Obstacle2",
+            {500, 500},
+            obstacle2Shape,
+            5,
+            true
+        ).enableCollision(true, obstacle2Shape, true);
 
         GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
             "MouseCursor",
@@ -333,61 +341,12 @@ namespace slurp {
 
     SLURP_LOAD_AUDIO(loadAudio) {}
 
-    static const Entity* findClosest(const Vector2<int>& position, Entity* entities[NUM_ENEMIES], int numEntities) {
-        assert(numEntities > 0);
-
-        int minIdx = 0;
-        float minDistance = position.distanceTo(entities[0]->position);
-
-        for (int i = 1; i < numEntities; i++) {
-            const Entity* entity = entities[i];
-            float distance = position.distanceTo(entity->position);
-            if (distance < minDistance) {
-                minIdx = i;
-                minDistance = distance;
-            }
-        }
-
-        return entities[minIdx];
-    }
-
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        // // Draw background
-        render::drawRect(
-            graphicsBuffer,
-            {0, 0},
-            {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
-            7,
-            GlobalGameState->colorPalette
-        );
         drawColorPaletteSwatch(graphicsBuffer, {0, 0}, 25);
 
         GlobalUpdateRenderPipeline->process(graphicsBuffer, dt);
-
-        for (const Entity* projectile: GlobalGameState->projectiles) {
-            if (projectile->enabled) {
-                const Entity* closestEnemy = findClosest(projectile->position, GlobalGameState->enemies, NUM_ENEMIES);
-                render::drawLine(
-                    graphicsBuffer,
-                    projectile->position,
-                    closestEnemy->position,
-                    2,
-                    0,
-                    GlobalGameState->colorPalette
-                );
-            }
-        }
-
-        render::drawLine(
-            graphicsBuffer,
-            GlobalGameState->mouseCursor->position,
-            GlobalGameState->player.entity->position,
-            2,
-            5,
-            GlobalGameState->colorPalette
-        );
 
 #if DEBUG
         if (GlobalRecordingState->isRecording) {
