@@ -39,4 +39,11 @@ namespace slurp {
             return id == other.id;
         }
     };
+
+    struct EntityContainer {
+        explicit EntityContainer(Entity&& entity)
+            : entity(std::move(entity)) {}
+
+        const Entity entity;
+    };
 }

@@ -23,6 +23,7 @@ namespace slurp {
         void process(const render::GraphicsBuffer& buffer, float dt);
 
     private:
+        //TODO: have this be a pipeline for entity containers
         std::deque<Entity> _pipeline; // TODO: replace with a priority queue when we want priority
         const render::ColorPalette _colorPalette;
     };

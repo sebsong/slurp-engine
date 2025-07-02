@@ -14,8 +14,7 @@
 #define PROJECTILE_POOL_SIZE 1000
 
 namespace slurp {
-    struct Player {
-        Entity* entity;
+    class Player : EntityContainer {
         bool isParryActive;
     };
 
