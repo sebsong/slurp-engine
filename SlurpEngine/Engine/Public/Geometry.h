@@ -5,7 +5,6 @@
 namespace geometry {
     enum ShapeType {
         Rect,
-        Square,
     };
 
     struct Shape {
@@ -14,10 +13,6 @@ namespace geometry {
     };
 
     inline Shape getMinkowskiSum(const Shape& a, const Shape& b) {
-        assert(a.type == Square && b.type == Square);
-        if (a.type == Square && b.type == Square) {
-            return {Square, a.dimensions + b.dimensions};
-        }
-        return {};
+        return {Rect, a.dimensions + b.dimensions};
     }
 }
