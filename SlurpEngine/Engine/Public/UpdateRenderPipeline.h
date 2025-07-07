@@ -13,18 +13,19 @@ namespace slurp {
     public:
         explicit UpdateRenderPipeline(const render::ColorPalette& colorPalette);
 
-        Entity& createEntity(
+        Entity& initAndRegister(
+            Entity& outEntity,
             std::string&& name,
             const Vector2<int>& position,
             const geometry::Shape& renderShape,
             render::ColorPaletteIdx color,
             bool centerPosition
         );
+
         void process(const render::GraphicsBuffer& buffer, float dt);
 
     private:
-        //TODO: have this be a pipeline for entity containers
-        std::deque<Entity> _pipeline; // TODO: replace with a priority queue when we want priority
+        std::deque<Entity*> _pipeline; // TODO: replace with a priority queue when we want priority
         const render::ColorPalette _colorPalette;
     };
 }

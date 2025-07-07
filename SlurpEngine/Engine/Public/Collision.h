@@ -18,6 +18,6 @@ namespace collision {
         bool isStatic;
         CollisionShape shape;
         std::set<slurp::Entity*> collidingWith;
-        std::function<void(const slurp::Entity&)> onCollision;
+        std::function<void(const slurp::Entity*)> onCollision;
     };
 }
