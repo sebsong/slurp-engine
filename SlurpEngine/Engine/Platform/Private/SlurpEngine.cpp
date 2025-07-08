@@ -2,13 +2,18 @@
 #include "Random.h"
 #include "Debug.h"
 
-// Single translation unit, unity build
 #include <iostream>
 
+/* Single translation unit, unity build */
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Update.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Collision.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Render.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "UpdateRenderPipeline.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
 
 typedef unsigned char byte;
