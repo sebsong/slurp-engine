@@ -21,7 +21,7 @@ namespace slurp {
     ) {
         new(&outEntity) Entity();
         uint32_t id = _pipeline.size();
-        _pipeline.emplace_back();
+        _pipeline.emplace_back(&outEntity);
         outEntity.id = id;
         outEntity.name = std::move(name);
         outEntity.enabled = true;
