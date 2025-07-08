@@ -11,30 +11,6 @@ namespace slurp {
         this->_pipeline = std::deque<Entity*>();
     }
 
-    Entity& UpdateRenderPipeline::initAndRegister(
-        Entity& outEntity,
-        std::string&& name,
-        const Vector2<int>& position,
-        const geometry::Shape& renderShape,
-        render::ColorPaletteIdx color,
-        bool centerPosition
-    ) {
-        new(&outEntity) Entity();
-        uint32_t id = _pipeline.size();
-        _pipeline.emplace_back(&outEntity);
-        outEntity.id = id;
-        outEntity.name = std::move(name);
-        outEntity.enabled = true;
-        outEntity.position = position;
-        outEntity.renderShape.shape = renderShape;
-        if (centerPosition) {
-            outEntity.renderShape.renderOffset = -renderShape.dimensions / 2;
-        }
-        assert(color < COLOR_PALETTE_SIZE);
-        outEntity.renderShape.color = _colorPalette.colors[color];
-        return outEntity;
-    }
-
     void UpdateRenderPipeline::process(const render::GraphicsBuffer& buffer, float dt) {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction

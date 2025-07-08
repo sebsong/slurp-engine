@@ -21,7 +21,7 @@ namespace slurp {
             bool isStatic,
             const geometry::Shape shape,
             bool centerPosition,
-            const std::function<void(const Entity*)>& onCollision
+            const std::function<void(const Entity*)>& onCollisionEnter
         ) {
             this->collisionInfo.collisionEnabled = true;
             this->collisionInfo.shape.shape = shape;
@@ -29,7 +29,7 @@ namespace slurp {
                 this->collisionInfo.shape.offset = -shape.dimensions / 2;
             }
             this->collisionInfo.isStatic = isStatic;
-            this->collisionInfo.onCollision = onCollision;
+            this->collisionInfo.onCollisionEnter = onCollisionEnter;
             return *this;
         }
 
@@ -38,6 +38,8 @@ namespace slurp {
             enableCollision(isStatic, shape, centerPosition, [](const Entity*) {});
             return *this;
         }
+
+        virtual ~Entity() = default;
 
         bool operator==(const Entity& other) const {
             return id == other.id;

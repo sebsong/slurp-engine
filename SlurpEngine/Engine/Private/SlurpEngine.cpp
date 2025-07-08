@@ -225,7 +225,17 @@ namespace slurp {
             );
             projectile.enabled = false;
             projectile.speed = BaseProjectileSpeed;
-            projectile.enableCollision(false, projectileShape, true);
+            projectile.enableCollision(
+                false,
+                projectileShape,
+                true,
+                [](const Entity* other) {
+                    if (const Player* player = dynamic_cast<const Player*>(other)) {
+                        std::cout << "PLAYER HIT: " << player->name << std::endl;
+                    } else {
+                        std::cout << "OTHER HIT: " << other->name << std::endl;
+                    }
+                });
         }
 
         if (!GlobalGameState->isInitialized) {

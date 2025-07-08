@@ -65,15 +65,16 @@ namespace update {
                         positionUpdate.y = yAxisPositionUpdate;
                     }
                 }
-                if (collisionInfo.onCollision && !collisionInfo.collidingWith.contains(otherEntity)) {
-                    collisionInfo.onCollision(otherEntity);
+                if (collisionInfo.onCollisionEnter && !collisionInfo.collidingWith.contains(otherEntity)) {
+                    collisionInfo.onCollisionEnter(otherEntity);
                 }
-                if (otherCollisionInfo.onCollision && !otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherCollisionInfo.onCollision(entity);
+                if (otherCollisionInfo.onCollisionEnter && !otherCollisionInfo.collidingWith.contains(entity)) {
+                    otherCollisionInfo.onCollisionEnter(entity);
                 }
                 collisionInfo.collidingWith.insert(otherEntity);
                 otherCollisionInfo.collidingWith.insert(entity);
             } else {
+                // TODO: onCollisionExit
                 collisionInfo.collidingWith.erase(otherEntity);
                 otherCollisionInfo.collidingWith.erase(entity);
             }
