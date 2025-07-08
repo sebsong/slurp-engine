@@ -23,7 +23,6 @@
 #define FIT_TO_SCREEN 1
 #define DEFAULT_MONITOR_REFRESH_RATE 144
 #define DEBUG_MONITOR_REFRESH_RATE 120
-#define VERBOSE 0
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
