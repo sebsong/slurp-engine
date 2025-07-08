@@ -41,7 +41,7 @@ target_link_options(slurp_engine PRIVATE ${linker_flags})
 
 # WIN ENGINE EXE
 add_executable(win_engine WIN32 WinEngine.cpp)
-target_link_libraries(win_engine ${libs})
+target_link_libraries(win_engine PRIVATE ${libs})
 target_compile_options(win_engine PRIVATE ${compiler_flags})
 target_link_options(win_engine PRIVATE ${linker_flags})
 

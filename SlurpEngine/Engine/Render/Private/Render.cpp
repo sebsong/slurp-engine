@@ -9,7 +9,7 @@ namespace render {
 #ifdef ASSETS_DIR
     static const std::string AssetsDirectory = ASSETS_DIR;
 #else
-    static const std::string AssetsDirectory = "../../../assets/";
+    static const std::string AssetsDirectory = "../../../../assets/";
 #endif
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
