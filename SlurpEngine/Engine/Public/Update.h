@@ -65,7 +65,6 @@ namespace update {
                         positionUpdate.y = yAxisPositionUpdate;
                     }
                 }
-                //TODO: pass entity container to on collision
                 if (collisionInfo.onCollision && !collisionInfo.collidingWith.contains(otherEntity)) {
                     collisionInfo.onCollision(otherEntity);
                 }
