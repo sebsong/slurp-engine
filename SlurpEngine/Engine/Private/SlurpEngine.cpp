@@ -193,8 +193,12 @@ namespace slurp {
             playerShape,
             true,
             [](const Entity* otherEntity) {
-                std::cout << otherEntity->name << std::endl;
-            });
+                std::cout << "ENTER: " << otherEntity->name << std::endl;
+            },
+            [](const Entity* otherEntity) {
+                std::cout << "EXIT: " << otherEntity->name << std::endl;
+            }
+        );
 
         geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {
@@ -235,7 +239,15 @@ namespace slurp {
                     } else {
                         std::cout << "OTHER HIT: " << other->name << std::endl;
                     }
-                });
+                },
+                [](const Entity* other) {
+                    if (const Player* player = dynamic_cast<const Player*>(other)) {
+                        std::cout << "PLAYER EXIT: " << player->name << std::endl;
+                    } else {
+                        std::cout << "OTHER EXIT: " << other->name << std::endl;
+                    }
+                }
+                );
         }
 
         if (!GlobalGameState->isInitialized) {

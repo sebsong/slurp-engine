@@ -1,6 +1,8 @@
 #pragma once
 #include <set>
 
+#define NO_OP_ON_COLLISION [](const Entity*) {}
+
 namespace collision {
     struct CollisionShape {
         geometry::Shape shape;
@@ -19,5 +21,6 @@ namespace collision {
         CollisionShape shape;
         std::set<slurp::Entity*> collidingWith;
         std::function<void(const slurp::Entity*)> onCollisionEnter;
+        std::function<void(const slurp::Entity*)> onCollisionExit;
     };
 }

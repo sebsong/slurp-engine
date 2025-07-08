@@ -35,8 +35,10 @@ namespace update {
                 collisionInfo.shape.shape,
                 otherCollisionInfo.shape.shape
             );
-            const slurp::Vector2<int> entityOffsetPosition = entity->position + collisionInfo.shape.offset + entity->collisionInfo.shape.shape.dimensions;
-            const slurp::Vector2<int> otherEntityOffsetPosition = otherEntity->position + otherCollisionInfo.shape.offset;
+            const slurp::Vector2<int> entityOffsetPosition =
+                    entity->position + collisionInfo.shape.offset + entity->collisionInfo.shape.shape.dimensions;
+            const slurp::Vector2<int> otherEntityOffsetPosition =
+                    otherEntity->position + otherCollisionInfo.shape.offset;
             const slurp::Vector2<int> minkowskiMinPoint = otherEntityOffsetPosition;
             const slurp::Vector2<int> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
             if (slurp::Vector2<int> targetPosition = entityOffsetPosition + positionUpdate;
@@ -74,7 +76,12 @@ namespace update {
                 collisionInfo.collidingWith.insert(otherEntity);
                 otherCollisionInfo.collidingWith.insert(entity);
             } else {
-                // TODO: onCollisionExit
+                if (collisionInfo.onCollisionExit && collisionInfo.collidingWith.contains(otherEntity)) {
+                    collisionInfo.onCollisionExit(otherEntity);
+                }
+                if (otherCollisionInfo.onCollisionExit && otherCollisionInfo.collidingWith.contains(entity)) {
+                    otherCollisionInfo.onCollisionExit(entity);
+                }
                 collisionInfo.collidingWith.erase(otherEntity);
                 otherCollisionInfo.collidingWith.erase(entity);
             }

@@ -21,7 +21,8 @@ namespace slurp {
             bool isStatic,
             const geometry::Shape shape,
             bool centerPosition,
-            const std::function<void(const Entity*)>& onCollisionEnter
+            const std::function<void(const Entity*)>& onCollisionEnter,
+            const std::function<void(const Entity*)>& onCollisionExit
         ) {
             this->collisionInfo.collisionEnabled = true;
             this->collisionInfo.shape.shape = shape;
@@ -30,12 +31,19 @@ namespace slurp {
             }
             this->collisionInfo.isStatic = isStatic;
             this->collisionInfo.onCollisionEnter = onCollisionEnter;
+            this->collisionInfo.onCollisionExit = onCollisionExit;
             return *this;
         }
 
         // TODO: overload that allows you to just re-use render shape
         Entity& enableCollision(bool isStatic, const geometry::Shape shape, bool centerPosition) {
-            enableCollision(isStatic, shape, centerPosition, [](const Entity*) {});
+            enableCollision(
+                isStatic,
+                shape,
+                centerPosition,
+                NO_OP_ON_COLLISION,
+                NO_OP_ON_COLLISION
+            );
             return *this;
         }
 
