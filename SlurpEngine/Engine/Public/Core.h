@@ -26,7 +26,7 @@ namespace slurp {
             this->collisionInfo.collisionEnabled = true;
             this->collisionInfo.shape.shape = shape;
             if (centerPosition) {
-                this->collisionInfo.shape.offset = shape.dimensions / 2;
+                this->collisionInfo.shape.offset = -shape.dimensions / 2;
             }
             this->collisionInfo.isStatic = isStatic;
             this->collisionInfo.onCollision = onCollision;

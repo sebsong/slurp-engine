@@ -28,7 +28,7 @@ namespace slurp {
         outEntity.position = position;
         outEntity.renderShape.shape = renderShape;
         if (centerPosition) {
-            outEntity.renderShape.renderOffset = renderShape.dimensions / 2;
+            outEntity.renderShape.renderOffset = -renderShape.dimensions / 2;
         }
         assert(color < COLOR_PALETTE_SIZE);
         outEntity.renderShape.color = _colorPalette.colors[color];
@@ -45,8 +45,7 @@ namespace slurp {
                 render::drawRenderable(buffer, entity);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
-                const Vector2<int>& offsetPosition = entity->position - entity->collisionInfo.shape.offset;
-                // TODO: this should add the offset instead of subtract
+                const Vector2<int>& offsetPosition = entity->position + entity->collisionInfo.shape.offset;
                 render::drawRectBorder(
                     buffer,
                     offsetPosition,

@@ -35,8 +35,8 @@ namespace update {
                 collisionInfo.shape.shape,
                 otherCollisionInfo.shape.shape
             );
-            const slurp::Vector2<int> entityOffsetPosition = entity->position - collisionInfo.shape.offset + entity->collisionInfo.shape.shape.dimensions;
-            const slurp::Vector2<int> otherEntityOffsetPosition = otherEntity->position - otherCollisionInfo.shape.offset;
+            const slurp::Vector2<int> entityOffsetPosition = entity->position + collisionInfo.shape.offset + entity->collisionInfo.shape.shape.dimensions;
+            const slurp::Vector2<int> otherEntityOffsetPosition = otherEntity->position + otherCollisionInfo.shape.offset;
             const slurp::Vector2<int> minkowskiMinPoint = otherEntityOffsetPosition;
             const slurp::Vector2<int> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
             if (slurp::Vector2<int> targetPosition = entityOffsetPosition + positionUpdate;

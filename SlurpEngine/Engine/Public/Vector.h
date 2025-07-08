@@ -95,6 +95,10 @@ namespace slurp {
             return *this;
         }
 
+        Vector2 operator-() const {
+            return Vector2(-this->x, -this->y);
+        }
+
         template<typename TNew>
         operator Vector2<TNew>() const {
             return Vector2<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->y));

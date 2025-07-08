@@ -181,7 +181,7 @@ namespace render {
     }
 
     void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const {
-        const slurp::Vector2<int> startPoint = position - renderOffset; // TODO: this should add the offset instead of subtract
+        const slurp::Vector2<int> startPoint = position + renderOffset;
         const slurp::Vector2<int> endPoint = startPoint + shape.dimensions;
         switch (shape.type) {
             case geometry::Rect: {
