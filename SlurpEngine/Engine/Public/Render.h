@@ -72,8 +72,8 @@ namespace render {
     );
 
     template<Renderable T>
-    void drawRenderable(const GraphicsBuffer& buffer, const T& renderable) {
-        renderable.renderShape.draw(buffer, renderable.position);
+    void drawRenderable(const GraphicsBuffer& buffer, const T* renderable) {
+        renderable->renderShape.draw(buffer, renderable->position);
     }
 
     void drawRectBorder(

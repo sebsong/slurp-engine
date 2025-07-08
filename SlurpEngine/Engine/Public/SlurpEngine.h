@@ -11,11 +11,11 @@
 
 #define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
-#define PROJECTILE_POOL_SIZE 1000
+#define PROJECTILE_POOL_SIZE 10
 
 namespace slurp {
-    struct Player {
-        Entity* entity;
+    class Player : public Entity {
+    public:
         bool isParryActive;
     };
 
@@ -24,11 +24,19 @@ namespace slurp {
         bool isInitialized;
         render::ColorPalette colorPalette;
 
-        Entity* mouseCursor;
+        Entity background;
+        Entity wallUp;
+        Entity wallDown;
+        Entity wallLeft;
+        Entity wallRight;
+        Entity obstacle1;
+        Entity obstacle2;
+
+        Entity mouseCursor;
         Player player;
-        Entity* enemies[NUM_ENEMIES];
+        Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
-        Entity* projectiles[PROJECTILE_POOL_SIZE];
+        Entity projectiles[PROJECTILE_POOL_SIZE];
     };
 
     struct MemorySections {

@@ -97,8 +97,9 @@ namespace slurp {
         GlobalGameState->colorPalette = colorPalette;
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
-        GlobalUpdateRenderPipeline->createEntity(
-            "WallUp",
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->background,
+            "Background",
             {0, 0},
             {geometry::Rect, {1280, 720}},
             7,
@@ -106,7 +107,8 @@ namespace slurp {
         );
 
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
-        GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->wallUp,
             "WallUp",
             {0, 0},
             wallUpShape,
@@ -115,7 +117,8 @@ namespace slurp {
         ).enableCollision(true, wallUpShape, false);
 
         geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
-        GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->wallDown,
             "WallDown",
             {0, 700},
             wallDownShape,
@@ -124,7 +127,8 @@ namespace slurp {
         ).enableCollision(true, wallDownShape, false);
 
         geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
-        GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->wallLeft,
             "WallLeft",
             {0, 0},
             wallLeftShape,
@@ -133,7 +137,9 @@ namespace slurp {
         ).enableCollision(true, wallLeftShape, false);
 
         geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
-        GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->wallRight,
+
             "WallRight",
             {1260, 0},
             wallRightShape,
@@ -142,7 +148,9 @@ namespace slurp {
         ).enableCollision(true, wallRightShape, false);
 
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
-        GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->obstacle1,
+
             "Obstacle1",
             {200, 500},
             obstacle1Shape,
@@ -151,7 +159,9 @@ namespace slurp {
         ).enableCollision(true, obstacle1Shape, true);
 
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
-        GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->obstacle2,
+
             "Obstacle2",
             {500, 500},
             obstacle2Shape,
@@ -159,7 +169,8 @@ namespace slurp {
             true
         ).enableCollision(true, obstacle2Shape, true);
 
-        GlobalGameState->mouseCursor = &GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->mouseCursor,
             "MouseCursor",
             {},
             {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
@@ -168,50 +179,53 @@ namespace slurp {
         );
 
         geometry::Shape playerShape = {geometry::Rect, {BasePlayerSizePixels, BasePlayerSizePixels}};
-        GlobalGameState->player.entity = &GlobalUpdateRenderPipeline->createEntity(
+        GlobalUpdateRenderPipeline->initAndRegister(
+            GlobalGameState->player,
             "Player",
             PlayerStartPos,
             playerShape,
             PlayerColorPalletIdx,
             true
         );
-        GlobalGameState->player.entity->speed = BasePlayerSpeed;
-        GlobalGameState->player.entity->enableCollision(
+        GlobalGameState->player.speed = BasePlayerSpeed;
+        GlobalGameState->player.enableCollision(
             false,
             playerShape,
             true,
-            [](const Entity& otherEntity) {
-                std::cout << otherEntity.name << std::endl;
+            [](const Entity* otherEntity) {
+                std::cout << otherEntity->name << std::endl;
             });
 
         geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {
-            Entity*& enemy = GlobalGameState->enemies[i];
-            enemy = &GlobalUpdateRenderPipeline->createEntity(
+            Entity& enemy = GlobalGameState->enemies[i];
+            GlobalUpdateRenderPipeline->initAndRegister(
+                enemy,
                 "Enemy" + std::to_string(i),
                 EnemyStartPos + (EnemyPosOffset * i),
                 enemyShape,
                 EnemyColorPalletIdx,
                 true
             );
-            enemy->speed = BaseEnemySpeed;
-            enemy->enableCollision(false, enemyShape, true);
+            enemy.speed = BaseEnemySpeed;
+            enemy.enableCollision(false, enemyShape, true);
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
         }
 
         geometry::Shape projectileShape = {geometry::Rect, {ProjectileSizePixels, ProjectileSizePixels}};
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
-            Entity*& projectile = GlobalGameState->projectiles[i];
-            projectile = &GlobalUpdateRenderPipeline->createEntity(
+            Entity& projectile = GlobalGameState->projectiles[i];
+            GlobalUpdateRenderPipeline->initAndRegister(
+                projectile,
                 "Projectile" + std::to_string(i),
                 {},
                 projectileShape,
                 ProjectileColorPalletIdx,
                 true
             );
-            projectile->enabled = false;
-            projectile->speed = BaseProjectileSpeed;
-            projectile->enableCollision(false, projectileShape, true);
+            projectile.enabled = false;
+            projectile.speed = BaseProjectileSpeed;
+            projectile.enableCollision(false, projectileShape, true);
         }
 
         if (!GlobalGameState->isInitialized) {
@@ -229,23 +243,23 @@ namespace slurp {
 
     static void activateParry(Player& player) {
         player.isParryActive = true;
-        player.entity->renderShape.color = GlobalGameState->colorPalette.colors[PlayerParryColorPalletIdx];
+        player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerParryColorPalletIdx];
     }
 
     static void deactivateParry(Player& player) {
         player.isParryActive = false;
-        player.entity->renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
+        player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
-        GlobalGameState->mouseCursor->position = mouseState.position;
+        GlobalGameState->mouseCursor.position = mouseState.position;
 
         if (mouseState.justPressed(MouseCode::LeftClick)) {
-            Entity* projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
-            projectile->enabled = true;
-            projectile->position = GlobalGameState->player.entity->position;
-            projectile->direction =
-                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.entity->position).
+            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            projectile.enabled = true;
+            projectile.position = GlobalGameState->player.position;
+            projectile.direction =
+                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).
                     normalize();
             GlobalGameState->projectileIdx++;
             if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) {
@@ -275,13 +289,13 @@ namespace slurp {
         if (keyboardState.isDown(KeyboardCode::D)) {
             direction.x += 1;
         }
-        GlobalGameState->player.entity->direction = direction.normalize();
+        GlobalGameState->player.direction = direction.normalize();
 
 
         if (keyboardState.justPressed(KeyboardCode::SPACE)) {
-            GlobalGameState->player.entity->speed = SprintPlayerSpeed;
+            GlobalGameState->player.speed = SprintPlayerSpeed;
         } else if (keyboardState.justReleased(KeyboardCode::SPACE)) {
-            GlobalGameState->player.entity->speed = BasePlayerSpeed;
+            GlobalGameState->player.speed = BasePlayerSpeed;
         }
 
 #if DEBUG
@@ -322,16 +336,16 @@ namespace slurp {
 
             if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
                     GamepadCode::RIGHT_SHOULDER)) {
-                GlobalGameState->player.entity->speed = SprintPlayerSpeed;
+                GlobalGameState->player.speed = SprintPlayerSpeed;
             } else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
                            GamepadCode::RIGHT_SHOULDER)) {
-                GlobalGameState->player.entity->speed = BasePlayerSpeed;
+                GlobalGameState->player.speed = BasePlayerSpeed;
             }
 
             Vector2<float> leftStick = gamepadState.leftStick.end;
             Vector2<float> direction = leftStick;
             direction.y *= -1;
-            GlobalGameState->player.entity->direction = direction.normalize();
+            GlobalGameState->player.direction = direction.normalize();
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
