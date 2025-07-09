@@ -6,6 +6,8 @@
 
 /* Single translation unit, unity build */
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Entity.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Update.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Collision.cpp"
@@ -35,6 +37,13 @@ namespace slurp {
     static constexpr int MouseCursorSizePixels = 10;
     static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
 
+    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
+    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
+    static constexpr int BasePlayerSpeed = 400;
+    static constexpr int SprintPlayerSpeed = 800;
+
+    static constexpr float ParryActiveDuration = .1f;
+
     static const Vector2<int> EnemyStartPos = {400, 200};
     static const Vector2<int> EnemyPosOffset = {100, 0};
     static constexpr int BaseEnemySizePixels = 20;
@@ -47,19 +56,19 @@ namespace slurp {
     static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
     static constexpr int BaseProjectileSpeed = 500;
 
-    static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size) {
-        Vector2<int> position = point;
-        for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
-            drawSquare(
-                buffer,
-                position,
-                size,
-                i,
-                GlobalGameState->colorPalette
-            );
-            position.x += size;
-        }
-    }
+    // static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size) {
+    //     Vector2<int> position = point;
+    //     for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
+    //         drawSquare(
+    //             buffer,
+    //             position,
+    //             size,
+    //             i,
+    //             GlobalGameState->colorPalette
+    //         );
+    //         position.x += size;
+    //     }
+    // }
 
     static void setRandomDirection(Entity* entity) {
         float randX = random::randomFloat(-1, 1);
@@ -211,14 +220,14 @@ namespace slurp {
                 projectileShape,
                 true,
                 [](const Entity* other) {
-                    if (const Player* player = dynamic_cast<const Player*>(other)) {
+                    if (const game::Player* player = dynamic_cast<const game::Player*>(other)) {
                         std::cout << "PLAYER HIT: " << player->name << std::endl;
                     } else {
                         std::cout << "OTHER HIT: " << other->name << std::endl;
                     }
                 },
                 [](const Entity* other) {
-                    if (const Player* player = dynamic_cast<const Player*>(other)) {
+                    if (const game::Player* player = dynamic_cast<const game::Player*>(other)) {
                         std::cout << "PLAYER EXIT: " << player->name << std::endl;
                     } else {
                         std::cout << "OTHER EXIT: " << other->name << std::endl;
@@ -238,14 +247,15 @@ namespace slurp {
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
 #endif
+        game::init(sections->gameState, sections->updateRenderPipeline);
     }
 
-    static void activateParry(Player& player) {
+    static void activateParry(game::Player& player) {
         player.isParryActive = true;
         player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerParryColorPalletIdx];
     }
 
-    static void deactivateParry(Player& player) {
+    static void deactivateParry(game::Player& player) {
         player.isParryActive = false;
         player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
     }
@@ -357,7 +367,7 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        drawColorPaletteSwatch(graphicsBuffer, {0, 0}, 25);
+        // drawColorPaletteSwatch(graphicsBuffer, {0, 0}, 25);
 
         GlobalUpdateRenderPipeline->process(graphicsBuffer, dt);
 

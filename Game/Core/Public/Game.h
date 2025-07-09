@@ -1,5 +1,7 @@
 #pragma once
 
 namespace game {
-    void init();
+    void init(slurp::GameState& gameState, slurp::UpdateRenderPipeline& updateRenderPipeline);
+
+    render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx);
 }

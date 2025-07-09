@@ -1,5 +1,11 @@
 #include "Player.h"
 
+#include "Game.h"
+#include "Entity.h"
+#include "Geometry.h"
+#include "Render.h"
+#include "Collision.h"
+
 #include <iostream>
 
 namespace game {
@@ -9,7 +15,7 @@ namespace game {
     static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
-    static constexpr geometry::Shape Shape = {
+    static const geometry::Shape Shape = {
         geometry::Rect,
         {BasePlayerSizePixels, BasePlayerSizePixels}
     };
@@ -22,7 +28,7 @@ namespace game {
               Name,
               Shape,
               true,
-              color,
+              getColor(PlayerColorPalletIdx),
               PlayerStartPos,
               BasePlayerSpeed,
               collision::CollisionInfo(
@@ -30,20 +36,11 @@ namespace game {
                   false,
                   Shape,
                   true,
-                  &onCollisionEnter,
-                  &onCollisionExit
+                  [this](const Entity* otherEntity) { onCollisionEnter(otherEntity); }, // TODO: is there a better way to pass this?
+                  [this](const Entity* otherEntity) { onCollisionExit(otherEntity); }
               )
           ),
-          isParryActive(false) {
-        GlobalUpdateRenderPipeline->initAndRegister(
-            GlobalGameState->player,
-            "Player",
-            PlayerStartPos,
-            Shape,
-            PlayerColorPalletIdx,
-            true
-        );
-    }
+          isParryActive(false) {}
 
     void Player::onCollisionEnter(const Entity* otherEntity) {
         std::cout << "ENTER: " << otherEntity->name << std::endl;
