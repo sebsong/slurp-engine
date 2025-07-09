@@ -6,19 +6,29 @@ namespace collision {
     CollisionInfo::CollisionInfo(): collisionEnabled(false),
                                     isStatic(false),
                                     shape({}),
-                                    onCollisionEnter(NO_OP_ON_COLLISION),
-                                    onCollisionExit(NO_OP_ON_COLLISION),
+                                    onCollisionEnter(nullptr),
+                                    onCollisionExit(nullptr),
                                     collidingWith(std::set<slurp::Entity*>()) {}
 
     CollisionInfo::CollisionInfo(
-        bool collisionEnabled,
+        bool isStatic,
+        const geometry::Shape& shape,
+        bool isCentered
+    ): CollisionInfo(
+        isStatic,
+        shape,
+        isCentered,
+        nullptr,
+        nullptr
+    ) {}
+
+    CollisionInfo::CollisionInfo(
         bool isStatic,
         const geometry::Shape& shape,
         bool isCentered,
         const std::function<void(const slurp::Entity*)>& onCollisionEnter,
         const std::function<void(const slurp::Entity*)>& onCollisionExit
     ): CollisionInfo(
-        collisionEnabled,
         isStatic,
         CollisionShape{
             shape,
@@ -29,12 +39,11 @@ namespace collision {
     ) {}
 
     CollisionInfo::CollisionInfo(
-        bool collisionEnabled,
         bool isStatic,
         const CollisionShape& shape,
         const std::function<void(const slurp::Entity*)>& onCollisionEnter,
         const std::function<void(const slurp::Entity*)>& onCollisionExit
-    ): collisionEnabled(collisionEnabled),
+    ): collisionEnabled(true),
        isStatic(isStatic),
        shape(shape),
        onCollisionEnter(onCollisionEnter),

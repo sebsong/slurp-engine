@@ -18,7 +18,7 @@ namespace slurp {
         bool shouldDestroy;
 
         Entity(
-            const std::string&& name,
+            std::string&& name,
             const geometry::Shape& renderShape,
             bool isCentered,
             render::Pixel color,
@@ -26,7 +26,7 @@ namespace slurp {
         );
 
         Entity(
-            const std::string&& name,
+            std::string&& name,
             const geometry::Shape& renderShape,
             bool isCentered,
             render::Pixel color,
@@ -36,7 +36,7 @@ namespace slurp {
         );
 
         Entity(
-            const std::string&& name,
+            std::string&& name,
             bool enabled,
             const render::RenderShape& renderShape,
             const Vector2<int>& position,
@@ -76,6 +76,23 @@ namespace slurp {
             return *this;
         }
 
+        static Entity createWithoutCollision(
+            std::string&& name,
+            const geometry::Shape& renderShape,
+            bool isCentered,
+            render::Pixel color,
+            const Vector2<int>& position
+        );
+
+        static Entity createWithCollision(
+            std::string&& name,
+            const geometry::Shape& renderShape,
+            bool isCentered,
+            render::Pixel color,
+            const Vector2<int>& position,
+            float speed,
+            const collision::CollisionInfo& collisionInfo
+        );
 
         virtual ~Entity() = default;
 

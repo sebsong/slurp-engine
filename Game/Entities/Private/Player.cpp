@@ -32,7 +32,6 @@ namespace game {
               PlayerStartPos,
               BasePlayerSpeed,
               collision::CollisionInfo(
-                  true,
                   false,
                   Shape,
                   true,

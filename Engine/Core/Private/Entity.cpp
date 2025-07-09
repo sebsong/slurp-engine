@@ -2,7 +2,7 @@
 
 namespace slurp {
     Entity::Entity(
-        const std::string&& name,
+        std::string&& name,
         const geometry::Shape& renderShape,
         bool isCentered,
         render::Pixel color,
@@ -18,7 +18,7 @@ namespace slurp {
     ) {}
 
     Entity::Entity(
-        const std::string&& name,
+        std::string&& name,
         const geometry::Shape& renderShape,
         bool isCentered,
         render::Pixel color,
@@ -40,7 +40,7 @@ namespace slurp {
     ) {}
 
     Entity::Entity(
-        const std::string&& name,
+        std::string&& name,
         bool enabled,
         const render::RenderShape& renderShape,
         const Vector2<int>& position,
@@ -56,4 +56,46 @@ namespace slurp {
        direction(direction),
        collisionInfo(collisionInfo),
        shouldDestroy(false) {}
+
+    Entity Entity::createWithoutCollision(
+        std::string&& name,
+        const geometry::Shape& renderShape,
+        bool isCentered,
+        render::Pixel color,
+        const Vector2<int>& position
+    ) {
+        return Entity(
+            std::move(name),
+            renderShape,
+            isCentered,
+            color,
+            position,
+            0,
+            collision::CollisionInfo()
+        );
+    }
+
+    Entity Entity::createWithCollision(
+        std::string&& name,
+        const geometry::Shape& renderShape,
+        bool isCentered,
+        render::Pixel color,
+        const Vector2<int>& position,
+        float speed,
+        const collision::CollisionInfo& collisionInfo
+    ) {
+        return Entity(
+            std::move(name),
+            true,
+            render::RenderShape(
+                renderShape,
+                isCentered ? -renderShape.dimensions / 2 : Vector2<int>::Zero,
+                color
+            ),
+            position,
+            speed,
+            Vector2<float>::Zero,
+            collisionInfo
+        );
+    }
 }
