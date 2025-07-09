@@ -21,8 +21,11 @@ namespace game {
         return GlobalColorPalette.colors[colorPaletteIdx];
     }
 
-    static void registerEntity(slurp::UpdateRenderPipeline& pipeline, slurp::Entity& entityLocation,
-                               slurp::Entity&& entity) {
+    static void registerEntity(
+        slurp::UpdateRenderPipeline& pipeline,
+        slurp::Entity& entityLocation,
+        slurp::Entity&& entity
+    ) {
         new(&entityLocation) slurp::Entity(std::move(entity));
         pipeline.registerEntity(GlobalGameState->background);
     }
@@ -44,20 +47,23 @@ namespace game {
         );
 
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
-        new(&GlobalGameState->wallUp) slurp::Entity(
-            "WallUp",
-            wallUpShape,
-            false,
-            getColor(5),
-            {0, 0},
-            0,
-            collision::CollisionInfo(
-                true,
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->wallUp,
+            slurp::Entity(
+                "WallUp",
                 wallUpShape,
-                false
+                false,
+                getColor(5),
+                {0, 0},
+                0,
+                collision::CollisionInfo(
+                    true,
+                    wallUpShape,
+                    false
+                )
             )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->wallUp);
 
         geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
         new(&GlobalGameState->wallDown) slurp::Entity(

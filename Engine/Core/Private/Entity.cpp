@@ -1,15 +1,16 @@
 #include "Entity.h"
 
 namespace slurp {
-    Entity::Entity(Entity&& other): id(std::move(other.id)),
-                                    name(std::move(other.name)),
-                                    enabled(std::move(other.enabled)),
-                                    renderShape(std::move(other.renderShape)),
-                                    position(std::move(other.position)),
-                                    speed(std::move(other.speed)),
-                                    direction(std::move(other.direction)),
-                                    collisionInfo(std::move(other.collisionInfo)),
-                                    shouldDestroy(std::move(other.shouldDestroy)) {}
+    Entity::Entity(Entity&& other)
+        : id(std::move(other.id)),
+          name(std::move(other.name)),
+          enabled(std::move(other.enabled)),
+          renderShape(std::move(other.renderShape)),
+          position(std::move(other.position)),
+          speed(std::move(other.speed)),
+          direction(std::move(other.direction)),
+          collisionInfo(std::move(other.collisionInfo)),
+          shouldDestroy(std::move(other.shouldDestroy)) {}
 
 
     Entity::Entity(
