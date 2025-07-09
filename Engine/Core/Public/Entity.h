@@ -17,6 +17,8 @@ namespace slurp {
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
+        Entity(Entity&& other);
+
         Entity(
             std::string&& name,
             const geometry::Shape& renderShape,

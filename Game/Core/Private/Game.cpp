@@ -21,18 +21,27 @@ namespace game {
         return GlobalColorPalette.colors[colorPaletteIdx];
     }
 
+    static void registerEntity(slurp::UpdateRenderPipeline& pipeline, slurp::Entity& entityLocation,
+                               slurp::Entity&& entity) {
+        new(&entityLocation) slurp::Entity(std::move(entity));
+        pipeline.registerEntity(GlobalGameState->background);
+    }
+
     void init(slurp::GameState& gameState, slurp::UpdateRenderPipeline& updateRenderPipeline) {
         GlobalGameState = &gameState;
         GlobalColorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
-        new(&GlobalGameState->background) slurp::Entity(
-            "Background",
-            {geometry::Rect, {1280, 720}},
-            false,
-            getColor(7),
-            {0, 0}
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->background,
+            slurp::Entity(
+                "Background",
+                {geometry::Rect, {1280, 720}},
+                false,
+                getColor(7),
+                {0, 0}
+            )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->background);
 
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         new(&GlobalGameState->wallUp) slurp::Entity(
