@@ -19,18 +19,29 @@ namespace slurp {
 
         Entity(
             const std::string&& name,
-            const Vector2<int>& position,
-            bool centerPosition,
             const geometry::Shape& renderShape,
-            render::Pixel color
+            bool isCentered,
+            render::Pixel color,
+            const Vector2<int>& position
         );
 
         Entity(
             const std::string&& name,
-            const Vector2<int>& position,
-            bool centerPosition,
             const geometry::Shape& renderShape,
+            bool isCentered,
             render::Pixel color,
+            const Vector2<int>& position,
+            float speed,
+            const collision::CollisionInfo& collisionInfo
+        );
+
+        Entity(
+            const std::string&& name,
+            bool enabled,
+            const render::RenderShape& renderShape,
+            const Vector2<int>& position,
+            float speed,
+            const Vector2<float>& direction,
             const collision::CollisionInfo& collisionInfo
         );
 
@@ -38,13 +49,13 @@ namespace slurp {
         Entity& enableCollision(
             bool isStatic,
             const geometry::Shape shape,
-            bool centerPosition,
+            bool isCentered,
             const std::function<void(const Entity*)>& onCollisionEnter,
             const std::function<void(const Entity*)>& onCollisionExit
         ) {
             this->collisionInfo.collisionEnabled = true;
             this->collisionInfo.shape.shape = shape;
-            if (centerPosition) {
+            if (isCentered) {
                 this->collisionInfo.shape.offset = -shape.dimensions / 2;
             }
             this->collisionInfo.isStatic = isStatic;
@@ -54,11 +65,11 @@ namespace slurp {
         }
 
         // TODO: overload that allows you to just re-use render shape
-        Entity& enableCollision(bool isStatic, const geometry::Shape shape, bool centerPosition) {
+        Entity& enableCollision(bool isStatic, const geometry::Shape shape, bool isCentered) {
             enableCollision(
                 isStatic,
                 shape,
-                centerPosition,
+                isCentered,
                 NO_OP_ON_COLLISION,
                 NO_OP_ON_COLLISION
             );

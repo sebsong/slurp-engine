@@ -3,37 +3,57 @@
 namespace slurp {
     Entity::Entity(
         const std::string&& name,
-        const Vector2<int>& position,
-        bool centerPosition,
         const geometry::Shape& renderShape,
-        render::Pixel color
+        bool isCentered,
+        render::Pixel color,
+        const Vector2<int>& position
     ): Entity(
         std::move(name),
-        position,
-        centerPosition,
         renderShape,
+        isCentered,
         color,
+        position,
+        0,
         collision::CollisionInfo()
     ) {}
 
     Entity::Entity(
         const std::string&& name,
-        const Vector2<int>& position,
-        bool centerPosition,
         const geometry::Shape& renderShape,
+        bool isCentered,
         render::Pixel color,
+        const Vector2<int>& position,
+        float speed,
+        const collision::CollisionInfo& collisionInfo
+    ): Entity(
+        std::move(name),
+        true,
+        render::RenderShape(
+            renderShape,
+            isCentered ? -renderShape.dimensions / 2 : Vector2<int>::Zero,
+            color
+        ),
+        position,
+        speed,
+        Vector2<float>::Zero,
+        collisionInfo
+    ) {}
+
+    Entity::Entity(
+        const std::string&& name,
+        bool enabled,
+        const render::RenderShape& renderShape,
+        const Vector2<int>& position,
+        float speed,
+        const Vector2<float>& direction,
         const collision::CollisionInfo& collisionInfo
     ): id(-1),
        name(std::move(name)),
-       enabled(true),
-       renderShape(render::RenderShape(
-           renderShape,
-           centerPosition ? -renderShape.dimensions / 2 : Vector2<int>::Zero,
-           color
-       )),
+       enabled(enabled),
+       renderShape(renderShape),
        position(position),
-       speed({}),
-       direction({}),
+       speed(speed),
+       direction(direction),
        collisionInfo(collisionInfo),
        shouldDestroy(false) {}
 }

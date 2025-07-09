@@ -7,5 +7,8 @@ namespace game {
     public:
         Player();
         bool isParryActive;
+    private:
+       void onCollisionEnter(const Entity* otherEntity);
+       void onCollisionExit(const Entity* other);
     };
 }

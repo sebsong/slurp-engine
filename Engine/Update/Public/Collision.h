@@ -28,9 +28,18 @@ namespace collision {
         CollisionInfo(
             bool collisionEnabled,
             bool isStatic,
-            CollisionShape shape,
-            std::function<void(const slurp::Entity*)> onCollisionEnter,
-            std::function<void(const slurp::Entity*)> onCollisionExit
+            const geometry::Shape& shape,
+            bool isCentered,
+            const std::function<void(const slurp::Entity*)>& onCollisionEnter,
+            const std::function<void(const slurp::Entity*)>& onCollisionExit
+        );
+
+        CollisionInfo(
+            bool collisionEnabled,
+            bool isStatic,
+            const CollisionShape& shape,
+            const std::function<void(const slurp::Entity*)>& onCollisionEnter,
+            const std::function<void(const slurp::Entity*)>& onCollisionExit
         );
     };
 }
