@@ -104,17 +104,6 @@ namespace slurp {
         GlobalGameState->colorPalette = colorPalette;
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
 
-
-        GlobalUpdateRenderPipeline->initAndRegister(
-            GlobalGameState->mouseCursor,
-            "MouseCursor",
-            {},
-            {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
-            MouseCursorColorPalletIdx,
-            true
-        );
-
-
         geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {
             Entity& enemy = GlobalGameState->enemies[i];

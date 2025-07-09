@@ -13,6 +13,9 @@ namespace game {
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
 
+    static constexpr int MouseCursorSizePixels = 10;
+    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
+
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx) {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
         return GlobalColorPalette.colors[colorPaletteIdx];
@@ -129,5 +132,14 @@ namespace game {
 
         new(&GlobalGameState->player) Player();
         updateRenderPipeline.registerEntity(GlobalGameState->player);
+
+        new(&GlobalGameState->mouseCursor) slurp::Entity(
+            "MouseCursor",
+            {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
+            true,
+            getColor(MouseCursorColorPalletIdx),
+            {}
+        );
+        updateRenderPipeline.registerEntity(GlobalGameState->mouseCursor);
     }
 }
