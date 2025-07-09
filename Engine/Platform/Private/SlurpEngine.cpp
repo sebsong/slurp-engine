@@ -35,15 +35,6 @@ namespace slurp {
     static constexpr int MouseCursorSizePixels = 10;
     static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
 
-    static const Vector2<int> PlayerStartPos = {640, 360};
-    static constexpr int BasePlayerSizePixels = 20;
-    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
-    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
-    static constexpr int BasePlayerSpeed = 400;
-    static constexpr int SprintPlayerSpeed = 800;
-
-    static constexpr float ParryActiveDuration = .1f;
-
     static const Vector2<int> EnemyStartPos = {400, 200};
     static const Vector2<int> EnemyPosOffset = {100, 0};
     static constexpr int BaseEnemySizePixels = 20;
@@ -185,27 +176,6 @@ namespace slurp {
             true
         );
 
-        geometry::Shape playerShape = {geometry::Rect, {BasePlayerSizePixels, BasePlayerSizePixels}};
-        GlobalUpdateRenderPipeline->initAndRegister(
-            GlobalGameState->player,
-            "Player",
-            PlayerStartPos,
-            playerShape,
-            PlayerColorPalletIdx,
-            true
-        );
-        GlobalGameState->player.speed = BasePlayerSpeed;
-        GlobalGameState->player.enableCollision(
-            false,
-            playerShape,
-            true,
-            [](const Entity* otherEntity) {
-                std::cout << "ENTER: " << otherEntity->name << std::endl;
-            },
-            [](const Entity* otherEntity) {
-                std::cout << "EXIT: " << otherEntity->name << std::endl;
-            }
-        );
 
         geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {

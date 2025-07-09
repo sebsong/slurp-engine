@@ -25,8 +25,8 @@ namespace render {
 
     struct RenderShape {
         geometry::Shape shape;
-        Pixel color;
         slurp::Vector2<int> renderOffset;
+        Pixel color;
 
         void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const;
     };

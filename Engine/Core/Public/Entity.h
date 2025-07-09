@@ -17,6 +17,24 @@ namespace slurp {
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
+        Entity(
+            const std::string&& name,
+            const Vector2<int>& position,
+            bool centerPosition,
+            const geometry::Shape& renderShape,
+            render::Pixel color
+        );
+
+        Entity(
+            const std::string&& name,
+            const Vector2<int>& position,
+            bool centerPosition,
+            const geometry::Shape& renderShape,
+            render::Pixel color,
+            const collision::CollisionInfo& collisionInfo
+        );
+
+        // TODO: replace with constructor version
         Entity& enableCollision(
             bool isStatic,
             const geometry::Shape shape,
@@ -46,6 +64,7 @@ namespace slurp {
             );
             return *this;
         }
+
 
         virtual ~Entity() = default;
 

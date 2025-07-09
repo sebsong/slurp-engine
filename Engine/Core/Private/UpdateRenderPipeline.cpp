@@ -1,6 +1,6 @@
 #include "UpdateRenderPipeline.h"
 
-#include "Core.h"
+#include "Entity.h"
 #include "Update.h"
 #include "Render.h"
 
