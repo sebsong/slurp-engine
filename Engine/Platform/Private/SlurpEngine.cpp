@@ -15,6 +15,8 @@
 #include "UpdateRenderPipeline.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Game.cpp"
 
 typedef unsigned char byte;
 

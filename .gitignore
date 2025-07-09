@@ -45,9 +45,5 @@
 /dataSources/
 /dataSources.local.xml
 
-/SlurpEngine/.idea
-/SlurpEngine/x64
-/SlurpEngine/Engine/x64
-
-/SlurpEngine/build
-/SlurpEngine/cmake_build
+.idea
+Engine/x64

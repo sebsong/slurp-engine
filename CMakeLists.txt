@@ -20,4 +20,7 @@ include_directories(Engine/Render/Private)
 include_directories(Engine/Update/Public)
 include_directories(Engine/Update/Private)
 
+include_directories(Game/Public)
+include_directories(Game/Private)
+
 add_subdirectory(Engine/Platform/Private)
