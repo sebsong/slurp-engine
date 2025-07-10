@@ -2,23 +2,21 @@
 
 #include "Platform.h"
 #include "DynamicDeclaration.h"
-#include "Core.h"
+#include "Entity.h"
 #include "Input.h"
 #include "Audio.h"
 #include "Render.h"
-
 #include "UpdateRenderPipeline.h"
+
+#include "Player.h"
 
 #define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 10
 
 namespace slurp {
-    class Player : public Entity {
-    public:
-        bool isParryActive;
-    };
 
+    // TODO: move this to the game layer
     struct GameState {
         uint32_t randomSeed;
         bool isInitialized;
@@ -33,10 +31,11 @@ namespace slurp {
         Entity obstacle2;
 
         Entity mouseCursor;
-        Player player;
+        game::Player player;
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         Entity projectiles[PROJECTILE_POOL_SIZE];
+        Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
     struct MemorySections {

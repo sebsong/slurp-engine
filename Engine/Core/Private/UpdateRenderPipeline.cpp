@@ -1,14 +1,16 @@
 #include "UpdateRenderPipeline.h"
 
-#include "Core.h"
+#include "Entity.h"
 #include "Update.h"
 #include "Render.h"
 
 namespace slurp {
-    UpdateRenderPipeline::UpdateRenderPipeline(
-        const render::ColorPalette& colorPalette
-    ) : _colorPalette(colorPalette) {
-        this->_pipeline = std::deque<Entity*>();
+    UpdateRenderPipeline::UpdateRenderPipeline() : _pipeline(std::deque<Entity*>()) {}
+
+    void UpdateRenderPipeline::registerEntity(Entity& entity) {
+        uint32_t id = _pipeline.size();
+        _pipeline.emplace_back(&entity);
+        entity.id = id;
     }
 
     void UpdateRenderPipeline::process(const render::GraphicsBuffer& buffer, float dt) {

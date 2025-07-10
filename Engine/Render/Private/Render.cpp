@@ -1,5 +1,5 @@
 #include "Render.h"
-#include "Core.h"
+#include "Entity.h"
 #include "Math.h"
 #include "Debug.h"
 #include <fstream>
