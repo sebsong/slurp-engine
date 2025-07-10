@@ -3,12 +3,13 @@
 #include "Entity.h"
 
 namespace collision {
-    CollisionInfo::CollisionInfo(): collisionEnabled(false),
-                                    isStatic(false),
-                                    shape({}),
-                                    onCollisionEnter(nullptr),
-                                    onCollisionExit(nullptr),
-                                    collidingWith(std::set<slurp::Entity*>()) {}
+    CollisionInfo::CollisionInfo()
+        : collisionEnabled(false),
+          isStatic(false),
+          shape({}),
+          onCollisionEnter(nullptr),
+          onCollisionExit(nullptr),
+          collidingWith(std::set<slurp::Entity*>()) {}
 
     CollisionInfo::CollisionInfo(
         bool isStatic,

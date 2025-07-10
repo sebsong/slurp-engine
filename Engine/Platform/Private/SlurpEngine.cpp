@@ -165,7 +165,7 @@ namespace slurp {
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
 #endif
-        game::init(sections->gameState, sections->updateRenderPipeline);
+        game::initGame(sections->gameState, sections->updateRenderPipeline);
     }
 
     static void activateParry(game::Player& player) {

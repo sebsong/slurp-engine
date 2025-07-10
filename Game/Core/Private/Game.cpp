@@ -26,11 +26,12 @@ namespace game {
         slurp::Entity& entityLocation,
         slurp::Entity&& entity
     ) {
+        // TODO: this pattern is a little weird
         new(&entityLocation) slurp::Entity(std::move(entity));
-        pipeline.registerEntity(GlobalGameState->background);
+        pipeline.registerEntity(entityLocation);
     }
 
-    void init(slurp::GameState& gameState, slurp::UpdateRenderPipeline& updateRenderPipeline) {
+    void initGame(slurp::GameState& gameState, slurp::UpdateRenderPipeline& updateRenderPipeline) {
         GlobalGameState = &gameState;
         GlobalColorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
@@ -66,95 +67,115 @@ namespace game {
         );
 
         geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
-        new(&GlobalGameState->wallDown) slurp::Entity(
-            "WallDown",
-            wallDownShape,
-            false,
-            getColor(5),
-            {0, 700},
-            0,
-            collision::CollisionInfo(
-                true,
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->wallDown,
+            slurp::Entity(
+                "WallDown",
                 wallDownShape,
-                false
+                false,
+                getColor(5),
+                {0, 700},
+                0,
+                collision::CollisionInfo(
+                    true,
+                    wallDownShape,
+                    false
+                )
             )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->wallDown);
 
         geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
-        new(&GlobalGameState->wallLeft) slurp::Entity(
-            "WallLeft",
-            wallLeftShape,
-            false,
-            getColor(5),
-            {0, 0},
-            0,
-            collision::CollisionInfo(
-                true,
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->wallLeft,
+            slurp::Entity(
+                "WallLeft",
                 wallLeftShape,
-                false
+                false,
+                getColor(5),
+                {0, 0},
+                0,
+                collision::CollisionInfo(
+                    true,
+                    wallLeftShape,
+                    false
+                )
             )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->wallLeft);
 
         geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
-        new(&GlobalGameState->wallRight) slurp::Entity(
-            "WallRight",
-            wallRightShape,
-            false,
-            getColor(5),
-            {1260, 0},
-            0,
-            collision::CollisionInfo(
-                true,
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->wallRight,
+            slurp::Entity(
+                "WallRight",
                 wallRightShape,
-                false
+                false,
+                getColor(5),
+                {1260, 0},
+                0,
+                collision::CollisionInfo(
+                    true,
+                    wallRightShape,
+                    false
+                )
             )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->wallRight);
 
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
-        new(&GlobalGameState->obstacle1) slurp::Entity(
-            "Obstacle1",
-            obstacle1Shape,
-            true,
-            getColor(5),
-            {200, 500},
-            0,
-            collision::CollisionInfo(
-                true,
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->obstacle1, slurp::Entity(
+                "Obstacle1",
                 obstacle1Shape,
-                true
+                true,
+                getColor(5),
+                {200, 500},
+                0,
+                collision::CollisionInfo(
+                    true,
+                    obstacle1Shape,
+                    true
+                )
             )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->obstacle1);
 
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
-        new(&GlobalGameState->obstacle2) slurp::Entity(
-            "Obstacle2",
-            obstacle2Shape,
-            true,
-            getColor(5),
-            {500, 500},
-            0,
-            collision::CollisionInfo(
-                true,
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->obstacle2,
+            slurp::Entity(
+                "Obstacle2",
                 obstacle2Shape,
-                true
+                true,
+                getColor(5),
+                {500, 500},
+                0,
+                collision::CollisionInfo(
+                    true,
+                    obstacle2Shape,
+                    true
+                )
             )
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->obstacle2);
 
-        new(&GlobalGameState->player) Player();
-        updateRenderPipeline.registerEntity(GlobalGameState->player);
-
-        new(&GlobalGameState->mouseCursor) slurp::Entity(
-            "MouseCursor",
-            {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
-            true,
-            getColor(MouseCursorColorPalletIdx),
-            {}
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->player,
+            Player()
         );
-        updateRenderPipeline.registerEntity(GlobalGameState->mouseCursor);
+
+        registerEntity(
+            updateRenderPipeline,
+            GlobalGameState->mouseCursor,
+            slurp::Entity(
+                "MouseCursor",
+                {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
+                true,
+                getColor(MouseCursorColorPalletIdx),
+                {}
+            )
+        );
     }
 }
