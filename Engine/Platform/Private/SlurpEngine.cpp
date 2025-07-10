@@ -34,60 +34,12 @@ namespace slurp {
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
 
-    static constexpr int MouseCursorSizePixels = 10;
-    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
-
     static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
     static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
 
     static constexpr float ParryActiveDuration = .1f;
-
-    static const Vector2<int> EnemyStartPos = {400, 200};
-    static const Vector2<int> EnemyPosOffset = {100, 0};
-    static constexpr int BaseEnemySizePixels = 20;
-    static constexpr render::ColorPaletteIdx EnemyColorPalletIdx = 4;
-    static constexpr int BaseEnemySpeed = 200;
-    static constexpr float BaseEnemyDirectionChangeDelay = 2;
-    static constexpr float EnemyDirectionChangeDelayDelta = 1.5;
-
-    static constexpr int ProjectileSizePixels = 15;
-    static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
-    static constexpr int BaseProjectileSpeed = 500;
-
-    // static void drawColorPaletteSwatch(render::GraphicsBuffer buffer, Vector2<int> point, int size) {
-    //     Vector2<int> position = point;
-    //     for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
-    //         drawSquare(
-    //             buffer,
-    //             position,
-    //             size,
-    //             i,
-    //             GlobalGameState->colorPalette
-    //         );
-    //         position.x += size;
-    //     }
-    // }
-
-    static void setRandomDirection(Entity* entity) {
-        float randX = random::randomFloat(-1, 1);
-        float randY = random::randomFloat(-1, 1);
-        entity->direction = Vector2<float>(randX, randY).normalize();
-    }
-
-    static float getRandomDirectionChangeDelay() {
-        float minDelay = BaseEnemyDirectionChangeDelay - EnemyDirectionChangeDelayDelta;
-        float maxDelay = BaseEnemyDirectionChangeDelay + EnemyDirectionChangeDelayDelta;
-        return random::randomFloat(minDelay, maxDelay);
-    }
-
-    static void startUpdateEnemyDirection(Entity* enemy) {
-        setRandomDirection(enemy);
-        timer::delay(getRandomDirectionChangeDelay(), [&] {
-            startUpdateEnemyDirection(enemy);
-        });
-    }
 
     SLURP_INIT(init) {
         GlobalPlatformDll = platformDll;
@@ -97,62 +49,12 @@ namespace slurp {
 
         render::ColorPalette colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
-        new(&sections->updateRenderPipeline) UpdateRenderPipeline(colorPalette);
+        new(&sections->updateRenderPipeline) UpdateRenderPipeline();
         GlobalUpdateRenderPipeline = &sections->updateRenderPipeline;
 
         GlobalGameState = &sections->gameState;
         GlobalGameState->colorPalette = colorPalette;
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
-
-        geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
-        for (int i = 0; i < NUM_ENEMIES; i++) {
-            Entity& enemy = GlobalGameState->enemies[i];
-            GlobalUpdateRenderPipeline->initAndRegister(
-                enemy,
-                "Enemy" + std::to_string(i),
-                EnemyStartPos + (EnemyPosOffset * i),
-                enemyShape,
-                EnemyColorPalletIdx,
-                true
-            );
-            enemy.speed = BaseEnemySpeed;
-            enemy.enableCollision(false, enemyShape, true);
-            // startUpdateEnemyDirection(enemy); // TODO: re-enable this
-        }
-
-        geometry::Shape projectileShape = {geometry::Rect, {ProjectileSizePixels, ProjectileSizePixels}};
-        for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
-            Entity& projectile = GlobalGameState->projectiles[i];
-            GlobalUpdateRenderPipeline->initAndRegister(
-                projectile,
-                "Projectile" + std::to_string(i),
-                {},
-                projectileShape,
-                ProjectileColorPalletIdx,
-                true
-            );
-            projectile.enabled = false;
-            projectile.speed = BaseProjectileSpeed;
-            projectile.enableCollision(
-                false,
-                projectileShape,
-                true,
-                [](const Entity* other) {
-                    if (const game::Player* player = dynamic_cast<const game::Player*>(other)) {
-                        std::cout << "PLAYER HIT: " << player->name << std::endl;
-                    } else {
-                        std::cout << "OTHER HIT: " << other->name << std::endl;
-                    }
-                },
-                [](const Entity* other) {
-                    if (const game::Player* player = dynamic_cast<const game::Player*>(other)) {
-                        std::cout << "PLAYER EXIT: " << player->name << std::endl;
-                    } else {
-                        std::cout << "OTHER EXIT: " << other->name << std::endl;
-                    }
-                }
-                );
-        }
 
         if (!GlobalGameState->isInitialized) {
             // NOTE: anything that shouldn't be hot reloaded goes here
@@ -179,6 +81,7 @@ namespace slurp {
     }
 
     SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
+        // TODO: move input handling to the game layer
         GlobalGameState->mouseCursor.position = mouseState.position;
 
         if (mouseState.justPressed(MouseCode::LeftClick)) {
@@ -284,8 +187,6 @@ namespace slurp {
 
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
-
-        // drawColorPaletteSwatch(graphicsBuffer, {0, 0}, 25);
 
         GlobalUpdateRenderPipeline->process(graphicsBuffer, dt);
 

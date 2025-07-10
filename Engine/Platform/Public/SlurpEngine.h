@@ -16,6 +16,7 @@
 
 namespace slurp {
 
+    // TODO: move this to the game layer
     struct GameState {
         uint32_t randomSeed;
         bool isInitialized;
@@ -34,6 +35,7 @@ namespace slurp {
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         Entity projectiles[PROJECTILE_POOL_SIZE];
+        Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
     struct MemorySections {

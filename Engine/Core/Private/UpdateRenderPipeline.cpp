@@ -5,9 +5,7 @@
 #include "Render.h"
 
 namespace slurp {
-    UpdateRenderPipeline::UpdateRenderPipeline(
-        const render::ColorPalette& colorPalette
-    ) : _pipeline(std::deque<Entity*>()), _colorPalette(colorPalette) {}
+    UpdateRenderPipeline::UpdateRenderPipeline() : _pipeline(std::deque<Entity*>()) {}
 
     void UpdateRenderPipeline::registerEntity(Entity& entity) {
         uint32_t id = _pipeline.size();
