@@ -15,7 +15,6 @@
 #define PROJECTILE_POOL_SIZE 10
 
 namespace slurp {
-
     // TODO: move this to the game layer
     struct GameState {
         uint32_t randomSeed;
@@ -51,16 +50,13 @@ namespace slurp {
 #endif
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)
-#define SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(fnName) void fnName(slurp::MouseState mouseState, slurp::KeyboardState keyboardState, float dt)
-#define SLURP_HANDLE_GAMEPAD_INPUT(fnName) void fnName(slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS], float dt)
+#define SLURP_HANDLE_INPUT(fnName) void fnName(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState, const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS])
 #define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
 #define SLURP_UPDATE_AND_RENDER(fnName) void fnName(render::GraphicsBuffer graphicsBuffer, float dt)
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT, handleMouseAndKeyboardInput)
-
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_GAMEPAD_INPUT, handleGamepadInput)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_INPUT, handleInput)
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_LOAD_AUDIO, loadAudio)
 
@@ -68,8 +64,7 @@ namespace slurp {
 
     struct SlurpDll {
         dyn_init* init = stub_init;
-        dyn_handleMouseAndKeyboardInput* handleMouseAndKeyboardInput = stub_handleMouseAndKeyboardInput;
-        dyn_handleGamepadInput* handleGamepadInput = stub_handleGamepadInput;
+        dyn_handleInput* handleInput = stub_handleInput;
         dyn_loadAudio* loadAudio = stub_loadAudio;
         dyn_updateAndRender* updateAndRender = stub_updateAndRender;
     };

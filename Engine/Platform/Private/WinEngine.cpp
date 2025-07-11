@@ -624,16 +624,10 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_init,
             GlobalSlurpLib
         );
-        winLoadLibFn<slurp::dyn_handleMouseAndKeyboardInput>(
-            GlobalSlurpDll.handleMouseAndKeyboardInput,
-            "handleMouseAndKeyboardInput",
-            slurp::stub_handleMouseAndKeyboardInput,
-            GlobalSlurpLib
-        );
-        winLoadLibFn<slurp::dyn_handleGamepadInput>(
-            GlobalSlurpDll.handleGamepadInput,
-            "handleGamepadInput",
-            slurp::stub_handleGamepadInput,
+        winLoadLibFn<slurp::dyn_handleInput>(
+            GlobalSlurpDll.handleInput,
+            "handleInput",
+            slurp::stub_handleInput,
             GlobalSlurpLib
         );
         winLoadLibFn<slurp::dyn_loadAudio>(
@@ -1142,8 +1136,7 @@ int WINAPI WinMain(
             winReadInputRecording(mouseState, keyboardState, controllerStates);
         }
 #endif
-        GlobalSlurpDll.handleMouseAndKeyboardInput(mouseState, keyboardState, targetSecondsPerFrame);
-        GlobalSlurpDll.handleGamepadInput(controllerStates, targetSecondsPerFrame);
+        GlobalSlurpDll.handleInput(mouseState, keyboardState, controllerStates);
 
 #if DEBUG
         if (GlobalRecordingState.isPaused) {

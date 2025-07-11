@@ -80,7 +80,8 @@ namespace slurp {
         player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
     }
 
-    SLURP_HANDLE_MOUSE_AND_KEYBOARD_INPUT(handleMouseAndKeyboardInput) {
+    // TODO: maybe just combine mouse and keyboard input handling
+    SLURP_HANDLE_INPUT(handleInput) {
         // TODO: move input handling to the game layer
         GlobalGameState->mouseCursor.position = mouseState.position;
 
@@ -151,9 +152,6 @@ namespace slurp {
         if (keyboardState.isDown(KeyboardCode::ESC)) {
             GlobalPlatformDll.shutdown();
         }
-    }
-
-    SLURP_HANDLE_GAMEPAD_INPUT(handleGamepadInput) {
         for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
             GamepadState gamepadState = controllerStates[controllerIdx];
             if (!gamepadState.isConnected) {
