@@ -15,10 +15,10 @@ namespace game {
             const slurp::MouseState& mouseState,
             const slurp::KeyboardState& keyboardState,
             const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
-        );
+        ) override;
 
-        void onCollisionEnter(const slurp::Entity* other);
+        void onCollisionEnter(const Entity* other) override;
 
-        void onCollisionExit(const slurp::Entity* other);
+        void onCollisionExit(const Entity* other) override;
     };
 }

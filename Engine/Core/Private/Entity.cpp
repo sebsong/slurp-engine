@@ -48,38 +48,7 @@ namespace slurp {
         position,
         speed,
         Vector2<float>::Zero,
-        collisionInfo,
-        nullptr
-    ) {}
-
-    Entity::Entity(
-        std::string&& name,
-        const geometry::Shape& renderShape,
-        bool isCentered,
-        render::Pixel color,
-        const Vector2<int>& position,
-        float speed,
-        const collision::CollisionInfo& collisionInfo,
-        const std::function<
-            void(
-                const MouseState& mouseState,
-                const KeyboardState& keyboardState,
-                const GamepadState (&controllerStates)[4]
-            )
-        >&& handleInput
-    ): Entity(
-        std::move(name),
-        true,
-        render::RenderShape(
-            renderShape,
-            isCentered ? -renderShape.dimensions / 2 : Vector2<int>::Zero,
-            color
-        ),
-        position,
-        speed,
-        Vector2<float>::Zero,
-        collisionInfo,
-        std::move(handleInput)
+        collisionInfo
     ) {}
 
     Entity::Entity(
@@ -89,14 +58,7 @@ namespace slurp {
         const Vector2<int>& position,
         float speed,
         const Vector2<float>& direction,
-        const collision::CollisionInfo& collisionInfo,
-        const std::function<
-            void(
-                const MouseState& mouseState,
-                const KeyboardState& keyboardState,
-                const GamepadState (&controllerStates)[4]
-            )
-        >&& handleInput
+        const collision::CollisionInfo& collisionInfo
     ): id(-1),
        name(std::move(name)),
        enabled(enabled),
@@ -105,6 +67,5 @@ namespace slurp {
        speed(speed),
        direction(direction),
        collisionInfo(collisionInfo),
-       handleInput(std::move(handleInput)),
        shouldDestroy(false) {}
 }

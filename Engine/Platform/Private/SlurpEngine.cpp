@@ -108,28 +108,6 @@ namespace slurp {
             GlobalPlatformDll.shutdown();
         }
 
-        Vector2<float> direction;
-        if (keyboardState.isDown(KeyboardCode::W)) {
-            direction.y -= 1;
-        }
-        if (keyboardState.isDown(KeyboardCode::A)) {
-            direction.x -= 1;
-        }
-        if (keyboardState.isDown(KeyboardCode::S)) {
-            direction.y += 1;
-        }
-        if (keyboardState.isDown(KeyboardCode::D)) {
-            direction.x += 1;
-        }
-        GlobalGameState->player.direction = direction.normalize();
-
-
-        if (keyboardState.justPressed(KeyboardCode::SPACE)) {
-            GlobalGameState->player.speed = SprintPlayerSpeed;
-        } else if (keyboardState.justReleased(KeyboardCode::SPACE)) {
-            GlobalGameState->player.speed = BasePlayerSpeed;
-        }
-
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P)) {
             GlobalPlatformDll.DEBUG_togglePause();

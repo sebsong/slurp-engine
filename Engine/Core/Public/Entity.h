@@ -17,16 +17,10 @@ namespace slurp {
         float speed;
         Vector2<float> direction;
         collision::CollisionInfo collisionInfo;
-        const std::function<
-            void(const MouseState& mouseState,
-                 const KeyboardState& keyboardState,
-                 const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS])
-        > handleInput;
         bool shouldDestroy;
 
         Entity(Entity&& other) noexcept;
 
-        /* No collision, cosmetic */
         Entity(
             std::string&& name,
             const geometry::Shape& renderShape,
@@ -35,7 +29,6 @@ namespace slurp {
             const Vector2<int>& position
         );
 
-        /* Collision, no input, non-player */
         Entity(
             std::string&& name,
             const geometry::Shape& renderShape,
@@ -46,22 +39,6 @@ namespace slurp {
             const collision::CollisionInfo& collisionInfo
         );
 
-        /* Player controlled */
-        Entity(
-            std::string&& name,
-            const geometry::Shape& renderShape,
-            bool isCentered,
-            render::Pixel color,
-            const Vector2<int>& position,
-            float speed,
-            const collision::CollisionInfo& collisionInfo,
-            const std::function<
-                void(const MouseState& mouseState,
-                     const KeyboardState& keyboardState,
-                     const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS])
-            >&& handleInput
-        );
-
         Entity(
             std::string&& name,
             bool enabled,
@@ -69,13 +46,21 @@ namespace slurp {
             const Vector2<int>& position,
             float speed,
             const Vector2<float>& direction,
-            const collision::CollisionInfo& collisionInfo,
-            const std::function<
-                void(const MouseState& mouseState,
-                     const KeyboardState& keyboardState,
-                     const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS])
-            >&& handleInput
+            const collision::CollisionInfo& collisionInfo
         );
+
+
+        // TODO: make these pure virtual or signal that they aren't implemented
+        // TODO: any way to get around the overhead of virtual functions?
+        virtual void handleInput(
+            const MouseState& mouseState,
+            const KeyboardState& keyboardState,
+            const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+        ){};
+
+        virtual void onCollisionEnter(const Entity* otherEntity){};
+
+        virtual void onCollisionExit(const Entity* otherEntity){};
 
         virtual ~Entity() = default;
 

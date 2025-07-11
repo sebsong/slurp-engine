@@ -24,28 +24,18 @@ namespace game {
     static constexpr float ParryActiveDuration = .1f;
 
     Player::Player()
-        : slurp::Entity(
+        : Entity(
               Name,
               Shape,
               true,
               getColor(PlayerColorPalletIdx),
               PlayerStartPos,
               BasePlayerSpeed,
-              // collision::CollisionInfo(),
               collision::CollisionInfo(
                   false,
                   Shape,
-                  true,
-                  [this](const slurp::Entity* otherEntity) { this->onCollisionEnter(otherEntity); },
-                  [this](const slurp::Entity* otherEntity) { this->onCollisionExit(otherEntity); }
-              ),
-              [this](
-          const slurp::MouseState& mouseState,
-          const slurp::KeyboardState& keyboardState,
-          const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
-      ) {
-                  this->handleInput(mouseState, keyboardState, controllerStates);
-              }
+                  true
+              )
           ),
           isParryActive(false) {}
 
@@ -53,14 +43,36 @@ namespace game {
         const slurp::MouseState& mouseState,
         const slurp::KeyboardState& keyboardState,
         const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
-    ) {}
+    ) {
+        slurp::Vector2<float> dir;
+        if (keyboardState.isDown(slurp::KeyboardCode::W)) {
+            dir.y -= 1;
+        }
+        if (keyboardState.isDown(slurp::KeyboardCode::A)) {
+            dir.x -= 1;
+        }
+        if (keyboardState.isDown(slurp::KeyboardCode::S)) {
+            dir.y += 1;
+        }
+        if (keyboardState.isDown(slurp::KeyboardCode::D)) {
+            dir.x += 1;
+        }
+        this->direction = dir.normalize();
 
-    void Player::onCollisionEnter(const slurp::Entity* otherEntity) {
+
+        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) {
+            this->speed = SprintPlayerSpeed;
+        } else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) {
+            this->speed = BasePlayerSpeed;
+        }
+    }
+
+    void Player::onCollisionEnter(const Entity* otherEntity) {
         std::cout << "ENTER: " << otherEntity->name << std::endl;
     }
 
 
-    void Player::onCollisionExit(const slurp::Entity* otherEntity) {
+    void Player::onCollisionExit(const Entity* otherEntity) {
         std::cout << "EXIT: " << otherEntity->name << std::endl;
     }
 }

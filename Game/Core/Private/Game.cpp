@@ -36,13 +36,14 @@ namespace game {
         return GlobalColorPalette.colors[colorPaletteIdx];
     }
 
+    template <typename T>
     static void registerEntity(
         slurp::EntityManager& pipeline,
-        slurp::Entity& entityLocation,
-        slurp::Entity&& entity
+        T& entityLocation,
+        T&& entity
     ) {
-        // TODO: this pattern is a little weird
-        new(&entityLocation) slurp::Entity(std::move(entity));
+        // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
+        new(&entityLocation) T(std::move(entity));
         pipeline.registerEntity(entityLocation);
     }
 
@@ -60,9 +61,12 @@ namespace game {
 
     static void startUpdateEnemyDirection(slurp::Entity* enemy) {
         setRandomDirection(enemy);
-        timer::delay(getRandomDirectionChangeDelay(), [&] {
-            startUpdateEnemyDirection(enemy);
-        });
+        timer::delay(
+            getRandomDirectionChangeDelay(),
+            [&] {
+                startUpdateEnemyDirection(enemy);
+            }
+        );
     }
 
     void initGame(slurp::GameState& gameState, slurp::EntityManager& entityManager) {
@@ -160,7 +164,8 @@ namespace game {
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         registerEntity(
             entityManager,
-            GlobalGameState->obstacle1, slurp::Entity(
+            GlobalGameState->obstacle1,
+            slurp::Entity(
                 "Obstacle1",
                 obstacle1Shape,
                 true,
@@ -251,21 +256,7 @@ namespace game {
                     collision::CollisionInfo(
                         false,
                         projectileShape,
-                        true,
-                        [](const slurp::Entity* other) {
-                            if (const Player* player = dynamic_cast<const Player*>(other)) {
-                                std::cout << "PLAYER HIT: " << player->name << std::endl;
-                            } else {
-                                std::cout << "OTHER HIT: " << other->name << std::endl;
-                            }
-                        },
-                        [](const slurp::Entity* other) {
-                            if (const Player* player = dynamic_cast<const Player*>(other)) {
-                                std::cout << "PLAYER EXIT: " << player->name << std::endl;
-                            } else {
-                                std::cout << "OTHER EXIT: " << other->name << std::endl;
-                            }
-                        }
+                        true
                     )
                 )
             );

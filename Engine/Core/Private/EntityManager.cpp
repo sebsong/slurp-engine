@@ -19,8 +19,8 @@ namespace slurp {
         const KeyboardState& keyboardState,
         const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
     ) const {
-        for (const Entity* entity: _pipeline) {
-            if (entity->enabled && entity->handleInput) {
+        for (Entity* entity: _pipeline) {
+            if (entity->enabled) {
                 entity->handleInput(mouseState, keyboardState, controllerStates);
             }
         }

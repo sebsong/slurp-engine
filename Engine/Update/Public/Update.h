@@ -67,20 +67,20 @@ namespace update {
                         positionUpdate.y = yAxisPositionUpdate;
                     }
                 }
-                if (collisionInfo.onCollisionEnter && !collisionInfo.collidingWith.contains(otherEntity)) {
-                    collisionInfo.onCollisionEnter(otherEntity);
+                if (!collisionInfo.collidingWith.contains(otherEntity)) {
+                    entity->onCollisionEnter(otherEntity);
                 }
-                if (otherCollisionInfo.onCollisionEnter && !otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherCollisionInfo.onCollisionEnter(entity);
+                if (!otherCollisionInfo.collidingWith.contains(entity)) {
+                    otherEntity->onCollisionEnter(entity);
                 }
                 collisionInfo.collidingWith.insert(otherEntity);
                 otherCollisionInfo.collidingWith.insert(entity);
             } else {
-                if (collisionInfo.onCollisionExit && collisionInfo.collidingWith.contains(otherEntity)) {
-                    collisionInfo.onCollisionExit(otherEntity);
+                if (collisionInfo.collidingWith.contains(otherEntity)) {
+                    entity->onCollisionExit(otherEntity);
                 }
-                if (otherCollisionInfo.onCollisionExit && otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherCollisionInfo.onCollisionExit(entity);
+                if (otherCollisionInfo.collidingWith.contains(entity)) {
+                    otherEntity->onCollisionExit(entity);
                 }
                 collisionInfo.collidingWith.erase(otherEntity);
                 otherCollisionInfo.collidingWith.erase(entity);
