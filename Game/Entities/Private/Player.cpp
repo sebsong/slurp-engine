@@ -24,28 +24,43 @@ namespace game {
     static constexpr float ParryActiveDuration = .1f;
 
     Player::Player()
-        : Entity(
+        : slurp::Entity(
               Name,
               Shape,
               true,
               getColor(PlayerColorPalletIdx),
               PlayerStartPos,
               BasePlayerSpeed,
+              // collision::CollisionInfo(),
               collision::CollisionInfo(
                   false,
                   Shape,
                   true,
-                  [this](const Entity* otherEntity) { onCollisionEnter(otherEntity); }, // TODO: is there a better way to pass this?
-                  [this](const Entity* otherEntity) { onCollisionExit(otherEntity); }
-              )
+                  [this](const slurp::Entity* otherEntity) { this->onCollisionEnter(otherEntity); },
+                  [this](const slurp::Entity* otherEntity) { this->onCollisionExit(otherEntity); }
+              ),
+              [this](
+          const slurp::MouseState& mouseState,
+          const slurp::KeyboardState& keyboardState,
+          const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+      ) {
+                  this->handleInput(mouseState, keyboardState, controllerStates);
+              }
           ),
           isParryActive(false) {}
 
-    void Player::onCollisionEnter(const Entity* otherEntity) {
+    void Player::handleInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState,
+        const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+    ) {}
+
+    void Player::onCollisionEnter(const slurp::Entity* otherEntity) {
         std::cout << "ENTER: " << otherEntity->name << std::endl;
     }
 
-    void Player::onCollisionExit(const Entity* otherEntity) {
+
+    void Player::onCollisionExit(const slurp::Entity* otherEntity) {
         std::cout << "EXIT: " << otherEntity->name << std::endl;
     }
 }

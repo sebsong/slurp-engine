@@ -6,11 +6,10 @@
 #include "Input.h"
 #include "Audio.h"
 #include "Render.h"
-#include "UpdateRenderPipeline.h"
+#include "EntityManager.h"
 
 #include "Player.h"
 
-#define MAX_NUM_CONTROLLERS 4
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 10
 
@@ -38,7 +37,7 @@ namespace slurp {
     };
 
     struct MemorySections {
-        UpdateRenderPipeline updateRenderPipeline;
+        EntityManager entityManager;
         GameState gameState;
     };
 
@@ -51,8 +50,8 @@ namespace slurp {
 
 #define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)
 #define SLURP_HANDLE_INPUT(fnName) void fnName(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState, const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS])
-#define SLURP_LOAD_AUDIO(fnName) void fnName(slurp::AudioBuffer buffer)
-#define SLURP_UPDATE_AND_RENDER(fnName) void fnName(render::GraphicsBuffer graphicsBuffer, float dt)
+#define SLURP_LOAD_AUDIO(fnName) void fnName(const slurp::AudioBuffer& buffer)
+#define SLURP_UPDATE_AND_RENDER(fnName) void fnName(const render::GraphicsBuffer& graphicsBuffer, float dt)
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
 

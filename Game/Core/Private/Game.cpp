@@ -1,6 +1,6 @@
 #include "Game.h"
 
-#include "UpdateRenderPipeline.h"
+#include "EntityManager.h"
 
 #include "Player.cpp"
 
@@ -37,7 +37,7 @@ namespace game {
     }
 
     static void registerEntity(
-        slurp::UpdateRenderPipeline& pipeline,
+        slurp::EntityManager& pipeline,
         slurp::Entity& entityLocation,
         slurp::Entity&& entity
     ) {
@@ -65,12 +65,12 @@ namespace game {
         });
     }
 
-    void initGame(slurp::GameState& gameState, slurp::UpdateRenderPipeline& updateRenderPipeline) {
+    void initGame(slurp::GameState& gameState, slurp::EntityManager& entityManager) {
         GlobalGameState = &gameState;
         GlobalColorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->background,
             slurp::Entity(
                 "Background",
@@ -83,7 +83,7 @@ namespace game {
 
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->wallUp,
             slurp::Entity(
                 "WallUp",
@@ -102,7 +102,7 @@ namespace game {
 
         geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->wallDown,
             slurp::Entity(
                 "WallDown",
@@ -121,7 +121,7 @@ namespace game {
 
         geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->wallLeft,
             slurp::Entity(
                 "WallLeft",
@@ -140,7 +140,7 @@ namespace game {
 
         geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->wallRight,
             slurp::Entity(
                 "WallRight",
@@ -159,7 +159,7 @@ namespace game {
 
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->obstacle1, slurp::Entity(
                 "Obstacle1",
                 obstacle1Shape,
@@ -177,7 +177,7 @@ namespace game {
 
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->obstacle2,
             slurp::Entity(
                 "Obstacle2",
@@ -195,13 +195,13 @@ namespace game {
         );
 
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->player,
             Player()
         );
 
         registerEntity(
-            updateRenderPipeline,
+            entityManager,
             GlobalGameState->mouseCursor,
             slurp::Entity(
                 "MouseCursor",
@@ -217,7 +217,7 @@ namespace game {
         geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
-                updateRenderPipeline,
+                entityManager,
                 GlobalGameState->enemies[i],
                 slurp::Entity(
                     "Enemy" + std::to_string(i),
@@ -239,7 +239,7 @@ namespace game {
         geometry::Shape projectileShape = {geometry::Rect, {ProjectileSizePixels, ProjectileSizePixels}};
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
-                updateRenderPipeline,
+                entityManager,
                 GlobalGameState->projectiles[i],
                 slurp::Entity(
                     "Projectile" + std::to_string(i),
@@ -273,7 +273,7 @@ namespace game {
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
             registerEntity(
-                updateRenderPipeline,
+                entityManager,
                 GlobalGameState->colorPaletteSwatch[i],
                 slurp::Entity(
                     "ColorPaletteSwatch" + std::to_string(i),

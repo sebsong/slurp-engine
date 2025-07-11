@@ -14,7 +14,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Render.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "UpdateRenderPipeline.cpp"
+#include "EntityManager.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
@@ -25,7 +25,7 @@ typedef unsigned char byte;
 namespace slurp {
     static platform::PlatformDll GlobalPlatformDll;
     static GameState* GlobalGameState;
-    static UpdateRenderPipeline* GlobalUpdateRenderPipeline;
+    static EntityManager* GlobalEntityManager;
 #if DEBUG
     static RecordingState* GlobalRecordingState;
 #endif
@@ -49,8 +49,8 @@ namespace slurp {
 
         render::ColorPalette colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
-        new(&sections->updateRenderPipeline) UpdateRenderPipeline();
-        GlobalUpdateRenderPipeline = &sections->updateRenderPipeline;
+        new(&sections->entityManager) EntityManager();
+        GlobalEntityManager = &sections->entityManager;
 
         GlobalGameState = &sections->gameState;
         GlobalGameState->colorPalette = colorPalette;
@@ -67,7 +67,7 @@ namespace slurp {
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
 #endif
-        game::initGame(sections->gameState, sections->updateRenderPipeline);
+        game::initGame(sections->gameState, sections->entityManager);
     }
 
     static void activateParry(game::Player& player) {
@@ -80,8 +80,9 @@ namespace slurp {
         player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
     }
 
-    // TODO: maybe just combine mouse and keyboard input handling
     SLURP_HANDLE_INPUT(handleInput) {
+        GlobalEntityManager->handleInput(mouseState, keyboardState, controllerStates);
+
         // TODO: move input handling to the game layer
         GlobalGameState->mouseCursor.position = mouseState.position;
 
@@ -186,7 +187,7 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        GlobalUpdateRenderPipeline->process(graphicsBuffer, dt);
+        GlobalEntityManager->updateAndRender(graphicsBuffer, dt);
 
 #if DEBUG
         if (GlobalRecordingState->isRecording) {

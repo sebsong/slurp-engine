@@ -27,27 +27,27 @@ namespace collision {
         bool isStatic,
         const geometry::Shape& shape,
         bool isCentered,
-        const std::function<void(const slurp::Entity*)>& onCollisionEnter,
-        const std::function<void(const slurp::Entity*)>& onCollisionExit
+        const std::function<void(const slurp::Entity*)>&& onCollisionEnter,
+        const std::function<void(const slurp::Entity*)>&& onCollisionExit
     ): CollisionInfo(
         isStatic,
         CollisionShape{
             shape,
             isCentered ? -shape.dimensions / 2 : slurp::Vector2<int>::Zero
         },
-        onCollisionEnter,
-        onCollisionExit
+        std::move(onCollisionEnter),
+        std::move(onCollisionExit)
     ) {}
 
     CollisionInfo::CollisionInfo(
         bool isStatic,
         const CollisionShape& shape,
-        const std::function<void(const slurp::Entity*)>& onCollisionEnter,
-        const std::function<void(const slurp::Entity*)>& onCollisionExit
+        const std::function<void(const slurp::Entity*)>&& onCollisionEnter,
+        const std::function<void(const slurp::Entity*)>&& onCollisionExit
     ): collisionEnabled(true),
        isStatic(isStatic),
        shape(shape),
-       onCollisionEnter(onCollisionEnter),
-       onCollisionExit(onCollisionExit),
+       onCollisionEnter(std::move(onCollisionEnter)),
+       onCollisionExit(std::move(onCollisionExit)),
        collidingWith(std::set<slurp::Entity*>()) {}
 }

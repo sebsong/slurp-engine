@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <unordered_map>
 
+#define MAX_NUM_CONTROLLERS 4
+
 namespace slurp {
     struct DigitalInputState {
         int transitionCount;

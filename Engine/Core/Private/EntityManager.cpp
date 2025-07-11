@@ -1,19 +1,32 @@
-#include "UpdateRenderPipeline.h"
+#include "EntityManager.h"
 
 #include "Entity.h"
+#include "Input.h"
 #include "Update.h"
 #include "Render.h"
 
 namespace slurp {
-    UpdateRenderPipeline::UpdateRenderPipeline() : _pipeline(std::deque<Entity*>()) {}
+    EntityManager::EntityManager() : _pipeline(std::deque<Entity*>()) {}
 
-    void UpdateRenderPipeline::registerEntity(Entity& entity) {
+    void EntityManager::registerEntity(Entity& entity) {
         uint32_t id = _pipeline.size();
         _pipeline.emplace_back(&entity);
         entity.id = id;
     }
 
-    void UpdateRenderPipeline::process(const render::GraphicsBuffer& buffer, float dt) {
+    void EntityManager::handleInput(
+        const MouseState& mouseState,
+        const KeyboardState& keyboardState,
+        const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+    ) const {
+        for (const Entity* entity: _pipeline) {
+            if (entity->enabled && entity->handleInput) {
+                entity->handleInput(mouseState, keyboardState, controllerStates);
+            }
+        }
+    }
+
+    void EntityManager::updateAndRender(const render::GraphicsBuffer& buffer, float dt) {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
