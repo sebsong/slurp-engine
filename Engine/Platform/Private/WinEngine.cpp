@@ -111,11 +111,17 @@ static void winUpdateWindow(
     StretchDIBits(
         deviceContextHandle,
 #if FIT_TO_SCREEN
-        0, 0, screenWidth, screenHeight,
+        0,
+        0,
+        screenWidth,
+        screenHeight,
 #else
         0, 0, buffer.widthPixels, buffer.heightPixels, // for pixel perfect scaling
 #endif
-        0, 0, buffer.widthPixels, buffer.heightPixels,
+        0,
+        0,
+        buffer.widthPixels,
+        buffer.heightPixels,
         buffer.memory,
         &buffer.info,
         DIB_RGB_COLORS,
@@ -310,12 +316,12 @@ static float winGetNormalizedTriggerValue(uint8_t triggerValue) {
     return static_cast<float>(triggerValue) / XINPUT_TRIGGER_MAG;
 }
 
-static void winHandleGamepadInput(slurp::GamepadState* controllerStates) {
-    for (DWORD controllerIdx = 0; controllerIdx < XUSER_MAX_COUNT; controllerIdx++) {
+static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
+    for (DWORD gamepadIndex = 0; gamepadIndex < XUSER_MAX_COUNT; gamepadIndex++) {
         XINPUT_STATE xInputState;
-        DWORD result = XInputGetState(controllerIdx, &xInputState);
+        DWORD result = XInputGetState(gamepadIndex, &xInputState);
         if (result == ERROR_SUCCESS) {
-            slurp::GamepadState* gamepadState = &controllerStates[controllerIdx];
+            slurp::GamepadState* gamepadState = &gamepadStates[gamepadIndex];
             gamepadState->isConnected = true;
 
             XINPUT_GAMEPAD gamepad = xInputState.Gamepad;
@@ -365,7 +371,7 @@ static void winHandleGamepadInput(slurp::GamepadState* controllerStates) {
             rightTriggerState.start = rightTriggerState.end;
             rightTriggerState.end = rightTriggerNormalized;
         } else {
-            // Controller is not connected
+            // Gamepad is not connected
             // TODO: log
         }
     }
@@ -379,7 +385,9 @@ static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
     if (dSoundLib) {
         direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
-            dSoundLib, "DirectSoundCreate"));
+            dSoundLib,
+            "DirectSoundCreate"
+        ));
         LPDIRECTSOUND directSound;
         if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr))) {
             directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
@@ -413,7 +421,8 @@ static void winInitDirectSound(HWND windowHandle) {
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
             if (SUCCEEDED(
-                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr))) {
+                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr)
+            )) {
                 OutputDebugStringA("Secondary audio buffer created.\n");
             } else {
                 //TODO: log
@@ -438,15 +447,17 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     DWORD audioRegion1Bytes;
     void* audioRegion2Ptr;
     DWORD audioRegion2Bytes;
-    if (!SUCCEEDED(GlobalAudioBuffer.buffer->Lock(
-        lockCursor,
-        numBytesToWrite,
-        &audioRegion1Ptr,
-        &audioRegion1Bytes,
-        &audioRegion2Ptr,
-        &audioRegion2Bytes,
-        0
-    ))) {
+    if (!SUCCEEDED(
+        GlobalAudioBuffer.buffer->Lock(
+            lockCursor,
+            numBytesToWrite,
+            &audioRegion1Ptr,
+            &audioRegion1Bytes,
+            &audioRegion2Ptr,
+            &audioRegion2Bytes,
+            0
+        )
+    )) {
         OutputDebugStringA("Audio buffer lock failed.\n");
         return 0;
     }
@@ -489,7 +500,10 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
         windowClass.lpszClassName,
         "Slurp's Up!",
         WS_MAXIMIZE | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
         nullptr,
         nullptr,
         instance,
@@ -535,7 +549,8 @@ static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
     void* memory = VirtualAlloc(
         baseAddress,
         permanentMemorySizeBytes + transientMemorySizeBytes,
-        MEM_RESERVE | MEM_COMMIT, // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
+        MEM_RESERVE | MEM_COMMIT,
+        // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
         PAGE_READWRITE
     );
     outGameMemory->permanentMemory.memory = memory;
@@ -829,7 +844,7 @@ static void winRecordStateMap(std::unordered_map<T, slurp::DigitalInputState> st
 static void winRecordInput(
     const slurp::MouseState& mouseState,
     const slurp::KeyboardState& keyboardState,
-    slurp::GamepadState gamepadStates[MAX_NUM_CONTROLLERS]
+    slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]
 ) {
     DWORD _;
     // record mouse input
@@ -845,9 +860,9 @@ static void winRecordInput(
     // record keyboard input
     winRecordStateMap(keyboardState.state);
 
-    // record controller input
-    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
-        slurp::GamepadState& gamepadState = gamepadStates[controllerIdx];
+    // record gamepad input
+    for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
+        slurp::GamepadState& gamepadState = gamepadStates[gamepadIndex];
         WriteFile(
             GlobalRecordingState.recordingFileHandle,
             &gamepadState.isConnected,
@@ -942,7 +957,7 @@ static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>
 static void winReadInputRecording(
     slurp::MouseState& outMouseState,
     slurp::KeyboardState& outKeyboardState,
-    slurp::GamepadState outGamepadStates[MAX_NUM_CONTROLLERS]
+    slurp::GamepadState outGamepadStates[MAX_NUM_GAMEPADS]
 ) {
     DWORD bytesRead;
     // read mouse input
@@ -965,9 +980,9 @@ static void winReadInputRecording(
     // read keyboard input
     winReadInputStateMap(outKeyboardState.state);
 
-    // read controller input
-    for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
-        slurp::GamepadState& outGamepadState = outGamepadStates[controllerIdx];
+    // read gamepad input
+    for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
+        slurp::GamepadState& outGamepadState = outGamepadStates[gamepadIndex];
         ReadFile(
             GlobalRecordingState.recordingFileHandle,
             &outGamepadState.isConnected,
@@ -1025,21 +1040,22 @@ void winDrawDebugLine(int drawX, uint32_t color) {
 }
 
 void winDrawDebugAudioSync(DWORD cursor, uint32_t color) {
-    int padX = 16;
-    int x = static_cast<int>((static_cast<float>(cursor) / GlobalAudioBuffer.bufferSizeBytes) * (
-                                 GlobalGraphicsBuffer.widthPixels));
+    int x = static_cast<int>(
+        (static_cast<float>(cursor) / GlobalAudioBuffer.bufferSizeBytes) *
+        (GlobalGraphicsBuffer.widthPixels)
+    );
     winDrawDebugLine(x, color);
 }
 #endif
 
-PLATFORM_VIBRATE_CONTROLLER(platform::vibrateController) {
+PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
     XINPUT_VIBRATION vibration{
         leftMotorSpeedRaw,
         rightMotorSpeedRaw,
     };
-    XInputSetState(controllerIdx, &vibration);
+    XInputSetState(gamepadIndex, &vibration);
 }
 
 PLATFORM_SHUTDOWN(platform::shutdown) {
@@ -1048,7 +1064,7 @@ PLATFORM_SHUTDOWN(platform::shutdown) {
 
 static platform::PlatformDll loadPlatformDll() {
     platform::PlatformDll platformDll = {};
-    platformDll.vibrateController = platform::vibrateController;
+    platformDll.vibrateGamepad = platform::vibrateGamepad;
     platformDll.shutdown = platform::shutdown;
 #if DEBUG
     platformDll.DEBUG_readFile = platform::DEBUG_readFile;
@@ -1094,7 +1110,7 @@ int WINAPI WinMain(
 
     slurp::MouseState mouseState;
     slurp::KeyboardState keyboardState;
-    slurp::GamepadState controllerStates[MAX_NUM_CONTROLLERS];
+    slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS];
 
     // TODO: migrate to the newer XAudio2
     // TODO: could dynamically track max writeCursor diff and update GlobalAudioBuffer.writeAheadSampleCount
@@ -1127,16 +1143,16 @@ int WINAPI WinMain(
         }
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
         winHandleMessages(keyboardState, mouseState, dimensions, GlobalGraphicsBuffer);
-        winHandleGamepadInput(controllerStates);
+        winHandleGamepadInput(gamepadStates);
 #if DEBUG
         if (GlobalRecordingState.isRecording) {
-            winRecordInput(mouseState, keyboardState, controllerStates);
+            winRecordInput(mouseState, keyboardState, gamepadStates);
         }
         if (GlobalRecordingState.isPlayingBack) {
-            winReadInputRecording(mouseState, keyboardState, controllerStates);
+            winReadInputRecording(mouseState, keyboardState, gamepadStates);
         }
 #endif
-        GlobalSlurpDll.handleInput(mouseState, keyboardState, controllerStates);
+        GlobalSlurpDll.handleInput(mouseState, keyboardState, gamepadStates);
 
 #if DEBUG
         if (GlobalRecordingState.isPaused) {

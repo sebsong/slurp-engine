@@ -18,7 +18,7 @@ namespace slurp {
         void handleInput(
             const MouseState& mouseState,
             const KeyboardState& keyboardState,
-            const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+            const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
         ) const;
 
         void updateAndRender(const render::GraphicsBuffer& buffer, float dt);

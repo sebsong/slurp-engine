@@ -21,7 +21,7 @@ namespace platform {
     };
 #endif
 
-#define PLATFORM_VIBRATE_CONTROLLER(fnName) void fnName(int controllerIdx, float leftMotorSpeed, float rightMotorSpeed)
+#define PLATFORM_VIBRATE_GAMEPAD(fnName) void fnName(int gamepadIndex, float leftMotorSpeed, float rightMotorSpeed)
 #define PLATFORM_SHUTDOWN(fnName) void fnName()
 #if DEBUG
 #define PLATFORM_DEBUG_READ_FILE(fnName) platform::DEBUG_FileReadResult fnName(const char* fileName)
@@ -30,10 +30,10 @@ namespace platform {
 #define PLATFORM_DEBUG_TOGGLE_PAUSE(fnName) void fnName()
 #define PLATFORM_DEBUG_BEGIN_RECORDING(fnName) void fnName()
 #define PLATFORM_DEBUG_END_RECORDING(fnName) void fnName()
-#define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName(std::function<void()> onPlaybackEnd)
+#define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName(const std::function<void()>& onPlaybackEnd)
 #endif
 
-    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_VIBRATE_CONTROLLER, vibrateController)
+    SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_VIBRATE_GAMEPAD, vibrateGamepad)
 
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_SHUTDOWN, shutdown)
 #if DEBUG
@@ -54,7 +54,7 @@ namespace platform {
 
     // TODO: assert that we actually replace these stubs properly
     struct PlatformDll {
-        dyn_vibrateController* vibrateController = stub_vibrateController;
+        dyn_vibrateGamepad* vibrateGamepad = stub_vibrateGamepad;
         dyn_shutdown* shutdown = stub_shutdown;
 #if DEBUG
         dyn_DEBUG_readFile* DEBUG_readFile = stub_DEBUG_readFile;

@@ -52,15 +52,16 @@ namespace slurp {
 
         // TODO: make these pure virtual or signal that they aren't implemented
         // TODO: any way to get around the overhead of virtual functions?
-        virtual void handleInput(
+        virtual void handleMouseAndKeyboardInput(
             const MouseState& mouseState,
-            const KeyboardState& keyboardState,
-            const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
-        ){};
+            const KeyboardState& keyboardState
+        ) {};
 
-        virtual void onCollisionEnter(const Entity* otherEntity){};
+        virtual void handleGamepadInput(uint8_t gamepadIndex, const GamepadState& gamepadState) {};
 
-        virtual void onCollisionExit(const Entity* otherEntity){};
+        virtual void onCollisionEnter(const Entity* otherEntity) {};
+
+        virtual void onCollisionExit(const Entity* otherEntity) {};
 
         virtual ~Entity() = default;
 

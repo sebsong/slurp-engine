@@ -11,11 +11,12 @@ namespace game {
         bool isParryActive;
 
     private:
-        void handleInput(
+        void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
-            const slurp::KeyboardState& keyboardState,
-            const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+            const slurp::KeyboardState& keyboardState
         ) override;
+
+        void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) override;
 
         void onCollisionEnter(const Entity* other) override;
 

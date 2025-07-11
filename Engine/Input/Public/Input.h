@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-#define MAX_NUM_CONTROLLERS 4
+#define MAX_NUM_GAMEPADS 4
 
 namespace slurp {
     struct DigitalInputState {
@@ -130,7 +130,7 @@ namespace slurp {
         Y,
     };
 
-    typedef std::pair<const slurp::GamepadCode, slurp::DigitalInputState> gamepad_state_entry;
+    typedef std::pair<const GamepadCode, DigitalInputState> gamepad_state_entry;
 
     struct GamepadState {
         bool isConnected = false;

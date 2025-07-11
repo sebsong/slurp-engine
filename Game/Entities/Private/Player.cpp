@@ -39,11 +39,12 @@ namespace game {
           ),
           isParryActive(false) {}
 
-    void Player::handleInput(
+    void Player::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
-        const slurp::KeyboardState& keyboardState,
-        const slurp::GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+        const slurp::KeyboardState& keyboardState
     ) {
+        Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
+
         slurp::Vector2<float> dir;
         if (keyboardState.isDown(slurp::KeyboardCode::W)) {
             dir.y -= 1;
@@ -59,12 +60,32 @@ namespace game {
         }
         this->direction = dir.normalize();
 
-
         if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) {
             this->speed = SprintPlayerSpeed;
         } else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) {
             this->speed = BasePlayerSpeed;
         }
+    }
+
+    void Player::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
+        Entity::handleGamepadInput(gamepadIndex, gamepadState);
+
+        if (
+            gamepadState.justPressed(slurp::GamepadCode::LEFT_SHOULDER) ||
+            gamepadState.justPressed(slurp::GamepadCode::RIGHT_SHOULDER)
+        ) {
+            this->speed = SprintPlayerSpeed;
+        } else if (
+            gamepadState.justReleased(slurp::GamepadCode::LEFT_SHOULDER) ||
+            gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
+        ) {
+            this->speed = BasePlayerSpeed;
+        }
+
+        slurp::Vector2<float> leftStick = gamepadState.leftStick.end;
+        slurp::Vector2<float> direction = leftStick;
+        direction.y *= -1;
+        this->direction = direction.normalize();
     }
 
     void Player::onCollisionEnter(const Entity* otherEntity) {

@@ -17,11 +17,19 @@ namespace slurp {
     void EntityManager::handleInput(
         const MouseState& mouseState,
         const KeyboardState& keyboardState,
-        const GamepadState (&controllerStates)[MAX_NUM_CONTROLLERS]
+        const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
     ) const {
         for (Entity* entity: _pipeline) {
-            if (entity->enabled) {
-                entity->handleInput(mouseState, keyboardState, controllerStates);
+            if (!entity->enabled) {
+                continue;
+            }
+            entity->handleMouseAndKeyboardInput(mouseState, keyboardState);
+
+            for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
+                if (!gamepadStates[gamepadIndex].isConnected) {
+                    continue;
+                }
+                entity->handleGamepadInput(gamepadIndex, gamepadStates[gamepadIndex]);
             }
         }
     }

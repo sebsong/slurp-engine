@@ -81,7 +81,7 @@ namespace slurp {
     }
 
     SLURP_HANDLE_INPUT(handleInput) {
-        GlobalEntityManager->handleInput(mouseState, keyboardState, controllerStates);
+        GlobalEntityManager->handleInput(mouseState, keyboardState, gamepadStates);
 
         // TODO: move input handling to the game layer
         GlobalGameState->mouseCursor.position = mouseState.position;
@@ -131,8 +131,8 @@ namespace slurp {
         if (keyboardState.isDown(KeyboardCode::ESC)) {
             GlobalPlatformDll.shutdown();
         }
-        for (int controllerIdx = 0; controllerIdx < MAX_NUM_CONTROLLERS; controllerIdx++) {
-            GamepadState gamepadState = controllerStates[controllerIdx];
+        for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
+            GamepadState gamepadState = gamepadStates[gamepadIndex];
             if (!gamepadState.isConnected) {
                 continue;
             }
@@ -141,22 +141,9 @@ namespace slurp {
                 GlobalPlatformDll.shutdown();
             }
 
-            if (gamepadState.justPressed(GamepadCode::LEFT_SHOULDER) || gamepadState.justPressed(
-                    GamepadCode::RIGHT_SHOULDER)) {
-                GlobalGameState->player.speed = SprintPlayerSpeed;
-            } else if (gamepadState.justReleased(GamepadCode::LEFT_SHOULDER) || gamepadState.justReleased(
-                           GamepadCode::RIGHT_SHOULDER)) {
-                GlobalGameState->player.speed = BasePlayerSpeed;
-            }
-
-            Vector2<float> leftStick = gamepadState.leftStick.end;
-            Vector2<float> direction = leftStick;
-            direction.y *= -1;
-            GlobalGameState->player.direction = direction.normalize();
-
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
-            GlobalPlatformDll.vibrateController(controllerIdx, leftTrigger, rightTrigger);
+            GlobalPlatformDll.vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
         }
     }
 
