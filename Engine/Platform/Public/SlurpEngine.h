@@ -18,7 +18,6 @@ namespace slurp {
     struct GameState {
         uint32_t randomSeed;
         bool isInitialized;
-        render::ColorPalette colorPalette;
 
         Entity background;
         Entity wallUp;

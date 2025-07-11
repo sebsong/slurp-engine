@@ -65,6 +65,14 @@ namespace game {
         } else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) {
             this->speed = BasePlayerSpeed;
         }
+
+        if (
+            mouseState.justPressed(slurp::MouseCode::RightClick) ||
+            keyboardState.justPressed(slurp::KeyboardCode::E)
+        ) {
+            activateParry();
+            timer::delay(ParryActiveDuration, [this] { deactivateParry(); });
+        }
     }
 
     void Player::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
@@ -95,5 +103,15 @@ namespace game {
 
     void Player::onCollisionExit(const Entity* otherEntity) {
         std::cout << "EXIT: " << otherEntity->name << std::endl;
+    }
+
+    void Player::activateParry() {
+        this->isParryActive = true;
+        this->renderShape.color = getColor(PlayerParryColorPalletIdx);
+    }
+
+    void Player::deactivateParry() {
+        this->isParryActive = false;
+        this->renderShape.color = getColor(PlayerColorPalletIdx);
     }
 }

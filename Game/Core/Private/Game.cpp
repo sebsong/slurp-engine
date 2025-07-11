@@ -73,6 +73,9 @@ namespace game {
         GlobalGameState = &gameState;
         GlobalColorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
+        GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
+        random::setRandomSeed(GlobalGameState->randomSeed);
+
         registerEntity(
             entityManager,
             GlobalGameState->background,

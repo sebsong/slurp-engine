@@ -30,54 +30,21 @@ namespace slurp {
     static RecordingState* GlobalRecordingState;
 #endif
 
-    static const std::string ColorPaletteHexFileName = "slso8.hex";
-    // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
-    // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
-
-    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
-    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
-    static constexpr int BasePlayerSpeed = 400;
-    static constexpr int SprintPlayerSpeed = 800;
-
-    static constexpr float ParryActiveDuration = .1f;
-
     SLURP_INIT(init) {
         GlobalPlatformDll = platformDll;
 
         assert(sizeof(MemorySections) <= gameMemory->permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory->permanentMemory.memory);
 
-        render::ColorPalette colorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
-
         new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
-
         GlobalGameState = &sections->gameState;
-        GlobalGameState->colorPalette = colorPalette;
-        GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
-
-        if (!GlobalGameState->isInitialized) {
-            // NOTE: anything that shouldn't be hot reloaded goes here
-            GlobalGameState->isInitialized = true;
-        }
-
-        random::setRandomSeed(GlobalGameState->randomSeed);
-
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
 #endif
+
         game::initGame(sections->gameState, sections->entityManager);
-    }
-
-    static void activateParry(game::Player& player) {
-        player.isParryActive = true;
-        player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerParryColorPalletIdx];
-    }
-
-    static void deactivateParry(game::Player& player) {
-        player.isParryActive = false;
-        player.renderShape.color = GlobalGameState->colorPalette.colors[PlayerColorPalletIdx];
     }
 
     SLURP_HANDLE_INPUT(handleInput) {
@@ -97,11 +64,6 @@ namespace slurp {
             if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) {
                 GlobalGameState->projectileIdx = 0;
             }
-        }
-
-        if (mouseState.justPressed(MouseCode::RightClick) || keyboardState.justPressed(KeyboardCode::E)) {
-            activateParry(GlobalGameState->player);
-            timer::delay(ParryActiveDuration, [] { deactivateParry(GlobalGameState->player); });
         }
 
         if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4)) {
@@ -143,6 +105,7 @@ namespace slurp {
 
             float leftTrigger = gamepadState.leftTrigger.end;
             float rightTrigger = gamepadState.rightTrigger.end;
+            // TODO: allow gamepad vibration control from game layer
             GlobalPlatformDll.vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
         }
     }
