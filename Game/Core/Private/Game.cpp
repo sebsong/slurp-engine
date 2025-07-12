@@ -86,7 +86,6 @@ namespace game {
                 {0, 0}
             )
         );
-
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         registerEntity(
             entityManager,
@@ -97,7 +96,6 @@ namespace game {
                 {0, 0}
             )
         );
-
         geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
         registerEntity(
             entityManager,
@@ -108,7 +106,6 @@ namespace game {
                 {0, 700}
             )
         );
-
         geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
         registerEntity(
             entityManager,
@@ -119,7 +116,6 @@ namespace game {
                 {0, 0}
             )
         );
-
         geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
         registerEntity(
             entityManager,
@@ -130,7 +126,6 @@ namespace game {
                 {1260, 0}
             )
         );
-
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         registerEntity(
             entityManager,
@@ -141,7 +136,6 @@ namespace game {
                 {200, 500}
             )
         );
-
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         registerEntity(
             entityManager,
