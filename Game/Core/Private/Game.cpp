@@ -3,6 +3,7 @@
 #include "EntityManager.h"
 
 #include "Player.cpp"
+#include "MouseCursor.cpp"
 
 namespace game {
     // TODO: maybe move color palette handling to its own module
@@ -12,9 +13,6 @@ namespace game {
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
-
-    static constexpr int MouseCursorSizePixels = 10;
-    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
 
     static const slurp::Vector2 EnemyStartPos = {400, 200};
     static const slurp::Vector2 EnemyPosOffset = {100, 0};
@@ -211,15 +209,8 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->mouseCursor,
-            slurp::Entity(
-                "MouseCursor",
-                {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
-                true,
-                getColor(MouseCursorColorPalletIdx),
-                {}
-            )
+            MouseCursor()
         );
-
 
         // TODO: move some of these to separate classes/files
         geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};

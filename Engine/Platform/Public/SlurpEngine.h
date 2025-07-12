@@ -7,6 +7,7 @@
 #include "Audio.h"
 #include "Render.h"
 #include "EntityManager.h"
+#include "MouseCursor.h"
 
 #include "Player.h"
 
@@ -27,7 +28,7 @@ namespace slurp {
         Entity obstacle1;
         Entity obstacle2;
 
-        Entity mouseCursor;
+        game::MouseCursor mouseCursor;
         game::Player player;
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;

@@ -51,8 +51,6 @@ namespace slurp {
         GlobalEntityManager->handleInput(mouseState, keyboardState, gamepadStates);
 
         // TODO: move input handling to the game layer
-        GlobalGameState->mouseCursor.position = mouseState.position;
-
         if (mouseState.justPressed(MouseCode::LeftClick)) {
             Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
             projectile.enabled = true;
