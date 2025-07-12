@@ -2,6 +2,7 @@
 
 #include "EntityManager.h"
 
+#include "Obstacle.cpp"
 #include "Player.cpp"
 #include "MouseCursor.cpp"
 
@@ -34,15 +35,15 @@ namespace game {
         return GlobalColorPalette.colors[colorPaletteIdx];
     }
 
-    template <typename T>
+    template<typename T>
     static void registerEntity(
-        slurp::EntityManager& pipeline,
+        slurp::EntityManager& entityManager,
         T& entityLocation,
         T&& entity
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::move(entity));
-        pipeline.registerEntity(entityLocation);
+        entityManager.registerEntity(entityLocation);
     }
 
     static void setRandomDirection(slurp::Entity* entity) {
@@ -90,18 +91,10 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallUp,
-            slurp::Entity(
+            Obstacle(
                 "WallUp",
                 wallUpShape,
-                false,
-                getColor(5),
-                {0, 0},
-                0,
-                collision::CollisionInfo(
-                    true,
-                    wallUpShape,
-                    false
-                )
+                {0, 0}
             )
         );
 
@@ -109,18 +102,10 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallDown,
-            slurp::Entity(
+            Obstacle(
                 "WallDown",
                 wallDownShape,
-                false,
-                getColor(5),
-                {0, 700},
-                0,
-                collision::CollisionInfo(
-                    true,
-                    wallDownShape,
-                    false
-                )
+                {0, 700}
             )
         );
 
@@ -128,18 +113,10 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallLeft,
-            slurp::Entity(
+            Obstacle(
                 "WallLeft",
                 wallLeftShape,
-                false,
-                getColor(5),
-                {0, 0},
-                0,
-                collision::CollisionInfo(
-                    true,
-                    wallLeftShape,
-                    false
-                )
+                {0, 0}
             )
         );
 
@@ -147,18 +124,10 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallRight,
-            slurp::Entity(
+            Obstacle(
                 "WallRight",
                 wallRightShape,
-                false,
-                getColor(5),
-                {1260, 0},
-                0,
-                collision::CollisionInfo(
-                    true,
-                    wallRightShape,
-                    false
-                )
+                {1260, 0}
             )
         );
 
@@ -166,18 +135,10 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->obstacle1,
-            slurp::Entity(
+            Obstacle(
                 "Obstacle1",
                 obstacle1Shape,
-                true,
-                getColor(5),
-                {200, 500},
-                0,
-                collision::CollisionInfo(
-                    true,
-                    obstacle1Shape,
-                    true
-                )
+                {200, 500}
             )
         );
 
@@ -185,18 +146,10 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->obstacle2,
-            slurp::Entity(
+            Obstacle(
                 "Obstacle2",
                 obstacle2Shape,
-                true,
-                getColor(5),
-                {500, 500},
-                0,
-                collision::CollisionInfo(
-                    true,
-                    obstacle2Shape,
-                    true
-                )
+                {500, 400}
             )
         );
 

@@ -8,6 +8,7 @@
 #include "Render.h"
 #include "EntityManager.h"
 #include "MouseCursor.h"
+#include "Obstacle.h"
 
 #include "Player.h"
 
@@ -21,12 +22,12 @@ namespace slurp {
         bool isInitialized;
 
         Entity background;
-        Entity wallUp;
-        Entity wallDown;
-        Entity wallLeft;
-        Entity wallRight;
-        Entity obstacle1;
-        Entity obstacle2;
+        game::Obstacle wallUp;
+        game::Obstacle wallDown;
+        game::Obstacle wallLeft;
+        game::Obstacle wallRight;
+        game::Obstacle obstacle1;
+        game::Obstacle obstacle2;
 
         game::MouseCursor mouseCursor;
         game::Player player;
