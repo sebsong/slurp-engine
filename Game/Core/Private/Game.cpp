@@ -35,16 +35,16 @@ namespace game {
 
     template<typename T>
     static void registerEntity(
-        slurp::EntityManager &entityManager,
-        T &entityLocation,
-        T &&entity
+        slurp::EntityManager& entityManager,
+        T& entityLocation,
+        T&& entity
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::move(entity));
         entityManager.registerEntity(entityLocation);
     }
 
-    static void setRandomDirection(slurp::Entity *entity) {
+    static void setRandomDirection(slurp::Entity* entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
         entity->direction = slurp::Vector2<float>(randX, randY).normalize();
@@ -56,20 +56,18 @@ namespace game {
         return random::randomFloat(minDelay, maxDelay);
     }
 
-    static void startUpdateEnemyDirection(slurp::Entity *enemy) {
+    static void startUpdateEnemyDirection(slurp::Entity* enemy) {
         setRandomDirection(enemy);
         timer::delay(
             getRandomDirectionChangeDelay(),
-            [&] {
-                startUpdateEnemyDirection(enemy);
-            }
+            [&] { startUpdateEnemyDirection(enemy); }
         );
     }
 
     void initGame(
-        const platform::PlatformDll &platformDll,
-        slurp::GameState &gameState,
-        slurp::EntityManager &entityManager
+        const platform::PlatformDll& platformDll,
+        slurp::GameState& gameState,
+        slurp::EntityManager& entityManager
     ) {
         GlobalPlatformDll = &platformDll;
         GlobalGameState = &gameState;
