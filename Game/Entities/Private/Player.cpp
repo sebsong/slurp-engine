@@ -19,7 +19,7 @@ namespace game {
         geometry::Rect,
         {BasePlayerSizePixels, BasePlayerSizePixels}
     };
-    static constexpr const char* Name = "Player";
+    static constexpr const char *Name = "Player";
 
     static constexpr float ParryActiveDuration = .1f;
 
@@ -37,11 +37,12 @@ namespace game {
                   true
               )
           ),
-          isParryActive(false) {}
+          isParryActive(false) {
+    }
 
     void Player::handleMouseAndKeyboardInput(
-        const slurp::MouseState& mouseState,
-        const slurp::KeyboardState& keyboardState
+        const slurp::MouseState &mouseState,
+        const slurp::KeyboardState &keyboardState
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
@@ -75,7 +76,7 @@ namespace game {
         }
     }
 
-    void Player::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
+    void Player::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState &gamepadState) {
         Entity::handleGamepadInput(gamepadIndex, gamepadState);
 
         if (
@@ -94,14 +95,18 @@ namespace game {
         slurp::Vector2<float> direction = leftStick;
         direction.y *= -1;
         this->direction = direction.normalize();
+
+        float leftTrigger = gamepadState.leftTrigger.end;
+        float rightTrigger = gamepadState.rightTrigger.end;
+        GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
     }
 
-    void Player::onCollisionEnter(const Entity* otherEntity) {
+    void Player::onCollisionEnter(const Entity *otherEntity) {
         std::cout << "ENTER: " << otherEntity->name << std::endl;
     }
 
 
-    void Player::onCollisionExit(const Entity* otherEntity) {
+    void Player::onCollisionExit(const Entity *otherEntity) {
         std::cout << "EXIT: " << otherEntity->name << std::endl;
     }
 

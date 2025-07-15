@@ -7,6 +7,7 @@
 #include "Audio.h"
 #include "Render.h"
 #include "EntityManager.h"
+#include "Global.h"
 #include "MouseCursor.h"
 #include "Obstacle.h"
 
@@ -20,6 +21,8 @@ namespace slurp {
     struct GameState {
         uint32_t randomSeed;
         bool isInitialized;
+
+        game::Global global;
 
         Entity background;
         game::Obstacle wallUp;
@@ -49,7 +52,7 @@ namespace slurp {
     };
 #endif
 
-#define SLURP_INIT(fnName) void fnName(const platform::PlatformDll platformDll, platform::GameMemory* gameMemory)
+#define SLURP_INIT(fnName) void fnName(const platform::PlatformDll& platformDll, platform::GameMemory& gameMemory)
 #define SLURP_HANDLE_INPUT(fnName) void fnName(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState, const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS])
 #define SLURP_LOAD_AUDIO(fnName) void fnName(const slurp::AudioBuffer& buffer)
 #define SLURP_UPDATE_AND_RENDER(fnName) void fnName(const render::GraphicsBuffer& graphicsBuffer, float dt)
@@ -63,9 +66,9 @@ namespace slurp {
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE_AND_RENDER, updateAndRender)
 
     struct SlurpDll {
-        dyn_init* init = stub_init;
-        dyn_handleInput* handleInput = stub_handleInput;
-        dyn_loadAudio* loadAudio = stub_loadAudio;
-        dyn_updateAndRender* updateAndRender = stub_updateAndRender;
+        dyn_init *init = stub_init;
+        dyn_handleInput *handleInput = stub_handleInput;
+        dyn_loadAudio *loadAudio = stub_loadAudio;
+        dyn_updateAndRender *updateAndRender = stub_updateAndRender;
     };
 }

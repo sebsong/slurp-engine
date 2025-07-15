@@ -2,15 +2,13 @@
 
 #include "EntityManager.h"
 
+#include "Global.cpp"
 #include "Obstacle.cpp"
 #include "Player.cpp"
 #include "MouseCursor.cpp"
 
 namespace game {
     // TODO: maybe move color palette handling to its own module
-    static slurp::GameState* GlobalGameState;
-    static render::ColorPalette GlobalColorPalette;
-
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
@@ -37,16 +35,16 @@ namespace game {
 
     template<typename T>
     static void registerEntity(
-        slurp::EntityManager& entityManager,
-        T& entityLocation,
-        T&& entity
+        slurp::EntityManager &entityManager,
+        T &entityLocation,
+        T &&entity
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::move(entity));
         entityManager.registerEntity(entityLocation);
     }
 
-    static void setRandomDirection(slurp::Entity* entity) {
+    static void setRandomDirection(slurp::Entity *entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
         entity->direction = slurp::Vector2<float>(randX, randY).normalize();
@@ -58,7 +56,7 @@ namespace game {
         return random::randomFloat(minDelay, maxDelay);
     }
 
-    static void startUpdateEnemyDirection(slurp::Entity* enemy) {
+    static void startUpdateEnemyDirection(slurp::Entity *enemy) {
         setRandomDirection(enemy);
         timer::delay(
             getRandomDirectionChangeDelay(),
@@ -68,12 +66,23 @@ namespace game {
         );
     }
 
-    void initGame(slurp::GameState& gameState, slurp::EntityManager& entityManager) {
+    void initGame(
+        const platform::PlatformDll &platformDll,
+        slurp::GameState &gameState,
+        slurp::EntityManager &entityManager
+    ) {
+        GlobalPlatformDll = &platformDll;
         GlobalGameState = &gameState;
         GlobalColorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
 
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
         random::setRandomSeed(GlobalGameState->randomSeed);
+
+        registerEntity(
+            entityManager,
+            GlobalGameState->global,
+            Global()
+        );
 
         registerEntity(
             entityManager,

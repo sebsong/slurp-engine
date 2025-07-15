@@ -23,28 +23,28 @@
 typedef unsigned char byte;
 
 namespace slurp {
-    static platform::PlatformDll GlobalPlatformDll;
-    static GameState* GlobalGameState;
-    static EntityManager* GlobalEntityManager;
+    static const platform::PlatformDll *GlobalPlatformDll;
+    static GameState *GlobalGameState;
+    static EntityManager *GlobalEntityManager;
 #if DEBUG
-    static RecordingState* GlobalRecordingState;
+    static RecordingState *GlobalRecordingState;
 #endif
 
     SLURP_INIT(init) {
-        GlobalPlatformDll = platformDll;
+        GlobalPlatformDll = &platformDll;
 
-        assert(sizeof(MemorySections) <= gameMemory->permanentMemory.sizeBytes);
-        MemorySections* sections = static_cast<MemorySections*>(gameMemory->permanentMemory.memory);
+        assert(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
+        MemorySections *sections = static_cast<MemorySections *>(gameMemory.permanentMemory.memory);
 
         new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
         GlobalGameState = &sections->gameState;
 #if DEBUG
-        assert(sizeof(RecordingState) <= gameMemory->transientMemory.sizeBytes);
-        GlobalRecordingState = static_cast<RecordingState*>(gameMemory->transientMemory.memory);
+        assert(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
+        GlobalRecordingState = static_cast<RecordingState *>(gameMemory.transientMemory.memory);
 #endif
 
-        game::initGame(sections->gameState, sections->entityManager);
+        game::initGame(platformDll, sections->gameState, sections->entityManager);
     }
 
     SLURP_HANDLE_INPUT(handleInput) {
@@ -52,7 +52,7 @@ namespace slurp {
 
         // TODO: move input handling to the game layer
         if (mouseState.justPressed(MouseCode::LeftClick)) {
-            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            Entity &projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
             projectile.enabled = true;
             projectile.position = GlobalGameState->player.position;
             projectile.direction =
@@ -64,51 +64,29 @@ namespace slurp {
             }
         }
 
-        if (keyboardState.isDown(KeyboardCode::ALT) && keyboardState.isDown(KeyboardCode::F4)) {
-            GlobalPlatformDll.shutdown();
-        }
-
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P)) {
-            GlobalPlatformDll.DEBUG_togglePause();
+            GlobalPlatformDll->DEBUG_togglePause();
         }
         if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack) {
             if (!GlobalRecordingState->isRecording) {
                 GlobalRecordingState->isRecording = true;
-                GlobalPlatformDll.DEBUG_beginRecording();
+                GlobalPlatformDll->DEBUG_beginRecording();
             } else {
-                GlobalPlatformDll.DEBUG_endRecording();
+                GlobalPlatformDll->DEBUG_endRecording();
                 GlobalRecordingState->isRecording = false;
             }
         }
         if (keyboardState.justPressed(KeyboardCode::T)) {
             GlobalRecordingState->isPlayingBack = true;
             auto onPlaybackEnd = []() -> void { GlobalRecordingState->isPlayingBack = false; };
-            GlobalPlatformDll.DEBUG_beginPlayback(onPlaybackEnd);
+            GlobalPlatformDll->DEBUG_beginPlayback(onPlaybackEnd);
         }
 #endif
-
-        if (keyboardState.isDown(KeyboardCode::ESC)) {
-            GlobalPlatformDll.shutdown();
-        }
-        for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
-            GamepadState gamepadState = gamepadStates[gamepadIndex];
-            if (!gamepadState.isConnected) {
-                continue;
-            }
-
-            if (gamepadState.isDown(GamepadCode::START) || gamepadState.isDown(GamepadCode::B)) {
-                GlobalPlatformDll.shutdown();
-            }
-
-            float leftTrigger = gamepadState.leftTrigger.end;
-            float rightTrigger = gamepadState.rightTrigger.end;
-            // TODO: allow gamepad vibration control from game layer
-            GlobalPlatformDll.vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
-        }
     }
 
-    SLURP_LOAD_AUDIO(loadAudio) {}
+    SLURP_LOAD_AUDIO(loadAudio) {
+    }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);

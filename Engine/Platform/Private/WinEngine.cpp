@@ -55,7 +55,7 @@ static WinScreenDimensions winGetScreenDimensions(HWND windowHandle) {
     };
 };
 
-static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int height) {
+static void winResizeDIBSection(WinGraphicsBuffer *outBuffer, int width, int height) {
     if (outBuffer->memory) {
         VirtualFree(outBuffer->memory, 0, MEM_RELEASE);
     }
@@ -84,7 +84,7 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
 
 static void winUpdateWindow(
     HDC deviceContextHandle,
-    const WinGraphicsBuffer& buffer,
+    const WinGraphicsBuffer &buffer,
     int screenWidth,
     int screenHeight
 ) {
@@ -142,9 +142,11 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     LRESULT result = 0;
 
     switch (message) {
-        case WM_ACTIVATEAPP: {}
+        case WM_ACTIVATEAPP: {
+        }
         break;
-        case WM_SIZE: {}
+        case WM_SIZE: {
+        }
         break;
         case WM_DESTROY:
         case WM_CLOSE: {
@@ -171,17 +173,17 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
     return result;
 };
 
-static void updateMouseButtonState(slurp::MouseState& outMouseState, slurp::MouseCode mouseCode, bool isDown) {
-    slurp::DigitalInputState& inputState = outMouseState.state[mouseCode];
+static void updateMouseButtonState(slurp::MouseState &outMouseState, slurp::MouseCode mouseCode, bool isDown) {
+    slurp::DigitalInputState &inputState = outMouseState.state[mouseCode];
     inputState.transitionCount = inputState.isDown != isDown ? 1 : 0;;
     inputState.isDown = isDown;
 }
 
 static void winHandleMessages(
-    slurp::KeyboardState& outKeyboardState,
-    slurp::MouseState& outMouseState,
-    const WinScreenDimensions& screenDimensions,
-    const WinGraphicsBuffer& buffer
+    slurp::KeyboardState &outKeyboardState,
+    slurp::MouseState &outMouseState,
+    const WinScreenDimensions &screenDimensions,
+    const WinGraphicsBuffer &buffer
 ) {
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -197,7 +199,7 @@ static void winHandleMessages(
                 if (KeyboardWinCodeToSlurpCode.count(virtualKeyCode) > 0) {
                     slurp::KeyboardCode code = KeyboardWinCodeToSlurpCode.at(virtualKeyCode);
                     // TODO: change transition count computation once we poll multiple times per frame
-                    slurp::DigitalInputState& inputState = outKeyboardState.state[code];
+                    slurp::DigitalInputState &inputState = outKeyboardState.state[code];
                     inputState.transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState.isDown = isDown;
@@ -266,7 +268,7 @@ X_INPUT_GET_STATE(XInputGetStateStub) {
     return ERROR_DEVICE_NOT_CONNECTED;
 }
 
-static x_input_get_state* XInputGetState_ = XInputGetStateStub;
+static x_input_get_state *XInputGetState_ = XInputGetStateStub;
 #define XInputGetState XInputGetState_
 
 #define X_INPUT_SET_STATE(fnName) DWORD WINAPI fnName(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
@@ -277,7 +279,7 @@ X_INPUT_SET_STATE(XInputSetStateStub) {
     return ERROR_DEVICE_NOT_CONNECTED;
 }
 
-static x_input_set_state* XInputSetState_ = XInputSetStateStub;
+static x_input_set_state *XInputSetState_ = XInputSetStateStub;
 #define XInputSetState XInputSetState_
 
 static void winLoadXInput() {
@@ -287,8 +289,8 @@ static void winLoadXInput() {
         xInputLib = LoadLibraryA("xinput1_3.dll");
     }
     if (xInputLib) {
-        XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
-        XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(xInputLib, "XInputSetState"));
+        XInputGetState = reinterpret_cast<x_input_get_state *>(GetProcAddress(xInputLib, "XInputGetState"));
+        XInputSetState = reinterpret_cast<x_input_set_state *>(GetProcAddress(xInputLib, "XInputSetState"));
     } else {
         // TODO: log
     }
@@ -316,12 +318,12 @@ static float winGetNormalizedTriggerValue(uint8_t triggerValue) {
     return static_cast<float>(triggerValue) / XINPUT_TRIGGER_MAG;
 }
 
-static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
+static void winHandleGamepadInput(slurp::GamepadState *gamepadStates) {
     for (DWORD gamepadIndex = 0; gamepadIndex < XUSER_MAX_COUNT; gamepadIndex++) {
         XINPUT_STATE xInputState;
         DWORD result = XInputGetState(gamepadIndex, &xInputState);
         if (result == ERROR_SUCCESS) {
-            slurp::GamepadState* gamepadState = &gamepadStates[gamepadIndex];
+            slurp::GamepadState *gamepadState = &gamepadStates[gamepadIndex];
             gamepadState->isConnected = true;
 
             XINPUT_GAMEPAD gamepad = xInputState.Gamepad;
@@ -330,7 +332,7 @@ static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
                 bool isDown = gamepad.wButtons & xInputCode;
 
                 slurp::GamepadCode gamepadCode = entry.second;
-                slurp::DigitalInputState* inputState = &gamepadState->state[gamepadCode];
+                slurp::DigitalInputState *inputState = &gamepadState->state[gamepadCode];
                 inputState->transitionCount = inputState->isDown != isDown ? 1 : 0;
                 inputState->isDown = isDown;
             }
@@ -343,7 +345,7 @@ static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
                 gamepad.sThumbLY,
                 XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
             );
-            slurp::AnalogStickInputState& leftStickState = gamepadState->leftStick;
+            slurp::AnalogStickInputState &leftStickState = gamepadState->leftStick;
             leftStickState.start = leftStickState.end;
             leftStickState.end.x = leftStickXNormalized;
             leftStickState.end.y = leftStickYNormalized;
@@ -356,18 +358,18 @@ static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
                 gamepad.sThumbRY,
                 XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
             );
-            slurp::AnalogStickInputState& rightStickState = gamepadState->rightStick;
+            slurp::AnalogStickInputState &rightStickState = gamepadState->rightStick;
             rightStickState.start = rightStickState.end;
             rightStickState.end.x = rightStickXNormalized;
             rightStickState.end.y = rightStickYNormalized;
 
             float leftTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bLeftTrigger);
-            slurp::AnalogTriggerInputState& leftTriggerState = gamepadState->leftTrigger;
+            slurp::AnalogTriggerInputState &leftTriggerState = gamepadState->leftTrigger;
             leftTriggerState.start = leftTriggerState.end;
             leftTriggerState.end = leftTriggerNormalized;
 
             float rightTriggerNormalized = winGetNormalizedTriggerValue(gamepad.bRightTrigger);
-            slurp::AnalogTriggerInputState& rightTriggerState = gamepadState->rightTrigger;
+            slurp::AnalogTriggerInputState &rightTriggerState = gamepadState->rightTrigger;
             rightTriggerState.start = rightTriggerState.end;
             rightTriggerState.end = rightTriggerNormalized;
         } else {
@@ -384,7 +386,7 @@ typedef DIRECT_SOUND_CREATE(direct_sound_create);
 static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
     if (dSoundLib) {
-        direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
+        direct_sound_create *directSoundCreate = reinterpret_cast<direct_sound_create *>(GetProcAddress(
             dSoundLib,
             "DirectSoundCreate"
         ));
@@ -443,9 +445,9 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
         return 0;
     }
 
-    void* audioRegion1Ptr;
+    void *audioRegion1Ptr;
     DWORD audioRegion1Bytes;
-    void* audioRegion2Ptr;
+    void *audioRegion2Ptr;
     DWORD audioRegion2Bytes;
     if (!SUCCEEDED(
         GlobalAudioBuffer.buffer->Lock(
@@ -463,13 +465,13 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     }
 
     slurp::AudioBuffer region1Buffer = {};
-    region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
+    region1Buffer.samples = static_cast<int32_t *>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.samplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
     GlobalSlurpDll.loadAudio(region1Buffer);
 
     slurp::AudioBuffer region2Buffer = {};
-    region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
+    region2Buffer.samples = static_cast<int32_t *>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
     GlobalSlurpDll.loadAudio(region2Buffer);
@@ -483,7 +485,7 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     return numBytesToWrite;
 }
 
-static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
+static bool winInitialize(HINSTANCE instance, HWND *outWindowHandle) {
     winLoadXInput();
 
     WNDCLASSA windowClass = {};
@@ -536,17 +538,17 @@ static DWORD winGetMonitorRefreshRate() {
     return devMode.dmDisplayFrequency;
 }
 
-static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
+static void winAllocateGameMemory(platform::GameMemory *outGameMemory) {
     uint64_t permanentMemorySizeBytes = megabytes(64);
     uint64_t transientMemorySizeBytes = gigabytes(4);
     outGameMemory->permanentMemory.sizeBytes = permanentMemorySizeBytes;
     outGameMemory->transientMemory.sizeBytes = transientMemorySizeBytes;
 #if DEBUG
-    void* baseAddress = (void*) terabytes(1);
+    void *baseAddress = (void *) terabytes(1);
 #else
 	void* baseAddress = nullptr;
 #endif
-    void* memory = VirtualAlloc(
+    void *memory = VirtualAlloc(
         baseAddress,
         permanentMemorySizeBytes + transientMemorySizeBytes,
         MEM_RESERVE | MEM_COMMIT,
@@ -554,12 +556,12 @@ static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
         PAGE_READWRITE
     );
     outGameMemory->permanentMemory.memory = memory;
-    outGameMemory->transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
+    outGameMemory->transientMemory.memory = static_cast<uint8_t *>(memory) + permanentMemorySizeBytes;
 }
 
 static float winGetFrameMillis(
     WinTimingInfo startTimingInfo,
-    LARGE_INTEGER& outPerformanceCounterEnd
+    LARGE_INTEGER &outPerformanceCounterEnd
 ) {
     QueryPerformanceCounter(&outPerformanceCounterEnd);
     return (outPerformanceCounterEnd.QuadPart - startTimingInfo.performanceCounter) * 1000.f /
@@ -595,8 +597,8 @@ static void winStallFrameToTarget(
 }
 
 static void winCaptureAndLogPerformance(
-    uint64_t& startProcessorCycle,
-    WinTimingInfo& startTimingInfo
+    uint64_t &startProcessorCycle,
+    WinTimingInfo &startTimingInfo
 ) {
     uint64_t processorCycleEnd = __rdtsc();
     LARGE_INTEGER performanceCounterEnd;
@@ -614,8 +616,8 @@ static void winCaptureAndLogPerformance(
 }
 
 template<typename T>
-static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) {
-    out = reinterpret_cast<T*>(
+static void winLoadLibFn(T *&out, LPCSTR fnName, T *stubFn, const HMODULE &lib) {
+    out = reinterpret_cast<T *>(
         GetProcAddress(lib, fnName)
     );
     if (!out) {
@@ -627,7 +629,7 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
     }
 }
 
-static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
+static void winLoadSlurpLib(const char *dllFilePath, const char *dllLoadFilePath) {
     CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
     if (!GlobalSlurpLib) {
@@ -667,7 +669,7 @@ static void winUnloadSlurpLib() {
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
+static void winTryReloadSlurpLib(const char *dllFilePath, const char *dllLoadFilePath) {
     HANDLE dllFileHandle = CreateFileA(
         dllFilePath,
         GENERIC_READ,
@@ -691,7 +693,7 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
-    GlobalSlurpDll.init(GlobalPlatformDll, &GlobalGameMemory);
+    GlobalSlurpDll.init(GlobalPlatformDll, GlobalGameMemory);
 }
 
 static std::string getLocalFilePath(LPCSTR filename) {
@@ -728,7 +730,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile) {
 
     assert(fileSize.QuadPart < gigabytes(4));
     DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
-    void* buffer = VirtualAlloc(
+    void *buffer = VirtualAlloc(
         nullptr,
         fileSizeTruncated,
         MEM_RESERVE | MEM_COMMIT,
@@ -830,7 +832,7 @@ static void winRecordStateMap(std::unordered_map<T, slurp::DigitalInputState> st
         &_,
         nullptr
     );
-    for (const std::pair<const T, slurp::DigitalInputState>& entry: stateMap) {
+    for (const std::pair<const T, slurp::DigitalInputState> &entry: stateMap) {
         WriteFile(
             GlobalRecordingState.recordingFileHandle,
             &entry,
@@ -842,8 +844,8 @@ static void winRecordStateMap(std::unordered_map<T, slurp::DigitalInputState> st
 }
 
 static void winRecordInput(
-    const slurp::MouseState& mouseState,
-    const slurp::KeyboardState& keyboardState,
+    const slurp::MouseState &mouseState,
+    const slurp::KeyboardState &keyboardState,
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]
 ) {
     DWORD _;
@@ -862,7 +864,7 @@ static void winRecordInput(
 
     // record gamepad input
     for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
-        slurp::GamepadState& gamepadState = gamepadStates[gamepadIndex];
+        slurp::GamepadState &gamepadState = gamepadStates[gamepadIndex];
         WriteFile(
             GlobalRecordingState.recordingFileHandle,
             &gamepadState.isConnected,
@@ -930,7 +932,7 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback) {
 }
 
 template<typename T>
-static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>& outStateMap) {
+static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState> &outStateMap) {
     DWORD _;
     size_t numStates = 0;
     ReadFile(
@@ -955,8 +957,8 @@ static void winReadInputStateMap(std::unordered_map<T, slurp::DigitalInputState>
 }
 
 static void winReadInputRecording(
-    slurp::MouseState& outMouseState,
-    slurp::KeyboardState& outKeyboardState,
+    slurp::MouseState &outMouseState,
+    slurp::KeyboardState &outKeyboardState,
     slurp::GamepadState outGamepadStates[MAX_NUM_GAMEPADS]
 ) {
     DWORD bytesRead;
@@ -982,7 +984,7 @@ static void winReadInputRecording(
 
     // read gamepad input
     for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
-        slurp::GamepadState& outGamepadState = outGamepadStates[gamepadIndex];
+        slurp::GamepadState &outGamepadState = outGamepadStates[gamepadIndex];
         ReadFile(
             GlobalRecordingState.recordingFileHandle,
             &outGamepadState.isConnected,
@@ -1025,9 +1027,9 @@ static void winReadInputRecording(
 void winDrawDebugLine(int drawX, uint32_t color) {
     int lineWidth = 8;
 
-    byte* bitmapBytes = static_cast<byte*>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.bytesPerPixel;
+    byte *bitmapBytes = static_cast<byte *>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.bytesPerPixel;
     for (int y = 0; y < GlobalGraphicsBuffer.heightPixels; y++) {
-        uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
+        uint32_t *rowPixels = reinterpret_cast<uint32_t *>(bitmapBytes);
         for (int x = 0; x < lineWidth; x++) {
             if (drawX + x >= GlobalGraphicsBuffer.widthPixels) {
                 return;
@@ -1090,9 +1092,9 @@ int WINAPI WinMain(
     }
 
     std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);
-    const char* dllFilePath = dllFilePathStr.c_str();
+    const char *dllFilePath = dllFilePathStr.c_str();
     std::string dllLoadFilePathStr = getLocalFilePath(SLURP_LOAD_DLL_FILE_NAME);
-    const char* dllLoadFilePath = dllLoadFilePathStr.c_str();
+    const char *dllLoadFilePath = dllLoadFilePathStr.c_str();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
     GlobalPlatformDll = loadPlatformDll();
@@ -1133,12 +1135,12 @@ int WINAPI WinMain(
     while (GlobalRunning) {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
-        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
-            slurp::DigitalInputState& inputState = entry.second;
+        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> &entry: keyboardState.state) {
+            slurp::DigitalInputState &inputState = entry.second;
             inputState.transitionCount = 0;
         }
-        for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
-            slurp::DigitalInputState& inputState = entry.second;
+        for (std::pair<const slurp::MouseCode, slurp::DigitalInputState> &entry: mouseState.state) {
+            slurp::DigitalInputState &inputState = entry.second;
             inputState.transitionCount = 0;
         }
         WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
@@ -1161,7 +1163,7 @@ int WINAPI WinMain(
 #endif
 
         render::GraphicsBuffer graphicsBuffer = {
-            static_cast<render::Pixel*>(GlobalGraphicsBuffer.memory),
+            static_cast<render::Pixel *>(GlobalGraphicsBuffer.memory),
             GlobalGraphicsBuffer.widthPixels,
             GlobalGraphicsBuffer.heightPixels
         };

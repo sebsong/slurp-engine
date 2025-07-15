@@ -1,7 +1,11 @@
 #pragma once
 
 namespace game {
-    void init(slurp::GameState& gameState, slurp::EntityManager& entityManager);
+    static const platform::PlatformDll *GlobalPlatformDll;
+    static slurp::GameState *GlobalGameState;
+    static render::ColorPalette GlobalColorPalette;
+
+    void init(slurp::GameState &gameState, slurp::EntityManager &entityManager);
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx);
 }
