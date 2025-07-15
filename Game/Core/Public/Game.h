@@ -1,7 +1,6 @@
 #pragma once
 
-namespace game
-{
+namespace game {
     static const platform::PlatformDll* GlobalPlatformDll;
     static slurp::GameState* GlobalGameState;
     static render::ColorPalette GlobalColorPalette;

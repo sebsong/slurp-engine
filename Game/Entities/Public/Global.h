@@ -11,6 +11,7 @@ namespace game {
             const slurp::MouseState& mouseState,
             const slurp::KeyboardState& keyboardState
         ) override;
+
         void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) override;
     };
 }
