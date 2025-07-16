@@ -24,7 +24,6 @@ typedef unsigned char byte;
 
 namespace slurp {
     static const platform::PlatformDll* GlobalPlatformDll;
-    static GameState* GlobalGameState;
     static EntityManager* GlobalEntityManager;
 #if DEBUG
     static RecordingState* GlobalRecordingState;
@@ -38,7 +37,6 @@ namespace slurp {
 
         new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
-        GlobalGameState = &sections->gameState;
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
@@ -49,18 +47,6 @@ namespace slurp {
 
     SLURP_HANDLE_INPUT(handleInput) {
         GlobalEntityManager->handleInput(mouseState, keyboardState, gamepadStates);
-
-        // TODO: move input handling to the game layer
-        if (mouseState.justPressed(MouseCode::LeftClick)) {
-            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
-            projectile.enabled = true;
-            projectile.position = GlobalGameState->player.position;
-            projectile.direction =
-                    static_cast<Vector2<float>>(mouseState.position - GlobalGameState->player.position).
-                    normalize();
-            GlobalGameState->projectileIdx++;
-            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { GlobalGameState->projectileIdx = 0; }
-        }
 
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P)) { GlobalPlatformDll->DEBUG_togglePause(); }

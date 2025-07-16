@@ -55,6 +55,17 @@ namespace game {
         if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->speed = SprintPlayerSpeed; }
         else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->speed = BasePlayerSpeed; }
 
+        if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
+            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            projectile.enabled = true;
+            projectile.position = GlobalGameState->player.position;
+            projectile.direction =
+                    static_cast<slurp::Vector2<float>>(mouseState.position - GlobalGameState->player.position).
+                    normalize();
+            GlobalGameState->projectileIdx++;
+            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { GlobalGameState->projectileIdx = 0; }
+        }
+
         if (
             mouseState.justPressed(slurp::MouseCode::RightClick) ||
             keyboardState.justPressed(slurp::KeyboardCode::E)
