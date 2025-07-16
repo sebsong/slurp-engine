@@ -18,9 +18,9 @@ namespace game {
 
         void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) override;
 
-        void onCollisionEnter(const Entity* other) override;
+        void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
-        void onCollisionExit(const Entity* other) override;
+        void onCollisionExit(const collision::CollisionDetails& collisionDetails) override;
 
         void activateParry();
 

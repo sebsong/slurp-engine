@@ -7,6 +7,6 @@ namespace game {
         Projectile(int index);
 
     private:
-        void onCollisionEnter(const Entity* other) override;
+        void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
     };
 }

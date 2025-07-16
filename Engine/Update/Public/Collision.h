@@ -34,4 +34,9 @@ namespace collision {
             const CollisionShape& shape
         );
     };
+
+    struct CollisionDetails {
+        slurp::Entity* entity;
+        // TODO: add a collision normal and other collision info
+    };
 }

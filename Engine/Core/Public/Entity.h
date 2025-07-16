@@ -4,9 +4,6 @@
 #include "Render.h"
 #include "Collision.h"
 
-
-#include <functional>
-
 namespace slurp {
     struct Entity {
         uint32_t id;
@@ -59,14 +56,12 @@ namespace slurp {
 
         virtual void handleGamepadInput(uint8_t gamepadIndex, const GamepadState& gamepadState) {};
 
-        virtual void onCollisionEnter(const Entity* otherEntity) {};
+        virtual void onCollisionEnter(const collision::CollisionDetails& collisionDetails) {};
 
-        virtual void onCollisionExit(const Entity* otherEntity) {};
+        virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {};
 
         virtual ~Entity() = default;
 
-        bool operator==(const Entity& other) const {
-            return id == other.id;
-        }
+        bool operator==(const Entity& other) const { return id == other.id; }
     };
 }

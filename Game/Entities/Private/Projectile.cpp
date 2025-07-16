@@ -25,8 +25,8 @@ namespace game {
         )
     ) {}
 
-    void Projectile::onCollisionEnter(const Entity* other) {
-        Entity::onCollisionEnter(other);
+    void Projectile::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
+        Entity::onCollisionEnter(collisionDetails);
 
         this->direction *= -1;
     }

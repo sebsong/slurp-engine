@@ -16,20 +16,14 @@ namespace update {
         requires Iterable<T, slurp::Entity*>
     void updatePosition(slurp::Entity* entity, T& allEntities, float dt) {
         slurp::Vector2<int> targetPositionUpdate = (entity->direction * entity->speed * dt);
-        if (targetPositionUpdate == slurp::Vector2<int>::Zero) {
-            return;
-        }
+        if (targetPositionUpdate == slurp::Vector2<int>::Zero) { return; }
         collision::CollisionInfo& collisionInfo = entity->collisionInfo;
-        if (!collisionInfo.collisionEnabled) {
-            entity->position += targetPositionUpdate;
-        }
+        if (!collisionInfo.collisionEnabled) { entity->position += targetPositionUpdate; }
 
         slurp::Vector2<int> positionUpdate = targetPositionUpdate;
         for (slurp::Entity* otherEntity: allEntities) {
             collision::CollisionInfo& otherCollisionInfo = otherEntity->collisionInfo;
-            if (!otherCollisionInfo.collisionEnabled || otherEntity == entity) {
-                continue;
-            }
+            if (!otherCollisionInfo.collisionEnabled || otherEntity == entity) { continue; }
 
             geometry::Shape minkowskiSum = geometry::getMinkowskiSum(
                 collisionInfo.shape.shape,
@@ -49,9 +43,8 @@ namespace update {
                     int xAxisPositionUpdate = positionUpdate.x;
                     if (entityOffsetPosition.x <= otherEntityOffsetPosition.x) {
                         xAxisPositionUpdate = minkowskiMinPoint.x - entityOffsetPosition.x;
-                    } else {
-                        xAxisPositionUpdate = minkowskiMaxPoint.x - entityOffsetPosition.x;
                     }
+                    else { xAxisPositionUpdate = minkowskiMaxPoint.x - entityOffsetPosition.x; }
                     if (std::abs(xAxisPositionUpdate) < std::abs(positionUpdate.x)) {
                         positionUpdate.x = xAxisPositionUpdate;
                     }
@@ -60,27 +53,43 @@ namespace update {
                     int yAxisPositionUpdate = positionUpdate.y;
                     if (entityOffsetPosition.y <= otherEntityOffsetPosition.y) {
                         yAxisPositionUpdate = minkowskiMinPoint.y - entityOffsetPosition.y;
-                    } else {
-                        yAxisPositionUpdate = minkowskiMaxPoint.y - entityOffsetPosition.y;
                     }
+                    else { yAxisPositionUpdate = minkowskiMaxPoint.y - entityOffsetPosition.y; }
                     if (std::abs(yAxisPositionUpdate) < std::abs(positionUpdate.y)) {
                         positionUpdate.y = yAxisPositionUpdate;
                     }
                 }
                 if (!collisionInfo.collidingWith.contains(otherEntity)) {
-                    entity->onCollisionEnter(otherEntity);
+                    entity->onCollisionEnter(
+                        collision::CollisionDetails{
+                            otherEntity
+                        }
+                    );
                 }
                 if (!otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherEntity->onCollisionEnter(entity);
+                    otherEntity->onCollisionEnter(
+                        collision::CollisionDetails{
+                            entity
+                        }
+                    );
                 }
                 collisionInfo.collidingWith.insert(otherEntity);
                 otherCollisionInfo.collidingWith.insert(entity);
-            } else {
+            }
+            else {
                 if (collisionInfo.collidingWith.contains(otherEntity)) {
-                    entity->onCollisionExit(otherEntity);
+                    entity->onCollisionExit(
+                        collision::CollisionDetails{
+                            otherEntity
+                        }
+                    );
                 }
                 if (otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherEntity->onCollisionExit(entity);
+                    otherEntity->onCollisionExit(
+                        collision::CollisionDetails{
+                            entity
+                        }
+                    );
                 }
                 collisionInfo.collidingWith.erase(otherEntity);
                 otherCollisionInfo.collidingWith.erase(entity);
