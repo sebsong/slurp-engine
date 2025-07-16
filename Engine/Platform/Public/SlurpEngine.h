@@ -8,10 +8,11 @@
 #include "Render.h"
 #include "EntityManager.h"
 #include "Global.h"
+
 #include "MouseCursor.h"
 #include "Obstacle.h"
-
 #include "Player.h"
+#include "Projectile.h"
 
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 10
@@ -36,7 +37,7 @@ namespace slurp {
         game::Player player;
         Entity enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
-        Entity projectiles[PROJECTILE_POOL_SIZE];
+        game::Projectile projectiles[PROJECTILE_POOL_SIZE];
         Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
@@ -66,9 +67,9 @@ namespace slurp {
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE_AND_RENDER, updateAndRender)
 
     struct SlurpDll {
-        dyn_init *init = stub_init;
-        dyn_handleInput *handleInput = stub_handleInput;
-        dyn_loadAudio *loadAudio = stub_loadAudio;
-        dyn_updateAndRender *updateAndRender = stub_updateAndRender;
+        dyn_init* init = stub_init;
+        dyn_handleInput* handleInput = stub_handleInput;
+        dyn_loadAudio* loadAudio = stub_loadAudio;
+        dyn_updateAndRender* updateAndRender = stub_updateAndRender;
     };
 }

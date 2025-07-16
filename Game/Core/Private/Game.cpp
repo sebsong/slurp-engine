@@ -5,6 +5,7 @@
 #include "Global.cpp"
 #include "Obstacle.cpp"
 #include "Player.cpp"
+#include "Projectile.cpp"
 #include "MouseCursor.cpp"
 
 namespace game {
@@ -20,10 +21,6 @@ namespace game {
     static constexpr int BaseEnemySpeed = 200;
     static constexpr float BaseEnemyDirectionChangeDelay = 2;
     static constexpr float EnemyDirectionChangeDelayDelta = 1.5;
-
-    static constexpr int ProjectileSizePixels = 15;
-    static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
-    static constexpr int BaseProjectileSpeed = 500;
 
     static constexpr int ColorPaletteSwatchSize = 15;
     static const slurp::Vector2 ColorPalettePosition = {1155, 702};
@@ -189,24 +186,11 @@ namespace game {
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
         }
 
-        geometry::Shape projectileShape = {geometry::Rect, {ProjectileSizePixels, ProjectileSizePixels}};
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
                 entityManager,
                 GlobalGameState->projectiles[i],
-                slurp::Entity(
-                    "Projectile" + std::to_string(i),
-                    projectileShape,
-                    true,
-                    getColor(ProjectileColorPalletIdx),
-                    slurp::Vector2<int>::Zero,
-                    BaseProjectileSpeed,
-                    collision::CollisionInfo(
-                        false,
-                        projectileShape,
-                        true
-                    )
-                )
+                Projectile(i)
             );
         }
 
