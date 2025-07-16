@@ -7,43 +7,12 @@
 #include "Audio.h"
 #include "Render.h"
 #include "EntityManager.h"
-#include "Global.h"
-
-#include "MouseCursor.h"
-#include "Obstacle.h"
-#include "Player.h"
-#include "Projectile.h"
-
-#define NUM_ENEMIES 4
-#define PROJECTILE_POOL_SIZE 10
+#include "Game.h"
 
 namespace slurp {
-    // TODO: move this to the game layer
-    struct GameState {
-        uint32_t randomSeed;
-        bool isInitialized;
-
-        game::Global global;
-
-        Entity background;
-        game::Obstacle wallUp;
-        game::Obstacle wallDown;
-        game::Obstacle wallLeft;
-        game::Obstacle wallRight;
-        game::Obstacle obstacle1;
-        game::Obstacle obstacle2;
-
-        game::MouseCursor mouseCursor;
-        game::Player player;
-        Entity enemies[NUM_ENEMIES];
-        uint32_t projectileIdx;
-        game::Projectile projectiles[PROJECTILE_POOL_SIZE];
-        Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
-    };
-
     struct MemorySections {
         EntityManager entityManager;
-        GameState gameState;
+        game::GameState gameState;
     };
 
 #if DEBUG

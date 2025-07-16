@@ -19,6 +19,7 @@ namespace render {
         int heightPixels;
     };
 
+    // TODO: move to game layer
     struct ColorPalette {
         Pixel colors[COLOR_PALETTE_SIZE];
     };

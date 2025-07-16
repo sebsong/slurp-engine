@@ -63,7 +63,7 @@ namespace game {
 
     void initGame(
         const platform::PlatformDll& platformDll,
-        slurp::GameState& gameState,
+        GameState& gameState,
         slurp::EntityManager& entityManager
     ) {
         GlobalPlatformDll = &platformDll;
