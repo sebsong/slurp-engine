@@ -10,23 +10,47 @@ namespace game {
         geometry::Rect,
         {ProjectileSizePixels, ProjectileSizePixels}
     };
+    static constexpr float ActivationDelay = .5f;
 
-    Projectile::Projectile(int index): Entity(
-        "Projectile" + std::to_string(index),
-        projectileShape,
-        true,
-        getColor(ProjectileColorPalletIdx),
-        slurp::Vector2<int>::Zero,
-        BaseProjectileSpeed,
-        collision::CollisionInfo(
-            false,
-            projectileShape,
-            true
-        )
-    ) {}
+    Projectile::Projectile(int index)
+        : Entity(
+              "Projectile" + std::to_string(index),
+              projectileShape,
+              true,
+              getColor(ProjectileColorPalletIdx),
+              slurp::Vector2<int>::Zero,
+              BaseProjectileSpeed,
+              collision::CollisionInfo(
+                  false,
+                  true,
+                  projectileShape,
+                  true
+              )
+          ),
+          isActive(false) {}
+
+    void Projectile::fire(const slurp::Vector2<int>& position, const slurp::Vector2<float>& direction) {
+        this->isActive = false;
+        this->enabled = true;
+        this->position = position;
+        this->direction = direction;
+
+        timer::delay(
+            ActivationDelay,
+            [this] {
+                std::cout << "ACTIVATE" << std::endl;
+                isActive = true;
+            }
+        );
+
+        GlobalGameState->projectileIdx++;
+        if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { GlobalGameState->projectileIdx = 0; }
+    }
 
     void Projectile::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
+
+        if (!isActive) { return; }
 
         this->direction *= -1;
     }

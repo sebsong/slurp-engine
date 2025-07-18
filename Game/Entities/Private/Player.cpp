@@ -22,6 +22,7 @@ namespace game {
     static constexpr const char* Name = "Player";
 
     static constexpr float ParryActiveDuration = .1f;
+    static constexpr float ProjectileSpawnOffset = 10.f;
 
     Player::Player()
         : Entity(
@@ -32,6 +33,7 @@ namespace game {
               PlayerStartPos,
               BasePlayerSpeed,
               collision::CollisionInfo(
+                  false,
                   false,
                   Shape,
                   true
@@ -56,14 +58,12 @@ namespace game {
         else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->speed = BasePlayerSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
-            Entity& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
-            projectile.enabled = true;
-            projectile.position = GlobalGameState->player.position;
-            projectile.direction =
+            Projectile& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            const slurp::Vector2<float> direction =
                     static_cast<slurp::Vector2<float>>(mouseState.position - GlobalGameState->player.position).
                     normalize();
-            GlobalGameState->projectileIdx++;
-            if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { GlobalGameState->projectileIdx = 0; }
+            const slurp::Vector2<int> position = GlobalGameState->player.position + direction * ProjectileSpawnOffset;
+            projectile.fire(position, direction);
         }
 
         if (

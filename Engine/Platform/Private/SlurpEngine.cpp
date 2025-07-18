@@ -43,6 +43,7 @@ namespace slurp {
 #endif
 
         game::initGame(platformDll, sections->gameState, sections->entityManager);
+        GlobalEntityManager->initialize();
     }
 
     SLURP_HANDLE_INPUT(handleInput) {

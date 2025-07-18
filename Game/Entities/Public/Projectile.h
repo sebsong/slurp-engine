@@ -6,7 +6,11 @@ namespace game {
     public:
         Projectile(int index);
 
+        void fire(const slurp::Vector2<int>& position, const slurp::Vector2<float>& direction);
+
     private:
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
+
+        bool isActive;
     };
 }

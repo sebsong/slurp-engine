@@ -15,6 +15,8 @@ namespace slurp {
 
         void registerEntity(Entity& entity);
 
+        void initialize() const;
+
         void handleInput(
             const MouseState& mouseState,
             const KeyboardState& keyboardState,

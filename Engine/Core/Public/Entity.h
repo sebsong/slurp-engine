@@ -46,9 +46,10 @@ namespace slurp {
             const collision::CollisionInfo& collisionInfo
         );
 
-
         // TODO: make these pure virtual or signal that they aren't implemented
         // TODO: any way to get around the overhead of virtual functions?
+        virtual void initialize() {};
+
         virtual void handleMouseAndKeyboardInput(
             const MouseState& mouseState,
             const KeyboardState& keyboardState

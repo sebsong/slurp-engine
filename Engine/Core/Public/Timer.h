@@ -7,13 +7,13 @@ namespace timer {
 
     struct TimerInfo {
         timer_handle handle;
-        float duration;
+        float durationSeconds;
         bool shouldLoop;
         std::function<void()> callback;
         float timer;
     };
 
-    timer_handle registerTimer(float duration, bool shouldLoop, std::function<void()>&& callback);
+    timer_handle registerTimer(float durationSeconds, bool shouldLoop, std::function<void()>&& callback);
 
     void tick(float dt);
 

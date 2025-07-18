@@ -14,21 +14,19 @@ namespace slurp {
         entity.id = id;
     }
 
+    void EntityManager::initialize() const { for (Entity* entity: _pipeline) { entity->initialize(); } }
+
     void EntityManager::handleInput(
         const MouseState& mouseState,
         const KeyboardState& keyboardState,
         const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
     ) const {
         for (Entity* entity: _pipeline) {
-            if (!entity->enabled) {
-                continue;
-            }
+            if (!entity->enabled) { continue; }
             entity->handleMouseAndKeyboardInput(mouseState, keyboardState);
 
             for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
-                if (!gamepadStates[gamepadIndex].isConnected) {
-                    continue;
-                }
+                if (!gamepadStates[gamepadIndex].isConnected) { continue; }
                 entity->handleGamepadInput(gamepadIndex, gamepadStates[gamepadIndex]);
             }
         }
@@ -38,9 +36,7 @@ namespace slurp {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
-                if (!entity->collisionInfo.isStatic) {
-                    update::updatePosition(entity, _pipeline, dt);
-                }
+                if (!entity->collisionInfo.isStatic) { update::updatePosition(entity, _pipeline, dt); }
                 render::drawRenderable(buffer, entity);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION

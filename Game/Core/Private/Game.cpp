@@ -151,6 +151,14 @@ namespace game {
             )
         );
 
+        for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
+            registerEntity(
+                entityManager,
+                GlobalGameState->projectiles[i],
+                Projectile(i)
+            );
+        }
+
         registerEntity(
             entityManager,
             GlobalGameState->player,
@@ -178,20 +186,13 @@ namespace game {
                     BaseEnemySpeed,
                     collision::CollisionInfo(
                         false,
+                        false,
                         enemyShape,
                         true
                     )
                 )
             );
             // startUpdateEnemyDirection(enemy); // TODO: re-enable this
-        }
-
-        for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
-            registerEntity(
-                entityManager,
-                GlobalGameState->projectiles[i],
-                Projectile(i)
-            );
         }
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {

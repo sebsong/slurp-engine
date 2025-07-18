@@ -18,6 +18,7 @@ namespace collision {
     struct CollisionInfo {
         bool collisionEnabled;
         bool isStatic;
+        bool isTrigger;
         CollisionShape shape;
         std::set<slurp::Entity*> collidingWith;
 
@@ -25,12 +26,14 @@ namespace collision {
 
         CollisionInfo(
             bool isStatic,
+            bool isTrigger,
             const geometry::Shape& shape,
             bool isCentered
         );
 
         CollisionInfo(
             bool isStatic,
+            bool isTrigger,
             const CollisionShape& shape
         );
     };

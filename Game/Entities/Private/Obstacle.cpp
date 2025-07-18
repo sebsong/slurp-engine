@@ -16,6 +16,7 @@ namespace game {
         0,
         collision::CollisionInfo(
             true,
+            false,
             shape,
             false
         )
