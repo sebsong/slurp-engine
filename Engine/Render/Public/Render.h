@@ -85,5 +85,5 @@ namespace render {
         uint32_t color
     );
 
-    ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName);
+    ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 }

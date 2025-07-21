@@ -68,7 +68,7 @@ namespace game {
     ) {
         GlobalPlatformDll = &platformDll;
         GlobalGameState = &gameState;
-        GlobalColorPalette = render::DEBUG_loadColorPalette(ColorPaletteHexFileName);
+        GlobalColorPalette = render::loadColorPalette(ColorPaletteHexFileName);
 
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
         random::setRandomSeed(GlobalGameState->randomSeed);

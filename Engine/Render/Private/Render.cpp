@@ -192,7 +192,7 @@ namespace render {
         }
     }
 
-    ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName) {
+    ColorPalette loadColorPalette(const std::string& paletteHexFileName) {
         ColorPalette palette = {};
 
         const std::string filePath = PalettesDirectory + paletteHexFileName;
