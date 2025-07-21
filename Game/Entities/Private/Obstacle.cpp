@@ -11,7 +11,7 @@ namespace game {
         std::move(name),
         shape,
         false,
-        getColor(5),
+        getColor(7),
         position,
         0,
         collision::CollisionInfo(

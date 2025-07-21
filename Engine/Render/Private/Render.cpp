@@ -12,6 +12,8 @@ namespace render {
     static const std::string AssetsDirectory = "../../../../Assets/";
 #endif
 
+    static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
+
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
     }
@@ -32,9 +34,7 @@ namespace render {
         const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
         const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
         for (int y = clampedStartPoint.y; y < clampedEndPoint.y; y++) {
-            for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) {
-                _drawAtPoint(buffer, {x, y}, color);
-            }
+            for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) { _drawAtPoint(buffer, {x, y}, color); }
         }
     }
 
@@ -195,7 +195,7 @@ namespace render {
     ColorPalette DEBUG_loadColorPalette(const std::string& paletteHexFileName) {
         ColorPalette palette = {};
 
-        const std::string filePath = AssetsDirectory + paletteHexFileName;
+        const std::string filePath = PalettesDirectory + paletteHexFileName;
         std::ifstream file(filePath);
         assert(file.is_open());
 

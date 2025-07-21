@@ -86,7 +86,7 @@ namespace game {
                 "Background",
                 {geometry::Rect, {1280, 720}},
                 false,
-                getColor(7),
+                getColor(6),
                 {0, 0}
             )
         );
