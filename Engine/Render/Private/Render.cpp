@@ -8,6 +8,8 @@
 #include <fstream>
 #include <string>
 
+#include "WinEngine.h"
+
 namespace render {
 #ifdef ASSETS_DIR
     static const std::string AssetsDirectory = ASSETS_DIR;
@@ -185,7 +187,22 @@ namespace render {
     }
 
     void Sprite::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const {
-        // TODO: draw sprite
+        const slurp::Vector2<int> endPoint = startPoint + bitmap.dimensions;
+        const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
+        const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
+        const int clampedWidth = clampedEndPoint.x - clampedStartPoint.x;
+        const int clampedHeight = clampedEndPoint.y - clampedStartPoint.y;
+
+        for (int y = 0; y < clampedHeight; y++) {
+            for (int x = 0; x < clampedWidth; x++) {
+                Pixel pixel = bitmap.map[x + y * bitmap.dimensions.x];
+                _drawAtPoint(
+                    buffer,
+                    clampedStartPoint + slurp::Vector2{x, y},
+                    pixel
+                );
+            }
+        }
     }
 
     void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const {
@@ -250,6 +267,11 @@ namespace render {
         return palette;
     }
 
+    static Pixel toSlurpPixel(const Pixel& bmpPixel) { return (bmpPixel >> 8) | (bmpPixel << 24); }
+
+    constexpr auto fourBitMaskLow = 0b00001111;
+    constexpr auto fourBitMaskHigh = 0b11110000;
+    // TODO: move this to windows layer?
     Sprite loadSprite(const std::string& spriteFileName) {
         const std::string filePath = SpritesDirectory + spriteFileName;
         std::ifstream file(filePath, std::ios::binary);
@@ -260,14 +282,41 @@ namespace render {
         file.read(reinterpret_cast<std::istream::char_type*>(bytes), fileSize);
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(bytes);
 
-        return Sprite{
-            {
-                {
-                    static_cast<int>(header->infoHeader.biWidth),
-                    static_cast<int>(header->infoHeader.biHeight),
-                },
-                reinterpret_cast<Pixel*>(bytes + header->fileHeader.bfOffBits)
+        if (header->infoHeader.biCompression == BI_RGB && header->infoHeader.biBitCount <= 8) {
+            assert(header->infoHeader.biBitCount == 4);
+
+            Pixel* colorPalette = reinterpret_cast<Pixel*>(bytes + sizeof(BitmapHeader));
+            slurp::byte* colorIndicesBytes = bytes + header->fileHeader.bfOffBits;
+
+            Pixel* map = new Pixel[header->infoHeader.biWidth * header->infoHeader.biHeight];
+            int j = 0;
+            int width = static_cast<int>(header->infoHeader.biHeight);
+            int height = static_cast<int>(header->infoHeader.biHeight);
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    // TODO: avoid an extra read by re-using this for low + high bitmasking
+                    slurp::byte colorIndex = colorIndicesBytes[j];
+                    if (x % 2 == 0) { colorIndex &= fourBitMaskLow; }
+                    else {
+                        colorIndex = (colorIndex & fourBitMaskHigh >> 4);
+                        j++;
+                    }
+                    Pixel color = colorPalette[colorIndex];
+                    map[x + (height - 1 - y) * width] = color;
+                }
             }
-        };
+
+            return Sprite{
+                {
+                    {
+                        width,
+                        height,
+                    },
+                    map
+                }
+            };
+        }
+
+        return {};
     }
 }

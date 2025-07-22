@@ -40,7 +40,7 @@ namespace game {
                   true
               )
           ),
-          isParryActive(false) { render::loadSprite(SpriteFileName); }
+          isParryActive(false) {}
 
     void Player::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,

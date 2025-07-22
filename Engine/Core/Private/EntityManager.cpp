@@ -40,7 +40,7 @@ namespace slurp {
                 render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
-                const Vector2<int>& offsetPosition = entity->position + entity->collisionInfo.shape.offset;
+                const Vector2<int>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
                 render::drawRectBorder(
                     buffer,
                     offsetPosition,
