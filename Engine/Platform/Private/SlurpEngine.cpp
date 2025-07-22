@@ -10,6 +10,8 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Update.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Physics.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Collision.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Render.cpp"
@@ -19,8 +21,6 @@
 #include "Timer.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
-
-typedef unsigned char byte;
 
 namespace slurp {
     static const platform::PlatformDll* GlobalPlatformDll;

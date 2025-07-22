@@ -3,16 +3,15 @@
 #include "Input.h"
 #include "Render.h"
 #include "Collision.h"
+#include "Physics.h"
 
 namespace slurp {
     struct Entity {
         uint32_t id;
         std::string name;
         bool enabled;
-        render::RenderShape renderShape;
-        Vector2<int> position;
-        float speed;
-        Vector2<float> direction;
+        render::RenderInfo renderInfo;
+        physics::PhysicsInfo physicsInfo;
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
@@ -20,29 +19,8 @@ namespace slurp {
 
         Entity(
             std::string&& name,
-            const geometry::Shape& renderShape,
-            bool isCentered,
-            render::Pixel color,
-            const Vector2<int>& position
-        );
-
-        Entity(
-            std::string&& name,
-            const geometry::Shape& renderShape,
-            bool isCentered,
-            render::Pixel color,
-            const Vector2<int>& position,
-            float speed,
-            const collision::CollisionInfo& collisionInfo
-        );
-
-        Entity(
-            std::string&& name,
-            bool enabled,
-            const render::RenderShape& renderShape,
-            const Vector2<int>& position,
-            float speed,
-            const Vector2<float>& direction,
+            const render::RenderInfo& renderInfo,
+            const physics::PhysicsInfo& physicsInfo,
             const collision::CollisionInfo& collisionInfo
         );
 

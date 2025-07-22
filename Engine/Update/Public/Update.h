@@ -3,6 +3,7 @@
 #define EMPTY_COLOR_PALETTE_IDX 6
 #include "Collision.h"
 #include "Math.h"
+#include "Physics.h"
 
 namespace slurp {
     struct Entity;
@@ -15,13 +16,18 @@ namespace update {
     template<typename T>
         requires Iterable<T, slurp::Entity*>
     void updatePosition(slurp::Entity* entity, T& allEntities, float dt) {
-        slurp::Vector2<int> targetPositionUpdate = (entity->direction * entity->speed * dt);
-        if (targetPositionUpdate == slurp::Vector2<int>::Zero) { return; }
+        physics::PhysicsInfo& physicsInfo = entity->physicsInfo;
         collision::CollisionInfo& collisionInfo = entity->collisionInfo;
-        if (!collisionInfo.collisionEnabled) { entity->position += targetPositionUpdate; }
+
+        if (!physicsInfo.physicsEnabled || collisionInfo.isStatic) { return; }
+
+        slurp::Vector2<int> targetPositionUpdate = physicsInfo.getPositionUpdate(dt);
+        if (targetPositionUpdate == slurp::Vector2<int>::Zero) { return; }
+        if (!collisionInfo.collisionEnabled) { physicsInfo.position += targetPositionUpdate; }
 
         slurp::Vector2<int> positionUpdate = targetPositionUpdate;
         for (slurp::Entity* otherEntity: allEntities) {
+            physics::PhysicsInfo& otherPhysicsInfo = otherEntity->physicsInfo;
             collision::CollisionInfo& otherCollisionInfo = otherEntity->collisionInfo;
             if (!otherCollisionInfo.collisionEnabled || otherEntity == entity) { continue; }
 
@@ -30,9 +36,10 @@ namespace update {
                 otherCollisionInfo.shape.shape
             );
             const slurp::Vector2<int> entityOffsetPosition =
-                    entity->position + collisionInfo.shape.offset + entity->collisionInfo.shape.shape.dimensions;
+                    physicsInfo.position + collisionInfo.shape.offset + entity->collisionInfo.shape.shape.
+                    dimensions;
             const slurp::Vector2<int> otherEntityOffsetPosition =
-                    otherEntity->position + otherCollisionInfo.shape.offset;
+                    otherPhysicsInfo.position + otherCollisionInfo.shape.offset;
             const slurp::Vector2<int> minkowskiMinPoint = otherEntityOffsetPosition;
             const slurp::Vector2<int> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
             if (slurp::Vector2<int> targetPosition = entityOffsetPosition + positionUpdate;
@@ -98,6 +105,6 @@ namespace update {
                 otherCollisionInfo.collidingWith.erase(entity);
             }
         }
-        entity->position += positionUpdate;
+        physicsInfo.position += positionUpdate;
     }
 }

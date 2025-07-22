@@ -20,6 +20,7 @@ namespace game {
         {BasePlayerSizePixels, BasePlayerSizePixels}
     };
     static constexpr const char* Name = "Player";
+    static constexpr const char* SpriteFileName = "player.bmp";
 
     static constexpr float ParryActiveDuration = .1f;
     static constexpr float ProjectileSpawnOffset = 10.f;
@@ -27,11 +28,11 @@ namespace game {
     Player::Player()
         : Entity(
               Name,
-              Shape,
-              true,
-              getColor(PlayerColorPalletIdx),
-              PlayerStartPos,
-              BasePlayerSpeed,
+              render::RenderInfo(SpriteFileName, true),
+              physics::PhysicsInfo(
+                  PlayerStartPos,
+                  BasePlayerSpeed
+              ),
               collision::CollisionInfo(
                   false,
                   false,
@@ -39,7 +40,7 @@ namespace game {
                   true
               )
           ),
-          isParryActive(false) {}
+          isParryActive(false) { render::loadSprite(SpriteFileName); }
 
     void Player::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
@@ -52,17 +53,17 @@ namespace game {
         if (keyboardState.isDown(slurp::KeyboardCode::A)) { dir.x -= 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::S)) { dir.y += 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::D)) { dir.x += 1; }
-        this->direction = dir.normalize();
+        this->physicsInfo.direction = dir.normalize();
 
-        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->speed = SprintPlayerSpeed; }
-        else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->speed = BasePlayerSpeed; }
+        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintPlayerSpeed; }
+        else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BasePlayerSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
             Projectile& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
             const slurp::Vector2<float> direction =
-                    static_cast<slurp::Vector2<float>>(mouseState.position - GlobalGameState->player.position).
+                    static_cast<slurp::Vector2<float>>(mouseState.position - this->physicsInfo.position).
                     normalize();
-            const slurp::Vector2<int> position = GlobalGameState->player.position + direction * ProjectileSpawnOffset;
+            const slurp::Vector2<int> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
             projectile.fire(position, direction);
         }
 
@@ -81,16 +82,16 @@ namespace game {
         if (
             gamepadState.justPressed(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justPressed(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->speed = SprintPlayerSpeed; }
+        ) { this->physicsInfo.speed = SprintPlayerSpeed; }
         else if (
             gamepadState.justReleased(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->speed = BasePlayerSpeed; }
+        ) { this->physicsInfo.speed = BasePlayerSpeed; }
 
         slurp::Vector2<float> leftStick = gamepadState.leftStick.end;
         slurp::Vector2<float> direction = leftStick;
         direction.y *= -1;
-        this->direction = direction.normalize();
+        this->physicsInfo.direction = direction.normalize();
 
         float leftTrigger = gamepadState.leftTrigger.end;
         float rightTrigger = gamepadState.rightTrigger.end;
@@ -110,11 +111,11 @@ namespace game {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderShape.color = getColor(PlayerParryColorPalletIdx);
+        this->renderInfo.renderShape.color = getColor(PlayerParryColorPalletIdx);
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderShape.color = getColor(PlayerColorPalletIdx);
+        this->renderInfo.renderShape.color = getColor(PlayerColorPalletIdx);
     }
 }

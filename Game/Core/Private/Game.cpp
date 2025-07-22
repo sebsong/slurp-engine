@@ -44,7 +44,7 @@ namespace game {
     static void setRandomDirection(slurp::Entity* entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
-        entity->direction = slurp::Vector2<float>(randX, randY).normalize();
+        entity->physicsInfo.direction = slurp::Vector2<float>(randX, randY).normalize();
     }
 
     static float getRandomDirectionChangeDelay() {
@@ -84,10 +84,12 @@ namespace game {
             GlobalGameState->background,
             slurp::Entity(
                 "Background",
-                {geometry::Rect, {1280, 720}},
-                false,
-                getColor(6),
-                {0, 0}
+                render::RenderInfo(
+                    render::RenderShape{{geometry::Rect, {1280, 720}}, getColor(6)},
+                    false
+                ),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
             )
         );
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
@@ -151,7 +153,15 @@ namespace game {
             )
         );
 
-        for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
+        for
+        (
+
+
+            int i = 0;
+            i < PROJECTILE_POOL_SIZE;
+            i
+            ++
+        ) {
             registerEntity(
                 entityManager,
                 GlobalGameState->projectiles[i],
@@ -179,11 +189,17 @@ namespace game {
                 GlobalGameState->enemies[i],
                 slurp::Entity(
                     "Enemy" + std::to_string(i),
-                    enemyShape,
-                    true,
-                    getColor(EnemyColorPalletIdx),
-                    EnemyStartPos + (EnemyPosOffset * i),
-                    BaseEnemySpeed,
+                    render::RenderInfo(
+                        render::RenderShape(
+                            enemyShape,
+                            getColor(EnemyColorPalletIdx)
+                        ),
+                        true
+                    ),
+                    physics::PhysicsInfo(
+                        EnemyStartPos + (EnemyPosOffset * i),
+                        BaseEnemySpeed
+                    ),
                     collision::CollisionInfo(
                         false,
                         false,
@@ -201,10 +217,17 @@ namespace game {
                 GlobalGameState->colorPaletteSwatch[i],
                 slurp::Entity(
                     "ColorPaletteSwatch" + std::to_string(i),
-                    {geometry::Rect, {ColorPaletteSwatchSize, ColorPaletteSwatchSize}},
-                    false,
-                    getColor(i),
-                    ColorPalettePosition + slurp::Vector2{i * ColorPaletteSwatchSize, 0}
+                    render::RenderInfo(
+                        render::RenderShape{
+                            {geometry::Rect, {ColorPaletteSwatchSize, ColorPaletteSwatchSize}},
+                            getColor(i)
+                        },
+                        false
+                    ),
+                    physics::PhysicsInfo(
+                        ColorPalettePosition + slurp::Vector2{i * ColorPaletteSwatchSize, 0}
+                    ),
+                    collision::CollisionInfo()
                 )
             );
         }

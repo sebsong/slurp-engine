@@ -36,8 +36,8 @@ namespace slurp {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
-                if (!entity->collisionInfo.isStatic) { update::updatePosition(entity, _pipeline, dt); }
-                render::drawRenderable(buffer, entity);
+                update::updatePosition(entity, _pipeline, dt);
+                render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
                 const Vector2<int>& offsetPosition = entity->position + entity->collisionInfo.shape.offset;

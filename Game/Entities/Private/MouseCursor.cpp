@@ -8,10 +8,15 @@ namespace game {
 
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
-        {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
-        true,
-        getColor(MouseCursorColorPalletIdx),
-        {}
+        render::RenderInfo(
+            render::RenderShape{
+                {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
+                getColor(MouseCursorColorPalletIdx),
+            },
+            true
+        ),
+        physics::PhysicsInfo(slurp::Vector2<int>::Zero),
+        collision::CollisionInfo()
     ) {}
 
     void MouseCursor::handleMouseAndKeyboardInput(
@@ -19,6 +24,6 @@ namespace game {
         const slurp::KeyboardState& keyboardState
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
-        this->position = mouseState.position;
+        this->physicsInfo.position = mouseState.position;
     }
 }

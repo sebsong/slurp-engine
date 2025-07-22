@@ -1,7 +1,10 @@
 #include "Render.h"
+
 #include "Entity.h"
 #include "Math.h"
 #include "Debug.h"
+
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -13,6 +16,7 @@ namespace render {
 #endif
 
     static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
+    static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
@@ -180,8 +184,11 @@ namespace render {
         );
     }
 
-    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const {
-        const slurp::Vector2<int> startPoint = position + renderOffset;
+    void Sprite::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const {
+        // TODO: draw sprite
+    }
+
+    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const {
         const slurp::Vector2<int> endPoint = startPoint + shape.dimensions;
         switch (shape.type) {
             case geometry::Rect: {
@@ -192,12 +199,45 @@ namespace render {
         }
     }
 
+    RenderInfo::RenderInfo()
+        : renderingEnabled(false),
+          sprite({}),
+          renderShape({}),
+          renderOffset({}) {}
+
+    RenderInfo::RenderInfo(
+        std::string&& spriteFileName,
+        bool isCentered
+    )
+        : renderingEnabled(true),
+          sprite(loadSprite(spriteFileName)),
+          renderShape({}),
+          // TODO: i don't think bitmap will be initialized yet
+          renderOffset(isCentered ? -sprite.bitmap.dimensions / 2 : slurp::Vector2<int>::Zero) {}
+
+
+    RenderInfo::RenderInfo(
+        const RenderShape& renderShape,
+        bool isCentered
+    ): renderingEnabled(true),
+       sprite({}),
+       renderShape(renderShape),
+       renderOffset(isCentered ? -renderShape.shape.dimensions / 2 : slurp::Vector2<int>::Zero) {}
+
+    void RenderInfo::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const {
+        if (!renderingEnabled) { return; }
+
+        slurp::Vector2<int> startPoint = position + renderOffset;
+        if (sprite.bitmap.map) { sprite.draw(buffer, startPoint); }
+        else { renderShape.draw(buffer, startPoint); }
+    }
+
     ColorPalette loadColorPalette(const std::string& paletteHexFileName) {
         ColorPalette palette = {};
 
         const std::string filePath = PalettesDirectory + paletteHexFileName;
         std::ifstream file(filePath);
-        assert(file.is_open());
+        assert(file.good());
 
         uint8_t colorPaletteIdx = 0;
         std::string line;
@@ -208,5 +248,26 @@ namespace render {
         }
 
         return palette;
+    }
+
+    Sprite loadSprite(const std::string& spriteFileName) {
+        const std::string filePath = SpritesDirectory + spriteFileName;
+        std::ifstream file(filePath, std::ios::binary);
+        assert(file.good());
+
+        auto fileSize = std::filesystem::file_size(filePath);
+        slurp::byte* bytes = new slurp::byte[fileSize];
+        file.read(reinterpret_cast<std::istream::char_type*>(bytes), fileSize);
+        BitmapHeader* header = reinterpret_cast<BitmapHeader*>(bytes);
+
+        return Sprite{
+            {
+                {
+                    static_cast<int>(header->infoHeader.biWidth),
+                    static_cast<int>(header->infoHeader.biHeight),
+                },
+                reinterpret_cast<Pixel*>(bytes + header->fileHeader.bfOffBits)
+            }
+        };
     }
 }

@@ -9,11 +9,11 @@ namespace game {
         const slurp::Vector2<int>& position
     ): Entity(
         std::move(name),
-        shape,
-        false,
-        getColor(7),
-        position,
-        0,
+        render::RenderInfo(
+            render::RenderShape{shape, getColor(7)},
+            false
+        ),
+        physics::PhysicsInfo(position),
         collision::CollisionInfo(
             true,
             false,

@@ -15,11 +15,17 @@ namespace game {
     Projectile::Projectile(int index)
         : Entity(
               "Projectile" + std::to_string(index),
-              projectileShape,
-              true,
-              getColor(ProjectileColorPalletIdx),
-              slurp::Vector2<int>::Zero,
-              BaseProjectileSpeed,
+              render::RenderInfo(
+                  render::RenderShape{
+                      projectileShape,
+                      getColor(ProjectileColorPalletIdx)
+                  },
+                  true
+              ),
+              physics::PhysicsInfo(
+                  slurp::Vector2<int>::Zero,
+                  BaseProjectileSpeed
+              ),
               collision::CollisionInfo(
                   false,
                   true,
@@ -32,8 +38,8 @@ namespace game {
     void Projectile::fire(const slurp::Vector2<int>& position, const slurp::Vector2<float>& direction) {
         this->isActive = false;
         this->enabled = true;
-        this->position = position;
-        this->direction = direction;
+        this->physicsInfo.position = position;
+        this->physicsInfo.direction = direction;
 
         timer::delay(
             ActivationDelay,
@@ -52,6 +58,6 @@ namespace game {
 
         if (!isActive) { return; }
 
-        this->direction *= -1;
+        this->physicsInfo.direction *= -1;
     }
 }

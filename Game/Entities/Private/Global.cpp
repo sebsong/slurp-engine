@@ -4,10 +4,9 @@
 namespace game {
     Global::Global(): Entity(
         "Global",
-        {},
-        {},
-        {},
-        {}
+        render::RenderInfo(),
+        physics::PhysicsInfo(),
+        collision::CollisionInfo()
     ) {}
 
     void Global::handleMouseAndKeyboardInput(

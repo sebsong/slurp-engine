@@ -3,6 +3,8 @@
 #include "Geometry.h"
 #include <cstdint>
 
+#include "Types.h"
+
 #define COLOR_PALETTE_SIZE 8
 
 namespace slurp {
@@ -24,18 +26,72 @@ namespace render {
         Pixel colors[COLOR_PALETTE_SIZE];
     };
 
+    // NOTE: follows this structure:
+    // https://learn.microsoft.com/en-us/windows/win32/gdi/bitmap-storage
+    struct [[gnu::packed]] BitmapFileHeader {
+        uint16_t bfType;
+        uint32_t bfSize;
+        uint16_t bfReserved1;
+        uint16_t bfReserved2;
+        uint32_t bfOffBits;
+    };
+
+    struct [[gnu::packed]] BitmapInfoHeader {
+        uint32_t biSize;
+        uint32_t biWidth;
+        uint32_t biHeight;
+        uint16_t biPlanes;
+        uint16_t biBitCount;
+        uint32_t biCompression;
+        uint32_t biSizeImage;
+        uint32_t biXPelsPerMeter;
+        uint32_t biYPelsPerMeter;
+        uint32_t biClrUsed;
+        uint32_t biClrImportant;
+    };
+
+    struct [[gnu::packed]] BitmapHeader {
+        BitmapFileHeader fileHeader;
+        BitmapInfoHeader infoHeader;
+    };
+
+    struct Bitmap {
+        slurp::Vector2<int> dimensions;
+        Pixel* map;
+    };
+
+
+    struct Sprite {
+        const Bitmap bitmap;
+
+        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const;
+    };
+
     struct RenderShape {
         geometry::Shape shape;
-        slurp::Vector2<int> renderOffset;
         Pixel color;
+
+        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const;
+    };
+
+    struct RenderInfo {
+        bool renderingEnabled;
+        Sprite sprite;
+        RenderShape renderShape;
+        slurp::Vector2<int> renderOffset;
+
+        RenderInfo();
+
+        RenderInfo(std::string&& spriteFileName, bool isCentered);
+
+        RenderInfo(const RenderShape& renderShape, bool isCentered);
 
         void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) const;
     };
 
     template<typename T>
-    concept Renderable = requires(T renderable) {
-        { renderable.renderShape } -> std::same_as<RenderShape&>;
-        { renderable.position } -> std::same_as<slurp::Vector2<int>&>;
+    concept Renderable = requires(T renderable, const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) {
+        { renderable.draw(buffer, position) } -> std::same_as<void>;
     };
 
     void drawRect(
@@ -73,8 +129,8 @@ namespace render {
     );
 
     template<Renderable T>
-    void drawRenderable(const GraphicsBuffer& buffer, const T* renderable) {
-        renderable->renderShape.draw(buffer, renderable->position);
+    void drawRenderable(const GraphicsBuffer& buffer, const T& renderable, const slurp::Vector2<int>& position) {
+        renderable.draw(buffer, position);
     }
 
     void drawRectBorder(
@@ -86,4 +142,6 @@ namespace render {
     );
 
     ColorPalette loadColorPalette(const std::string& paletteHexFileName);
+
+    Sprite loadSprite(const std::string& spriteFileName);
 }
