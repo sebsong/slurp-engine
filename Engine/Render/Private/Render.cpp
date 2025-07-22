@@ -302,7 +302,8 @@ namespace render {
                         j++;
                     }
                     Pixel color = colorPalette[colorIndex];
-                    map[x + (height - 1 - y) * width] = color;
+                    // TODO: handle alphas
+                    map[x + ((height - 1) - y) * width] = color;
                 }
             }
 
@@ -317,6 +318,8 @@ namespace render {
             };
         }
 
+        // TODO: handle non color table compressed bitmpas
+        assert(false);
         return {};
     }
 }
