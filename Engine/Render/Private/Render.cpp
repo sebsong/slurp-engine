@@ -296,9 +296,9 @@ namespace render {
                 for (int x = 0; x < width; x++) {
                     // TODO: avoid an extra read by re-using this for low + high bitmasking
                     slurp::byte colorIndex = colorIndicesBytes[j];
-                    if (x % 2 == 0) { colorIndex &= fourBitMaskLow; }
+                    if (x % 2 == 0) { colorIndex = (colorIndex & fourBitMaskHigh) >> 4; }
                     else {
-                        colorIndex = (colorIndex & fourBitMaskHigh >> 4);
+                        colorIndex &= fourBitMaskLow;
                         j++;
                     }
                     Pixel color = colorPalette[colorIndex];
