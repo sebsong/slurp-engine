@@ -20,7 +20,13 @@ namespace render {
     static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
     static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
 
+    constexpr Pixel AlphaMask = 0xFF000000;
+    constexpr uint8_t FourBitMaskLow = 0b00001111;
+    constexpr uint8_t FourBitMaskHigh = 0b11110000;
+
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
+        uint8_t alpha = color >> 24;
+        if (alpha == 0) { return; }
         *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
     }
 
@@ -259,7 +265,7 @@ namespace render {
         uint8_t colorPaletteIdx = 0;
         std::string line;
         while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            Pixel color = std::stoi(line, nullptr, 16);
+            Pixel color = std::stoi(line, nullptr, 16) | AlphaMask;
             palette.colors[colorPaletteIdx] = color;
             colorPaletteIdx++;
         }
@@ -268,9 +274,6 @@ namespace render {
     }
 
     static Pixel toSlurpPixel(const Pixel& bmpPixel) { return (bmpPixel >> 8) | (bmpPixel << 24); }
-
-    constexpr auto fourBitMaskLow = 0b00001111;
-    constexpr auto fourBitMaskHigh = 0b11110000;
     // TODO: move this to windows layer?
     Sprite loadSprite(const std::string& spriteFileName) {
         const std::string filePath = SpritesDirectory + spriteFileName;
@@ -286,6 +289,15 @@ namespace render {
             assert(header->infoHeader.biBitCount == 4);
 
             Pixel* colorPalette = reinterpret_cast<Pixel*>(bytes + sizeof(BitmapHeader));
+            for (int i = 0; i < static_cast<int>(header->infoHeader.biClrUsed); i++) {
+                if (i == 0) {
+                    // NOTE: Assumes that the 0 index color is the transparent color
+                    colorPalette[i] = 0;
+                } else {
+                    // NOTE: indexed colors don't support alpha channel (at least in aesprite)
+                    colorPalette[i] |= AlphaMask;
+                }
+            }
             slurp::byte* colorIndicesBytes = bytes + header->fileHeader.bfOffBits;
 
             Pixel* map = new Pixel[header->infoHeader.biWidth * header->infoHeader.biHeight];
@@ -296,13 +308,12 @@ namespace render {
                 for (int x = 0; x < width; x++) {
                     // TODO: avoid an extra read by re-using this for low + high bitmasking
                     slurp::byte colorIndex = colorIndicesBytes[j];
-                    if (x % 2 == 0) { colorIndex = (colorIndex & fourBitMaskHigh) >> 4; }
+                    if (x % 2 == 0) { colorIndex = (colorIndex & FourBitMaskHigh) >> 4; }
                     else {
-                        colorIndex &= fourBitMaskLow;
+                        colorIndex &= FourBitMaskLow;
                         j++;
                     }
                     Pixel color = colorPalette[colorIndex];
-                    // TODO: handle alphas
                     map[x + ((height - 1) - y) * width] = color;
                 }
             }
@@ -318,7 +329,7 @@ namespace render {
             };
         }
 
-        // TODO: handle non color table compressed bitmpas
+        // TODO: handle non color table compressed bitmaps
         assert(false);
         return {};
     }
