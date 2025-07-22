@@ -3,9 +3,9 @@
 #include "Game.h"
 
 namespace game {
-    static constexpr int ProjectileSizePixels = 15;
-    static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 1;
-    static constexpr int BaseProjectileSpeed = 500;
+    static constexpr int ProjectileSizePixels = 10;
+    static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 5;
+    static constexpr int BaseProjectileSpeed = 350;
     static const geometry::Shape projectileShape = {
         geometry::Rect,
         {ProjectileSizePixels, ProjectileSizePixels}

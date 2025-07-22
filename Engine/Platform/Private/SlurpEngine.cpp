@@ -83,7 +83,7 @@ namespace slurp {
                 {0, 0},
                 {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
                 10,
-                0x00FF0000
+                0xFFFF0000
             );
         }
         else if (GlobalRecordingState->isPlayingBack) {
@@ -92,7 +92,7 @@ namespace slurp {
                 {0, 0},
                 {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
                 10,
-                0x0000FF00
+                0xFF00FF00
             );
         }
 #endif

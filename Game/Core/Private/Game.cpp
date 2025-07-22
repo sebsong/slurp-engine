@@ -85,7 +85,10 @@ namespace game {
             slurp::Entity(
                 "Background",
                 render::RenderInfo(
-                    render::RenderShape{{geometry::Rect, {1280, 720}}, getColor(6)},
+                    render::RenderShape{
+                        {geometry::Rect, {1280, 720}},
+                        getColor(1)
+                    },
                     false
                 ),
                 physics::PhysicsInfo(),

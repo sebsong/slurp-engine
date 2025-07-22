@@ -4,7 +4,7 @@
 
 namespace game {
     static constexpr int MouseCursorSizePixels = 10;
-    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
+    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 0;
 
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",

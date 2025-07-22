@@ -10,7 +10,7 @@
 
 namespace game {
     static const slurp::Vector2 PlayerStartPos = {640, 360};
-    static constexpr int BasePlayerSizePixels = 20;
+    static constexpr int BasePlayerSizePixels = 17;
     static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
     static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
     static constexpr int BasePlayerSpeed = 400;

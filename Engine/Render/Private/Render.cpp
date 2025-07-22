@@ -304,10 +304,13 @@ namespace render {
             int j = 0;
             int width = static_cast<int>(header->infoHeader.biHeight);
             int height = static_cast<int>(header->infoHeader.biHeight);
+            int rowSizeBits = static_cast<int>(header->infoHeader.biWidth) * header->infoHeader.biBitCount;
+            int rowSizeBytes = rowSizeBits / 8 + (rowSizeBits % 8 != 0);
+            rowSizeBytes += 4 - (rowSizeBytes % 4); // NOTE: bitmaps are padded to 4 byte words
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     // TODO: avoid an extra read by re-using this for low + high bitmasking
-                    slurp::byte colorIndex = colorIndicesBytes[j];
+                    slurp::byte colorIndex = colorIndicesBytes[x / 2 + y * rowSizeBytes];
                     if (x % 2 == 0) { colorIndex = (colorIndex & FourBitMaskHigh) >> 4; }
                     else {
                         colorIndex &= FourBitMaskLow;
