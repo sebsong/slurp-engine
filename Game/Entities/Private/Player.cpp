@@ -11,8 +11,6 @@
 namespace game {
     static const slurp::Vector2 PlayerStartPos = {640, 360};
     static constexpr int BasePlayerSizePixels = 17;
-    static constexpr render::ColorPaletteIdx PlayerColorPalletIdx = 3;
-    static constexpr render::ColorPaletteIdx PlayerParryColorPalletIdx = 0;
     static constexpr int BasePlayerSpeed = 400;
     static constexpr int SprintPlayerSpeed = 800;
     static const geometry::Shape Shape = {
@@ -21,14 +19,17 @@ namespace game {
     };
     static constexpr const char* Name = "Player";
     static constexpr const char* SpriteFileName = "player.bmp";
+    static constexpr const char* ParrySpriteFileName = "player_parry.bmp";
+    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
+    static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
 
-    static constexpr float ParryActiveDuration = .1f;
+    static constexpr float ParryActiveDuration = .2f;
     static constexpr float ProjectileSpawnOffset = 10.f;
 
     Player::Player()
         : Entity(
               Name,
-              render::RenderInfo(SpriteFileName, true),
+              render::RenderInfo(Sprite, true),
               physics::PhysicsInfo(
                   PlayerStartPos,
                   BasePlayerSpeed
@@ -72,7 +73,6 @@ namespace game {
             keyboardState.justPressed(slurp::KeyboardCode::E)
         ) {
             activateParry();
-            timer::delay(ParryActiveDuration, [this] { deactivateParry(); });
         }
     }
 
@@ -103,7 +103,6 @@ namespace game {
         std::cout << "ENTER: " << collisionDetails.entity->name << std::endl;
     }
 
-
     void Player::onCollisionExit(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionExit(collisionDetails);
         std::cout << "EXIT: " << collisionDetails.entity->name << std::endl;
@@ -111,11 +110,12 @@ namespace game {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderInfo.renderShape.color = getColor(PlayerParryColorPalletIdx);
+        this->renderInfo.sprite = ParrySprite;
+        timer::delay(ParryActiveDuration, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderInfo.renderShape.color = getColor(PlayerColorPalletIdx);
+        this->renderInfo.sprite = Sprite;
     }
 }

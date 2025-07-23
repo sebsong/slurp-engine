@@ -62,7 +62,7 @@ namespace render {
 
 
     struct Sprite {
-        const Bitmap bitmap;
+        Bitmap bitmap;
 
         void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const;
     };
@@ -76,13 +76,15 @@ namespace render {
 
     struct RenderInfo {
         bool renderingEnabled;
-        Sprite sprite;
+        Sprite sprite; // TODO: should this be a reference for faster sprite swapping?
         RenderShape renderShape;
         slurp::Vector2<int> renderOffset;
 
         RenderInfo();
 
         RenderInfo(std::string&& spriteFileName, bool isCentered);
+
+        RenderInfo(const Sprite& sprite, bool isCentered);
 
         RenderInfo(const RenderShape& renderShape, bool isCentered);
 

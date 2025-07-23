@@ -235,9 +235,13 @@ namespace render {
         : renderingEnabled(true),
           sprite(loadSprite(spriteFileName)),
           renderShape({}),
-          // TODO: i don't think bitmap will be initialized yet
           renderOffset(isCentered ? -sprite.bitmap.dimensions / 2 : slurp::Vector2<int>::Zero) {}
 
+    RenderInfo::RenderInfo(const Sprite& sprite, bool isCentered)
+        : renderingEnabled(true),
+          sprite(sprite),
+          renderShape({}),
+          renderOffset(isCentered ? -sprite.bitmap.dimensions / 2 : slurp::Vector2<int>::Zero) {}
 
     RenderInfo::RenderInfo(
         const RenderShape& renderShape,
@@ -293,7 +297,8 @@ namespace render {
                 if (i == 0) {
                     // NOTE: Assumes that the 0 index color is the transparent color
                     colorPalette[i] = 0;
-                } else {
+                }
+                else {
                     // NOTE: indexed colors don't support alpha channel (at least in aesprite)
                     colorPalette[i] |= AlphaMask;
                 }
