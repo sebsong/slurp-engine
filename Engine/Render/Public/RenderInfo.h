@@ -1,5 +1,6 @@
 #pragma once
 #include "Render.h"
+#include "Sprite.h"
 
 namespace render {
     struct RenderInfo {

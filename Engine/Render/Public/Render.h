@@ -15,6 +15,15 @@ namespace render {
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
+#ifdef ASSETS_DIR
+    static const std::string AssetsDirectory = ASSETS_DIR;
+#else
+    static const std::string AssetsDirectory = "../../../../Assets/";
+#endif
+
+    static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
+    static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
+
     struct GraphicsBuffer {
         Pixel* const pixelMap; // memory byte order: XRGB
         int widthPixels;
@@ -26,46 +35,7 @@ namespace render {
         Pixel colors[COLOR_PALETTE_SIZE];
     };
 
-    // NOTE: follows this structure:
-    // https://learn.microsoft.com/en-us/windows/win32/gdi/bitmap-storage
-    struct [[gnu::packed]] BitmapFileHeader {
-        uint16_t bfType;
-        uint32_t bfSize;
-        uint16_t bfReserved1;
-        uint16_t bfReserved2;
-        uint32_t bfOffBits;
-    };
-
-    struct [[gnu::packed]] BitmapInfoHeader {
-        uint32_t biSize;
-        uint32_t biWidth;
-        uint32_t biHeight;
-        uint16_t biPlanes;
-        uint16_t biBitCount;
-        uint32_t biCompression;
-        uint32_t biSizeImage;
-        uint32_t biXPelsPerMeter;
-        uint32_t biYPelsPerMeter;
-        uint32_t biClrUsed;
-        uint32_t biClrImportant;
-    };
-
-    struct [[gnu::packed]] BitmapHeader {
-        BitmapFileHeader fileHeader;
-        BitmapInfoHeader infoHeader;
-    };
-
-    struct Bitmap {
-        slurp::Vector2<int> dimensions;
-        Pixel* map;
-    };
-
-    struct Sprite {
-        Bitmap bitmap;
-
-        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const;
-    };
-
+    // TODO: move to RenderInfo?
     struct RenderShape {
         geometry::Shape shape;
         Pixel color;
@@ -92,6 +62,4 @@ namespace render {
     );
 
     ColorPalette loadColorPalette(const std::string& paletteHexFileName);
-
-    Sprite loadSprite(const std::string& spriteFileName);
 }
