@@ -11,15 +11,14 @@ namespace game {
         {ProjectileSizePixels, ProjectileSizePixels}
     };
     static constexpr float ActivationDelay = .2f;
+    static constexpr const char* ProjectileSpriteFileName = "projectile.bmp";
+    static const render::Sprite ProjectileSprite = render::loadSprite(ProjectileSpriteFileName);
 
     Projectile::Projectile(int index)
         : Entity(
               "Projectile" + std::to_string(index),
               render::RenderInfo(
-                  render::RenderShape{
-                      projectileShape,
-                      getColor(ProjectileColorPalletIdx)
-                  },
+                  ProjectileSprite,
                   true
               ),
               physics::PhysicsInfo(
