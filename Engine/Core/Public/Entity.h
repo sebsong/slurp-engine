@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "Vector.h"
 #include "Input.h"
-#include "Render.h"
 #include "Collision.h"
 #include "Physics.h"
+#include "RenderInfo.h"
 
 namespace slurp {
     struct Entity {

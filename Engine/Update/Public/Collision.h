@@ -1,6 +1,11 @@
 #pragma once
 #include <set>
 
+#include "Geometry.h"
+namespace slurp {
+    struct Entity;
+}
+
 #define NO_OP_ON_COLLISION [](const slurp::Entity*) {}
 
 namespace collision {
