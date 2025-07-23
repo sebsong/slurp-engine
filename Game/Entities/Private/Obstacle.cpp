@@ -10,7 +10,7 @@ namespace game {
     ): Entity(
         std::move(name),
         render::RenderInfo(
-            render::RenderShape{shape, getColor(6)},
+            render::RenderShape{shape, getColor(7)},
             false
         ),
         physics::PhysicsInfo(position),

@@ -9,6 +9,7 @@
 #include <string>
 
 namespace render {
+    constexpr Pixel AlphaMask = 0xFF000000;
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
         uint8_t alpha = color >> 24;
@@ -139,7 +140,10 @@ namespace render {
         uint8_t colorPaletteIdx = 0;
         std::string line;
         while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            Pixel color = std::stoi(line, nullptr, 16) | AlphaMask;
+            Pixel color = std::stoi(line, nullptr, 16);
+            if (colorPaletteIdx != 0) {
+                color |= AlphaMask;
+            }
             palette.colors[colorPaletteIdx] = color;
             colorPaletteIdx++;
         }

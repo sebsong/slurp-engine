@@ -4,7 +4,6 @@
 #include <cstdint>
 
 namespace render {
-    constexpr Pixel AlphaMask = 0xFF000000;
     constexpr uint8_t FourBitMaskLow = 0b00001111;
     constexpr uint8_t FourBitMaskHigh = 0b11110000;
 

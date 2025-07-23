@@ -16,7 +16,7 @@ namespace game {
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
 
     static constexpr int ColorPaletteSwatchSize = 15;
-    static const slurp::Vector2 ColorPalettePosition = {1155, 702};
+    static const slurp::Vector2 ColorPalettePosition = {1140, 702};
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx) {
         assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
@@ -60,7 +60,7 @@ namespace game {
                 render::RenderInfo(
                     render::RenderShape{
                         {geometry::Rect, {1280, 720}},
-                        getColor(1)
+                        getColor(2)
                     },
                     false
                 ),

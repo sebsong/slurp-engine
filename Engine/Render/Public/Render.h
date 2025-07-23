@@ -5,7 +5,7 @@
 
 #include "Types.h"
 
-#define COLOR_PALETTE_SIZE 8
+#define COLOR_PALETTE_SIZE 9
 
 namespace slurp {
     struct Entity;
