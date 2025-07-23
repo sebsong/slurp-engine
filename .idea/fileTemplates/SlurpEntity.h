@@ -5,7 +5,8 @@
 // TODO: register this entity in game::initGame
 // TODO: register this entity in slurp::GameState
 
-namespace game {
+#set ($CLASS_NAME_SNAKE_CASE = $CLASS_NAME.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase())
+namespace ${CLASS_NAME_SNAKE_CASE} {
     class ${CLASS_NAME} final : public slurp::Entity {
     public:
         ${CLASS_NAME}();
