@@ -10,7 +10,7 @@ namespace game {
         geometry::Rect,
         {ProjectileSizePixels, ProjectileSizePixels}
     };
-    static constexpr float ActivationDelay = .5f;
+    static constexpr float ActivationDelay = .2f;
 
     Projectile::Projectile(int index)
         : Entity(
@@ -44,7 +44,6 @@ namespace game {
         timer::delay(
             ActivationDelay,
             [this] {
-                std::cout << "ACTIVATE" << std::endl;
                 isActive = true;
             }
         );
