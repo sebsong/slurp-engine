@@ -11,6 +11,9 @@ namespace game {
     private:
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
+        void onParried();
+
         bool isActive;
+        bool isParried;
     };
 }
