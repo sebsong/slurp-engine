@@ -8,8 +8,6 @@
 #include <fstream>
 #include <string>
 
-#include "WinEngine.h"
-
 namespace render {
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
