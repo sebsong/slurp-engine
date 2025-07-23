@@ -3,6 +3,7 @@
 #include "MouseCursor.h"
 #include "Obstacle.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Projectile.h"
 
 #define NUM_ENEMIES 4
@@ -25,7 +26,7 @@ namespace game {
 
         MouseCursor mouseCursor;
         Player player;
-        slurp::Entity enemies[NUM_ENEMIES];
+        Enemy enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         Projectile projectiles[PROJECTILE_POOL_SIZE];
         slurp::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];

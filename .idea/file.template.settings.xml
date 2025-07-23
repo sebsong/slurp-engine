@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExportableFileTemplateSettings">
+    <default_templates>
+      <template name="SlurpEntity.h" file-name="Public/${CLASS_NAME}" reformat="true" live-template-enabled="false">
+        <template name="SlurpEntity.h.child.0.cpp" file-name="Private/${CLASS_NAME}" reformat="true" live-template-enabled="false" />
+      </template>
+      <template name="SlurpEntity.h.child.0.cpp" file-name="Private/${CLASS_NAME}" reformat="true" live-template-enabled="false" />
+    </default_templates>
+  </component>
+</project>

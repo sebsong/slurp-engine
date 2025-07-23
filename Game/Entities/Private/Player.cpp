@@ -20,8 +20,8 @@ namespace game {
     static constexpr const char* Name = "Player";
     static constexpr const char* SpriteFileName = "player.bmp";
     static constexpr const char* ParrySpriteFileName = "player_parry.bmp";
-    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
-    static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
+    static const render::Sprite PlayerSprite = render::loadSprite(SpriteFileName);
+    static const render::Sprite PlayerParrySprite = render::loadSprite(ParrySpriteFileName);
 
     static constexpr float ParryActiveDuration = .2f;
     static constexpr float ProjectileSpawnOffset = 10.f;
@@ -29,7 +29,7 @@ namespace game {
     Player::Player()
         : Entity(
               Name,
-              render::RenderInfo(Sprite, true),
+              render::RenderInfo(PlayerSprite, true),
               physics::PhysicsInfo(
                   PlayerStartPos,
                   BasePlayerSpeed
@@ -110,12 +110,12 @@ namespace game {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderInfo.sprite = ParrySprite;
+        this->renderInfo.sprite = PlayerParrySprite;
         timer::delay(ParryActiveDuration, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderInfo.sprite = Sprite;
+        this->renderInfo.sprite = PlayerSprite;
     }
 }

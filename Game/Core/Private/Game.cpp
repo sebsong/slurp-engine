@@ -5,6 +5,7 @@
 #include "Global.cpp"
 #include "Obstacle.cpp"
 #include "Player.cpp"
+#include "Enemy.cpp"
 #include "Projectile.cpp"
 #include "MouseCursor.cpp"
 
@@ -13,14 +14,6 @@ namespace game {
     static const std::string ColorPaletteHexFileName = "slso8.hex";
     // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
     // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
-
-    static const slurp::Vector2 EnemyStartPos = {400, 200};
-    static const slurp::Vector2 EnemyPosOffset = {100, 0};
-    static constexpr int BaseEnemySizePixels = 20;
-    static constexpr render::ColorPaletteIdx EnemyColorPalletIdx = 4;
-    static constexpr int BaseEnemySpeed = 200;
-    static constexpr float BaseEnemyDirectionChangeDelay = 2;
-    static constexpr float EnemyDirectionChangeDelayDelta = 1.5;
 
     static constexpr int ColorPaletteSwatchSize = 15;
     static const slurp::Vector2 ColorPalettePosition = {1155, 702};
@@ -39,26 +32,6 @@ namespace game {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::move(entity));
         entityManager.registerEntity(entityLocation);
-    }
-
-    static void setRandomDirection(slurp::Entity* entity) {
-        float randX = random::randomFloat(-1, 1);
-        float randY = random::randomFloat(-1, 1);
-        entity->physicsInfo.direction = slurp::Vector2<float>(randX, randY).normalize();
-    }
-
-    static float getRandomDirectionChangeDelay() {
-        float minDelay = BaseEnemyDirectionChangeDelay - EnemyDirectionChangeDelayDelta;
-        float maxDelay = BaseEnemyDirectionChangeDelay + EnemyDirectionChangeDelayDelta;
-        return random::randomFloat(minDelay, maxDelay);
-    }
-
-    static void startUpdateEnemyDirection(slurp::Entity* enemy) {
-        setRandomDirection(enemy);
-        timer::delay(
-            getRandomDirectionChangeDelay(),
-            [&] { startUpdateEnemyDirection(enemy); }
-        );
     }
 
     void initGame(
@@ -156,15 +129,7 @@ namespace game {
             )
         );
 
-        for
-        (
-
-
-            int i = 0;
-            i < PROJECTILE_POOL_SIZE;
-            i
-            ++
-        ) {
+        for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
                 entityManager,
                 GlobalGameState->projectiles[i],
@@ -185,33 +150,12 @@ namespace game {
         );
 
         // TODO: move some of these to separate classes/files
-        geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
                 entityManager,
                 GlobalGameState->enemies[i],
-                slurp::Entity(
-                    "Enemy" + std::to_string(i),
-                    render::RenderInfo(
-                        render::RenderShape(
-                            enemyShape,
-                            getColor(EnemyColorPalletIdx)
-                        ),
-                        true
-                    ),
-                    physics::PhysicsInfo(
-                        EnemyStartPos + (EnemyPosOffset * i),
-                        BaseEnemySpeed
-                    ),
-                    collision::CollisionInfo(
-                        false,
-                        false,
-                        enemyShape,
-                        true
-                    )
-                )
+                Enemy(i)
             );
-            // startUpdateEnemyDirection(enemy); // TODO: re-enable this
         }
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
