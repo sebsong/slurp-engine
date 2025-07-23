@@ -191,6 +191,7 @@ namespace render {
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(bytes);
 
         if (header->infoHeader.biCompression == BI_RGB && header->infoHeader.biBitCount <= 8) {
+            // TODO: handle 8 bit count
             assert(header->infoHeader.biBitCount == 4);
 
             Pixel* colorPalette = reinterpret_cast<Pixel*>(bytes + sizeof(BitmapHeader));
