@@ -69,7 +69,7 @@ namespace game {
         } else if (Enemy* enemy = dynamic_cast<Enemy*>(collisionDetails.entity)) {
             this->enabled = false;
         } else {
-            this->physicsInfo.direction *= -1;
+            bounce();
         }
     }
 
@@ -77,7 +77,7 @@ namespace game {
         this->isParried = true;
         this->renderInfo.sprite = ProjectileParriedSprite;
         this->physicsInfo.speed = ParriedProjectileSpeed;
-        this->physicsInfo.direction *= -1;
+        bounce();
         // TODO: need to get timer_handle back and have a way to reset the timer if it's already active
         // TODO: need a way to specify timer_handle
         timer::delay(
@@ -88,5 +88,10 @@ namespace game {
                 this->isParried = false;
             }
         );
+    }
+
+    void Projectile::bounce() {
+        // TODO: have a better bounce that actually reflects correctly
+        this->physicsInfo.direction *= -1;
     }
 }

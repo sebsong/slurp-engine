@@ -12,6 +12,7 @@ namespace game {
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
         void onParried();
+        void bounce();
 
         bool isActive;
         bool isParried;
