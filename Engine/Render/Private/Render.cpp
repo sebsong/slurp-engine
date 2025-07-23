@@ -50,33 +50,6 @@ namespace render {
         }
     }
 
-    void drawRect(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        float r,
-        float g,
-        float b
-    ) {
-        const uint8_t red = math::round(r * 255);
-        const uint8_t green = math::round(g * 255);
-        const uint8_t blue = math::round(b * 255);
-        const Pixel color = (red << 16) | (green << 8) | blue;
-        _drawRect(buffer, startPoint, endPoint, color);
-    }
-
-    void drawRect(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
-    ) {
-        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        const Pixel color = colorPalette.colors[colorPaletteIdx];
-        _drawRect(buffer, startPoint, endPoint, color);
-    }
-
     static void _drawSquare(
         const GraphicsBuffer& buffer,
         const slurp::Vector2<int>& point,
@@ -88,22 +61,6 @@ namespace render {
             point,
             {point.x + size, point.y + size},
             color
-        );
-    }
-
-    void drawSquare(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& point,
-        int size,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
-    ) {
-        drawRect(
-            buffer,
-            point,
-            {point.x + size, point.y + size},
-            colorPaletteIdx,
-            colorPalette
         );
     }
 
@@ -134,25 +91,6 @@ namespace render {
             currentPoint += direction;
             distance--;
         }
-    }
-
-    void drawLine(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        int size,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
-    ) {
-        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        const Pixel color = colorPalette.colors[colorPaletteIdx];
-        _drawLine(
-            buffer,
-            startPoint,
-            endPoint,
-            size,
-            color
-        );
     }
 
     void drawRectBorder(

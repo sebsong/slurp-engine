@@ -78,40 +78,6 @@ namespace render {
         { renderable.draw(buffer, position) } -> std::same_as<void>;
     };
 
-    void drawRect(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        float r,
-        float g,
-        float b
-    );
-
-    void drawRect(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
-    );
-
-    void drawSquare(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& point,
-        int size,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
-    );
-
-    void drawLine(
-        const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        int size,
-        ColorPaletteIdx colorPaletteIdx,
-        const ColorPalette& colorPalette
-    );
-
     template<Renderable T>
     void drawRenderable(const GraphicsBuffer& buffer, const T& renderable, const slurp::Vector2<int>& position) {
         renderable.draw(buffer, position);
