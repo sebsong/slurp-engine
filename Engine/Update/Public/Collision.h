@@ -47,4 +47,8 @@ namespace collision {
         slurp::Entity* entity;
         // TODO: add a collision normal and other collision info
     };
+
+    void handleCollisionEnter(slurp::Entity* entity, slurp::Entity* otherEntity);
+
+    void handleCollisionExit(slurp::Entity* entity, slurp::Entity* otherEntity);
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "Timer.h"
 
 namespace projectile {
     class Projectile final : public slurp::Entity {
@@ -19,6 +20,7 @@ namespace projectile {
 
         bool _isActive;
         bool _isParried;
-        const Entity* _target = nullptr;
+        const Entity* _target;
+        const timer::timer_handle _parriedTimerHandle;
     };
 }

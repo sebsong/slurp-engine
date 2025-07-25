@@ -17,7 +17,6 @@ namespace projectile {
     static constexpr const char* ParriedSpriteFileName = "projectile_parried.bmp";
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
     static const render::Sprite ParriedSprite = render::loadSprite(ParriedSpriteFileName);
-    static const timer::timer_handle ParriedTimerHandle = timer::getNewHandle();
 
     Projectile::Projectile(int index)
         : Entity(
@@ -37,7 +36,10 @@ namespace projectile {
                   true
               )
           ),
-          _isActive(false) {}
+          _isActive(false),
+          _isParried(false),
+          _target(nullptr),
+          _parriedTimerHandle(timer::getNewHandle()) {}
 
     void Projectile::fire(const slurp::Vector2<int>& position) {
         this->_isActive = false;
@@ -90,7 +92,7 @@ namespace projectile {
         this->physicsInfo.speed = ParriedSpeed;
         this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
         timer::start(
-            ParriedTimerHandle,
+            this->_parriedTimerHandle,
             ParriedDuration,
             false,
             [this] {

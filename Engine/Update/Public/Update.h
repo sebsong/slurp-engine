@@ -66,40 +66,9 @@ namespace update {
                         }
                     }
                 }
-
-                if (!collisionInfo.collidingWith.contains(otherEntity)) {
-                    entity->onCollisionEnter(
-                        collision::CollisionDetails{
-                            otherEntity
-                        }
-                    );
-                }
-                if (!otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherEntity->onCollisionEnter(
-                        collision::CollisionDetails{
-                            entity
-                        }
-                    );
-                }
-                collisionInfo.collidingWith.insert(otherEntity);
-                otherCollisionInfo.collidingWith.insert(entity);
+                collision::handleCollisionEnter(entity, otherEntity);
             } else {
-                if (collisionInfo.collidingWith.contains(otherEntity)) {
-                    entity->onCollisionExit(
-                        collision::CollisionDetails{
-                            otherEntity
-                        }
-                    );
-                }
-                if (otherCollisionInfo.collidingWith.contains(entity)) {
-                    otherEntity->onCollisionExit(
-                        collision::CollisionDetails{
-                            entity
-                        }
-                    );
-                }
-                collisionInfo.collidingWith.erase(otherEntity);
-                otherCollisionInfo.collidingWith.erase(entity);
+                collision::handleCollisionExit(entity, otherEntity);
             }
         }
         physicsInfo.position += positionUpdate;

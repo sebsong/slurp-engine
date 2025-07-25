@@ -33,4 +33,41 @@ namespace collision {
        isTrigger(isTrigger),
        shape(shape),
        collidingWith(std::set<slurp::Entity*>()) {}
+
+    void handleCollisionEnter(slurp::Entity* entity, slurp::Entity* otherEntity) {
+        if (!entity->collisionInfo.collidingWith.contains(otherEntity)) {
+            entity->onCollisionEnter(
+                CollisionDetails{
+                    otherEntity
+                }
+            );
+        }
+        if (!otherEntity->collisionInfo.collidingWith.contains(entity)) {
+            otherEntity->onCollisionEnter(
+                CollisionDetails{
+                    entity
+                }
+            );
+        }
+        entity->collisionInfo.collidingWith.insert(otherEntity);
+        otherEntity->collisionInfo.collidingWith.insert(entity);
+    }
+    void handleCollisionExit(slurp::Entity* entity, slurp::Entity* otherEntity) {
+        if (entity->collisionInfo.collidingWith.contains(otherEntity)) {
+            entity->onCollisionExit(
+                CollisionDetails{
+                    otherEntity
+                }
+            );
+        }
+        if (otherEntity->collisionInfo.collidingWith.contains(entity)) {
+            otherEntity->onCollisionExit(
+                CollisionDetails{
+                    entity
+                }
+            );
+        }
+        entity->collisionInfo.collidingWith.erase(otherEntity);
+        otherEntity->collisionInfo.collidingWith.erase(entity);
+    }
 }
