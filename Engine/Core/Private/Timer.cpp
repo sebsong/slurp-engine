@@ -7,11 +7,20 @@ namespace timer {
     static timer_handle GlobalNextTimerHandle;
 
     void delay(float delayDurationSeconds, std::function<void()>&& callback) {
-        registerTimer(delayDurationSeconds, false, std::move(callback));
+        start(delayDurationSeconds, false, std::move(callback));
     }
 
-    timer_handle registerTimer(float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
-        timer_handle handle = GlobalNextTimerHandle++;
+    timer_handle getNewHandle() {
+        return GlobalNextTimerHandle++;
+    }
+
+    timer_handle start(float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
+        timer_handle handle = getNewHandle();
+        start(handle, durationSeconds, shouldLoop, std::move(callback));
+        return handle;
+    }
+
+    void start(timer_handle handle, float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
         TimerInfo info
         {
             handle,
@@ -21,24 +30,28 @@ namespace timer {
             0
         };
         GlobalTimerMap[handle] = info;
-        return handle;
     }
 
     void tick(float dt) {
         std::set<timer_handle> timersToCancel;
         for (auto& entry: GlobalTimerMap) {
             TimerInfo& info = entry.second;
-            info.timer += dt;
-            if (info.timer >= info.durationSeconds) {
+            info.secondsElapsed += dt;
+            if (info.secondsElapsed >= info.durationSeconds) {
                 info.callback();
 
-                if (info.shouldLoop) { info.timer = 0; }
+                if (info.shouldLoop) { info.secondsElapsed = 0; }
                 else { timersToCancel.insert(info.handle); }
             }
         }
 
-        for (timer_handle handle: timersToCancel) { cancelTimer(handle); }
+        for (timer_handle handle: timersToCancel) { cancel(handle); }
     }
 
-    void cancelTimer(timer_handle handle) { GlobalTimerMap.erase(handle); }
+    void reset(timer_handle handle) {
+        TimerInfo& info = GlobalTimerMap[handle];
+        info.secondsElapsed = 0;
+    }
+
+    void cancel(timer_handle handle) { GlobalTimerMap.erase(handle); }
 }

@@ -19,6 +19,7 @@ namespace player {
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
     static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
 
+    static const timer::timer_handle ParryTimerHandle = timer::getNewHandle();
     static constexpr float ParryActiveDuration = .2f;
     static constexpr float ProjectileSpawnOffset = 10.f;
 
@@ -52,11 +53,12 @@ namespace player {
         if (keyboardState.isDown(slurp::KeyboardCode::D)) { dir.x += 1; }
         this->physicsInfo.direction = dir.normalize();
 
-        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintSpeed; }
-        else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BaseSpeed; }
+        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintSpeed; } else if (
+            keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BaseSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
-            projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->projectileIdx];
+            projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
+                projectileIdx];
             const slurp::Vector2<float> direction =
                     static_cast<slurp::Vector2<float>>(mouseState.position - this->physicsInfo.position).
                     normalize();
@@ -78,8 +80,7 @@ namespace player {
         if (
             gamepadState.justPressed(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justPressed(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = SprintSpeed; }
-        else if (
+        ) { this->physicsInfo.speed = SprintSpeed; } else if (
             gamepadState.justReleased(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
         ) { this->physicsInfo.speed = BaseSpeed; }
@@ -105,7 +106,7 @@ namespace player {
     void Player::activateParry() {
         this->isParryActive = true;
         this->renderInfo.sprite = ParrySprite;
-        timer::delay(ParryActiveDuration, [this] { deactivateParry(); });
+        timer::start(ParryTimerHandle, ParryActiveDuration, false, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {

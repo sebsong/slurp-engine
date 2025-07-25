@@ -1,6 +1,7 @@
 #include "Projectile.h"
 
 #include "Game.h"
+#include "Timer.h"
 
 namespace projectile {
     static constexpr int BaseSpeed = 350;
@@ -16,6 +17,7 @@ namespace projectile {
     static constexpr const char* ParriedSpriteFileName = "projectile_parried.bmp";
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
     static const render::Sprite ParriedSprite = render::loadSprite(ParriedSpriteFileName);
+    static const timer::timer_handle ParriedTimerHandle = timer::getNewHandle();
 
     Projectile::Projectile(int index)
         : Entity(
@@ -87,10 +89,10 @@ namespace projectile {
         this->renderInfo.sprite = ParriedSprite;
         this->physicsInfo.speed = ParriedSpeed;
         this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
-        // TODO: need to get timer_handle back and have a way to reset the timer if it's already active
-        // TODO: need a way to specify timer_handle
-        timer::delay(
+        timer::start(
+            ParriedTimerHandle,
             ParriedDuration,
+            false,
             [this] {
                 this->renderInfo.sprite = Sprite;
                 this->physicsInfo.speed = BaseSpeed;
