@@ -11,8 +11,7 @@ namespace enemy {
     static constexpr const char* SpriteFileName = "enemy.bmp";
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
 
-    static constexpr int ShapeSize = 17;
-    static const geometry::Shape Shape = {geometry::Rect, {ShapeSize, ShapeSize}};
+    static const geometry::Shape Shape = {geometry::Rect, {36, 28}};
 
     Enemy::Enemy(int i): Entity(
         "Enemy" + std::to_string(i),
