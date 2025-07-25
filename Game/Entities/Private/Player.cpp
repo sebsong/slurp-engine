@@ -1,27 +1,23 @@
 #include "Player.h"
 
-#include "Game.h"
 #include "Entity.h"
 #include "Geometry.h"
-#include "Render.h"
 #include "Collision.h"
 
-#include <iostream>
-
-namespace game {
-    static const slurp::Vector2 PlayerStartPos = {640, 360};
-    static constexpr int BasePlayerSizePixels = 17;
-    static constexpr int BasePlayerSpeed = 400;
-    static constexpr int SprintPlayerSpeed = 800;
+namespace player {
+    static const slurp::Vector2 StartPosition = {640, 360};
+    static constexpr int BaseSpeed = 400;
+    static constexpr int SprintSpeed = 800;
+    static constexpr int ShapeSize = 17;
     static const geometry::Shape Shape = {
         geometry::Rect,
-        {BasePlayerSizePixels, BasePlayerSizePixels}
+        {ShapeSize, ShapeSize}
     };
     static constexpr const char* Name = "Player";
     static constexpr const char* SpriteFileName = "player.bmp";
     static constexpr const char* ParrySpriteFileName = "player_parry.bmp";
-    static const render::Sprite PlayerSprite = render::loadSprite(SpriteFileName);
-    static const render::Sprite PlayerParrySprite = render::loadSprite(ParrySpriteFileName);
+    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
+    static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
 
     static constexpr float ParryActiveDuration = .2f;
     static constexpr float ProjectileSpawnOffset = 10.f;
@@ -29,10 +25,10 @@ namespace game {
     Player::Player()
         : Entity(
               Name,
-              render::RenderInfo(PlayerSprite, true),
+              render::RenderInfo(Sprite, true),
               physics::PhysicsInfo(
-                  PlayerStartPos,
-                  BasePlayerSpeed
+                  StartPosition,
+                  BaseSpeed
               ),
               collision::CollisionInfo(
                   false,
@@ -56,11 +52,11 @@ namespace game {
         if (keyboardState.isDown(slurp::KeyboardCode::D)) { dir.x += 1; }
         this->physicsInfo.direction = dir.normalize();
 
-        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintPlayerSpeed; }
-        else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BasePlayerSpeed; }
+        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintSpeed; }
+        else if (keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BaseSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
-            Projectile& projectile = GlobalGameState->projectiles[GlobalGameState->projectileIdx];
+            projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->projectileIdx];
             const slurp::Vector2<float> direction =
                     static_cast<slurp::Vector2<float>>(mouseState.position - this->physicsInfo.position).
                     normalize();
@@ -82,11 +78,11 @@ namespace game {
         if (
             gamepadState.justPressed(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justPressed(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = SprintPlayerSpeed; }
+        ) { this->physicsInfo.speed = SprintSpeed; }
         else if (
             gamepadState.justReleased(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = BasePlayerSpeed; }
+        ) { this->physicsInfo.speed = BaseSpeed; }
 
         slurp::Vector2<float> leftStick = gamepadState.leftStick.end;
         slurp::Vector2<float> direction = leftStick;
@@ -95,7 +91,7 @@ namespace game {
 
         float leftTrigger = gamepadState.leftTrigger.end;
         float rightTrigger = gamepadState.rightTrigger.end;
-        GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
+        game::GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
     }
 
     void Player::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
@@ -108,12 +104,12 @@ namespace game {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderInfo.sprite = PlayerParrySprite;
+        this->renderInfo.sprite = ParrySprite;
         timer::delay(ParryActiveDuration, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderInfo.sprite = PlayerSprite;
+        this->renderInfo.sprite = Sprite;
     }
 }

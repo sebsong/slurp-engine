@@ -14,23 +14,23 @@ namespace game {
         uint32_t randomSeed;
         bool isInitialized;
 
-        Global global;
+        global::Global global;
 
         slurp::Entity background;
-        Obstacle wallUp;
-        Obstacle wallDown;
-        Obstacle wallLeft;
-        Obstacle wallRight;
-        Obstacle obstacle1;
-        Obstacle obstacle2;
+        obstacle::Obstacle wallUp;
+        obstacle::Obstacle wallDown;
+        obstacle::Obstacle wallLeft;
+        obstacle::Obstacle wallRight;
+        obstacle::Obstacle obstacle1;
+        obstacle::Obstacle obstacle2;
 
         slurp::Entity testAlpha;
 
-        MouseCursor mouseCursor;
-        Player player;
-        Enemy enemies[NUM_ENEMIES];
+        mouse_cursor::MouseCursor mouseCursor;
+        player::Player player;
+        enemy::Enemy enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
-        Projectile projectiles[PROJECTILE_POOL_SIZE];
+        projectile::Projectile projectiles[PROJECTILE_POOL_SIZE];
         slurp::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 

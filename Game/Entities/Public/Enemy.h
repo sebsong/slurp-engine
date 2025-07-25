@@ -1,7 +1,7 @@
 #pragma once
 #include "Entity.h"
 
-namespace game {
+namespace enemy {
     class Enemy final : public slurp::Entity {
     public:
         Enemy(int i);

@@ -2,7 +2,7 @@
 
 #include "Game.h"
 
-namespace game {
+namespace obstacle {
     Obstacle::Obstacle(
         std::string&& name,
         const geometry::Shape& shape,
@@ -10,7 +10,7 @@ namespace game {
     ): Entity(
         std::move(name),
         render::RenderInfo(
-            render::RenderShape{shape, getColor(7)},
+            render::RenderShape{shape, game::getColor(7)},
             false
         ),
         physics::PhysicsInfo(position),

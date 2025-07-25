@@ -1,7 +1,7 @@
 #pragma once
 #include "Entity.h"
 
-namespace game {
+namespace projectile {
     class Projectile final : public slurp::Entity {
     public:
         Projectile(int index);

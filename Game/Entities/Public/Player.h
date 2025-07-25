@@ -3,7 +3,7 @@
 #include "Entity.h"
 #include "Input.h"
 
-namespace game {
+namespace player {
     class Player final : public slurp::Entity {
     public:
         Player();

@@ -1,7 +1,7 @@
 #pragma once
 #include "Entity.h"
 
-namespace game {
+namespace global {
     class Global final : public slurp::Entity {
     public:
         Global();

@@ -2,32 +2,31 @@
 
 #include "Game.h"
 
-namespace game {
-    static constexpr int ProjectileSizePixels = 10;
-    static constexpr render::ColorPaletteIdx ProjectileColorPalletIdx = 5;
-    static constexpr int BaseProjectileSpeed = 350;
-    static constexpr int ParriedProjectileSpeed = 500;
+namespace projectile {
+    static constexpr int BaseSpeed = 350;
+    static constexpr int ParriedSpeed = 500;
+    static constexpr int ShapeSize = 10;
     static const geometry::Shape projectileShape = {
         geometry::Rect,
-        {ProjectileSizePixels, ProjectileSizePixels}
+        {ShapeSize, ShapeSize}
     };
     static constexpr float ActivationDelay = .2f;
     static constexpr float ParriedDuration = 2.f;
-    static constexpr const char* ProjectileSpriteFileName = "projectile.bmp";
-    static constexpr const char* ProjectileParriedSpriteFileName = "projectile_parried.bmp";
-    static const render::Sprite ProjectileSprite = render::loadSprite(ProjectileSpriteFileName);
-    static const render::Sprite ProjectileParriedSprite = render::loadSprite(ProjectileParriedSpriteFileName);
+    static constexpr const char* SpriteFileName = "projectile.bmp";
+    static constexpr const char* ParriedSpriteFileName = "projectile_parried.bmp";
+    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
+    static const render::Sprite ParriedSprite = render::loadSprite(ParriedSpriteFileName);
 
     Projectile::Projectile(int index)
         : Entity(
               "Projectile" + std::to_string(index),
               render::RenderInfo(
-                  ProjectileSprite,
+                  Sprite,
                   true
               ),
               physics::PhysicsInfo(
                   slurp::Vector2<int>::Zero,
-                  BaseProjectileSpeed
+                  BaseSpeed
               ),
               collision::CollisionInfo(
                   false,
@@ -42,7 +41,7 @@ namespace game {
         this->_isActive = false;
         this->enabled = true;
         this->physicsInfo.position = position;
-        this->_target = GlobalGameState->mouseCursor.getClosestEnemy();
+        this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
 
         timer::delay(
             ActivationDelay,
@@ -51,8 +50,8 @@ namespace game {
             }
         );
 
-        GlobalGameState->projectileIdx++;
-        if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { GlobalGameState->projectileIdx = 0; }
+        game::GlobalGameState->projectileIdx++;
+        if (game::GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { game::GlobalGameState->projectileIdx = 0; }
     }
 
     void Projectile::update(float dt) {
@@ -70,14 +69,14 @@ namespace game {
 
         if (!_isActive) { return; }
 
-        if (Player* player = dynamic_cast<Player*>(collisionDetails.entity)) {
+        if (player::Player* player = dynamic_cast<player::Player*>(collisionDetails.entity)) {
             if (player->isParryActive) {
                 onParried();
             } else {
                 this->enabled = false;
             }
-        } else if (dynamic_cast<Enemy*>(collisionDetails.entity)) {
-            this->_target = &GlobalGameState->player;
+        } else if (dynamic_cast<enemy::Enemy*>(collisionDetails.entity)) {
+            this->_target = &game::GlobalGameState->player;
         } else {
             bounce();
         }
@@ -85,16 +84,16 @@ namespace game {
 
     void Projectile::onParried() {
         this->_isParried = true;
-        this->renderInfo.sprite = ProjectileParriedSprite;
-        this->physicsInfo.speed = ParriedProjectileSpeed;
-        this->_target = GlobalGameState->mouseCursor.getClosestEnemy();
+        this->renderInfo.sprite = ParriedSprite;
+        this->physicsInfo.speed = ParriedSpeed;
+        this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
         // TODO: need to get timer_handle back and have a way to reset the timer if it's already active
         // TODO: need a way to specify timer_handle
         timer::delay(
             ParriedDuration,
             [this] {
-                this->renderInfo.sprite = ProjectileSprite;
-                this->physicsInfo.speed = BaseProjectileSpeed;
+                this->renderInfo.sprite = Sprite;
+                this->physicsInfo.speed = BaseSpeed;
                 this->_isParried = false;
             }
         );

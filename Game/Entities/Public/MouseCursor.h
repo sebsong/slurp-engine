@@ -1,14 +1,16 @@
 #pragma once
 #include "Entity.h"
 
-namespace game {
+namespace enemy {
     class Enemy;
+}
 
+namespace mouse_cursor {
     class MouseCursor final : public slurp::Entity {
     public:
         MouseCursor();
 
-        Enemy* getClosestEnemy() const;
+        enemy::Enemy* getClosestEnemy() const;
 
     private:
         void handleMouseAndKeyboardInput(

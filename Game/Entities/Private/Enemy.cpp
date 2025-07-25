@@ -2,32 +2,32 @@
 
 #include "Random.h"
 
-namespace game {
-    static const slurp::Vector2 EnemyStartPos = {400, 200};
-    static const slurp::Vector2 EnemyPosOffset = {100, 0};
-    static constexpr int BaseEnemySizePixels = 17;
-    static constexpr int BaseEnemySpeed = 200;
-    static constexpr float BaseEnemyDirectionChangeDelay = 2;
-    static constexpr float EnemyDirectionChangeDelayDelta = 1.5;
-    static constexpr const char* EnemySpriteFileName = "enemy.bmp";
-    static const render::Sprite EnemySprite = render::loadSprite(EnemySpriteFileName);
+namespace enemy {
+    static const slurp::Vector2 StartPosition = {400, 200};
+    static const slurp::Vector2 PositionOffset = {100, 0};
+    static constexpr int BaseSpeed = 200;
+    static constexpr float BaseDirectionChangeDelay = 2;
+    static constexpr float DirectionChangeDelayDelta = 1.5;
+    static constexpr const char* SpriteFileName = "enemy.bmp";
+    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
 
-    const geometry::Shape enemyShape = {geometry::Rect, {BaseEnemySizePixels, BaseEnemySizePixels}};
+    static constexpr int ShapeSize = 17;
+    static const geometry::Shape Shape = {geometry::Rect, {ShapeSize, ShapeSize}};
 
     Enemy::Enemy(int i): Entity(
         "Enemy" + std::to_string(i),
         render::RenderInfo(
-            EnemySprite,
+            Sprite,
             true
         ),
         physics::PhysicsInfo(
-            EnemyStartPos + (EnemyPosOffset * i),
-            BaseEnemySpeed
+            StartPosition + (PositionOffset * i),
+            BaseSpeed
         ),
         collision::CollisionInfo(
             false,
             false,
-            enemyShape,
+            Shape,
             true
         )
     ) {}
@@ -39,8 +39,8 @@ namespace game {
     }
 
     static float getRandomDirectionChangeDelay() {
-        float minDelay = BaseEnemyDirectionChangeDelay - EnemyDirectionChangeDelayDelta;
-        float maxDelay = BaseEnemyDirectionChangeDelay + EnemyDirectionChangeDelayDelta;
+        float minDelay = BaseDirectionChangeDelay - DirectionChangeDelayDelta;
+        float maxDelay = BaseDirectionChangeDelay + DirectionChangeDelayDelta;
         return random::randomFloat(minDelay, maxDelay);
     }
 

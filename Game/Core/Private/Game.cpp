@@ -49,7 +49,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->global,
-            Global()
+            global::Global()
         );
 
         registerEntity(
@@ -72,7 +72,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallUp,
-            Obstacle(
+            obstacle::Obstacle(
                 "WallUp",
                 wallUpShape,
                 {0, 0}
@@ -82,7 +82,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallDown,
-            Obstacle(
+            obstacle::Obstacle(
                 "WallDown",
                 wallDownShape,
                 {0, 700}
@@ -92,7 +92,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallLeft,
-            Obstacle(
+            obstacle::Obstacle(
                 "WallLeft",
                 wallLeftShape,
                 {0, 0}
@@ -102,7 +102,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->wallRight,
-            Obstacle(
+            obstacle::Obstacle(
                 "WallRight",
                 wallRightShape,
                 {1260, 0}
@@ -112,7 +112,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->obstacle1,
-            Obstacle(
+            obstacle::Obstacle(
                 "Obstacle1",
                 obstacle1Shape,
                 {200, 500}
@@ -122,7 +122,7 @@ namespace game {
         registerEntity(
             entityManager,
             GlobalGameState->obstacle2,
-            Obstacle(
+            obstacle::Obstacle(
                 "Obstacle2",
                 obstacle2Shape,
                 {500, 400}
@@ -133,14 +133,14 @@ namespace game {
             registerEntity(
                 entityManager,
                 GlobalGameState->projectiles[i],
-                Projectile(i)
+                projectile::Projectile(i)
             );
         }
 
         registerEntity(
             entityManager,
             GlobalGameState->player,
-            Player()
+            player::Player()
         );
 
         // TODO: move some of these to separate classes/files
@@ -148,14 +148,14 @@ namespace game {
             registerEntity(
                 entityManager,
                 GlobalGameState->enemies[i],
-                Enemy(i)
+                enemy::Enemy(i)
             );
         }
 
         registerEntity(
             entityManager,
             GlobalGameState->mouseCursor,
-            MouseCursor()
+            mouse_cursor::MouseCursor()
         );
 
         registerEntity(
