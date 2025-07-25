@@ -1069,6 +1069,10 @@ int WINAPI WinMain(
     slurp::KeyboardState keyboardState;
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS];
 
+#if !DEBUG_SHOW_MOUSE_CURSOR
+    ShowCursor(false);
+#endif
+
     // TODO: migrate to the newer XAudio2
     // TODO: could dynamically track max writeCursor diff and update GlobalAudioBuffer.writeAheadSampleCount
     winInitDirectSound(windowHandle);

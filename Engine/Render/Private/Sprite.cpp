@@ -48,7 +48,11 @@ namespace render {
 
         int rowSizeBits = width * bitsPerIndex;
         int rowSizeBytes = rowSizeBits / 8 + (rowSizeBits % 8 != 0);
-        rowSizeBytes += 4 - (rowSizeBytes % 4); // NOTE: bitmaps are padded to 4 byte words
+        int rowRemainderBytes = rowSizeBytes % 4;
+        if (rowRemainderBytes != 0) {
+            // NOTE: bitmaps are padded to 4 byte words
+            rowSizeBytes += 4 - rowRemainderBytes;
+        }
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 // TODO: avoid an extra read by re-using this for low + high bitmasking

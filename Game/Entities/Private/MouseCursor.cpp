@@ -3,16 +3,13 @@
 #include "Game.h"
 
 namespace game {
-    static constexpr int MouseCursorSizePixels = 10;
-    static constexpr render::ColorPaletteIdx MouseCursorColorPalletIdx = 1;
+    static const std::string MouseCursorSpriteFileName = "mouse_cursor.bmp";
+    static const render::Sprite MouseCursorSprite = render::loadSprite(MouseCursorSpriteFileName);
 
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
         render::RenderInfo(
-            render::RenderShape{
-                {geometry::Rect, {MouseCursorSizePixels, MouseCursorSizePixels}},
-                getColor(MouseCursorColorPalletIdx),
-            },
+            MouseCursorSprite,
             true
         ),
         physics::PhysicsInfo(slurp::Vector2<int>::Zero),

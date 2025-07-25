@@ -143,12 +143,6 @@ namespace game {
             Player()
         );
 
-        registerEntity(
-            entityManager,
-            GlobalGameState->mouseCursor,
-            MouseCursor()
-        );
-
         // TODO: move some of these to separate classes/files
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
@@ -157,6 +151,12 @@ namespace game {
                 Enemy(i)
             );
         }
+
+        registerEntity(
+            entityManager,
+            GlobalGameState->mouseCursor,
+            MouseCursor()
+        );
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
             registerEntity(
