@@ -15,6 +15,15 @@ namespace render {
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
+    constexpr Pixel AlphaMask = 0xFF000000;
+    constexpr uint8_t AlphaShift = 24;
+    constexpr Pixel RedMask = 0x00FF0000;
+    constexpr uint8_t RedShift = 16;
+    constexpr Pixel GreenMask = 0x0000FF00;
+    constexpr uint8_t GreenShift = 8;
+    constexpr Pixel BlueMask = 0x000000FF;
+    constexpr uint8_t BlueShift = 0;
+
 #ifdef ASSETS_DIR
     static const std::string AssetsDirectory = ASSETS_DIR;
 #else
@@ -62,4 +71,6 @@ namespace render {
     );
 
     ColorPalette loadColorPalette(const std::string& paletteHexFileName);
+
+    inline Pixel withAlpha(Pixel color, float alpha);
 }

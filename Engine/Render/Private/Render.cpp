@@ -9,12 +9,33 @@
 #include <string>
 
 namespace render {
-    constexpr Pixel AlphaMask = 0xFF000000;
+    static void _blendAlpha(Pixel& existingColor, const Pixel& newColor, uint8_t alpha) {
+        uint8_t existingRed = (existingColor & RedMask) >> RedShift;
+        uint8_t existingGreen = (existingColor & GreenMask) >> GreenShift;
+        uint8_t existingBlue = (existingColor & BlueMask) >> BlueShift;
+
+        uint8_t newRed = (newColor & RedMask) >> RedShift;
+        uint8_t newGreen = (newColor & GreenMask) >> GreenShift;
+        uint8_t newBlue = (newColor & BlueMask) >> BlueShift;
+
+        float normalizedAlpha = static_cast<float>(alpha) / 255;
+        uint8_t blendedRed = normalizedAlpha * (newRed - existingRed) + existingRed;
+        uint8_t blendedGreen = normalizedAlpha * (newGreen - existingGreen) + existingGreen;
+        uint8_t blendedBlue = normalizedAlpha * (newBlue - existingBlue) + existingBlue;
+
+        existingColor = (blendedRed << RedShift) | (blendedGreen << GreenShift) | blendedBlue;
+    }
 
     static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
-        uint8_t alpha = color >> 24;
-        if (alpha == 0) { return; }
-        *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
+        uint8_t alpha = color >> AlphaShift;
+        if (alpha == 0) {
+            return;
+        } else if (alpha == 255) {
+            *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
+        } else {
+            Pixel& existingColor = buffer.pixelMap[(point.y * buffer.widthPixels) + point.x];
+            _blendAlpha(existingColor, color, alpha);
+        }
     }
 
     static slurp::Vector2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point) {
@@ -149,5 +170,11 @@ namespace render {
         }
 
         return palette;
+    }
+
+    Pixel withAlpha(Pixel color, float alpha) {
+        assert(alpha >= 0 && alpha <= 1);
+        Pixel newAlpha = static_cast<Pixel>(alpha * 255) << AlphaShift;
+        return (color & ~AlphaMask) | newAlpha;
     }
 }

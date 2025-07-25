@@ -100,12 +100,10 @@ namespace game {
 
     void Player::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
-        std::cout << "ENTER: " << collisionDetails.entity->name << std::endl;
     }
 
     void Player::onCollisionExit(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionExit(collisionDetails);
-        std::cout << "EXIT: " << collisionDetails.entity->name << std::endl;
     }
 
     void Player::activateParry() {

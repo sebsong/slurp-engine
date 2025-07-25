@@ -24,6 +24,8 @@ namespace game {
         Obstacle obstacle1;
         Obstacle obstacle2;
 
+        slurp::Entity testAlpha;
+
         MouseCursor mouseCursor;
         Player player;
         Enemy enemies[NUM_ENEMIES];
