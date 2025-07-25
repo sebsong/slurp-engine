@@ -129,25 +129,6 @@ namespace game {
             )
         );
 
-        registerEntity(
-            entityManager,
-            GlobalGameState->testAlpha,
-            slurp::Entity(
-                "testAlpha",
-                render::RenderInfo(
-                    render::RenderShape{
-                        {geometry::Rect, {300, 200}},
-                        render::withAlpha(getColor(6), .7)
-                    },
-                    true
-                ),
-                physics::PhysicsInfo(
-                    {400, 525}
-                ),
-                collision::CollisionInfo()
-            )
-        );
-
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
                 entityManager,
@@ -175,6 +156,25 @@ namespace game {
             entityManager,
             GlobalGameState->mouseCursor,
             MouseCursor()
+        );
+
+        registerEntity(
+            entityManager,
+            GlobalGameState->testAlpha,
+            slurp::Entity(
+                "testAlpha",
+                render::RenderInfo(
+                    render::RenderShape{
+                        {geometry::Rect, {300, 200}},
+                        render::withAlpha(getColor(6), .7)
+                    },
+                    true
+                ),
+                physics::PhysicsInfo(
+                    {400, 525}
+                ),
+                collision::CollisionInfo()
+            )
         );
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {

@@ -9,15 +9,13 @@ namespace render {
         const slurp::Vector2<int> endPoint = startPoint + bitmap.dimensions;
         const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
         const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
-        const int clampedWidth = clampedEndPoint.x - clampedStartPoint.x;
-        const int clampedHeight = clampedEndPoint.y - clampedStartPoint.y;
 
-        for (int y = 0; y < clampedHeight; y++) {
-            for (int x = 0; x < clampedWidth; x++) {
-                Pixel pixel = bitmap.map[x + y * bitmap.dimensions.x];
+        for (int y = clampedStartPoint.y; y < clampedEndPoint.y; y++) {
+            for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) {
+                Pixel pixel = bitmap.map[(y - startPoint.y) * bitmap.dimensions.x + (x - startPoint.x)];
                 _drawAtPoint(
                     buffer,
-                    clampedStartPoint + slurp::Vector2{x, y},
+                    {x, y},
                     pixel
                 );
             }
