@@ -36,6 +36,7 @@ namespace slurp {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
+                entity->update(dt);
                 update::updatePosition(entity, _pipeline, dt);
                 render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG

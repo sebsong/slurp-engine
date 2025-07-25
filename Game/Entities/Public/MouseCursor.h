@@ -2,9 +2,13 @@
 #include "Entity.h"
 
 namespace game {
+    class Enemy;
+
     class MouseCursor final : public slurp::Entity {
     public:
         MouseCursor();
+
+        Enemy* getClosestEnemy() const;
 
     private:
         void handleMouseAndKeyboardInput(

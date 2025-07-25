@@ -65,7 +65,7 @@ namespace game {
                     static_cast<slurp::Vector2<float>>(mouseState.position - this->physicsInfo.position).
                     normalize();
             const slurp::Vector2<int> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
-            projectile.fire(position, direction);
+            projectile.fire(position);
         }
 
         if (

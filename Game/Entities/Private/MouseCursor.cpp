@@ -16,6 +16,20 @@ namespace game {
         collision::CollisionInfo()
     ) {}
 
+    Enemy* MouseCursor::getClosestEnemy() const {
+        Enemy* closestEnemy = nullptr;
+        float closestDistance = std::numeric_limits<float>::max();
+        for (Enemy& enemy : GlobalGameState->enemies) {
+            float distance = enemy.physicsInfo.position.distanceTo(this->physicsInfo.position);
+            if (distance < closestDistance) {
+                closestEnemy = &enemy;
+                closestDistance = distance;
+            }
+        }
+
+        return closestEnemy;
+    }
+
     void MouseCursor::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
         const slurp::KeyboardState& keyboardState

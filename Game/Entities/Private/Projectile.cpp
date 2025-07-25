@@ -36,18 +36,18 @@ namespace game {
                   true
               )
           ),
-          isActive(false) {}
+          _isActive(false) {}
 
-    void Projectile::fire(const slurp::Vector2<int>& position, const slurp::Vector2<float>& direction) {
-        this->isActive = false;
+    void Projectile::fire(const slurp::Vector2<int>& position) {
+        this->_isActive = false;
         this->enabled = true;
         this->physicsInfo.position = position;
-        this->physicsInfo.direction = direction;
+        this->_target = GlobalGameState->mouseCursor.getClosestEnemy();
 
         timer::delay(
             ActivationDelay,
             [this] {
-                isActive = true;
+                _isActive = true;
             }
         );
 
@@ -55,10 +55,20 @@ namespace game {
         if (GlobalGameState->projectileIdx >= PROJECTILE_POOL_SIZE) { GlobalGameState->projectileIdx = 0; }
     }
 
+    void Projectile::update(float dt) {
+        Entity::update(dt);
+
+        if (_target) {
+            this->physicsInfo.direction = static_cast<slurp::Vector2<float>>(
+                this->_target->physicsInfo.position - this->physicsInfo.position
+            ).normalize();
+        }
+    }
+
     void Projectile::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
 
-        if (!isActive) { return; }
+        if (!_isActive) { return; }
 
         if (Player* player = dynamic_cast<Player*>(collisionDetails.entity)) {
             if (player->isParryActive) {
@@ -66,18 +76,18 @@ namespace game {
             } else {
                 this->enabled = false;
             }
-        } else if (Enemy* enemy = dynamic_cast<Enemy*>(collisionDetails.entity)) {
-            this->enabled = false;
+        } else if (dynamic_cast<Enemy*>(collisionDetails.entity)) {
+            this->_target = &GlobalGameState->player;
         } else {
             bounce();
         }
     }
 
     void Projectile::onParried() {
-        this->isParried = true;
+        this->_isParried = true;
         this->renderInfo.sprite = ProjectileParriedSprite;
         this->physicsInfo.speed = ParriedProjectileSpeed;
-        bounce();
+        this->_target = GlobalGameState->mouseCursor.getClosestEnemy();
         // TODO: need to get timer_handle back and have a way to reset the timer if it's already active
         // TODO: need a way to specify timer_handle
         timer::delay(
@@ -85,7 +95,7 @@ namespace game {
             [this] {
                 this->renderInfo.sprite = ProjectileSprite;
                 this->physicsInfo.speed = BaseProjectileSpeed;
-                this->isParried = false;
+                this->_isParried = false;
             }
         );
     }

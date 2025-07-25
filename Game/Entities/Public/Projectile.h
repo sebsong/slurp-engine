@@ -6,15 +6,19 @@ namespace game {
     public:
         Projectile(int index);
 
-        void fire(const slurp::Vector2<int>& position, const slurp::Vector2<float>& direction);
+        void fire(const slurp::Vector2<int>& position);
 
     private:
+        void update(float dt) override;
+
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
         void onParried();
+
         void bounce();
 
-        bool isActive;
-        bool isParried;
+        bool _isActive;
+        bool _isParried;
+        const Entity* _target = nullptr;
     };
 }

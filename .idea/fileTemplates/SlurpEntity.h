@@ -21,6 +21,8 @@ namespace ${CLASS_NAME_SNAKE_CASE} {
         
         void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) override;
         
+        void update(float dt) override;
+
         void onCollisionEnter(const Entity* other) override;
         
         void onCollisionExit(const Entity* other) override;

@@ -35,6 +35,8 @@ namespace slurp {
 
         virtual void handleGamepadInput(uint8_t gamepadIndex, const GamepadState& gamepadState) {};
 
+        virtual void update(float dt) {};
+
         virtual void onCollisionEnter(const collision::CollisionDetails& collisionDetails) {};
 
         virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {};
