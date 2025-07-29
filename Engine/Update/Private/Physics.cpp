@@ -21,5 +21,7 @@ namespace physics {
        direction({}),
        speed(speed) {}
 
-    slurp::Vector2<int> PhysicsInfo::getPositionUpdate(float dt) { return direction * speed * dt; }
+    slurp::Vector2<int> PhysicsInfo::getPositionUpdate(float dt) {
+        return direction * speed * dt;
+    }
 }

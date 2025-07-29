@@ -39,7 +39,9 @@ namespace projectile {
           _isActive(false),
           _isParried(false),
           _target(nullptr),
-          _parriedTimerHandle(timer::getNewHandle()) {}
+          _parriedTimerHandle(timer::getNewHandle()) {
+        this->enabled = false;
+    }
 
     void Projectile::fire(const slurp::Vector2<int>& position) {
         this->_isActive = false;
