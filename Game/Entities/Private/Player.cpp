@@ -6,8 +6,8 @@
 
 namespace player {
     static const slurp::Vector2 StartPosition = {640, 360};
-    static constexpr int BaseSpeed = 400;
-    static constexpr int SprintSpeed = 800;
+    static constexpr float BaseSpeed = 400;
+    static constexpr float SprintSpeed = 800;
     static constexpr int ShapeSize = 16;
     static const geometry::Shape Shape = {
         geometry::Rect,
@@ -59,7 +59,7 @@ namespace player {
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
             projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
                 projectileIdx];
-            const slurp::Vector2<float> direction = mouseState.position - this->physicsInfo.position.normalize();
+            const slurp::Vector2<float> direction = (mouseState.position - this->physicsInfo.position).normalize();
             const slurp::Vector2<float> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
             projectile.fire(position);
         }

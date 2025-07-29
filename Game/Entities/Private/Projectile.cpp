@@ -4,8 +4,8 @@
 #include "Timer.h"
 
 namespace projectile {
-    static constexpr int BaseSpeed = 350;
-    static constexpr int ParriedSpeed = 500;
+    static constexpr float BaseSpeed = 350;
+    static constexpr float ParriedSpeed = 500;
     static constexpr int ShapeSize = 10;
     static const geometry::Shape projectileShape = {
         geometry::Rect,
@@ -64,9 +64,7 @@ namespace projectile {
         Entity::update(dt);
 
         if (_target) {
-            this->physicsInfo.direction = static_cast<slurp::Vector2<float>>(
-                this->_target->physicsInfo.position - this->physicsInfo.position
-            ).normalize();
+            this->physicsInfo.direction = (this->_target->physicsInfo.position - this->physicsInfo.position).normalize();
         }
     }
 
