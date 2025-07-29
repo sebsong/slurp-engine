@@ -11,7 +11,7 @@ namespace math {
     }
 
     template<typename T>
-    float getClamped(T& n, T min, T max) {
+    T getClamped(T n, T min, T max) {
         return std::max(min, std::min(n, max));
     }
 
