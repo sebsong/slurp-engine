@@ -8,6 +8,7 @@ namespace player {
     static const slurp::Vector2 StartPosition = {640, 360};
     static constexpr float BaseSpeed = 400;
     static constexpr float SprintSpeed = 800;
+    static constexpr float BaseAcceleration = 10;
     static constexpr int ShapeSize = 16;
     static const geometry::Shape Shape = {
         geometry::Rect,
@@ -29,7 +30,8 @@ namespace player {
               render::RenderInfo(Sprite, true),
               physics::PhysicsInfo(
                   StartPosition,
-                  BaseSpeed
+                  BaseSpeed,
+                  BaseAcceleration
               ),
               collision::CollisionInfo(
                   false,
@@ -53,8 +55,8 @@ namespace player {
         if (keyboardState.isDown(slurp::KeyboardCode::D)) { dir.x += 1; }
         this->physicsInfo.direction = dir.normalize();
 
-        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintSpeed; } else if (
-            keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BaseSpeed; }
+        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.maxSpeed = SprintSpeed; } else if (
+            keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.maxSpeed = BaseSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
             projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
@@ -78,10 +80,10 @@ namespace player {
         if (
             gamepadState.justPressed(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justPressed(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = SprintSpeed; } else if (
+        ) { this->physicsInfo.maxSpeed = SprintSpeed; } else if (
             gamepadState.justReleased(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = BaseSpeed; }
+        ) { this->physicsInfo.maxSpeed = BaseSpeed; }
 
         slurp::Vector2<float> leftStick = gamepadState.leftStick.end;
         slurp::Vector2<float> direction = leftStick;

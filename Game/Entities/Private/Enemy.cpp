@@ -7,6 +7,7 @@ namespace enemy {
     static const slurp::Vector2 PositionOffset = {100, 0};
     static const slurp::Vector2 CollisionShapeOffset = {0, 8};
     static constexpr int BaseSpeed = 200;
+    static constexpr int BaseAcceleration = 400;
     static constexpr float BaseDirectionChangeDelay = 2;
     static constexpr float DirectionChangeDelayDelta = 1.5;
     static constexpr const char* SpriteFileName = "enemy.bmp";
@@ -22,7 +23,8 @@ namespace enemy {
         ),
         physics::PhysicsInfo(
             StartPosition + (PositionOffset * i),
-            BaseSpeed
+            BaseSpeed,
+            BaseAcceleration
         ),
         collision::CollisionInfo(
             false,

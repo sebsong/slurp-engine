@@ -5,6 +5,7 @@
 
 namespace projectile {
     static constexpr float BaseSpeed = 350;
+    static constexpr float BaseAcceleration = BaseSpeed * 4;
     static constexpr float ParriedSpeed = 500;
     static constexpr int ShapeSize = 10;
     static const geometry::Shape projectileShape = {
@@ -27,7 +28,8 @@ namespace projectile {
               ),
               physics::PhysicsInfo(
                   slurp::Vector2<float>::Zero,
-                  BaseSpeed
+                  BaseSpeed,
+                  BaseAcceleration
               ),
               collision::CollisionInfo(
                   false,
@@ -89,7 +91,7 @@ namespace projectile {
     void Projectile::onParried() {
         this->_isParried = true;
         this->renderInfo.sprite = ParriedSprite;
-        this->physicsInfo.speed = ParriedSpeed;
+        this->physicsInfo.maxSpeed = ParriedSpeed;
         this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
         timer::start(
             this->_parriedTimerHandle,
@@ -97,7 +99,7 @@ namespace projectile {
             false,
             [this] {
                 this->renderInfo.sprite = Sprite;
-                this->physicsInfo.speed = BaseSpeed;
+                this->physicsInfo.maxSpeed = BaseSpeed;
                 this->_isParried = false;
             }
         );

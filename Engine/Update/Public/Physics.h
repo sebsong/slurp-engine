@@ -2,19 +2,25 @@
 #include "Vector.h"
 
 namespace physics {
-    struct PhysicsInfo {
-        bool physicsEnabled;
-        slurp::Vector2<float> position;
-        slurp::Vector2<float> direction;
-        float speed;
-        // TODO: acceleration
-
+    class PhysicsInfo {
+    public:
         PhysicsInfo();
 
         PhysicsInfo(const slurp::Vector2<float>& position);
 
-        PhysicsInfo(const slurp::Vector2<float>& position, float speed);
+        PhysicsInfo(const slurp::Vector2<float>& position, float speed, float acceleration);
+
+        void updatePhysics(float dt);
 
         slurp::Vector2<float> getPositionUpdate(float dt);
+
+        bool physicsEnabled;
+        slurp::Vector2<float> position;
+        slurp::Vector2<float> direction;
+        float maxSpeed;
+        float acceleration;
+
+    private:
+        float _currentSpeed;
     };
 }
