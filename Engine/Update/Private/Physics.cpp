@@ -1,5 +1,7 @@
 #include "Physics.h"
 
+#include "Math.h"
+
 namespace physics {
     PhysicsInfo::PhysicsInfo()
         : physicsEnabled(false),
@@ -29,15 +31,11 @@ namespace physics {
        _currentSpeed(0) {}
 
     void PhysicsInfo::updatePhysics(float dt) {
-        if (_currentSpeed == maxSpeed) {} else if (_currentSpeed < maxSpeed) {
-            _currentSpeed += acceleration * dt;
-            if (_currentSpeed > maxSpeed) {
-                _currentSpeed = maxSpeed;
-            }
-        }
+        _currentSpeed += acceleration * dt;
+        _currentSpeed = math::getClamped(_currentSpeed, 0.f, maxSpeed);
     }
 
-    slurp::Vector2<float> PhysicsInfo::getPositionUpdate(float dt) {
+    slurp::Vector2<float> PhysicsInfo::getPositionUpdate(float dt) const {
         return direction * (0.5 * acceleration * std::pow(dt, 2) + _currentSpeed * dt);
     }
 }

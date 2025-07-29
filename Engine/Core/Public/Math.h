@@ -10,6 +10,11 @@ namespace math {
         return min <= n && n <= max;
     }
 
+    template<typename T>
+    float getClamped(T& n, T min, T max) {
+        return std::max(min, std::min(n, max));
+    }
+
     inline double getHypotenuse(float a, float b) {
         return std::sqrt(std::pow(a, 2) + std::pow(b, 2));
     }

@@ -12,7 +12,7 @@ namespace physics {
 
         void updatePhysics(float dt);
 
-        slurp::Vector2<float> getPositionUpdate(float dt);
+        slurp::Vector2<float> getPositionUpdate(float dt) const;
 
         bool physicsEnabled;
         slurp::Vector2<float> position;
