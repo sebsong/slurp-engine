@@ -59,8 +59,7 @@ namespace slurp {
             if (!GlobalRecordingState->isRecording) {
                 GlobalRecordingState->isRecording = true;
                 GlobalPlatformDll->DEBUG_beginRecording();
-            }
-            else {
+            } else {
                 GlobalPlatformDll->DEBUG_endRecording();
                 GlobalRecordingState->isRecording = false;
             }
@@ -85,16 +84,21 @@ namespace slurp {
             render::drawRectBorder(
                 graphicsBuffer,
                 {0, 0},
-                {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
+                {
+                    static_cast<float>(graphicsBuffer.widthPixels),
+                    static_cast<float>(graphicsBuffer.heightPixels)
+                },
                 10,
                 0xFFFF0000
             );
-        }
-        else if (GlobalRecordingState->isPlayingBack) {
+        } else if (GlobalRecordingState->isPlayingBack) {
             render::drawRectBorder(
                 graphicsBuffer,
                 {0, 0},
-                {graphicsBuffer.widthPixels, graphicsBuffer.heightPixels},
+                {
+                    static_cast<float>(graphicsBuffer.widthPixels),
+                    static_cast<float>(graphicsBuffer.heightPixels)
+                },
                 10,
                 0xFF00FF00
             );

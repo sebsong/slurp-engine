@@ -6,7 +6,7 @@ namespace obstacle {
     Obstacle::Obstacle(
         std::string&& name,
         const geometry::Shape& shape,
-        const slurp::Vector2<int>& position
+        const slurp::Vector2<float>& position
     ): Entity(
         std::move(name),
         render::RenderInfo(

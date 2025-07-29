@@ -11,7 +11,7 @@ namespace slurp {
 namespace collision {
     struct CollisionShape {
         geometry::Shape shape;
-        slurp::Vector2<int> offset;
+        slurp::Vector2<float> offset;
     };
 
     // TODO: distinguish between enter and exit collision

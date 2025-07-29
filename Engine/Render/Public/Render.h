@@ -49,23 +49,23 @@ namespace render {
         geometry::Shape shape;
         Pixel color;
 
-        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const;
+        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& startPoint) const;
     };
 
     template<typename T>
-    concept Renderable = requires(T renderable, const GraphicsBuffer& buffer, const slurp::Vector2<int>& position) {
+    concept Renderable = requires(T renderable, const GraphicsBuffer& buffer, const slurp::Vector2<float>& position) {
         { renderable.draw(buffer, position) } -> std::same_as<void>;
     };
 
     template<Renderable T>
-    void drawRenderable(const GraphicsBuffer& buffer, const T& renderable, const slurp::Vector2<int>& position) {
+    void drawRenderable(const GraphicsBuffer& buffer, const T& renderable, const slurp::Vector2<float>& position) {
         renderable.draw(buffer, position);
     }
 
     void drawRectBorder(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
+        const slurp::Vector2<float>& startPoint,
+        const slurp::Vector2<float>& endPoint,
         uint8_t borderThickness,
         uint32_t color
     );
