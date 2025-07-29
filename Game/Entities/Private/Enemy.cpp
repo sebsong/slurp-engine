@@ -5,13 +5,14 @@
 namespace enemy {
     static const slurp::Vector2 StartPosition = {400, 200};
     static const slurp::Vector2 PositionOffset = {100, 0};
+    static const slurp::Vector2 CollisionShapeOffset = {0, 8};
     static constexpr int BaseSpeed = 200;
     static constexpr float BaseDirectionChangeDelay = 2;
     static constexpr float DirectionChangeDelayDelta = 1.5;
     static constexpr const char* SpriteFileName = "enemy.bmp";
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
 
-    static const geometry::Shape Shape = {geometry::Rect, {36, 28}};
+    static const geometry::Shape Shape = {geometry::Rect, {36, 25}};
 
     Enemy::Enemy(int i): Entity(
         "Enemy" + std::to_string(i),
@@ -26,8 +27,10 @@ namespace enemy {
         collision::CollisionInfo(
             false,
             false,
-            Shape,
-            true
+            collision::CollisionShape{
+                Shape,
+                -(Sprite.bitmap.dimensions / 2) + CollisionShapeOffset
+            }
         )
     ) {}
 

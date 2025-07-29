@@ -8,7 +8,7 @@ namespace player {
     static const slurp::Vector2 StartPosition = {640, 360};
     static constexpr int BaseSpeed = 400;
     static constexpr int SprintSpeed = 800;
-    static constexpr int ShapeSize = 17;
+    static constexpr int ShapeSize = 16a;
     static const geometry::Shape Shape = {
         geometry::Rect,
         {ShapeSize, ShapeSize}
