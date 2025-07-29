@@ -193,8 +193,7 @@ static void winHandleMessages(
                     inputState.transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState.isDown = isDown;
-                }
-                else { OutputDebugStringA("Windows keyboard code not registered.\n"); }
+                } else { OutputDebugStringA("Windows keyboard code not registered.\n"); }
             }
             break;
             case WM_LBUTTONDOWN:
@@ -235,7 +234,7 @@ static void winHandleMessages(
                     yPosition *= (static_cast<float>(buffer.heightPixels) / screenDimensions.height);
                 }
 #endif
-                outMouseState.position = {xPosition, yPosition};
+                outMouseState.position = {static_cast<float>(xPosition), static_cast<float>(yPosition)};
             }
             break;
             case WM_QUIT: { GlobalRunning = false; }
@@ -274,8 +273,7 @@ static void winLoadXInput() {
     if (xInputLib) {
         XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
         XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(xInputLib, "XInputSetState"));
-    }
-    else {
+    } else {
         // TODO: log
     }
 }
@@ -350,8 +348,7 @@ static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
             slurp::AnalogTriggerInputState& rightTriggerState = gamepadState->rightTrigger;
             rightTriggerState.start = rightTriggerState.end;
             rightTriggerState.end = rightTriggerNormalized;
-        }
-        else {
+        } else {
             // Gamepad is not connected
             // TODO: log
         }
@@ -390,8 +387,7 @@ static void winInitDirectSound(HWND windowHandle) {
             if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr))) {
                 if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat))) {
                     OutputDebugStringA("Primary audio buffer created.\n");
-                }
-                else {
+                } else {
                     // TODO: log
                 }
             }
@@ -404,8 +400,7 @@ static void winInitDirectSound(HWND windowHandle) {
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
             if (SUCCEEDED(
                 directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr)
-            )) { OutputDebugStringA("Secondary audio buffer created.\n"); }
-            else {
+            )) { OutputDebugStringA("Secondary audio buffer created.\n"); } else {
                 //TODO: log
             }
         }
@@ -414,8 +409,10 @@ static void winInitDirectSound(HWND windowHandle) {
 
 static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     DWORD numBytesToWrite = 0;
-    if (lockCursor > targetCursor) { numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor; }
-    else { numBytesToWrite = targetCursor - lockCursor; }
+    if (lockCursor >
+        targetCursor) { numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor; } else {
+        numBytesToWrite = targetCursor - lockCursor;
+    }
 
     if (numBytesToWrite == 0) { return 0; }
 
@@ -602,8 +599,7 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
 static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
     CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
-    if (!GlobalSlurpLib) { OutputDebugStringA("Failed to load SlurpEngine.dll.\n"); }
-    else {
+    if (!GlobalSlurpLib) { OutputDebugStringA("Failed to load SlurpEngine.dll.\n"); } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
             "init",

@@ -29,10 +29,10 @@ namespace slurp {
         Button2,
     };
 
-    typedef std::pair<const slurp::MouseCode, slurp::DigitalInputState> mouse_state_entry;
+    typedef std::pair<const MouseCode, DigitalInputState> mouse_state_entry;
 
     struct MouseState {
-        Vector2<int> position;
+        Vector2<float> position;
         std::unordered_map<MouseCode, DigitalInputState> state;
 
         bool getState(MouseCode code, DigitalInputState& outInputState) const {

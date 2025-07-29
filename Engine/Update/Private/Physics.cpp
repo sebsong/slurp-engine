@@ -3,25 +3,25 @@
 namespace physics {
     PhysicsInfo::PhysicsInfo()
         : physicsEnabled(false),
-          position(slurp::Vector2<int>::Zero),
+          position(slurp::Vector2<float>::Zero),
           direction(slurp::Vector2<float>::Zero),
           speed(0) {}
 
-    PhysicsInfo::PhysicsInfo(const slurp::Vector2<int>& position)
+    PhysicsInfo::PhysicsInfo(const slurp::Vector2<float>& position)
         : physicsEnabled(true),
           position(position),
           direction({}),
           speed(0) {}
 
     PhysicsInfo::PhysicsInfo(
-        const slurp::Vector2<int>& position,
+        const slurp::Vector2<float>& position,
         float speed
     ): physicsEnabled(true),
        position(position),
        direction({}),
        speed(speed) {}
 
-    slurp::Vector2<int> PhysicsInfo::getPositionUpdate(float dt) {
+    slurp::Vector2<float> PhysicsInfo::getPositionUpdate(float dt) {
         return direction * speed * dt;
     }
 }

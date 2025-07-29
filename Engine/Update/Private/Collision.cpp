@@ -20,7 +20,7 @@ namespace collision {
         isTrigger,
         CollisionShape{
             shape,
-            isCentered ? -shape.dimensions / 2 : slurp::Vector2<int>::Zero
+            isCentered ? -shape.dimensions / 2 : slurp::Vector2<float>::Zero
         }
     ) {}
 

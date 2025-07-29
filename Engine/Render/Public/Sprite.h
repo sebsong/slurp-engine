@@ -44,7 +44,7 @@ namespace render {
     struct Sprite {
         Bitmap bitmap;
 
-        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const;
+        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& startPoint) const;
     };
 
     Sprite loadSprite(const std::string& spriteFileName);

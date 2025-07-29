@@ -5,14 +5,15 @@
 #include "WinEngine.h"
 
 namespace render {
-    void Sprite::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const {
-        const slurp::Vector2<int> endPoint = startPoint + bitmap.dimensions;
+    void Sprite::draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& startPoint) const {
+        const slurp::Vector2<int> roundedStartPoint = static_cast<slurp::Vector2<int>>(startPoint);
+        const slurp::Vector2<float> endPoint = startPoint + bitmap.dimensions;
         const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
         const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
 
         for (int y = clampedStartPoint.y; y < clampedEndPoint.y; y++) {
             for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) {
-                Pixel pixel = bitmap.map[(y - startPoint.y) * bitmap.dimensions.x + (x - startPoint.x)];
+                Pixel pixel = bitmap.map[(y - roundedStartPoint.y) * bitmap.dimensions.x + (x - roundedStartPoint.x)];
                 _drawAtPoint(
                     buffer,
                     {x, y},

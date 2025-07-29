@@ -59,10 +59,8 @@ namespace player {
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
             projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
                 projectileIdx];
-            const slurp::Vector2<float> direction =
-                    static_cast<slurp::Vector2<float>>(mouseState.position - this->physicsInfo.position).
-                    normalize();
-            const slurp::Vector2<int> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
+            const slurp::Vector2<float> direction = mouseState.position - this->physicsInfo.position.normalize();
+            const slurp::Vector2<float> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
             projectile.fire(position);
         }
 

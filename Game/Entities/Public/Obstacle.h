@@ -4,6 +4,6 @@
 namespace obstacle {
     class Obstacle: public slurp::Entity {
     public:
-        Obstacle(std::string&& name, const geometry::Shape& shape, const slurp::Vector2<int>& position);
+        Obstacle(std::string&& name, const geometry::Shape& shape, const slurp::Vector2<float>& position);
     };
 }

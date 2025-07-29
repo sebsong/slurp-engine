@@ -26,7 +26,7 @@ namespace projectile {
                   true
               ),
               physics::PhysicsInfo(
-                  slurp::Vector2<int>::Zero,
+                  slurp::Vector2<float>::Zero,
                   BaseSpeed
               ),
               collision::CollisionInfo(
@@ -43,7 +43,7 @@ namespace projectile {
         this->enabled = false;
     }
 
-    void Projectile::fire(const slurp::Vector2<int>& position) {
+    void Projectile::fire(const slurp::Vector2<float>& position) {
         this->_isActive = false;
         this->enabled = true;
         this->physicsInfo.position = position;

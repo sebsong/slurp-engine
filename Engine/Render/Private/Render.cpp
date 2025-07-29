@@ -30,7 +30,9 @@ namespace render {
         uint8_t alpha = color >> AlphaShift;
         if (alpha == 0) {
             return;
-        } else if (alpha == 255) {
+        }
+
+        if (alpha == 255) {
             *(buffer.pixelMap + point.x + (point.y * buffer.widthPixels)) = color;
         } else {
             Pixel& existingColor = buffer.pixelMap[(point.y * buffer.widthPixels) + point.x];
@@ -38,17 +40,18 @@ namespace render {
         }
     }
 
-    static slurp::Vector2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point) {
+    static slurp::Vector2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vector2<float>& point) {
+        // TODO: round point properly
         return {
-            std::min(std::max(point.x, 0), buffer.widthPixels),
-            std::min(std::max(point.y, 0), buffer.heightPixels)
+            std::min(std::max(static_cast<int>(point.x), 0), buffer.widthPixels),
+            std::min(std::max(static_cast<int>(point.y), 0), buffer.heightPixels)
         };
     }
 
     static void _drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
+        const slurp::Vector2<float>& startPoint,
+        const slurp::Vector2<float>& endPoint,
         Pixel color
     ) {
         const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
@@ -62,7 +65,7 @@ namespace render {
 
     static void _drawSquare(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& point,
+        const slurp::Vector2<float>& point,
         int size,
         Pixel color
     ) {
@@ -76,17 +79,17 @@ namespace render {
 
     static void _drawLine(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
-        int size,
+        const slurp::Vector2<float>& startPoint,
+        const slurp::Vector2<float>& endPoint,
+        float size,
         Pixel color
     ) {
-        const float radius = static_cast<float>(size) / 2;
-        const slurp::Vector2<int> sizeOffset = slurp::Vector2<int>::Unit * -math::getHypotenuse(radius, radius / 2);
-        const slurp::Vector2<int> offsetStartPoint = startPoint + sizeOffset;
-        const slurp::Vector2<int> offsetEndPoint = endPoint + sizeOffset;
+        const float radius = size / 2;
+        const slurp::Vector2<float> sizeOffset = slurp::Vector2<float>::Unit * -math::getHypotenuse(radius, radius / 2);
+        const slurp::Vector2<float> offsetStartPoint = startPoint + sizeOffset;
+        const slurp::Vector2<float> offsetEndPoint = endPoint + sizeOffset;
 
-        const slurp::Vector2<int> startToEnd = offsetEndPoint - offsetStartPoint;
+        const slurp::Vector2<float> startToEnd = offsetEndPoint - offsetStartPoint;
         const slurp::Vector2<float> direction = static_cast<slurp::Vector2<float>>(startToEnd).normalize();
 
         slurp::Vector2<float> currentPoint = offsetStartPoint;
@@ -105,8 +108,8 @@ namespace render {
 
     void drawRectBorder(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<int>& startPoint,
-        const slurp::Vector2<int>& endPoint,
+        const slurp::Vector2<float>& startPoint,
+        const slurp::Vector2<float>& endPoint,
         const uint8_t borderThickness,
         const Pixel color
     ) {
@@ -140,8 +143,8 @@ namespace render {
         );
     }
 
-    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<int>& startPoint) const {
-        const slurp::Vector2<int> endPoint = startPoint + shape.dimensions;
+    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& startPoint) const {
+        const slurp::Vector2<float> endPoint = startPoint + shape.dimensions;
         switch (shape.type) {
             case geometry::Rect: {
                 _drawRect(buffer, startPoint, endPoint, color);
