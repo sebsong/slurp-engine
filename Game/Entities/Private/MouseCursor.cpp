@@ -19,8 +19,8 @@ namespace mouse_cursor {
     enemy::Enemy* MouseCursor::getClosestEnemy() const {
         enemy::Enemy* closestEnemy = nullptr;
         float closestDistance = std::numeric_limits<float>::max();
-        for (enemy::Enemy& enemy : game::GlobalGameState->enemies) {
-            float distance = enemy.physicsInfo.position.distanceTo(this->physicsInfo.position);
+        for (enemy::Enemy& enemy: game::GlobalGameState->enemies) {
+            float distance = enemy.physicsInfo.position.distanceSquaredTo(this->physicsInfo.position);
             if (distance < closestDistance) {
                 closestEnemy = &enemy;
                 closestDistance = distance;
