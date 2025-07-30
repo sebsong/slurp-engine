@@ -6,17 +6,17 @@ namespace physics {
     public:
         PhysicsInfo();
 
-        explicit PhysicsInfo(const slurp::Vector2<float>& position);
+        explicit PhysicsInfo(const slurp::Vec2<float>& position);
 
-        explicit PhysicsInfo(const slurp::Vector2<float>& position, float speed, float acceleration);
+        explicit PhysicsInfo(const slurp::Vec2<float>& position, float speed, float acceleration);
 
         void updatePhysics(float dt);
 
-        slurp::Vector2<float> getPositionUpdate(float dt) const;
+        slurp::Vec2<float> getPositionUpdate(float dt) const;
 
         bool physicsEnabled;
-        slurp::Vector2<float> position;
-        slurp::Vector2<float> direction;
+        slurp::Vec2<float> position;
+        slurp::Vec2<float> direction;
         float speed;
         float acceleration;
         float maxSpeed;

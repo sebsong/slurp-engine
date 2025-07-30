@@ -12,7 +12,7 @@ namespace mouse_cursor {
             Sprite,
             true
         ),
-        physics::PhysicsInfo(slurp::Vector2<float>::Zero),
+        physics::PhysicsInfo(slurp::Vec2<float>::Zero),
         collision::CollisionInfo()
     ) {}
 

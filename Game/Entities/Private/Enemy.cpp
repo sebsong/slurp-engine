@@ -3,9 +3,9 @@
 #include "Random.h"
 
 namespace enemy {
-    static const slurp::Vector2 StartPosition = {400, 200};
-    static const slurp::Vector2 PositionOffset = {100, 0};
-    static const slurp::Vector2 CollisionShapeOffset = {0, 9};
+    static const slurp::Vec2 StartPosition = {400, 200};
+    static const slurp::Vec2 PositionOffset = {100, 0};
+    static const slurp::Vec2 CollisionShapeOffset = {0, 9};
     static constexpr int BaseSpeed = 200;
     static constexpr int BaseAcceleration = 400;
     static constexpr float BaseDirectionChangeDelay = 2;
@@ -39,7 +39,7 @@ namespace enemy {
     static void setRandomDirection(slurp::Entity* entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
-        entity->physicsInfo.direction = slurp::Vector2<float>(randX, randY).normalize();
+        entity->physicsInfo.direction = slurp::Vec2<float>(randX, randY).normalize();
     }
 
     static float getRandomDirectionChangeDelay() {

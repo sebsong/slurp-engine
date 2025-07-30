@@ -20,7 +20,7 @@ namespace collision {
         isTrigger,
         CollisionShape{
             shape,
-            isCentered ? -shape.dimensions / 2 : slurp::Vector2<float>::Zero
+            isCentered ? -shape.dimensions / 2 : slurp::Vec2<float>::Zero
         }
     ) {}
 
@@ -52,6 +52,7 @@ namespace collision {
         entity->collisionInfo.collidingWith.insert(otherEntity);
         otherEntity->collisionInfo.collidingWith.insert(entity);
     }
+
     void handleCollisionExit(slurp::Entity* entity, slurp::Entity* otherEntity) {
         if (entity->collisionInfo.collidingWith.contains(otherEntity)) {
             entity->onCollisionExit(

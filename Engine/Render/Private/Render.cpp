@@ -26,7 +26,7 @@ namespace render {
         existingColor = (blendedRed << RedShift) | (blendedGreen << GreenShift) | blendedBlue;
     }
 
-    static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vector2<int>& point, Pixel color) {
+    static void _drawAtPoint(const GraphicsBuffer& buffer, const slurp::Vec2<int>& point, Pixel color) {
         uint8_t alpha = color >> AlphaShift;
         if (alpha == 0) {
             return;
@@ -40,7 +40,7 @@ namespace render {
         }
     }
 
-    static slurp::Vector2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vector2<float>& point) {
+    static slurp::Vec2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vec2<float>& point) {
         // TODO: round point properly
         return {
             math::getClamped(static_cast<int>(point.x), 0, buffer.widthPixels),
@@ -50,12 +50,12 @@ namespace render {
 
     static void _drawRect(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<float>& startPoint,
-        const slurp::Vector2<float>& endPoint,
+        const slurp::Vec2<float>& startPoint,
+        const slurp::Vec2<float>& endPoint,
         Pixel color
     ) {
-        const slurp::Vector2<int> clampedStartPoint = _getClamped(buffer, startPoint);
-        const slurp::Vector2<int> clampedEndPoint = _getClamped(buffer, endPoint);
+        const slurp::Vec2<int> clampedStartPoint = _getClamped(buffer, startPoint);
+        const slurp::Vec2<int> clampedEndPoint = _getClamped(buffer, endPoint);
         for (int y = clampedStartPoint.y; y < clampedEndPoint.y; y++) {
             for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) {
                 _drawAtPoint(buffer, {x, y}, color);
@@ -65,7 +65,7 @@ namespace render {
 
     static void _drawSquare(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<float>& point,
+        const slurp::Vec2<float>& point,
         int size,
         Pixel color
     ) {
@@ -79,20 +79,20 @@ namespace render {
 
     static void _drawLine(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<float>& startPoint,
-        const slurp::Vector2<float>& endPoint,
+        const slurp::Vec2<float>& startPoint,
+        const slurp::Vec2<float>& endPoint,
         float size,
         Pixel color
     ) {
         const float radius = size / 2;
-        const slurp::Vector2<float> sizeOffset = slurp::Vector2<float>::Unit * -math::getHypotenuse(radius, radius / 2);
-        const slurp::Vector2<float> offsetStartPoint = startPoint + sizeOffset;
-        const slurp::Vector2<float> offsetEndPoint = endPoint + sizeOffset;
+        const slurp::Vec2<float> sizeOffset = slurp::Vec2<float>::Unit * -math::getHypotenuse(radius, radius / 2);
+        const slurp::Vec2<float> offsetStartPoint = startPoint + sizeOffset;
+        const slurp::Vec2<float> offsetEndPoint = endPoint + sizeOffset;
 
-        const slurp::Vector2<float> startToEnd = offsetEndPoint - offsetStartPoint;
-        const slurp::Vector2<float> direction = static_cast<slurp::Vector2<float>>(startToEnd).normalize();
+        const slurp::Vec2<float> startToEnd = offsetEndPoint - offsetStartPoint;
+        const slurp::Vec2<float> direction = static_cast<slurp::Vec2<float>>(startToEnd).normalize();
 
-        slurp::Vector2<float> currentPoint = offsetStartPoint;
+        slurp::Vec2<float> currentPoint = offsetStartPoint;
         float distance = startToEnd.magnitude();
         while (distance > 0) {
             _drawSquare(
@@ -108,8 +108,8 @@ namespace render {
 
     void drawRectBorder(
         const GraphicsBuffer& buffer,
-        const slurp::Vector2<float>& startPoint,
-        const slurp::Vector2<float>& endPoint,
+        const slurp::Vec2<float>& startPoint,
+        const slurp::Vec2<float>& endPoint,
         const uint8_t borderThickness,
         const Pixel color
     ) {
@@ -143,8 +143,8 @@ namespace render {
         );
     }
 
-    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& startPoint) const {
-        const slurp::Vector2<float> endPoint = startPoint + shape.dimensions;
+    void RenderShape::draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& startPoint) const {
+        const slurp::Vec2<float> endPoint = startPoint + shape.dimensions;
         switch (shape.type) {
             case geometry::Rect: {
                 _drawRect(buffer, startPoint, endPoint, color);

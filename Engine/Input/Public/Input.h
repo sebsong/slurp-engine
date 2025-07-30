@@ -12,8 +12,8 @@ namespace slurp {
     };
 
     struct AnalogStickInputState {
-        Vector2<float> start = {0, 0};
-        Vector2<float> end = {0, 0};
+        Vec2<float> start = {0, 0};
+        Vec2<float> end = {0, 0};
     };
 
     struct AnalogTriggerInputState {
@@ -32,7 +32,7 @@ namespace slurp {
     typedef std::pair<const MouseCode, DigitalInputState> mouse_state_entry;
 
     struct MouseState {
-        Vector2<float> position;
+        Vec2<float> position;
         std::unordered_map<MouseCode, DigitalInputState> state;
 
         bool getState(MouseCode code, DigitalInputState& outInputState) const {

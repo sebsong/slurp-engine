@@ -37,14 +37,14 @@ namespace render {
     };
 
     struct Bitmap {
-        slurp::Vector2<int> dimensions;
+        slurp::Vec2<int> dimensions;
         Pixel* map;
     };
 
     struct Sprite {
         Bitmap bitmap;
 
-        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& startPoint) const;
+        void draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& startPoint) const;
     };
 
     Sprite loadSprite(const std::string& spriteFileName);

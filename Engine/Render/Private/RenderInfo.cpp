@@ -1,9 +1,9 @@
 #include "RenderInfo.h"
 
 namespace render {
-    static slurp::Vector2<float> getRenderOffset(const slurp::Vector2<float>& dimensions, bool isCentered) {
+    static slurp::Vec2<float> getRenderOffset(const slurp::Vec2<float>& dimensions, bool isCentered) {
         if (!isCentered) {
-            return slurp::Vector2<float>::Zero;
+            return slurp::Vec2<float>::Zero;
         }
         return -dimensions / 2;
     }
@@ -37,10 +37,10 @@ namespace render {
        renderShape(renderShape),
        renderOffset(getRenderOffset(renderShape.shape.dimensions, isCentered)) {}
 
-    void RenderInfo::draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& position) const {
+    void RenderInfo::draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) const {
         if (!renderingEnabled) { return; }
 
-        slurp::Vector2<float> startPoint = position + renderOffset;
+        slurp::Vec2<float> startPoint = position + renderOffset;
         if (sprite.bitmap.map) { sprite.draw(buffer, startPoint); } else { renderShape.draw(buffer, startPoint); }
     }
 }

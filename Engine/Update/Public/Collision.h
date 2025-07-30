@@ -2,6 +2,7 @@
 #include <set>
 
 #include "Geometry.h"
+
 namespace slurp {
     struct Entity;
 }
@@ -11,7 +12,7 @@ namespace slurp {
 namespace collision {
     struct CollisionShape {
         geometry::Shape shape;
-        slurp::Vector2<float> offset;
+        slurp::Vec2<float> offset;
     };
 
     // TODO: distinguish between enter and exit collision

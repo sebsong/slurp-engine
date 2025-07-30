@@ -4,19 +4,19 @@
 
 namespace slurp {
     template<typename T>
-    struct Vector2 {
+    struct Vec2 {
         T x;
         T y;
 
-        static const Vector2 Zero;
-        static const Vector2 Unit;
+        static const Vec2 Zero;
+        static const Vec2 Unit;
 
-        Vector2() {
+        Vec2() {
             this->x = 0;
             this->y = 0;
         }
 
-        Vector2(T _x, T _y) {
+        Vec2(T _x, T _y) {
             this->x = _x;
             this->y = _y;
         }
@@ -34,7 +34,7 @@ namespace slurp {
         }
 
         // TODO: this can't properly normalize an int vector. need to convert to float first
-        Vector2<float> normalize() {
+        Vec2<float> normalize() {
             float mag = magnitude();
             if (mag != 0.0f) {
                 *this /= mag;
@@ -43,83 +43,83 @@ namespace slurp {
         }
 
         template<typename U>
-        float distanceTo(const Vector2<U>& other) const {
+        float distanceTo(const Vec2<U>& other) const {
             return (other - *this).magnitude();
         }
 
         template<typename U>
-        bool operator==(const Vector2<U>& other) const {
+        bool operator==(const Vec2<U>& other) const {
             return this->x == other.x && this->y == other.y;
         }
 
         template<typename U>
-        bool operator!=(const Vector2<U>& other) const {
+        bool operator!=(const Vec2<U>& other) const {
             return this->x != other.x && this->y != other.y;
         }
 
         template<typename U>
-        Vector2<std::common_type_t<T, U> > operator+(const Vector2<U>& other) const {
-            return Vector2<std::common_type_t<T, U> >(this->x + other.x, this->y + other.y);
+        Vec2<std::common_type_t<T, U> > operator+(const Vec2<U>& other) const {
+            return Vec2<std::common_type_t<T, U> >(this->x + other.x, this->y + other.y);
         }
 
         template<typename U>
-        Vector2<std::common_type_t<T, U> > operator-(const Vector2<U>& other) const {
-            return Vector2<std::common_type_t<T, U> >(this->x - other.x, this->y - other.y);
+        Vec2<std::common_type_t<T, U> > operator-(const Vec2<U>& other) const {
+            return Vec2<std::common_type_t<T, U> >(this->x - other.x, this->y - other.y);
         }
 
         template<typename TScalar>
-        Vector2<std::common_type_t<T, TScalar> > operator*(const TScalar& scalar) const {
-            return Vector2<std::common_type_t<T, TScalar> >(this->x * scalar, this->y * scalar);
+        Vec2<std::common_type_t<T, TScalar> > operator*(const TScalar& scalar) const {
+            return Vec2<std::common_type_t<T, TScalar> >(this->x * scalar, this->y * scalar);
         }
 
         template<typename TScalar>
-        Vector2<std::common_type_t<T, TScalar> > operator/(const TScalar& scalar) const {
-            return Vector2<std::common_type_t<T, TScalar> >(this->x / scalar, this->y / scalar);
+        Vec2<std::common_type_t<T, TScalar> > operator/(const TScalar& scalar) const {
+            return Vec2<std::common_type_t<T, TScalar> >(this->x / scalar, this->y / scalar);
         }
 
-        Vector2& operator+=(const Vector2& other) {
+        Vec2& operator+=(const Vec2& other) {
             this->x += other.x;
             this->y += other.y;
             return *this;
         }
 
-        Vector2& operator-=(const Vector2& other) {
+        Vec2& operator-=(const Vec2& other) {
             this->x -= other.x;
             this->y -= other.y;
             return *this;
         }
 
         template<typename TScalar>
-        Vector2& operator*=(const TScalar& scalar) {
+        Vec2& operator*=(const TScalar& scalar) {
             this->x *= scalar;
             this->y *= scalar;
             return *this;
         }
 
         template<typename TScalar>
-        Vector2& operator/=(const TScalar& scalar) {
+        Vec2& operator/=(const TScalar& scalar) {
             this->x = static_cast<T>(this->x / scalar);
             this->y = static_cast<T>(this->y / scalar);
             return *this;
         }
 
-        Vector2 operator-() const {
-            return Vector2(-this->x, -this->y);
+        Vec2 operator-() const {
+            return Vec2(-this->x, -this->y);
         }
 
         template<typename TNew>
-        operator Vector2<TNew>() const {
-            return Vector2<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->y));
+        operator Vec2<TNew>() const {
+            return Vec2<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->y));
         }
     };
 
     template<typename T>
-    const Vector2<T> Vector2<T>::Zero{0, 0};
+    const Vec2<T> Vec2<T>::Zero{0, 0};
     template<typename T>
-    const Vector2<T> Vector2<T>::Unit{1, 1};
+    const Vec2<T> Vec2<T>::Unit{1, 1};
 
     template<typename T>
-    std::ostream& operator<<(std::ostream& os, const Vector2<T>& vector) {
+    std::ostream& operator<<(std::ostream& os, const Vec2<T>& vector) {
         os << "(" << vector.x << ", " << vector.y << ")";
         return os;
     }

@@ -7,7 +7,7 @@ namespace render {
         bool renderingEnabled;
         Sprite sprite; // TODO: should this be a reference for faster sprite swapping?
         RenderShape renderShape;
-        slurp::Vector2<float> renderOffset;
+        slurp::Vec2<float> renderOffset;
 
         RenderInfo();
 
@@ -17,7 +17,7 @@ namespace render {
 
         RenderInfo(const RenderShape& renderShape, bool isCentered);
 
-        void draw(const GraphicsBuffer& buffer, const slurp::Vector2<float>& position) const;
+        void draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) const;
     };
 
 }

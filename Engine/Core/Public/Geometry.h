@@ -9,7 +9,7 @@ namespace geometry {
 
     struct Shape {
         ShapeType type;
-        slurp::Vector2<float> dimensions;
+        slurp::Vec2<float> dimensions;
     };
 
     inline Shape getMinkowskiSum(const Shape& a, const Shape& b) {

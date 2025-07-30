@@ -21,11 +21,11 @@ namespace update {
 
         if (!physicsInfo.physicsEnabled || collisionInfo.isStatic) { return; }
 
-        slurp::Vector2<float> targetPositionUpdate = physicsInfo.getPositionUpdate(dt);
-        if (targetPositionUpdate == slurp::Vector2<float>::Zero) { return; }
+        slurp::Vec2<float> targetPositionUpdate = physicsInfo.getPositionUpdate(dt);
+        if (targetPositionUpdate == slurp::Vec2<float>::Zero) { return; }
         if (!collisionInfo.collisionEnabled) { physicsInfo.position += targetPositionUpdate; }
 
-        slurp::Vector2<float> positionUpdate = targetPositionUpdate;
+        slurp::Vec2<float> positionUpdate = targetPositionUpdate;
         for (slurp::Entity* otherEntity: allEntities) {
             physics::PhysicsInfo& otherPhysicsInfo = otherEntity->physicsInfo;
             collision::CollisionInfo& otherCollisionInfo = otherEntity->collisionInfo;
@@ -35,14 +35,14 @@ namespace update {
                 collisionInfo.shape.shape,
                 otherCollisionInfo.shape.shape
             );
-            const slurp::Vector2<float> entityOffsetPosition =
+            const slurp::Vec2<float> entityOffsetPosition =
                     physicsInfo.position + collisionInfo.shape.offset + entity->collisionInfo.shape.shape.
                     dimensions;
-            const slurp::Vector2<float> otherEntityOffsetPosition =
+            const slurp::Vec2<float> otherEntityOffsetPosition =
                     otherPhysicsInfo.position + otherCollisionInfo.shape.offset;
-            const slurp::Vector2<float> minkowskiMinPoint = otherEntityOffsetPosition;
-            const slurp::Vector2<float> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
-            if (slurp::Vector2<float> targetPosition = entityOffsetPosition + positionUpdate;
+            const slurp::Vec2<float> minkowskiMinPoint = otherEntityOffsetPosition;
+            const slurp::Vec2<float> minkowskiMaxPoint = minkowskiMinPoint + minkowskiSum.dimensions;
+            if (slurp::Vec2<float> targetPosition = entityOffsetPosition + positionUpdate;
                 math::inRange(targetPosition.x, minkowskiMinPoint.x, minkowskiMaxPoint.x) &&
                 math::inRange(targetPosition.y, minkowskiMinPoint.y, minkowskiMaxPoint.y)
             ) {

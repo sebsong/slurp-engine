@@ -7,7 +7,7 @@ namespace projectile {
     public:
         Projectile(int index);
 
-        void fire(const slurp::Vector2<float>& position);
+        void fire(const slurp::Vec2<float>& position);
 
     private:
         void update(float dt) override;

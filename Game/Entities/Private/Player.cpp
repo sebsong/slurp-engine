@@ -5,7 +5,7 @@
 #include "Collision.h"
 
 namespace player {
-    static const slurp::Vector2 StartPosition = {640, 360};
+    static const slurp::Vec2 StartPosition = {640, 360};
     static constexpr float BaseSpeed = 300;
     static constexpr float SprintSpeed = 500;
     static constexpr float BaseAcceleration = BaseSpeed * 8;
@@ -48,7 +48,7 @@ namespace player {
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
-        slurp::Vector2<float> directionUpdate{};
+        slurp::Vec2<float> directionUpdate{};
         if (keyboardState.isDown(slurp::KeyboardCode::W)) { directionUpdate.y -= 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::A)) { directionUpdate.x -= 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::S)) { directionUpdate.y += 1; }
@@ -68,8 +68,8 @@ namespace player {
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
             projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
                 projectileIdx];
-            const slurp::Vector2<float> direction = (mouseState.position - this->physicsInfo.position).normalize();
-            const slurp::Vector2<float> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
+            const slurp::Vec2<float> direction = (mouseState.position - this->physicsInfo.position).normalize();
+            const slurp::Vec2<float> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
             projectile.fire(position);
         }
 
@@ -92,8 +92,8 @@ namespace player {
             gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
         ) { this->physicsInfo.maxSpeed = BaseSpeed; }
 
-        slurp::Vector2<float> leftStick = gamepadState.leftStick.end;
-        slurp::Vector2<float> direction = leftStick;
+        slurp::Vec2<float> leftStick = gamepadState.leftStick.end;
+        slurp::Vec2<float> direction = leftStick;
         direction.y *= -1;
         this->physicsInfo.direction = direction.normalize();
 
