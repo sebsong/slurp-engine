@@ -37,6 +37,7 @@ namespace slurp {
             //TODO: handle destruction
             if (entity->enabled) {
                 entity->update(dt);
+                entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
                 render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG

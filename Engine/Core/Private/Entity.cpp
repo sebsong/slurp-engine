@@ -22,4 +22,8 @@ namespace slurp {
        physicsInfo(physicsInfo),
        collisionInfo(collisionInfo),
        shouldDestroy(false) {}
+
+    void Entity::updatePhysics(float dt) {
+        physicsInfo.updatePhysics(dt);
+    }
 }

@@ -43,8 +43,8 @@ namespace render {
     static slurp::Vector2<int> _getClamped(const GraphicsBuffer& buffer, const slurp::Vector2<float>& point) {
         // TODO: round point properly
         return {
-            std::min(std::max(static_cast<int>(point.x), 0), buffer.widthPixels),
-            std::min(std::max(static_cast<int>(point.y), 0), buffer.heightPixels)
+            math::getClamped(static_cast<int>(point.x), 0, buffer.widthPixels),
+            math::getClamped(static_cast<int>(point.y), 0, buffer.heightPixels)
         };
     }
 

@@ -6,8 +6,9 @@
 
 namespace player {
     static const slurp::Vector2 StartPosition = {640, 360};
-    static constexpr float BaseSpeed = 400;
-    static constexpr float SprintSpeed = 800;
+    static constexpr float BaseSpeed = 300;
+    static constexpr float SprintSpeed = 500;
+    static constexpr float BaseAcceleration = BaseSpeed * 8;
     static constexpr int ShapeSize = 16;
     static const geometry::Shape Shape = {
         geometry::Rect,
@@ -29,7 +30,8 @@ namespace player {
               render::RenderInfo(Sprite, true),
               physics::PhysicsInfo(
                   StartPosition,
-                  BaseSpeed
+                  BaseSpeed,
+                  BaseAcceleration
               ),
               collision::CollisionInfo(
                   false,
@@ -46,15 +48,22 @@ namespace player {
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
-        slurp::Vector2<float> dir;
-        if (keyboardState.isDown(slurp::KeyboardCode::W)) { dir.y -= 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::A)) { dir.x -= 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::S)) { dir.y += 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::D)) { dir.x += 1; }
-        this->physicsInfo.direction = dir.normalize();
+        slurp::Vector2<float> directionUpdate{};
+        if (keyboardState.isDown(slurp::KeyboardCode::W)) { directionUpdate.y -= 1; }
+        if (keyboardState.isDown(slurp::KeyboardCode::A)) { directionUpdate.x -= 1; }
+        if (keyboardState.isDown(slurp::KeyboardCode::S)) { directionUpdate.y += 1; }
+        if (keyboardState.isDown(slurp::KeyboardCode::D)) { directionUpdate.x += 1; }
+        if (!directionUpdate.isZero()) {
+            this->physicsInfo.direction = directionUpdate;
+            this->physicsInfo.acceleration = BaseAcceleration;
+        } else {
+            this->physicsInfo.acceleration = -BaseAcceleration;
+        }
+        this->physicsInfo.direction.normalize();
 
-        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = SprintSpeed; } else if (
-            keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.speed = BaseSpeed; }
+        if (keyboardState.justPressed(slurp::KeyboardCode::SPACE)) { this->physicsInfo.maxSpeed = SprintSpeed; } else if
+        (
+            keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.maxSpeed = BaseSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
             projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
@@ -78,10 +87,10 @@ namespace player {
         if (
             gamepadState.justPressed(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justPressed(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = SprintSpeed; } else if (
+        ) { this->physicsInfo.maxSpeed = SprintSpeed; } else if (
             gamepadState.justReleased(slurp::GamepadCode::LEFT_SHOULDER) ||
             gamepadState.justReleased(slurp::GamepadCode::RIGHT_SHOULDER)
-        ) { this->physicsInfo.speed = BaseSpeed; }
+        ) { this->physicsInfo.maxSpeed = BaseSpeed; }
 
         slurp::Vector2<float> leftStick = gamepadState.leftStick.end;
         slurp::Vector2<float> direction = leftStick;
