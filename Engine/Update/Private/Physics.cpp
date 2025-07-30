@@ -7,17 +7,17 @@ namespace physics {
         : physicsEnabled(false),
           position(slurp::Vector2<float>::Zero),
           direction(slurp::Vector2<float>::Zero),
-          maxSpeed(0),
+          speed(0),
           acceleration(0),
-          _currentSpeed(0) {}
+          maxSpeed(0) {}
 
     PhysicsInfo::PhysicsInfo(const slurp::Vector2<float>& position)
         : physicsEnabled(true),
           position(position),
           direction({}),
-          maxSpeed(0),
+          speed(0),
           acceleration(0),
-          _currentSpeed(0) {}
+          maxSpeed(0) {}
 
     PhysicsInfo::PhysicsInfo(
         const slurp::Vector2<float>& position,
@@ -26,16 +26,17 @@ namespace physics {
     ): physicsEnabled(true),
        position(position),
        direction({}),
-       maxSpeed(speed),
+       speed(0),
        acceleration(acceleration),
-       _currentSpeed(0) {}
+       maxSpeed(speed) {}
 
     void PhysicsInfo::updatePhysics(float dt) {
-        _currentSpeed += acceleration * dt;
-        _currentSpeed = math::getClamped(_currentSpeed, 0.f, maxSpeed);
+        speed += acceleration * dt;
+        speed = math::getClamped(speed, 0.f, maxSpeed);
     }
 
     slurp::Vector2<float> PhysicsInfo::getPositionUpdate(float dt) const {
-        return direction * (0.5 * acceleration * std::pow(dt, 2) + _currentSpeed * dt);
+        return direction * speed * dt;
+        // return direction * (0.5 * acceleration * std::pow(dt, 2) + _currentSpeed * dt);
     }
 }

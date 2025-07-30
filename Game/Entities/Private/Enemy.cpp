@@ -5,7 +5,7 @@
 namespace enemy {
     static const slurp::Vector2 StartPosition = {400, 200};
     static const slurp::Vector2 PositionOffset = {100, 0};
-    static const slurp::Vector2 CollisionShapeOffset = {0, 8};
+    static const slurp::Vector2 CollisionShapeOffset = {0, 9};
     static constexpr int BaseSpeed = 200;
     static constexpr int BaseAcceleration = 400;
     static constexpr float BaseDirectionChangeDelay = 2;

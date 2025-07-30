@@ -5,7 +5,7 @@
 
 namespace projectile {
     static constexpr float BaseSpeed = 350;
-    static constexpr float BaseAcceleration = BaseSpeed * 4;
+    static constexpr float BaseAcceleration = BaseSpeed * 8;
     static constexpr float ParriedSpeed = 500;
     static constexpr int ShapeSize = 10;
     static const geometry::Shape projectileShape = {
@@ -66,7 +66,8 @@ namespace projectile {
         Entity::update(dt);
 
         if (_target) {
-            this->physicsInfo.direction = (this->_target->physicsInfo.position - this->physicsInfo.position).normalize();
+            this->physicsInfo.direction = (this->_target->physicsInfo.position - this->physicsInfo.position).
+                    normalize();
         }
     }
 
