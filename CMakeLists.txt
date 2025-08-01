@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.26)
 project(SlurpEngine)
 set(CMAKE_CXX_STANDARD 20)
 
+include_directories(Engine/Asset/Public)
+include_directories(Engine/Asset/Private)
+
 include_directories(Engine/Audio/Public)
 include_directories(Engine/Audio/Private)
 
