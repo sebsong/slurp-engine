@@ -24,15 +24,6 @@ namespace render {
     constexpr Pixel BlueMask = 0x000000FF;
     constexpr uint8_t BlueShift = 0;
 
-#ifdef ASSETS_DIR
-    static const std::string AssetsDirectory = ASSETS_DIR;
-#else
-    static const std::string AssetsDirectory = "../../../../Assets/";
-#endif
-
-    static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
-    static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
-
     struct GraphicsBuffer {
         Pixel* const pixelMap; // memory byte order: XRGB
         int widthPixels;
@@ -69,8 +60,6 @@ namespace render {
         uint8_t borderThickness,
         uint32_t color
     );
-
-    ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
     inline Pixel withAlpha(Pixel color, float alpha);
 }

@@ -154,27 +154,6 @@ namespace render {
         }
     }
 
-    ColorPalette loadColorPalette(const std::string& paletteHexFileName) {
-        ColorPalette palette = {};
-
-        const std::string filePath = PalettesDirectory + paletteHexFileName;
-        std::ifstream file(filePath);
-        assert(file.good());
-
-        uint8_t colorPaletteIdx = 0;
-        std::string line;
-        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            Pixel color = std::stoi(line, nullptr, 16);
-            if (colorPaletteIdx != 0) {
-                color |= AlphaMask;
-            }
-            palette.colors[colorPaletteIdx] = color;
-            colorPaletteIdx++;
-        }
-
-        return palette;
-    }
-
     Pixel withAlpha(Pixel color, float alpha) {
         assert(alpha >= 0 && alpha <= 1);
         Pixel newAlpha = static_cast<Pixel>(alpha * 255) << AlphaShift;

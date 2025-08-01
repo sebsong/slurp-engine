@@ -6,6 +6,10 @@
 
 /* Single translation unit, unity build */
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Asset.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Audio.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Entity.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Update.cpp"

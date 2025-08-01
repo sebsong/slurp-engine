@@ -1,5 +1,7 @@
 #include "RenderInfo.h"
 
+#include "Asset.h"
+
 namespace render {
     static slurp::Vec2<float> getRenderOffset(const slurp::Vec2<float>& dimensions, bool isCentered) {
         if (!isCentered) {
@@ -19,7 +21,7 @@ namespace render {
         bool isCentered
     )
         : renderingEnabled(true),
-          sprite(loadSprite(spriteFileName)),
+          sprite(render::loadSprite(spriteFileName)),
           renderShape({}),
           renderOffset(getRenderOffset(sprite.bitmap.dimensions, isCentered)) {}
 
