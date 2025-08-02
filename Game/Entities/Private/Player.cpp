@@ -20,6 +20,9 @@ namespace player {
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
     static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
 
+    static constexpr const char* SoundFileName = "hit.wav";
+    static const asset::WaveFile Wave = asset::loadWaveFile(SoundFileName);
+
     static const timer::timer_handle ParryTimerHandle = timer::getNewHandle();
     static constexpr float ParryActiveDuration = .2f;
     static constexpr float ProjectileSpawnOffset = 10.f;

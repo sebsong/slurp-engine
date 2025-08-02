@@ -21,6 +21,17 @@ namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
+    static slurp::byte* readBytes(const std::string& filePath) {
+        std::ifstream file(filePath, std::ios::binary);
+        assert(file.good());
+
+        auto fileSize = std::filesystem::file_size(filePath);
+        slurp::byte* fileBytes = new slurp::byte[fileSize];
+        file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSize);
+
+        return fileBytes;
+    }
+
     static void loadBitmapColorPalette(
         slurp::byte* spriteFileBytes,
         slurp::byte* bitmapBytes,
@@ -101,15 +112,16 @@ namespace asset {
         return palette;
     }
 
-    // TODO: move this to windows layer?
-    Bitmap loadBitmap(const std::string& bitmapFileName) {
-        const std::string filePath = SpritesDirectory + bitmapFileName;
-        std::ifstream file(filePath, std::ios::binary);
-        assert(file.good());
+    struct FileBytesReadResult {
+        uintmax_t numBytes;
+        slurp::byte* bytes;
+    };
 
-        auto fileSize = std::filesystem::file_size(filePath);
-        slurp::byte* fileBytes = new slurp::byte[fileSize];
-        file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSize);
+    // TODO: move this to windows layer?
+    Bitmap loadBitmapFile(const std::string& bitmapFileName) {
+        const std::string filePath = SpritesDirectory + bitmapFileName;
+        slurp::byte* fileBytes = readBytes(filePath);
+
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(fileBytes);
 
         slurp::byte* bitmapBytes = fileBytes + header->fileHeader.bfOffBits;
@@ -145,6 +157,12 @@ namespace asset {
         };
     }
 
+    WaveFile loadWaveFile(const std::string& waveFileName) {
+        const std::string filePath = SoundsDirectory + waveFileName;
+        slurp::byte* fileBytes = readBytes(filePath);
 
-    audio::AudioData loadAudio(const std::string& filename) { return {}; }
+        WaveFileHeader* header = reinterpret_cast<WaveFileHeader*>(fileBytes);
+
+        return {};
+    }
 }

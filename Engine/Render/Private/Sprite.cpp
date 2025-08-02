@@ -20,6 +20,6 @@ namespace render {
     }
 
     Sprite loadSprite(const std::string& spriteFileName) {
-        return Sprite{asset::loadBitmap(spriteFileName)};
+        return Sprite{asset::loadBitmapFile(spriteFileName)};
     }
 }

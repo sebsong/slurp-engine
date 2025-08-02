@@ -4,9 +4,9 @@
 namespace asset {
     // Follows this structure: https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
     struct [[gnu::packed]] WaveFileHeader {
-        uint32_t chunkId; // "RIFF"
+        char chunkId[4]; // "RIFF"
         uint32_t chunkSize;
-        uint32_t waveId; // "WAVE"
+        char waveId[4]; // "WAVE"
     };
 
     struct [[gnu::packed]] WaveChunkFormat {
@@ -23,4 +23,6 @@ namespace asset {
         uint32_t channelMask;
         uint8_t subFormat[16];
     };
+
+    struct WaveFile {};
 }
