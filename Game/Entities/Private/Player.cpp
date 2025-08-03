@@ -8,7 +8,7 @@ namespace player {
     static const slurp::Vec2 StartPosition = {640, 360};
     static constexpr float BaseSpeed = 300;
     static constexpr float SprintSpeed = 500;
-    static constexpr float BaseAcceleration = BaseSpeed * 8;
+    static constexpr float BaseAcceleration = BaseSpeed * 16;
     static constexpr int ShapeSize = 16;
     static const geometry::Shape Shape = {
         geometry::Rect,
