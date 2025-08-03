@@ -163,6 +163,8 @@ namespace asset {
 
         WaveFileHeader* header = reinterpret_cast<WaveFileHeader*>(fileBytes);
 
+        WaveDataChunkHeader* dataChunkHeader = reinterpret_cast<WaveDataChunkHeader*>(fileBytes + sizeof(WaveFileHeader));
+
         return {};
     }
 }
