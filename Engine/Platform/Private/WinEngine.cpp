@@ -436,13 +436,13 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     }
 
     audio::AudioBuffer region1Buffer = {};
-    region1Buffer.samples = static_cast<int32_t*>(audioRegion1Ptr);
+    region1Buffer.samples = static_cast<audio::audio_sample_t*>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.samplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
     GlobalSlurpDll.loadAudio(region1Buffer);
 
     audio::AudioBuffer region2Buffer = {};
-    region2Buffer.samples = static_cast<int32_t*>(audioRegion2Ptr);
+    region2Buffer.samples = static_cast<audio::audio_sample_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
     GlobalSlurpDll.loadAudio(region2Buffer);

@@ -157,14 +157,24 @@ namespace asset {
         };
     }
 
-    WaveFile loadWaveFile(const std::string& waveFileName) {
+    WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
         slurp::byte* fileBytes = readBytes(filePath);
+        WaveChunks* chunks = reinterpret_cast<WaveChunks*>(fileBytes);
 
-        WaveFileHeader* header = reinterpret_cast<WaveFileHeader*>(fileBytes);
+        FormatChunk formatChunk = chunks->formatChunk;
+        // NOTE: currently only handles PCM format
+        assert(formatChunk.formatTag == WAVE_FORMAT_PCM);
+        assert(formatChunk.numChannels == 1);
+        assert(formatChunk.blockSizeBytes == sizeof(audio::audio_sample_t));
 
-        WaveDataChunkHeader* dataChunkHeader = reinterpret_cast<WaveDataChunkHeader*>(fileBytes + sizeof(WaveFileHeader));
+        DataChunk dataChunk = chunks->dataChunk;
+        slurp::byte* sampleData = new slurp::byte[dataChunk.chunkSizeBytes];
+        memcpy(sampleData, dataChunk.data, dataChunk.chunkSizeBytes);
 
-        return {};
+        return WaveData{
+            static_cast<uint32_t>(dataChunk.chunkSizeBytes / sizeof(audio::audio_sample_t)),
+            reinterpret_cast<audio::audio_sample_t*>(sampleData),
+        };
     }
 }

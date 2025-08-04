@@ -2,8 +2,11 @@
 #include <cstdint>
 
 namespace audio {
+    // typedef int32_t audio_sample_t; // 16-bit Stereo L + R samples
+    typedef int16_t audio_sample_t; // 16-bit Mono
+
     struct AudioBuffer {
-        int32_t* samples; // 16-bit Stereo L + R samples
+        audio_sample_t* samples;
         int samplesPerSec;
         int samplesToWrite;
     };

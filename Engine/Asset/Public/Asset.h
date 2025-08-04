@@ -9,5 +9,5 @@ namespace asset {
 
     Bitmap loadBitmapFile(const std::string& bitmapFileName);
 
-    WaveFile loadWaveFile(const std::string& waveFileName);
+    WaveData loadWaveFile(const std::string& waveFileName);
 }

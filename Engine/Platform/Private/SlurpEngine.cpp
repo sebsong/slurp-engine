@@ -76,7 +76,15 @@ namespace slurp {
 #endif
     }
 
-    SLURP_LOAD_AUDIO(loadAudio) {}
+    static asset::WaveData data = asset::loadWaveFile("hit.wav");
+    SLURP_LOAD_AUDIO(loadAudio) {
+        static bool test = true;
+
+        if (test) {
+            memcpy(buffer.samples, data.samples, data.numSamples * sizeof(audio::audio_sample_t));
+            test = false;
+        }
+    }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);

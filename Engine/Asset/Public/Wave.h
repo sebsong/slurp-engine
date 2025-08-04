@@ -1,38 +1,41 @@
 #pragma once
 #include <cstdint>
 
+#include "Audio.h"
+
 namespace asset {
-    // Follows this structure: https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
+    // Follows this structure: http://soundfile.sapp.org/doc/WaveFormat/
     struct [[gnu::packed]] RiffChunk{
         char chunkId[4]; // "RIFF"
-        uint32_t chunkSize;
+        uint32_t chunkSizeBytes;
         char waveId[4]; // "WAVE"
     };
 
     struct [[gnu::packed]] FormatChunk {
         char formatId[4]; // "fmt "
-        uint32_t chunkSize;
+        uint32_t chunkSizeBytes;
         uint16_t formatTag;
         uint16_t numChannels;
         uint32_t samplesPerSec;
         uint32_t avgBytesPerSec;
-        uint16_t blockSize;
+        uint16_t blockSizeBytes;
         uint16_t bitsPerSample;
-        uint16_t cbSize;
-        uint16_t validBitsPerSample;
-        uint32_t channelMask;
-        uint8_t subFormat[16];
     };
 
-    struct [[gnu::packed]] WaveFileHeader {
+    struct [[gnu::packed]] DataChunk {
+        char chunkId[4]; // "data"
+        uint32_t chunkSizeBytes;
+        slurp::byte data[];
+    };
+
+    struct [[gnu::packed]] WaveChunks {
         RiffChunk riffChunk;
         FormatChunk formatChunk;
+        DataChunk dataChunk;
     };
 
-    struct [[gnu::packed]] WaveDataChunkHeader {
-        char chunkId[4]; // "data"
-        uint32_t chunkSize;
+    struct WaveData {
+        uint32_t numSamples;
+        audio::audio_sample_t* samples;
     };
-
-    struct WaveFile {};
 }
