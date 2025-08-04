@@ -457,6 +457,7 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     region2Buffer.samples = static_cast<audio::audio_sample_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.samplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
+    // TODO: maybe just make 1 call to loadAudio with both buffers or have some ring buffer representation?
     GlobalSlurpDll.loadAudio(region2Buffer);
 
     GlobalAudioBuffer.buffer->Unlock(
