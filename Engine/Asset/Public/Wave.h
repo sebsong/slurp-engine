@@ -4,7 +4,8 @@
 #include "Audio.h"
 
 namespace asset {
-    // Follows this structure: http://soundfile.sapp.org/doc/WaveFormat/
+    // NOTE: Follows this structure: http://soundfile.sapp.org/doc/WaveFormat/
+    // NOTE: Designed around Bfxr
     struct [[gnu::packed]] RiffChunk{
         char chunkId[4]; // "RIFF"
         uint32_t chunkSizeBytes;

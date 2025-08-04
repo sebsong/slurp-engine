@@ -1,8 +1,8 @@
 #pragma once
 
 namespace asset {
-    // NOTE: follows this structure:
-    // https://learn.microsoft.com/en-us/windows/win32/gdi/bitmap-storage
+    // NOTE: follows this structure: https://learn.microsoft.com/en-us/windows/win32/gdi/bitmap-storage
+    // NOTE: Designed around Aesprite
     struct [[gnu::packed]] BitmapFileHeader {
         uint16_t bfType;
         uint32_t bfSize;
