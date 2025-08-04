@@ -104,7 +104,7 @@ namespace slurp {
                     static_cast<float>(graphicsBuffer.heightPixels)
                 },
                 10,
-                0xFFFF0000
+                DEBUG_RED_COLOR
             );
         } else if (GlobalRecordingState->isPlayingBack) {
             render::drawRectBorder(
@@ -115,7 +115,7 @@ namespace slurp {
                     static_cast<float>(graphicsBuffer.heightPixels)
                 },
                 10,
-                0xFF00FF00
+                DEBUG_GREEN_COLOR
             );
         }
 #endif
