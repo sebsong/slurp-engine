@@ -24,6 +24,8 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Sprite.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Sound.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "EntityManager.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
@@ -76,13 +78,13 @@ namespace slurp {
 #endif
     }
 
-    static asset::WaveData data = asset::loadWaveFile("hit.wav");
+    static audio::Sound sound = audio::loadSound("hit.wav");
     SLURP_LOAD_AUDIO(loadAudio) {
         // TODO: debug this sound
         static bool test = true;
 
         if (test) {
-            memcpy(buffer.samples, data.sampleData, data.numBytes);
+            sound.loadAudio(buffer);
             test = false;
         }
     }

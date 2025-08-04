@@ -10,6 +10,4 @@ namespace audio {
         int samplesPerSec;
         int samplesToWrite;
     };
-
-    struct AudioData {};
 }
