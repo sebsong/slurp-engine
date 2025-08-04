@@ -3,8 +3,6 @@
 #include "Geometry.h"
 #include <cstdint>
 
-#include "Types.h"
-
 #define COLOR_PALETTE_SIZE 9
 
 namespace slurp {

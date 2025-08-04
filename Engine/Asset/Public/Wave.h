@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 
+#include "Types.h"
+
 namespace asset {
     // NOTE: Follows this structure: http://soundfile.sapp.org/doc/WaveFormat/
     // NOTE: Designed around Bfxr
