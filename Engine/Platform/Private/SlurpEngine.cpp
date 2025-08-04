@@ -82,7 +82,7 @@ namespace slurp {
         static bool test = true;
 
         if (test) {
-            memcpy(buffer.samples, data.samples, data.numSamples * sizeof(audio::audio_sample_t));
+            memcpy(buffer.samples, data.sampleData, data.numBytes);
             test = false;
         }
     }

@@ -36,7 +36,7 @@ namespace asset {
     };
 
     struct WaveData {
-        uint32_t numSamples;
-        audio::audio_sample_t* samples;
+        uint32_t numBytes;
+        slurp::byte* sampleData;
     };
 }

@@ -172,8 +172,8 @@ namespace asset {
         slurp::byte* sampleData = new slurp::byte[dataChunk.chunkSizeBytes];
         memcpy(sampleData, chunks->data, dataChunk.chunkSizeBytes);
         return WaveData{
-            static_cast<uint32_t>(dataChunk.chunkSizeBytes / sizeof(audio::audio_sample_t)),
-            reinterpret_cast<audio::audio_sample_t*>(sampleData),
+            dataChunk.chunkSizeBytes,
+            sampleData,
         };
     }
 }
