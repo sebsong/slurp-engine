@@ -7,7 +7,12 @@
 #include <unordered_map>
 #include <Xinput.h>
 
-typedef uint32_t bool32;
+struct WinScreenDimensions {
+    int x;
+    int y;
+    int width;
+    int height;
+};
 
 struct WinGraphicsBuffer {
     BITMAPINFO info;
@@ -18,19 +23,12 @@ struct WinGraphicsBuffer {
     int pitchBytes;
 };
 
-struct WinScreenDimensions {
-    int x;
-    int y;
-    int width;
-    int height;
-};
-
 struct WinAudioBuffer {
     LPDIRECTSOUNDBUFFER buffer;
-    int samplesPerSec = 44100;
-    int bytesPerSample = sizeof(audio::audio_sample_t);
-    int bufferSizeBytes = samplesPerSec * bytesPerSample;
-    int writeAheadSampleCount = samplesPerSec / 100; // NOTE: tuned to the max latency between writeCursor readings.
+    int samplesPerSec;
+    int bytesPerSample;
+    int bufferSizeBytes;
+    int writeAheadSampleCount;
 };
 
 typedef int WinMouseCode;

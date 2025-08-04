@@ -78,7 +78,6 @@ namespace slurp {
 
     static asset::WaveData data = asset::loadWaveFile("hit.wav");
     SLURP_LOAD_AUDIO(loadAudio) {
-
         // TODO: debug this sound
         static bool test = true;
 

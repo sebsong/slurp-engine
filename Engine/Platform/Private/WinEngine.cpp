@@ -26,6 +26,10 @@
 #define DEFAULT_MONITOR_REFRESH_RATE 144
 #define DEBUG_MONITOR_REFRESH_RATE 120
 
+#define NUM_AUDIO_CHANNELS 1
+#define AUDIO_SAMPLES_PER_SECOND 44100
+#define AUDIO_WRITE_AHEAD_SECONDS 0.01
+
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
@@ -34,6 +38,7 @@ static const LPCSTR RECORDING_FILE_NAME = "SlurpRecording.rec";
 static bool GlobalRunning;
 
 static WinGraphicsBuffer GlobalGraphicsBuffer;
+
 static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
@@ -362,6 +367,13 @@ typedef DIRECT_SOUND_CREATE(direct_sound_create);
 static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
     if (dSoundLib) {
+        GlobalAudioBuffer.samplesPerSec = AUDIO_SAMPLES_PER_SECOND;
+        GlobalAudioBuffer.bytesPerSample = sizeof(audio::audio_sample_t);
+        GlobalAudioBuffer.bufferSizeBytes = GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
+        // NOTE: tuned to the max latency between writeCursor readings.
+        GlobalAudioBuffer.writeAheadSampleCount = static_cast<int>(
+            GlobalAudioBuffer.samplesPerSec * AUDIO_WRITE_AHEAD_SECONDS);
+
         direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
             dSoundLib,
             "DirectSoundCreate"
@@ -372,9 +384,9 @@ static void winInitDirectSound(HWND windowHandle) {
 
             WAVEFORMATEX waveFormat = {};
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-            waveFormat.nChannels = 2;
+            waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
-            waveFormat.wBitsPerSample = 16;
+            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) * 8;
             waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
             waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
             waveFormat.cbSize = 0;
@@ -984,7 +996,8 @@ static void winReadInputRecording(
 void winDrawDebugLine(int drawX, uint32_t color) {
     int lineWidth = 8;
 
-    byte* bitmapBytes = static_cast<byte*>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.bytesPerPixel;
+    byte* bitmapBytes = static_cast<byte*>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.
+                        bytesPerPixel;
     for (int y = 0; y < GlobalGraphicsBuffer.heightPixels; y++) {
         uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
         for (int x = 0; x < lineWidth; x++) {

@@ -163,15 +163,14 @@ namespace asset {
         WaveChunks* chunks = reinterpret_cast<WaveChunks*>(fileBytes);
 
         FormatChunk formatChunk = chunks->formatChunk;
-        // NOTE: currently only handles PCM format
+        // NOTE: coupled with platform audio buffer settings
         assert(formatChunk.formatTag == WAVE_FORMAT_PCM);
         assert(formatChunk.numChannels == 1);
         assert(formatChunk.blockSizeBytes == sizeof(audio::audio_sample_t));
 
-        DataChunk dataChunk = chunks->dataChunk;
+        DataChunkHeader dataChunk = chunks->dataChunkHeader;
         slurp::byte* sampleData = new slurp::byte[dataChunk.chunkSizeBytes];
-        memcpy(sampleData, dataChunk.data, dataChunk.chunkSizeBytes);
-
+        memcpy(sampleData, chunks->data, dataChunk.chunkSizeBytes);
         return WaveData{
             static_cast<uint32_t>(dataChunk.chunkSizeBytes / sizeof(audio::audio_sample_t)),
             reinterpret_cast<audio::audio_sample_t*>(sampleData),

@@ -6,7 +6,7 @@
 namespace asset {
     // NOTE: Follows this structure: http://soundfile.sapp.org/doc/WaveFormat/
     // NOTE: Designed around Bfxr
-    struct [[gnu::packed]] RiffChunk{
+    struct [[gnu::packed]] RiffChunk {
         char chunkId[4]; // "RIFF"
         uint32_t chunkSizeBytes;
         char waveId[4]; // "WAVE"
@@ -23,16 +23,16 @@ namespace asset {
         uint16_t bitsPerSample;
     };
 
-    struct [[gnu::packed]] DataChunk {
+    struct [[gnu::packed]] DataChunkHeader {
         char chunkId[4]; // "data"
         uint32_t chunkSizeBytes;
-        slurp::byte data[];
     };
 
     struct [[gnu::packed]] WaveChunks {
         RiffChunk riffChunk;
         FormatChunk formatChunk;
-        DataChunk dataChunk;
+        DataChunkHeader dataChunkHeader;
+        slurp::byte data[];
     };
 
     struct WaveData {
