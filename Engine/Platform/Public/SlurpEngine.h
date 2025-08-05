@@ -7,11 +7,13 @@
 #include "Audio.h"
 #include "Render.h"
 #include "EntityManager.h"
+#include "SoundManager.h"
 #include "Game.h"
 
 namespace slurp {
     struct MemorySections {
         EntityManager entityManager;
+        audio::SoundManager soundManager;
         game::GameState gameState;
     };
 

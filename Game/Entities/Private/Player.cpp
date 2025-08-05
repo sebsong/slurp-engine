@@ -21,7 +21,7 @@ namespace player {
     static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
 
     static constexpr const char* SoundFileName = "hit.wav";
-    static const asset::WaveData Wave = asset::loadWaveFile(SoundFileName);
+    static const audio::Sound HitSound = audio::loadSound(SoundFileName);
 
     static const timer::timer_handle ParryTimerHandle = timer::getNewHandle();
     static constexpr float ParryActiveDuration = .2f;
@@ -107,6 +107,7 @@ namespace player {
 
     void Player::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
+        game::GlobalSoundManager->play(HitSound, 1, false);
     }
 
     void Player::onCollisionExit(const collision::CollisionDetails& collisionDetails) {

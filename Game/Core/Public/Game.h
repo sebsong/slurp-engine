@@ -36,6 +36,7 @@ namespace game {
 
     static const platform::PlatformDll* GlobalPlatformDll;
     static GameState* GlobalGameState;
+    static audio::SoundManager* GlobalSoundManager;
     static render::ColorPalette GlobalColorPalette;
 
     void init(GameState& gameState, slurp::EntityManager& entityManager);

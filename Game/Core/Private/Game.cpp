@@ -37,10 +37,12 @@ namespace game {
     void initGame(
         const platform::PlatformDll& platformDll,
         GameState& gameState,
-        slurp::EntityManager& entityManager
+        slurp::EntityManager& entityManager,
+        audio::SoundManager& soundManager
     ) {
         GlobalPlatformDll = &platformDll;
         GlobalGameState = &gameState;
+        GlobalSoundManager = &soundManager;
         GlobalColorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
 
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));

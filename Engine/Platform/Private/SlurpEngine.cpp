@@ -10,13 +10,13 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Audio.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Collision.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Entity.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Update.cpp"
+#include "EntityManager.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Physics.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Collision.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Render.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
@@ -26,15 +26,19 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Sound.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "EntityManager.cpp"
+#include "SoundManager.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Update.cpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
 namespace slurp {
     static const platform::PlatformDll* GlobalPlatformDll;
     static EntityManager* GlobalEntityManager;
+    static audio::SoundManager* GlobalSoundManager;
 #if DEBUG
     static RecordingState* GlobalRecordingState;
 #endif
@@ -47,12 +51,14 @@ namespace slurp {
 
         new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
+        new(&sections->soundManager) audio::SoundManager();
+        GlobalSoundManager = &sections->soundManager;
 #if DEBUG
         assert(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
 #endif
 
-        game::initGame(platformDll, sections->gameState, sections->entityManager);
+        game::initGame(platformDll, sections->gameState, sections->entityManager, sections->soundManager);
         GlobalEntityManager->initialize();
     }
 
@@ -78,14 +84,8 @@ namespace slurp {
 #endif
     }
 
-    static audio::Sound sound = audio::loadSound("hit.wav");
     SLURP_LOAD_AUDIO(loadAudio) {
-        static bool test = true;
-
-        if (test) {
-            sound.loadAudio(buffer);
-            test = false;
-        }
+        GlobalSoundManager->loadAudio(buffer);
     }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender) {

@@ -170,7 +170,7 @@ namespace asset {
 
         DataChunkHeader dataChunk = chunks->dataChunkHeader;
         slurp::byte* sampleData = new slurp::byte[dataChunk.chunkSizeBytes];
-        memcpy(sampleData, chunks->data, dataChunk.chunkSizeBytes);
+        std::copy_n(chunks->data, dataChunk.chunkSizeBytes, sampleData);
         return WaveData{
             static_cast<uint32_t>(dataChunk.chunkSizeBytes / sizeof(audio::audio_sample_t)),
             reinterpret_cast<audio::audio_sample_t*>(sampleData),
