@@ -1,8 +1,5 @@
 #include "SoundManager.h"
 
-#include <algorithm>
-#include <set>
-
 #include "Sound.h"
 
 namespace audio {
@@ -13,16 +10,14 @@ namespace audio {
     }
 
     void SoundManager::loadAudio(const AudioBuffer& buffer) {
-        if (_queue.empty()) {
-            std::fill_n(buffer.samples, buffer.numSamplesToWrite, 0);
-            return;
-        }
+        std::fill_n(buffer.samples, buffer.numSamplesToWrite, 0);
 
-        for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
+        for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end(); it++) {
             PlayingSound& playingSound = *it;
             playingSound.loadAudio(buffer);
             if (!playingSound.isPlaying) {
-                _queue.erase(it);
+                // TODO: fix erasing behavior
+                // it = _queue.erase(it);
             }
         }
     }

@@ -421,8 +421,9 @@ static void winInitDirectSound(HWND windowHandle) {
 
 static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     DWORD numBytesToWrite = 0;
-    if (lockCursor >
-        targetCursor) { numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor; } else {
+    if (lockCursor > targetCursor) {
+        numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor;
+    } else {
         numBytesToWrite = targetCursor - lockCursor;
     }
 
@@ -1138,9 +1139,8 @@ int WINAPI WinMain(
         // NOTE: We always set our targetCursor to right after the write cursor,
         // this means audio is played as soon as possible.
         // TODO: if the sound card has very low latency, we could play audio earlier than the frame flip
-        DWORD targetCursor = (
-                                 writeCursor +
-                                 GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
+        DWORD targetCursor = (writeCursor +
+                              GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
                              ) % GlobalAudioBuffer.bufferSizeBytes;
         DWORD numBytesWritten = winLoadAudio(lockCursor, targetCursor);
         lockCursor = (lockCursor + numBytesWritten) % GlobalAudioBuffer.bufferSizeBytes;
