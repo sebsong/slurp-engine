@@ -12,12 +12,13 @@ namespace audio {
     void SoundManager::loadAudio(const AudioBuffer& buffer) {
         std::fill_n(buffer.samples, buffer.numSamplesToWrite, 0);
 
-        for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end(); it++) {
+        for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
             PlayingSound& playingSound = *it;
             playingSound.loadAudio(buffer);
             if (!playingSound.isPlaying) {
-                // TODO: fix erasing behavior
-                // it = _queue.erase(it);
+                it = _queue.erase(it);
+            } else {
+                it++;
             }
         }
     }
