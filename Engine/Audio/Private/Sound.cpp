@@ -4,13 +4,19 @@
 #include "Audio.h"
 
 namespace audio {
-    void Sound::loadAudio(const AudioBuffer& buffer) const {
-        memcpy(buffer.samples, waveData.sampleData, waveData.numBytes);
+    void Sound::loadAudio(const AudioBuffer& buffer) {
+        int numSamplesWritten = 0;
+        while (numSamplesWritten < buffer.numSamplesToWrite && sampleIndex < numSamples) {
+            buffer.samples[numSamplesWritten++] = sampleData[sampleIndex++];
+        }
     }
 
     Sound loadSound(const std::string& waveFileName) {
+        asset::WaveData waveData = asset::loadWaveFile(waveFileName);
         return Sound{
-            asset::loadWaveFile(waveFileName)
+            0,
+            waveData.numSamples,
+            waveData.sampleData
         };
     }
 }

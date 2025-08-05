@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 
+#include "Audio.h"
 #include "Types.h"
 
 namespace asset {
@@ -36,7 +37,7 @@ namespace asset {
     };
 
     struct WaveData {
-        uint32_t numBytes;
-        slurp::byte* sampleData;
+        uint32_t numSamples;
+        audio::audio_sample_t* sampleData;
     };
 }

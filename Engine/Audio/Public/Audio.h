@@ -8,6 +8,6 @@ namespace audio {
     struct AudioBuffer {
         audio_sample_t* samples;
         int samplesPerSec;
-        int samplesToWrite;
+        int numSamplesToWrite;
     };
 }

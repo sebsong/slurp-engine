@@ -7,9 +7,11 @@ namespace audio {
     struct AudioBuffer;
 
     struct Sound {
-        asset::WaveData waveData;
+        uint32_t sampleIndex;
+        uint32_t numSamples;
+        audio_sample_t* sampleData;
 
-        void loadAudio(const AudioBuffer& buffer) const;
+        void loadAudio(const AudioBuffer& buffer);
     };
 
     Sound loadSound(const std::string& waveFileName);

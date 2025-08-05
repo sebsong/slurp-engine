@@ -80,7 +80,6 @@ namespace slurp {
 
     static audio::Sound sound = audio::loadSound("hit.wav");
     SLURP_LOAD_AUDIO(loadAudio) {
-        // TODO: debug this sound
         static bool test = true;
 
         if (test) {
