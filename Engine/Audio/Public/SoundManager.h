@@ -11,7 +11,9 @@ namespace audio {
     public:
         explicit SoundManager();
 
-        void play(const Sound& sound, float volumeMultiplier, bool shouldLoop);
+        void playSound(const Sound& sound);
+
+        void playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop);
 
         void loadAudio(const AudioBuffer& buffer);
 

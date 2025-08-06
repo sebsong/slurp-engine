@@ -107,7 +107,7 @@ namespace player {
 
     void Player::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
-        game::GlobalSoundManager->play(HitSound, 1, false);
+        game::GlobalSoundManager->playSound(HitSound);
     }
 
     void Player::onCollisionExit(const collision::CollisionDetails& collisionDetails) {

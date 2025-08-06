@@ -5,7 +5,11 @@
 namespace audio {
     SoundManager::SoundManager(): _nextSoundId(0), _queue(std::deque<PlayingSound>()) {}
 
-    void SoundManager::play(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
+    void SoundManager::playSound(const Sound& sound) {
+        playSound(sound, 1.0f, false);
+    }
+
+    void SoundManager::playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
         _queue.push_back(PlayingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop));
     }
 
