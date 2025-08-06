@@ -10,6 +10,10 @@ namespace audio {
     }
 
     void SoundManager::playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
+        assert(sound.sampleData);
+        if (!sound.sampleData) {
+            return;
+        }
         _queue.push_back(PlayingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop));
     }
 

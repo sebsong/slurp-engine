@@ -26,10 +26,6 @@
 #define DEFAULT_MONITOR_REFRESH_RATE 144
 #define DEBUG_MONITOR_REFRESH_RATE 120
 
-#define NUM_AUDIO_CHANNELS 1
-#define AUDIO_SAMPLES_PER_SECOND 44100
-#define AUDIO_WRITE_AHEAD_SECONDS 0.01
-
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
@@ -410,8 +406,13 @@ static void winInitDirectSound(HWND windowHandle) {
             dsSecBufferDescription.dwFlags = DSBCAPS_GETCURRENTPOSITION2;
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
+            LONG result = directSound->CreateSoundBuffer(
+                &dsSecBufferDescription,
+                &GlobalAudioBuffer.buffer,
+                nullptr
+            );
             if (SUCCEEDED(
-                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr)
+                result
             )) { OutputDebugStringA("Secondary audio buffer created.\n"); } else {
                 //TODO: log
             }

@@ -20,7 +20,7 @@ namespace asset {
         uint16_t numChannels;
         uint32_t samplesPerSec;
         uint32_t avgBytesPerSec;
-        uint16_t blockSizeBytes;
+        uint16_t sampleSizeBytes;
         uint16_t bitsPerSample;
     };
 

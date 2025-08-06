@@ -23,10 +23,12 @@ namespace asset {
 
     static slurp::byte* readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
+
         assert(file.good());
+        if (!file.good()) { return nullptr; }
 
         auto fileSize = std::filesystem::file_size(filePath);
-        slurp::byte* fileBytes = new slurp::byte[fileSize];
+        slurp::byte* fileBytes = new slurp::byte[fileSize]; // TODO: need to free this memory
         file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSize);
 
         return fileBytes;
@@ -121,6 +123,9 @@ namespace asset {
     Bitmap loadBitmapFile(const std::string& bitmapFileName) {
         const std::string filePath = SpritesDirectory + bitmapFileName;
         slurp::byte* fileBytes = readBytes(filePath);
+        if (!fileBytes) {
+            return Bitmap{};
+        }
 
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(fileBytes);
 
@@ -160,20 +165,32 @@ namespace asset {
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
         slurp::byte* fileBytes = readBytes(filePath);
+        if (!fileBytes) {
+            return WaveData{};
+        }
         WaveChunks* chunks = reinterpret_cast<WaveChunks*>(fileBytes);
 
-        FormatChunk formatChunk = chunks->formatChunk;
         // NOTE: coupled with platform audio buffer settings
+#if DEBUG
+        FormatChunk formatChunk = chunks->formatChunk;
         assert(formatChunk.formatTag == WAVE_FORMAT_PCM);
-        assert(formatChunk.numChannels == 1);
-        assert(formatChunk.blockSizeBytes == sizeof(audio::audio_sample_t));
+        // assert(formatChunk.numChannels == 1);
+        assert(formatChunk.sampleSizeBytes <= sizeof(audio::audio_sample_t));
+#endif
 
-        DataChunkHeader dataChunk = chunks->dataChunkHeader;
-        slurp::byte* sampleData = new slurp::byte[dataChunk.chunkSizeBytes];
-        std::copy_n(chunks->data, dataChunk.chunkSizeBytes, sampleData);
+        DataChunkHeader dataChunkHeader = chunks->dataChunkHeader;
+        uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
+        audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
+        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+            std::copy_n(
+                chunks->data + sampleIdx * formatChunk.sampleSizeBytes,
+                formatChunk.sampleSizeBytes,
+                sampleData + sampleIdx
+            );
+        }
         return WaveData{
-            static_cast<uint32_t>(dataChunk.chunkSizeBytes / sizeof(audio::audio_sample_t)),
-            reinterpret_cast<audio::audio_sample_t*>(sampleData),
+            static_cast<uint32_t>(dataChunkHeader.chunkSizeBytes / sizeof(audio::audio_sample_t)),
+            sampleData,
         };
     }
 }
