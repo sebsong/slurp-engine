@@ -162,6 +162,7 @@ namespace asset {
         };
     }
 
+    // TODO: move this to types?
     static int64_t upsizeInt(int64_t num, int8_t numBytes, int8_t targetNumBytes) {
         ASSERT(numBytes <= targetNumBytes);
         ASSERT(targetNumBytes <= 8);
