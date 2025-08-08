@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "Debug.h"
+#include "Math.h"
 #include "Types.h"
 #include "WinEngine.h"
 
@@ -187,6 +188,8 @@ namespace asset {
         ASSERT(IS_TWOS_COMPLEMENT);
         audio::audio_sample_t sourceSignBitMask = 1 << (sourceNumBits - 1);
         audio::audio_sample_t destTwosComplementMask = 1 << (destNumBits - 1) >> (destNumBits - sourceNumBits);
+        uint64_t volumeMultiplier = slurp::maxSignedValue(sizeof(audio::audio_sample_t)) /
+                                    slurp::maxSignedValue(formatChunk.sampleSizeBytes);
         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
             audio::audio_sample_t sample = 0;
             uint32_t byteOffset = sampleIdx * formatChunk.sampleSizeBytes;
@@ -198,7 +201,7 @@ namespace asset {
             if (sample & sourceSignBitMask) {
                 sample |= destTwosComplementMask;
             }
-            sampleData[sampleIdx] = sample;
+            sampleData[sampleIdx] = sample * volumeMultiplier;
         }
         return WaveData{
             numSamples,
