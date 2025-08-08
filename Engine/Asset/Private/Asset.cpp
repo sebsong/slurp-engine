@@ -4,7 +4,6 @@
 #include <fstream>
 
 #include "Debug.h"
-#include "Math.h"
 #include "Types.h"
 #include "WinEngine.h"
 
@@ -163,6 +162,46 @@ namespace asset {
         };
     }
 
+    static int64_t upsizeInt(int64_t num, int8_t numBytes, int8_t targetNumBytes) {
+        ASSERT(numBytes <= targetNumBytes);
+        ASSERT(targetNumBytes <= 8);
+
+        if (numBytes == targetNumBytes) {
+            return num;
+        }
+
+        int64_t result = num;
+        uint8_t numBits = numBytes * BITS_PER_BYTE;
+        uint8_t targetNumBits = targetNumBytes * BITS_PER_BYTE;
+        int64_t signBitMask = 1 << (numBits - 1);
+        int64_t targetTwosComplementMask = 1 << (targetNumBits - 1) >> (targetNumBits - numBits);
+        if (num & signBitMask) {
+            result |= targetTwosComplementMask;
+        }
+        return result;
+    }
+
+    static audio::audio_sample_t getChannelSample(
+        const WaveChunks* chunks,
+        uint32_t sampleIdx,
+        uint64_t volumeMultiplier
+    ) {
+        // TODO: handle multiple channel source
+        audio::audio_sample_t sample = 0;
+        uint32_t byteOffset = sampleIdx * chunks->formatChunk.sampleSizeBytes;
+        std::copy_n(
+            chunks->data + byteOffset,
+            chunks->formatChunk.sampleSizeBytes,
+            reinterpret_cast<types::byte*>(&sample)
+        );
+        sample = upsizeInt(
+            sample,
+            chunks->formatChunk.sampleSizeBytes,
+            sizeof(audio::audio_sample_t) / NUM_AUDIO_CHANNELS
+        );
+        return sample * volumeMultiplier;
+    }
+
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
         types::byte* fileBytes = readBytes(filePath);
@@ -177,6 +216,11 @@ namespace asset {
         ASSERT(formatChunk.formatTag == WAVE_FORMAT_PCM);
         ASSERT(formatChunk.numChannels <= 2);
         ASSERT(formatChunk.sampleSizeBytes <= sizeof(audio::audio_sample_t));
+        ASSERT(
+            (formatChunk.sampleSizeBytes / formatChunk.numChannels) <=
+            (sizeof(audio::audio_sample_t) / NUM_AUDIO_CHANNELS)
+        );
+        ASSERT(NUM_AUDIO_CHANNELS == 2);
         ASSERT(IS_TWOS_COMPLEMENT);
 #endif
 
@@ -184,24 +228,22 @@ namespace asset {
         uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
         audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
-        uint8_t sourceNumBits = formatChunk.sampleSizeBytes * BITS_PER_BYTE;
         uint8_t destNumBits = sizeof(audio::audio_sample_t) * BITS_PER_BYTE;
-        audio::audio_sample_t sourceSignBitMask = 1 << (sourceNumBits - 1);
-        audio::audio_sample_t destTwosComplementMask = 1 << (destNumBits - 1) >> (destNumBits - sourceNumBits);
         uint64_t volumeMultiplier = types::maxSignedValue(sizeof(audio::audio_sample_t)) /
                                     types::maxSignedValue(formatChunk.sampleSizeBytes);
-        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-            audio::audio_sample_t sample = 0;
-            uint32_t byteOffset = sampleIdx * formatChunk.sampleSizeBytes;
-            std::copy_n(
-                chunks->data + byteOffset,
-                formatChunk.sampleSizeBytes,
-                reinterpret_cast<types::byte*>(&sample)
-            );
-            if (sample & sourceSignBitMask) {
-                sample |= destTwosComplementMask;
+        if (formatChunk.numChannels == 1) {
+            for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                audio::audio_sample_t sample = getChannelSample(
+                    chunks,
+                    sampleIdx,
+                    volumeMultiplier
+                );
+
+                // TODO: debug why it sounds crunchy now
+                sampleData[sampleIdx] = (sample << (destNumBits / 2)) | sample;
             }
-            sampleData[sampleIdx] = sample * volumeMultiplier;
+        } else if (formatChunk.numChannels == 2) {} else {
+            ASSERT(false);
         }
         return WaveData{
             numSamples,
