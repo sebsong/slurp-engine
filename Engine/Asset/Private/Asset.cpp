@@ -220,7 +220,7 @@ namespace asset {
             (formatChunk.sampleSizeBytes / formatChunk.numChannels) <=
             (sizeof(audio::audio_sample_t) / NUM_AUDIO_CHANNELS)
         );
-        ASSERT(NUM_AUDIO_CHANNELS == 2);
+        ASSERT(NUM_AUDIO_CHANNELS == 2); // NOTE: assumes output is always stereo
         ASSERT(IS_TWOS_COMPLEMENT);
 #endif
 
