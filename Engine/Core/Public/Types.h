@@ -6,7 +6,7 @@
 #define IS_TWOS_COMPLEMENT (-1 & 3) == 3    // -1 -> 0b11111111
 #define BITS_PER_BYTE 8
 
-namespace slurp {
+namespace types {
     typedef unsigned char byte;
     typedef uint32_t bool32;
 

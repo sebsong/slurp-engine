@@ -33,7 +33,7 @@ namespace asset {
         RiffChunk riffChunk;
         FormatChunk formatChunk;
         DataChunkHeader dataChunkHeader;
-        slurp::byte data[];
+        types::byte data[];
     };
 
     struct WaveData {

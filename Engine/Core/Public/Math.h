@@ -1,9 +1,10 @@
 #pragma once
-#include <cstdint>
 
 namespace math {
-    inline uint8_t round(float num) {
-        return static_cast<uint8_t>(num + 0.5f);
+    template <typename T>
+    requires std::integral<T>
+    T round(float num) {
+        return static_cast<T>(num + 0.5f);
     }
 
     inline bool inRange(int n, int min, int max) {

@@ -71,7 +71,7 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
     outBuffer->info.bmiHeader.biWidth = outBuffer->widthPixels;
     outBuffer->info.bmiHeader.biHeight = -outBuffer->heightPixels;
     outBuffer->info.bmiHeader.biPlanes = 1;
-    outBuffer->info.bmiHeader.biBitCount = static_cast<WORD>(bytesPerPixel * 8);
+    outBuffer->info.bmiHeader.biBitCount = static_cast<WORD>(bytesPerPixel * BITS_PER_BYTE);
     outBuffer->info.bmiHeader.biCompression = BI_RGB;
 
     int bitmapSizeBytes = outBuffer->widthPixels * outBuffer->heightPixels * bytesPerPixel;
@@ -383,7 +383,7 @@ static void winInitDirectSound(HWND windowHandle) {
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
             waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
-            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) / waveFormat.nChannels * 8;
+            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) / waveFormat.nChannels * BITS_PER_BYTE;
             waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
             waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
             waveFormat.cbSize = 0;

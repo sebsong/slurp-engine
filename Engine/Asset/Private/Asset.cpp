@@ -22,22 +22,22 @@ namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
-    static slurp::byte* readBytes(const std::string& filePath) {
+    static types::byte* readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
 
         ASSERT(file.good());
         if (!file.good()) { return nullptr; }
 
         auto fileSize = std::filesystem::file_size(filePath);
-        slurp::byte* fileBytes = new slurp::byte[fileSize]; // TODO: need to free this memory
+        types::byte* fileBytes = new types::byte[fileSize]; // TODO: need to free this memory
         file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSize);
 
         return fileBytes;
     }
 
     static void loadBitmapColorPalette(
-        slurp::byte* spriteFileBytes,
-        slurp::byte* bitmapBytes,
+        types::byte* spriteFileBytes,
+        types::byte* bitmapBytes,
         int width,
         int height,
         int colorPaletteSize,
@@ -67,7 +67,7 @@ namespace asset {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 // TODO: avoid an extra read by re-using this for low + high bitmasking
-                slurp::byte colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
+                types::byte colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
                 if (x % 2 == 0) { colorIndex = (colorIndex & FourBitMaskHigh) >> 4; } else {
                     colorIndex &= FourBitMaskLow;
                 }
@@ -78,7 +78,7 @@ namespace asset {
     }
 
     static void loadBitmapBitFields(
-        slurp::byte* bitmapBytes,
+        types::byte* bitmapBytes,
         int width,
         int height,
         int bitsPerPixel,
@@ -117,20 +117,20 @@ namespace asset {
 
     struct FileBytesReadResult {
         uintmax_t numBytes;
-        slurp::byte* bytes;
+        types::byte* bytes;
     };
 
     // TODO: move this to windows layer?
     Bitmap loadBitmapFile(const std::string& bitmapFileName) {
         const std::string filePath = SpritesDirectory + bitmapFileName;
-        slurp::byte* fileBytes = readBytes(filePath);
+        types::byte* fileBytes = readBytes(filePath);
         if (!fileBytes) {
             return Bitmap{};
         }
 
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(fileBytes);
 
-        slurp::byte* bitmapBytes = fileBytes + header->fileHeader.bfOffBits;
+        types::byte* bitmapBytes = fileBytes + header->fileHeader.bfOffBits;
         int width = static_cast<int>(header->infoHeader.biHeight);
         int height = static_cast<int>(header->infoHeader.biHeight);
         render::Pixel* map = new render::Pixel[width * height];
@@ -165,7 +165,7 @@ namespace asset {
 
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
-        slurp::byte* fileBytes = readBytes(filePath);
+        types::byte* fileBytes = readBytes(filePath);
         if (!fileBytes) {
             return WaveData{};
         }
@@ -175,28 +175,28 @@ namespace asset {
 #if DEBUG
         FormatChunk formatChunk = chunks->formatChunk;
         ASSERT(formatChunk.formatTag == WAVE_FORMAT_PCM);
-        // ASSERT(formatChunk.numChannels == 1);
+        ASSERT(formatChunk.numChannels <= 2);
         ASSERT(formatChunk.sampleSizeBytes <= sizeof(audio::audio_sample_t));
+        ASSERT(IS_TWOS_COMPLEMENT);
 #endif
 
         DataChunkHeader dataChunkHeader = chunks->dataChunkHeader;
         uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
         audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
-        uint8_t sourceNumBits = formatChunk.sampleSizeBytes * 8;
-        uint8_t destNumBits = sizeof(audio::audio_sample_t) * 8;
-        ASSERT(IS_TWOS_COMPLEMENT);
+        uint8_t sourceNumBits = formatChunk.sampleSizeBytes * BITS_PER_BYTE;
+        uint8_t destNumBits = sizeof(audio::audio_sample_t) * BITS_PER_BYTE;
         audio::audio_sample_t sourceSignBitMask = 1 << (sourceNumBits - 1);
         audio::audio_sample_t destTwosComplementMask = 1 << (destNumBits - 1) >> (destNumBits - sourceNumBits);
-        uint64_t volumeMultiplier = slurp::maxSignedValue(sizeof(audio::audio_sample_t)) /
-                                    slurp::maxSignedValue(formatChunk.sampleSizeBytes);
+        uint64_t volumeMultiplier = types::maxSignedValue(sizeof(audio::audio_sample_t)) /
+                                    types::maxSignedValue(formatChunk.sampleSizeBytes);
         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
             audio::audio_sample_t sample = 0;
             uint32_t byteOffset = sampleIdx * formatChunk.sampleSizeBytes;
             std::copy_n(
                 chunks->data + byteOffset,
                 formatChunk.sampleSizeBytes,
-                reinterpret_cast<slurp::byte*>(&sample)
+                reinterpret_cast<types::byte*>(&sample)
             );
             if (sample & sourceSignBitMask) {
                 sample |= destTwosComplementMask;
