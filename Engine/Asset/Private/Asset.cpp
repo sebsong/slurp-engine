@@ -184,7 +184,7 @@ namespace asset {
         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
             std::copy_n(
                 chunks->data + sampleIdx * formatChunk.sampleSizeBytes,
-                formatChunk.sampleSizeBytes,
+                1,
                 sampleData + sampleIdx
             );
         }

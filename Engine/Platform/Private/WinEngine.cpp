@@ -484,7 +484,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
     winResizeDIBSection(&GlobalGraphicsBuffer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
     *outWindowHandle = CreateWindowExA(
-        WS_EX_TOPMOST,
+        0,
         windowClass.lpszClassName,
         "Slurp's Up!",
         WS_MAXIMIZE | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
