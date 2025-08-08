@@ -242,7 +242,9 @@ namespace asset {
                 // TODO: debug why it sounds crunchy now
                 sampleData[sampleIdx] = (sample << (destNumBits / 2)) | sample;
             }
-        } else if (formatChunk.numChannels == 2) {} else {
+        } else if (formatChunk.numChannels == 2) {
+            // TODO: handle stereo input file
+        } else {
             ASSERT(false);
         }
         return WaveData{
