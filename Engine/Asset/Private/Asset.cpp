@@ -24,7 +24,7 @@ namespace asset {
     static slurp::byte* readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
 
-        assert(file.good());
+        ASSERT(file.good());
         if (!file.good()) { return nullptr; }
 
         auto fileSize = std::filesystem::file_size(filePath);
@@ -43,7 +43,7 @@ namespace asset {
         int bitsPerIndex,
         render::Pixel* outMap
     ) {
-        assert(bitsPerIndex == 4);
+        ASSERT(bitsPerIndex == 4);
 
         render::Pixel* colorPalette = reinterpret_cast<render::Pixel*>(spriteFileBytes + sizeof(BitmapHeader));
         for (int i = 0; i < colorPaletteSize; i++) {
@@ -83,7 +83,7 @@ namespace asset {
         int bitsPerPixel,
         render::Pixel* outMap
     ) {
-        assert(bitsPerPixel == 32);
+        ASSERT(bitsPerPixel == 32);
         render::Pixel* pixels = reinterpret_cast<render::Pixel*>(bitmapBytes);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -98,7 +98,7 @@ namespace asset {
 
         const std::string filePath = PalettesDirectory + paletteHexFileName;
         std::ifstream file(filePath);
-        assert(file.good());
+        ASSERT(file.good());
 
         uint8_t colorPaletteIdx = 0;
         std::string line;
@@ -153,7 +153,7 @@ namespace asset {
             );
         } else {
             // TODO: unsupported compression type
-            assert(false);
+            ASSERT(false);
         }
 
         return Bitmap{
@@ -173,23 +173,35 @@ namespace asset {
         // NOTE: coupled with platform audio buffer settings
 #if DEBUG
         FormatChunk formatChunk = chunks->formatChunk;
-        assert(formatChunk.formatTag == WAVE_FORMAT_PCM);
-        // assert(formatChunk.numChannels == 1);
-        assert(formatChunk.sampleSizeBytes <= sizeof(audio::audio_sample_t));
+        ASSERT(formatChunk.formatTag == WAVE_FORMAT_PCM);
+        // ASSERT(formatChunk.numChannels == 1);
+        ASSERT(formatChunk.sampleSizeBytes <= sizeof(audio::audio_sample_t));
 #endif
 
         DataChunkHeader dataChunkHeader = chunks->dataChunkHeader;
         uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
         audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
+
+        uint8_t sourceNumBits = formatChunk.sampleSizeBytes * 8;
+        uint8_t destNumBits = sizeof(audio::audio_sample_t) * 8;
+        ASSERT(IS_TWOS_COMPLEMENT);
+        audio::audio_sample_t sourceSignBitMask = 1 << (sourceNumBits - 1);
+        audio::audio_sample_t destTwosComplementMask = 1 << (destNumBits - 1) >> (destNumBits - sourceNumBits);
         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+            audio::audio_sample_t sample = 0;
+            uint32_t byteOffset = sampleIdx * formatChunk.sampleSizeBytes;
             std::copy_n(
-                chunks->data + sampleIdx * formatChunk.sampleSizeBytes,
-                1,
-                sampleData + sampleIdx
+                chunks->data + byteOffset,
+                formatChunk.sampleSizeBytes,
+                reinterpret_cast<slurp::byte*>(&sample)
             );
+            if (sample & sourceSignBitMask) {
+                sample |= destTwosComplementMask;
+            }
+            sampleData[sampleIdx] = sample;
         }
         return WaveData{
-            static_cast<uint32_t>(dataChunkHeader.chunkSizeBytes / sizeof(audio::audio_sample_t)),
+            numSamples,
             sampleData,
         };
     }

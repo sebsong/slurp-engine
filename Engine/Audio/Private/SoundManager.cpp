@@ -10,7 +10,7 @@ namespace audio {
     }
 
     void SoundManager::playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
-        assert(sound.sampleData);
+        ASSERT(sound.sampleData);
         if (!sound.sampleData) {
             return;
         }

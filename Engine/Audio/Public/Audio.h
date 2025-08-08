@@ -6,8 +6,8 @@
 #define AUDIO_WRITE_AHEAD_SECONDS 0.01
 
 namespace audio {
-    // typedef int32_t audio_sample_t; // 16-bit Stereo L + R samples
-    typedef int16_t audio_sample_t; // 16-bit Mono
+    typedef int32_t audio_sample_t; // 16-bit Stereo L + R samples
+    // typedef int16_t audio_sample_t; // 16-bit Mono
     // typedef int64_t audio_sample_t; // 32-bit stereo
 
     struct AudioBuffer {

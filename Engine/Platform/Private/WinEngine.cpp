@@ -155,7 +155,7 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
         case WM_SYSKEYDOWN:
         case WM_SYSKEYUP:
         case WM_KEYDOWN:
-        case WM_KEYUP: { assert(!"Keyboard event should not be handled in Windows handler."); }
+        case WM_KEYUP: { ASSERT(!"Keyboard event should not be handled in Windows handler."); }
         break;
         default: { result = DefWindowProcA(windowHandle, message, wParam, lParam); }
         break;
@@ -364,7 +364,7 @@ static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
     if (dSoundLib) {
         GlobalAudioBuffer.samplesPerSec = AUDIO_SAMPLES_PER_SECOND;
-        GlobalAudioBuffer.bytesPerSample = sizeof(audio::audio_sample_t);
+        GlobalAudioBuffer.bytesPerSample = sizeof(audio::audio_sample_t) * NUM_AUDIO_CHANNELS;
         GlobalAudioBuffer.bufferSizeBytes = GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
         // NOTE: tuned to the max latency between writeCursor readings.
         GlobalAudioBuffer.writeAheadSampleCount = static_cast<int>(
@@ -406,13 +406,12 @@ static void winInitDirectSound(HWND windowHandle) {
             dsSecBufferDescription.dwFlags = DSBCAPS_GETCURRENTPOSITION2;
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
             dsSecBufferDescription.lpwfxFormat = &waveFormat;
-            LONG result = directSound->CreateSoundBuffer(
-                &dsSecBufferDescription,
-                &GlobalAudioBuffer.buffer,
-                nullptr
-            );
             if (SUCCEEDED(
-                result
+                directSound->CreateSoundBuffer(
+                    &dsSecBufferDescription,
+                    &GlobalAudioBuffer.buffer,
+                    nullptr
+                )
             )) { OutputDebugStringA("Secondary audio buffer created.\n"); } else {
                 //TODO: log
             }
@@ -606,7 +605,7 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
         char buf[256];
         sprintf_s(buf, "Failed to load lib function: %s.\n", fnName);
         OutputDebugStringA(buf);
-        assert(out);
+        ASSERT(out);
         out = stubFn;
     }
 }
@@ -704,7 +703,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile) {
         &fileSize
     );
 
-    assert(fileSize.QuadPart < gigabytes(4));
+    ASSERT(fileSize.QuadPart < gigabytes(4));
     DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
     void* buffer = VirtualAlloc(
         nullptr,
