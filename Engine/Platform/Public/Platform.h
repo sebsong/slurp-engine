@@ -52,7 +52,7 @@ namespace platform {
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_DEBUG_BEGIN_PLAYBACK, DEBUG_beginPlayback)
 #endif
 
-    // TODO: assert that we actually replace these stubs properly
+    // TODO: ASSERT that we actually replace these stubs properly
     struct PlatformDll {
         dyn_vibrateGamepad* vibrateGamepad = stub_vibrateGamepad;
         dyn_shutdown* shutdown = stub_shutdown;

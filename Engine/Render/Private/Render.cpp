@@ -150,12 +150,12 @@ namespace render {
                 _drawRect(buffer, startPoint, endPoint, color);
                 break;
             }
-            default: { assert(false); }
+            default: { ASSERT(false); }
         }
     }
 
     Pixel withAlpha(Pixel color, float alpha) {
-        assert(alpha >= 0 && alpha <= 1);
+        ASSERT(alpha >= 0 && alpha <= 1);
         Pixel newAlpha = static_cast<Pixel>(alpha * 255) << AlphaShift;
         return (color & ~AlphaMask) | newAlpha;
     }

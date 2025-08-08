@@ -20,8 +20,8 @@ namespace asset {
         uint16_t numChannels;
         uint32_t samplesPerSec;
         uint32_t avgBytesPerSec;
-        uint16_t blockSizeBytes;
-        uint16_t bitsPerSample;
+        uint16_t sampleSizeBytes;
+        uint16_t bitsPerChannelSample;
     };
 
     struct [[gnu::packed]] DataChunkHeader {
@@ -33,7 +33,7 @@ namespace asset {
         RiffChunk riffChunk;
         FormatChunk formatChunk;
         DataChunkHeader dataChunkHeader;
-        slurp::byte data[];
+        types::byte data[];
     };
 
     struct WaveData {

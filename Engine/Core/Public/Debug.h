@@ -1,9 +1,9 @@
 #pragma once
 
 #if DEBUG
-#define assert(expression) if (!(expression)) *(int*)(nullptr) = 0
+#define ASSERT(expression) if (!(expression)) *(int*)(nullptr) = 0
 #else
-#define assert(expression) 
+#define ASSERT(expression)
 #endif
 
 #define VERBOSE 0
