@@ -365,7 +365,8 @@ static void winInitDirectSound(HWND windowHandle) {
     if (dSoundLib) {
         GlobalAudioBuffer.samplesPerSec = AUDIO_SAMPLES_PER_SECOND;
         GlobalAudioBuffer.bytesPerSample = sizeof(audio::audio_sample_t) * NUM_AUDIO_CHANNELS;
-        GlobalAudioBuffer.bufferSizeBytes = GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
+        GlobalAudioBuffer.bufferSizeBytes =
+                AUDIO_BUFFER_SECONDS * GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
         // NOTE: tuned to the max latency between writeCursor readings.
         GlobalAudioBuffer.writeAheadSampleCount = static_cast<int>(
             GlobalAudioBuffer.samplesPerSec * AUDIO_WRITE_AHEAD_SECONDS);
@@ -382,7 +383,7 @@ static void winInitDirectSound(HWND windowHandle) {
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
             waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
-            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) * 8;
+            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) / waveFormat.nChannels * 8;
             waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
             waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
             waveFormat.cbSize = 0;

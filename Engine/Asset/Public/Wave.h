@@ -21,7 +21,7 @@ namespace asset {
         uint32_t samplesPerSec;
         uint32_t avgBytesPerSec;
         uint16_t sampleSizeBytes;
-        uint16_t bitsPerSample;
+        uint16_t bitsPerChannelSample;
     };
 
     struct [[gnu::packed]] DataChunkHeader {

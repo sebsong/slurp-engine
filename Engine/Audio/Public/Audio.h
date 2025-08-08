@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #define NUM_AUDIO_CHANNELS 1
+#define AUDIO_BUFFER_SECONDS 1
 #define AUDIO_SAMPLES_PER_SECOND 44100
 #define AUDIO_WRITE_AHEAD_SECONDS 0.01
 
