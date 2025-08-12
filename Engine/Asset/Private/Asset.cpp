@@ -194,8 +194,8 @@ namespace asset {
         uint32_t channelIdx,
         uint64_t volumeMultiplier
     ) {
-        // TODO: handle multiple channel source
         audio::audio_sample_t sample = 0;
+        // TODO: move some of these outside
         uint32_t perChannelSampleSizeBytes = totalSampleSize / numChannels;
         uint32_t byteOffset = (sampleIdx * totalSampleSize) +
                               (channelIdx * perChannelSampleSizeBytes);
@@ -240,12 +240,13 @@ namespace asset {
             WaveChunk* chunk = reinterpret_cast<WaveChunk*>(chunkData);
             switch (chunk->chunkId) {
                 case (Data): {
+                    chunkData = chunk->chunkData;
                     uint32_t numSamples = chunk->chunkSizeBytes / formatChunk.sampleSizeBytes;
                     audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
                     uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
                     uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
-                                                types::maxSignedValue(formatChunk.sampleSizeBytes);
+                                                types::maxSignedValue(formatChunk.sampleSizeBytes / formatChunk.numChannels);
                     if (formatChunk.numChannels == 1) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t sample = getChannelSample(

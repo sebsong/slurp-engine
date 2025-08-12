@@ -12,7 +12,7 @@ namespace asset {
         Wave = WAVE_CHUNK_ID('W', 'A', 'V', 'E' ),
         Fmt = WAVE_CHUNK_ID('f', 'm', 't', ' ' ),
         Data = WAVE_CHUNK_ID('d', 'a', 't', 'a' ),
-        Bext = WAVE_CHUNK_ID('b', 'e', 'x', 't' ),
+        Bext = WAVE_CHUNK_ID('b', 'e', 'x', 't' ), // https://en.wikipedia.org/wiki/Broadcast_Wave_Format
         Junk = WAVE_CHUNK_ID('j', 'u', 'n', 'k' ),
     };
 
