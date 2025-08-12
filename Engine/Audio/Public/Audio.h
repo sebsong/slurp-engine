@@ -3,8 +3,10 @@
 
 #define NUM_AUDIO_CHANNELS 2
 #define AUDIO_BUFFER_SECONDS 1
+#define AUDIO_BUFFER_WRITE_AHEAD_SECONDS 0.01
 #define AUDIO_SAMPLES_PER_SECOND 44100
-#define AUDIO_WRITE_AHEAD_SECONDS 0.01
+#define TOTAL_AUDIO_SAMPLE_SIZE sizeof(audio::audio_sample_t)
+#define PER_CHANNEL_AUDIO_SAMPLE_SIZE (TOTAL_AUDIO_SAMPLE_SIZE / NUM_AUDIO_CHANNELS)
 
 namespace audio {
     // typedef int16_t audio_sample_t; // 16-bit Mono

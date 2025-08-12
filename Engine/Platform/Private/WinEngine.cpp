@@ -364,12 +364,12 @@ static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
     if (dSoundLib) {
         GlobalAudioBuffer.samplesPerSec = AUDIO_SAMPLES_PER_SECOND;
-        GlobalAudioBuffer.bytesPerSample = sizeof(audio::audio_sample_t) * NUM_AUDIO_CHANNELS;
+        GlobalAudioBuffer.bytesPerSample = TOTAL_AUDIO_SAMPLE_SIZE;
         GlobalAudioBuffer.bufferSizeBytes =
                 AUDIO_BUFFER_SECONDS * GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
         // NOTE: tuned to the max latency between writeCursor readings.
         GlobalAudioBuffer.writeAheadSampleCount = static_cast<int>(
-            GlobalAudioBuffer.samplesPerSec * AUDIO_WRITE_AHEAD_SECONDS);
+            GlobalAudioBuffer.samplesPerSec * AUDIO_BUFFER_WRITE_AHEAD_SECONDS);
 
         direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
             dSoundLib,
@@ -383,8 +383,8 @@ static void winInitDirectSound(HWND windowHandle) {
             waveFormat.wFormatTag = WAVE_FORMAT_PCM;
             waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
-            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) / waveFormat.nChannels * BITS_PER_BYTE;
-            waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
+            waveFormat.wBitsPerSample = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
+            waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / BITS_PER_BYTE;
             waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
             waveFormat.cbSize = 0;
 

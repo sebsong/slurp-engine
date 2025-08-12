@@ -163,23 +163,24 @@ namespace asset {
     }
 
     // TODO: move this to types?
-    static int64_t upsizeInt(int64_t num, int8_t numBytes, int8_t targetNumBytes) {
-        ASSERT(numBytes <= targetNumBytes);
+    static int64_t upsizeInt(int64_t sourceNum, int8_t sourceNumBytes, int8_t targetNumBytes) {
+        ASSERT(sourceNumBytes <= targetNumBytes);
         ASSERT(targetNumBytes <= 8);
 
-        if (numBytes == targetNumBytes) {
-            return num;
+        if (sourceNumBytes == targetNumBytes) {
+            return sourceNum;
         }
 
-        int64_t result = num;
-        uint8_t numBits = numBytes * BITS_PER_BYTE;
-        uint8_t targetNumBits = targetNumBytes * BITS_PER_BYTE;
-        int64_t signBitMask = 1 << (numBits - 1);
-        int64_t targetTwosComplementMask = 1 << (targetNumBits - 1) >> (targetNumBits - numBits);
-        if (num & signBitMask) {
-            result |= targetTwosComplementMask;
+        uint8_t sourceNumBits = sourceNumBytes * BITS_PER_BYTE;
+        int64_t sourceSignBitMask = static_cast<int64_t>(1) << (sourceNumBits - 1);
+        if (sourceNum & sourceSignBitMask) {
+            uint8_t targetNumBits = targetNumBytes * BITS_PER_BYTE;
+            int64_t targetTwosComplementMask = ~static_cast<int64_t>(0) << sourceNumBits;
+            uint64_t targetSelectorMask = ~static_cast<uint64_t>(0) >> (sizeof(uint64_t) - targetNumBits);
+            return (targetTwosComplementMask | sourceNum) & targetSelectorMask;
         }
-        return result;
+
+        return sourceNum;
     }
 
     static audio::audio_sample_t getChannelSample(
@@ -198,7 +199,7 @@ namespace asset {
         sample = upsizeInt(
             sample,
             chunks->formatChunk.sampleSizeBytes,
-            sizeof(audio::audio_sample_t) / NUM_AUDIO_CHANNELS
+            PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
         return sample * volumeMultiplier;
     }
@@ -211,15 +212,15 @@ namespace asset {
         }
         WaveChunks* chunks = reinterpret_cast<WaveChunks*>(fileBytes);
 
+        FormatChunk formatChunk = chunks->formatChunk;
         // NOTE: coupled with platform audio buffer settings
 #if DEBUG
-        FormatChunk formatChunk = chunks->formatChunk;
         ASSERT(formatChunk.formatTag == WAVE_FORMAT_PCM);
         ASSERT(formatChunk.numChannels <= 2);
-        ASSERT(formatChunk.sampleSizeBytes <= sizeof(audio::audio_sample_t));
+        ASSERT(formatChunk.sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
         ASSERT(
             (formatChunk.sampleSizeBytes / formatChunk.numChannels) <=
-            (sizeof(audio::audio_sample_t) / NUM_AUDIO_CHANNELS)
+            (PER_CHANNEL_AUDIO_SAMPLE_SIZE)
         );
         ASSERT(NUM_AUDIO_CHANNELS == 2); // NOTE: assumes output is always stereo
         ASSERT(IS_TWOS_COMPLEMENT);
@@ -229,8 +230,8 @@ namespace asset {
         uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
         audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
-        uint8_t destNumBits = sizeof(audio::audio_sample_t) * BITS_PER_BYTE;
-        uint64_t volumeMultiplier = types::maxSignedValue(sizeof(audio::audio_sample_t)) /
+        uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
+        uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
                                     types::maxSignedValue(formatChunk.sampleSizeBytes);
         if (formatChunk.numChannels == 1) {
             for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
@@ -241,7 +242,7 @@ namespace asset {
                 );
 
                 // TODO: debug why it sounds crunchy now
-                sampleData[sampleIdx] = (sample << (destNumBits / 2)) | sample;
+                sampleData[sampleIdx] = (sample << perChannelSampleSizeBits) | sample;
             }
         } else if (formatChunk.numChannels == 2) {
             // TODO: handle stereo input file
