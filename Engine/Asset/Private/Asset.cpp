@@ -219,9 +219,9 @@ namespace asset {
         if (!fileBytes) {
             return WaveData{};
         }
-        WaveChunks* chunks = reinterpret_cast<WaveChunks*>(fileBytes);
+        WaveHeaderChunks* headerChunks = reinterpret_cast<WaveHeaderChunks*>(fileBytes);
 
-        FormatChunk formatChunk = chunks->formatChunk;
+        FormatChunk formatChunk = headerChunks->formatChunk;
         // NOTE: coupled with platform audio buffer settings
 #if DEBUG
         ASSERT(formatChunk.formatTag == WAVE_FORMAT_PCM);
@@ -235,7 +235,7 @@ namespace asset {
         ASSERT(IS_TWOS_COMPLEMENT);
 #endif
 
-        types::byte* chunkData = chunks->chunkData;
+        types::byte* chunkData = headerChunks->chunkData;
         while (chunkData < fileBytes + fileReadResult.sizeBytes) {
             WaveChunk* chunk = reinterpret_cast<WaveChunk*>(chunkData);
             switch (chunk->chunkId) {

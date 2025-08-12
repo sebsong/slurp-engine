@@ -41,7 +41,7 @@ namespace asset {
         types::byte chunkData[];
     };
 
-    struct [[gnu::packed]] WaveChunks {
+    struct [[gnu::packed]] WaveHeaderChunks {
         RiffChunk riffChunk;
         FormatChunk formatChunk;
         types::byte chunkData[];
