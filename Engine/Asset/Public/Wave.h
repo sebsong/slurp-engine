@@ -35,16 +35,16 @@ namespace asset {
         uint16_t bitsPerChannelSample;
     };
 
-    struct [[gnu::packed]] ChunkHeader {
+    struct [[gnu::packed]] WaveChunk {
         uint32_t chunkId;
         uint32_t chunkSizeBytes;
+        types::byte chunkData[];
     };
 
     struct [[gnu::packed]] WaveChunks {
         RiffChunk riffChunk;
         FormatChunk formatChunk;
-        ChunkHeader dataChunkHeader;
-        types::byte data[];
+        types::byte chunkData[];
     };
 
     struct WaveData {

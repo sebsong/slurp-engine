@@ -21,17 +21,20 @@ namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
-    static types::byte* readBytes(const std::string& filePath) {
+    static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
 
         ASSERT(file.good());
-        if (!file.good()) { return nullptr; }
+        if (!file.good()) { return {}; }
 
-        auto fileSize = std::filesystem::file_size(filePath);
-        types::byte* fileBytes = new types::byte[fileSize]; // TODO: need to free this memory
-        file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSize);
+        uint32_t fileSizeBytes = std::filesystem::file_size(filePath);
+        types::byte* fileBytes = new types::byte[fileSizeBytes]; // TODO: need to free this memory
+        file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSizeBytes);
 
-        return fileBytes;
+        return FileReadResult{
+            fileSizeBytes,
+            fileBytes
+        };
     }
 
     static void loadBitmapColorPalette(
@@ -122,7 +125,7 @@ namespace asset {
     // TODO: move this to windows layer?
     Bitmap loadBitmapFile(const std::string& bitmapFileName) {
         const std::string filePath = SpritesDirectory + bitmapFileName;
-        types::byte* fileBytes = readBytes(filePath);
+        types::byte* fileBytes = readBytes(filePath).contents;
         if (!fileBytes) {
             return Bitmap{};
         }
@@ -211,7 +214,8 @@ namespace asset {
 
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
-        types::byte* fileBytes = readBytes(filePath);
+        FileReadResult fileReadResult = readBytes(filePath);
+        types::byte* fileBytes = fileReadResult.contents;
         if (!fileBytes) {
             return WaveData{};
         }
@@ -231,61 +235,71 @@ namespace asset {
         ASSERT(IS_TWOS_COMPLEMENT);
 #endif
 
-        ChunkHeader dataChunkHeader = chunks->dataChunkHeader;
+        types::byte* chunkData = chunks->chunkData;
+        while (chunkData < fileBytes + fileReadResult.sizeBytes) {
+            WaveChunk* chunk = reinterpret_cast<WaveChunk*>(chunkData);
+            switch (chunk->chunkId) {
+                case (Data): {
+                    uint32_t numSamples = chunk->chunkSizeBytes / formatChunk.sampleSizeBytes;
+                    audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
-        types::byte* chunkData = chunks->data;
-        if (dataChunkHeader.chunkId == Bext) {
-            chunkData += dataChunkHeader.chunkSizeBytes;
-            dataChunkHeader = *reinterpret_cast<ChunkHeader*>(chunkData);
-        }
+                    uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
+                    uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
+                                                types::maxSignedValue(formatChunk.sampleSizeBytes);
+                    if (formatChunk.numChannels == 1) {
+                        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                            audio::audio_sample_t sample = getChannelSample(
+                                chunkData,
+                                formatChunk.sampleSizeBytes,
+                                sampleIdx,
+                                formatChunk.numChannels,
+                                0,
+                                volumeMultiplier
+                            );
 
-        uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
-        audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
+                            sampleData[sampleIdx] = (sample << perChannelSampleSizeBits) | sample;
+                        }
+                    } else if (formatChunk.numChannels == 2) {
+                        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                            audio::audio_sample_t leftSample = getChannelSample(
+                                chunkData,
+                                formatChunk.sampleSizeBytes,
+                                sampleIdx,
+                                formatChunk.numChannels,
+                                0,
+                                volumeMultiplier
+                            );
 
-        uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
-        uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
-                                    types::maxSignedValue(formatChunk.sampleSizeBytes);
-        if (formatChunk.numChannels == 1) {
-            for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-                audio::audio_sample_t sample = getChannelSample(
-                    chunkData,
-                    formatChunk.sampleSizeBytes,
-                    sampleIdx,
-                    formatChunk.numChannels,
-                    0,
-                    volumeMultiplier
-                );
+                            audio::audio_sample_t rightSample = getChannelSample(
+                                chunkData,
+                                formatChunk.sampleSizeBytes,
+                                sampleIdx,
+                                formatChunk.numChannels,
+                                1,
+                                volumeMultiplier
+                            );
 
-                sampleData[sampleIdx] = (sample << perChannelSampleSizeBits) | sample;
+                            sampleData[sampleIdx] = (leftSample << perChannelSampleSizeBits) | rightSample;
+                        }
+                    } else {
+                        ASSERT(false);
+                    }
+                    return WaveData{
+                        numSamples,
+                        sampleData,
+                    };
+                }
+                break;
+                case (Bext):
+                case (Junk):
+                    break;
+                default: {
+                    ASSERT(false);
+                }
             }
-        } else if (formatChunk.numChannels == 2) {
-            for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-                audio::audio_sample_t leftSample = getChannelSample(
-                    chunkData,
-                    formatChunk.sampleSizeBytes,
-                    sampleIdx,
-                    formatChunk.numChannels,
-                    0,
-                    volumeMultiplier
-                );
 
-                audio::audio_sample_t rightSample = getChannelSample(
-                    chunkData,
-                    formatChunk.sampleSizeBytes,
-                    sampleIdx,
-                    formatChunk.numChannels,
-                    1,
-                    volumeMultiplier
-                );
-
-                sampleData[sampleIdx] = (leftSample << perChannelSampleSizeBits) | rightSample;
-            }
-        } else {
-            ASSERT(false);
+            chunkData = chunk->chunkData + chunk->chunkSizeBytes;
         }
-        return WaveData{
-            numSamples,
-            sampleData,
-        };
+        return {};
     }
 }
