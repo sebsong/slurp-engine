@@ -3,7 +3,7 @@
 
 namespace global {
     // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
-    // static const audio::Sound bgm = audio::loadSound("bgm.wav");
+    static const audio::Sound bgm = audio::loadSound("bgm.wav");
 
     Global::Global(): Entity(
         "Global",
@@ -15,7 +15,7 @@ namespace global {
     void Global::initialize() {
         Entity::initialize();
 
-        // game::GlobalSoundManager->playSound(bgm, 0.5, true);
+        game::GlobalSoundManager->playSound(bgm, 1, true);
     }
 
     void Global::handleMouseAndKeyboardInput(

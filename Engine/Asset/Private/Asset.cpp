@@ -184,21 +184,26 @@ namespace asset {
     }
 
     static audio::audio_sample_t getChannelSample(
-        const WaveChunks* chunks,
+        types::byte* chunkData,
+        uint32_t totalSampleSize,
         uint32_t sampleIdx,
+        uint32_t numChannels,
+        uint32_t channelIdx,
         uint64_t volumeMultiplier
     ) {
         // TODO: handle multiple channel source
         audio::audio_sample_t sample = 0;
-        uint32_t byteOffset = sampleIdx * chunks->formatChunk.sampleSizeBytes;
+        uint32_t perChannelSampleSizeBytes = totalSampleSize / numChannels;
+        uint32_t byteOffset = (sampleIdx * totalSampleSize) +
+                              (channelIdx * perChannelSampleSizeBytes);
         std::copy_n(
-            chunks->data + byteOffset,
-            chunks->formatChunk.sampleSizeBytes,
+            chunkData + byteOffset,
+            perChannelSampleSizeBytes,
             reinterpret_cast<types::byte*>(&sample)
         );
         sample = upsizeInt(
             sample,
-            chunks->formatChunk.sampleSizeBytes,
+            perChannelSampleSizeBytes,
             PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
         return sample * volumeMultiplier;
@@ -226,7 +231,14 @@ namespace asset {
         ASSERT(IS_TWOS_COMPLEMENT);
 #endif
 
-        DataChunkHeader dataChunkHeader = chunks->dataChunkHeader;
+        ChunkHeader dataChunkHeader = chunks->dataChunkHeader;
+
+        types::byte* chunkData = chunks->data;
+        if (dataChunkHeader.chunkId == Bext) {
+            chunkData += dataChunkHeader.chunkSizeBytes;
+            dataChunkHeader = *reinterpret_cast<ChunkHeader*>(chunkData);
+        }
+
         uint32_t numSamples = dataChunkHeader.chunkSizeBytes / formatChunk.sampleSizeBytes;
         audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
@@ -236,16 +248,38 @@ namespace asset {
         if (formatChunk.numChannels == 1) {
             for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                 audio::audio_sample_t sample = getChannelSample(
-                    chunks,
+                    chunkData,
+                    formatChunk.sampleSizeBytes,
                     sampleIdx,
+                    formatChunk.numChannels,
+                    0,
                     volumeMultiplier
                 );
 
-                // TODO: debug why it sounds crunchy now
                 sampleData[sampleIdx] = (sample << perChannelSampleSizeBits) | sample;
             }
         } else if (formatChunk.numChannels == 2) {
-            // TODO: handle stereo input file
+            for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                audio::audio_sample_t leftSample = getChannelSample(
+                    chunkData,
+                    formatChunk.sampleSizeBytes,
+                    sampleIdx,
+                    formatChunk.numChannels,
+                    0,
+                    volumeMultiplier
+                );
+
+                audio::audio_sample_t rightSample = getChannelSample(
+                    chunkData,
+                    formatChunk.sampleSizeBytes,
+                    sampleIdx,
+                    formatChunk.numChannels,
+                    1,
+                    volumeMultiplier
+                );
+
+                sampleData[sampleIdx] = (leftSample << perChannelSampleSizeBits) | rightSample;
+            }
         } else {
             ASSERT(false);
         }
