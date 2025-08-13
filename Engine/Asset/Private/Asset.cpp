@@ -187,6 +187,20 @@ namespace asset {
         return sourceNum;
     }
 
+    static int64_t multiplyIntPartial(int64_t num, int8_t numBytes, int64_t multiplier) {
+        ASSERT(numBytes <= 8);
+
+        if (numBytes == sizeof(num)) {
+            return num * multiplier;
+        }
+
+        int8_t numBits = numBytes * BITS_PER_BYTE;
+        uint64_t targetSelectorMask =
+                ~static_cast<uint64_t>(0) >> (sizeof(uint64_t) * BITS_PER_BYTE - numBits);
+
+        return (num * multiplier) & targetSelectorMask;
+    }
+
     static audio::audio_sample_t getChannelSample(
         types::byte* chunkData,
         uint32_t totalSampleSize,
@@ -210,7 +224,7 @@ namespace asset {
             perChannelSampleSizeBytes,
             PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
-        return sample * volumeMultiplier; // TODO: handle multiplying negative numbers
+        return multiplyIntPartial(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
     }
 
     WaveData loadWaveFile(const std::string& waveFileName) {
