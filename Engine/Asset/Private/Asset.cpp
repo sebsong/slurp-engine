@@ -227,6 +227,7 @@ namespace asset {
         return multiplyIntPartial(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
     }
 
+    // TODO: pre-process wave files into the engine sample size
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
         FileReadResult fileReadResult = readBytes(filePath);
