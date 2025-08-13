@@ -179,7 +179,8 @@ namespace asset {
         if (sourceNum & sourceSignBitMask) {
             uint8_t targetNumBits = targetNumBytes * BITS_PER_BYTE;
             int64_t targetTwosComplementMask = ~static_cast<int64_t>(0) << sourceNumBits;
-            uint64_t targetSelectorMask = ~static_cast<uint64_t>(0) >> (sizeof(uint64_t) - targetNumBits);
+            uint64_t targetSelectorMask =
+                    ~static_cast<uint64_t>(0) >> (sizeof(uint64_t) * BITS_PER_BYTE - targetNumBits);
             return (targetTwosComplementMask | sourceNum) & targetSelectorMask;
         }
 
@@ -209,7 +210,7 @@ namespace asset {
             perChannelSampleSizeBytes,
             PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
-        return sample * volumeMultiplier;
+        return sample * volumeMultiplier; // TODO: handle multiplying negative numbers
     }
 
     WaveData loadWaveFile(const std::string& waveFileName) {
@@ -246,7 +247,9 @@ namespace asset {
 
                     uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
                     uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
-                                                types::maxSignedValue(formatChunk.sampleSizeBytes / formatChunk.numChannels);
+                                                types::maxSignedValue(
+                                                    formatChunk.sampleSizeBytes / formatChunk.numChannels
+                                                );
                     if (formatChunk.numChannels == 1) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t sample = getChannelSample(
