@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "Debug.h"
+#include "Math.h"
 #include "Types.h"
 #include "WinEngine.h"
 
@@ -165,42 +166,6 @@ namespace asset {
         };
     }
 
-    // TODO: move this to types?
-    static int64_t upsizeInt(int64_t sourceNum, int8_t sourceNumBytes, int8_t targetNumBytes) {
-        ASSERT(sourceNumBytes <= targetNumBytes);
-        ASSERT(targetNumBytes <= 8);
-
-        if (sourceNumBytes == targetNumBytes) {
-            return sourceNum;
-        }
-
-        uint8_t sourceNumBits = sourceNumBytes * BITS_PER_BYTE;
-        int64_t sourceSignBitMask = static_cast<int64_t>(1) << (sourceNumBits - 1);
-        if (sourceNum & sourceSignBitMask) {
-            uint8_t targetNumBits = targetNumBytes * BITS_PER_BYTE;
-            int64_t targetTwosComplementMask = ~static_cast<int64_t>(0) << sourceNumBits;
-            uint64_t targetSelectorMask =
-                    ~static_cast<uint64_t>(0) >> (sizeof(uint64_t) * BITS_PER_BYTE - targetNumBits);
-            return (targetTwosComplementMask | sourceNum) & targetSelectorMask;
-        }
-
-        return sourceNum;
-    }
-
-    static int64_t multiplyIntPartial(int64_t num, int8_t numBytes, int64_t multiplier) {
-        ASSERT(numBytes <= 8);
-
-        if (numBytes == sizeof(num)) {
-            return num * multiplier;
-        }
-
-        int8_t numBits = numBytes * BITS_PER_BYTE;
-        uint64_t targetSelectorMask =
-                ~static_cast<uint64_t>(0) >> (sizeof(uint64_t) * BITS_PER_BYTE - numBits);
-
-        return (num * multiplier) & targetSelectorMask;
-    }
-
     static audio::audio_sample_t getChannelSample(
         types::byte* chunkData,
         uint32_t totalSampleSize,
@@ -219,12 +184,12 @@ namespace asset {
             perChannelSampleSizeBytes,
             reinterpret_cast<types::byte*>(&sample)
         );
-        sample = upsizeInt(
+        sample = math::upsizeInt(
             sample,
             perChannelSampleSizeBytes,
             PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
-        return multiplyIntPartial(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
+        return math::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
     }
 
     // TODO: pre-process wave files into the engine sample size
