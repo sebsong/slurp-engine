@@ -7,6 +7,7 @@
 #include <format>
 #include <shlwapi.h>
 #include <windowsx.h>
+#include <mmreg.h>
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
@@ -356,7 +357,7 @@ static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
     }
 };
 
-#define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter)
+#define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS, LPUNKNOWN pUnkOuter)
 
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
 
@@ -369,24 +370,38 @@ static void winInitDirectSound(HWND windowHandle) {
                 AUDIO_BUFFER_SECONDS * GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
         // NOTE: tuned to the max latency between writeCursor readings.
         GlobalAudioBuffer.writeAheadSampleCount = static_cast<int>(
-            GlobalAudioBuffer.samplesPerSec * AUDIO_BUFFER_WRITE_AHEAD_SECONDS);
+            GlobalAudioBuffer.samplesPerSec * AUDIO_BUFFER_WRITE_AHEAD_SECONDS
+        );
 
         direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
             dSoundLib,
-            "DirectSoundCreate"
+            "DirectSoundCreate8"
         ));
-        LPDIRECTSOUND directSound;
+        LPDIRECTSOUND8 directSound;
         if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr))) {
             directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
 
             WAVEFORMATEX waveFormat = {};
-            waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+            waveFormat.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
             waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
             waveFormat.wBitsPerSample = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
             waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / BITS_PER_BYTE;
-            waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
-            waveFormat.cbSize = 0;
+            waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+            waveFormat.cbSize = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);
+
+            ASSERT((waveFormat.wBitsPerSample % BITS_PER_BYTE) == 0);
+
+            WAVEFORMATEXTENSIBLE waveFormatExtensible = {
+                waveFormat,
+                waveFormat.wBitsPerSample,
+#if NUM_AUDIO_CHANNELS == 2
+                SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT,
+#else
+            SPEAKER_ALL,
+#endif
+                KSDATAFORMAT_SUBTYPE_PCM,
+            };
 
             // Primary Buffer
             DSBUFFERDESC dsBufferDescription = {};
@@ -394,7 +409,7 @@ static void winInitDirectSound(HWND windowHandle) {
             dsBufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
             LPDIRECTSOUNDBUFFER dsPrimaryBuffer;
             if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr))) {
-                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat))) {
+                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(reinterpret_cast<LPCWAVEFORMATEX>(&waveFormatExtensible)))) {
                     OutputDebugStringA("Primary audio buffer created.\n");
                 } else {
                     // TODO: log
@@ -406,7 +421,7 @@ static void winInitDirectSound(HWND windowHandle) {
             dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
             dsSecBufferDescription.dwFlags = DSBCAPS_GETCURRENTPOSITION2;
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
-            dsSecBufferDescription.lpwfxFormat = &waveFormat;
+            dsSecBufferDescription.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&waveFormatExtensible);
             if (SUCCEEDED(
                 directSound->CreateSoundBuffer(
                     &dsSecBufferDescription,
