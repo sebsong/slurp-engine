@@ -228,72 +228,82 @@ namespace asset {
     }
 
     // TODO: pre-process wave files into the engine sample size
+    // TODO: stream the file in async
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
         FileReadResult fileReadResult = readBytes(filePath);
-        types::byte* fileBytes = fileReadResult.contents;
+        types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
         if (!fileBytes) {
             return WaveData{};
         }
-        WaveHeaderChunks* headerChunks = reinterpret_cast<WaveHeaderChunks*>(fileBytes);
 
-        FormatChunk formatChunk = headerChunks->formatChunk;
         // NOTE: coupled with platform audio buffer settings
-#if DEBUG
-        ASSERT(formatChunk.formatTag == WAVE_FORMAT_PCM);
-        ASSERT(formatChunk.numChannels <= 2);
-        ASSERT(formatChunk.sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
-        ASSERT(
-            (formatChunk.sampleSizeBytes / formatChunk.numChannels) <=
-            (PER_CHANNEL_AUDIO_SAMPLE_SIZE)
-        );
         ASSERT(NUM_AUDIO_CHANNELS == 2); // NOTE: assumes output is always stereo
         ASSERT(IS_TWOS_COMPLEMENT);
-#endif
 
-        types::byte* chunkData = headerChunks->chunkData;
+        types::byte* chunkData = fileBytes;
+        FormatChunk* formatChunk = nullptr;
         while (chunkData < fileBytes + fileReadResult.sizeBytes) {
             WaveChunk* chunk = reinterpret_cast<WaveChunk*>(chunkData);
             switch (chunk->chunkId) {
+                case (Riff): {
+                    RiffChunk* riffChunk = reinterpret_cast<RiffChunk*>(chunkData);
+                    ASSERT(riffChunk->waveId == Wave);
+                    chunkData = riffChunk->chunkData;
+                    continue;
+                }
+                break;
+                case (Format): {
+                    formatChunk = reinterpret_cast<FormatChunk*>(chunkData);
+                    ASSERT(formatChunk->formatTag == WAVE_FORMAT_PCM);
+                    ASSERT(formatChunk->numChannels <= 2);
+                    ASSERT(formatChunk->sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
+                    ASSERT(
+                        (formatChunk->sampleSizeBytes / formatChunk->numChannels) <=
+                        (PER_CHANNEL_AUDIO_SAMPLE_SIZE)
+                    );
+                }
+                break;
                 case (Data): {
+                    ASSERT(formatChunk);
                     chunkData = chunk->chunkData;
-                    uint32_t numSamples = chunk->chunkSizeBytes / formatChunk.sampleSizeBytes;
+                    uint32_t numSamples = chunk->chunkSizeBytes / formatChunk->sampleSizeBytes;
                     audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
                     uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
                     uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
                                                 types::maxSignedValue(
-                                                    formatChunk.sampleSizeBytes / formatChunk.numChannels
+                                                    formatChunk->sampleSizeBytes / formatChunk->numChannels
                                                 );
-                    if (formatChunk.numChannels == 1) {
+                    if (formatChunk->numChannels == 1) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t sample = getChannelSample(
                                 chunkData,
-                                formatChunk.sampleSizeBytes,
+                                formatChunk->sampleSizeBytes,
                                 sampleIdx,
-                                formatChunk.numChannels,
+                                formatChunk->numChannels,
                                 0,
                                 volumeMultiplier
                             );
 
                             sampleData[sampleIdx] = (sample << perChannelSampleSizeBits) | sample;
                         }
-                    } else if (formatChunk.numChannels == 2) {
+                    } else if (formatChunk->numChannels == 2) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t leftSample = getChannelSample(
                                 chunkData,
-                                formatChunk.sampleSizeBytes,
+                                formatChunk->sampleSizeBytes,
                                 sampleIdx,
-                                formatChunk.numChannels,
+                                formatChunk->numChannels,
                                 0,
                                 volumeMultiplier
                             );
 
                             audio::audio_sample_t rightSample = getChannelSample(
                                 chunkData,
-                                formatChunk.sampleSizeBytes,
+                                formatChunk->sampleSizeBytes,
                                 sampleIdx,
-                                formatChunk.numChannels,
+                                formatChunk->numChannels,
                                 1,
                                 volumeMultiplier
                             );
@@ -308,9 +318,9 @@ namespace asset {
                         sampleData,
                     };
                 }
-                break;
                 case (Bext):
                 case (Junk):
+                case (JUNK):
                     break;
                 default: {
                     ASSERT(false);

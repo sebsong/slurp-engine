@@ -8,12 +8,13 @@
 
 namespace asset {
     enum WaveChunkId {
-        Riff = WAVE_CHUNK_ID('R', 'I', 'F', 'F' ),
-        Wave = WAVE_CHUNK_ID('W', 'A', 'V', 'E' ),
-        Fmt = WAVE_CHUNK_ID('f', 'm', 't', ' ' ),
-        Data = WAVE_CHUNK_ID('d', 'a', 't', 'a' ),
-        Bext = WAVE_CHUNK_ID('b', 'e', 'x', 't' ), // https://en.wikipedia.org/wiki/Broadcast_Wave_Format
-        Junk = WAVE_CHUNK_ID('j', 'u', 'n', 'k' ),
+        Riff = WAVE_CHUNK_ID('R', 'I', 'F', 'F'),
+        Wave = WAVE_CHUNK_ID('W', 'A', 'V', 'E'),
+        Format = WAVE_CHUNK_ID('f', 'm', 't', ' '),
+        Data = WAVE_CHUNK_ID('d', 'a', 't', 'a'),
+        Bext = WAVE_CHUNK_ID('b', 'e', 'x', 't'), // https://en.wikipedia.org/wiki/Broadcast_Wave_Format
+        Junk = WAVE_CHUNK_ID('j', 'u', 'n', 'k'),
+        JUNK = WAVE_CHUNK_ID('J', 'U', 'N', 'K'),
     };
 
     // NOTE: Follows this structure: http://soundfile.sapp.org/doc/WaveFormat/
@@ -21,7 +22,8 @@ namespace asset {
     struct [[gnu::packed]] RiffChunk {
         uint32_t chunkId; // "RIFF"
         uint32_t chunkSizeBytes;
-        char waveId[4]; // "WAVE"
+        uint32_t waveId; // "WAVE"
+        types::byte chunkData[];
     };
 
     struct [[gnu::packed]] FormatChunk {
@@ -38,12 +40,6 @@ namespace asset {
     struct [[gnu::packed]] WaveChunk {
         uint32_t chunkId;
         uint32_t chunkSizeBytes;
-        types::byte chunkData[];
-    };
-
-    struct [[gnu::packed]] WaveHeaderChunks {
-        RiffChunk riffChunk;
-        FormatChunk formatChunk;
         types::byte chunkData[];
     };
 
