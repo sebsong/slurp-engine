@@ -6,7 +6,7 @@ endif ()
 #add_compile_definitions(ASSETS_DIR="C:/Users/sebys/Workspace/slurp-engine/SlurpEngine/Assets/")
 
 # COMPILER AND LINKER FLAGS
-set(libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a)
+set(libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a opengl32.lib)
 if (MSVC)
     set(compiler_flags -nologo -FC -EHsc -Oi -std:c++20)
     set(warning_flags -WX -W4 -wd4100 -wd4189 -wd4505)
