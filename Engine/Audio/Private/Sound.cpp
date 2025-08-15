@@ -18,8 +18,16 @@ namespace audio {
             // TODO: allow for pitch shifting
             // TODO: do full mixing in 32-bit space to avoid clipping, convert back to 16-bit space just before writing to buffer
             // NOTE: we could pre-process volume multiplier to trade memory for speed
-            // TODO: fix volume multiplier for multi channel
-            buffer.samples[numSamplesWritten++] += sound->sampleData[sampleIndex++] * volumeMultiplier;
+            const audio_sample_t& fullSample = sound->sampleData[sampleIndex++];
+            const audio_sample_t leftSample = modulateSampleVolume(
+                getChannelSample(fullSample, LEFT_AUDIO_CHANNEL_IDX),
+                volumeMultiplier
+            );
+            const audio_sample_t rightSample = modulateSampleVolume(
+                getChannelSample(fullSample, RIGHT_AUDIO_CHANNEL_IDX),
+                volumeMultiplier
+            );
+            buffer.samples[numSamplesWritten++] += assembleStereoSample(leftSample, rightSample);
         }
 
         if (sampleIndex >= sound->numSamples) {

@@ -189,7 +189,7 @@ namespace asset {
             perChannelSampleSizeBytes,
             PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
-        return bit_twiddle::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
+        return audio::modulateSampleVolume(sample, volumeMultiplier);
     }
 
     // TODO: pre-process wave files into the engine sample size
@@ -202,7 +202,6 @@ namespace asset {
             return WaveData{};
         }
 
-        // NOTE: coupled with platform audio buffer settings
         ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
 
         types::byte* chunkData = fileBytes;
@@ -219,6 +218,7 @@ namespace asset {
                 break;
                 case (Format): {
                     formatChunk = reinterpret_cast<FormatChunk*>(chunkData);
+                    // NOTE: coupled with platform audio buffer settings
                     ASSERT(formatChunk->formatTag == WAVE_FORMAT_PCM);
                     ASSERT(formatChunk->numChannels <= STEREO_NUM_AUDIO_CHANNELS);
                     ASSERT(formatChunk->sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
@@ -249,7 +249,7 @@ namespace asset {
                                 volumeMultiplier
                             );
 
-                            sampleData[sampleIdx] = (sample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | sample;
+                            sampleData[sampleIdx] = audio::assembleStereoSample(sample, sample);
                         }
                     } else if (formatChunk->numChannels == STEREO_NUM_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
@@ -271,7 +271,7 @@ namespace asset {
                                 volumeMultiplier
                             );
 
-                            sampleData[sampleIdx] = (rightSample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | leftSample;
+                            sampleData[sampleIdx] = audio::assembleStereoSample(leftSample, rightSample);
                         }
                     } else {
                         ASSERT(false);

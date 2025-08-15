@@ -40,4 +40,12 @@ namespace audio {
         uint8_t channelShift = channelIdx * PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS;
         return ((AUDIO_CHANNEL_MASK << channelShift) & sample) >> channelShift;
     }
+
+    inline audio_sample_t assembleStereoSample(const audio_sample_t& leftSample, const audio_sample_t& rightSample) {
+        return (rightSample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | leftSample;
+    }
+
+    inline audio_sample_t modulateSampleVolume(const audio_sample_t& sample, float volumeMultiplier) {
+        return bit_twiddle::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
+    }
 }

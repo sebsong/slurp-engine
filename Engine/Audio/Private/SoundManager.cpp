@@ -22,7 +22,9 @@ namespace audio {
 
         for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
             PlayingSound& playingSound = *it;
+
             playingSound.loadAudio(buffer);
+
             if (!playingSound.isPlaying) {
                 it = _queue.erase(it);
             } else {
