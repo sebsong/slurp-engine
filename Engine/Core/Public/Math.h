@@ -7,7 +7,8 @@ namespace math {
         return static_cast<T>(num + 0.5f);
     }
 
-    inline bool inRange(int n, int min, int max) {
+    template<typename T>
+    bool inRange(T n, T min, T max) {
         return min <= n && n <= max;
     }
 

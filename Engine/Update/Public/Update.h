@@ -48,7 +48,7 @@ namespace update {
             ) {
                 if (!collisionInfo.isTrigger && !otherCollisionInfo.isTrigger) {
                     if (math::inRange(entityOffsetPosition.y, minkowskiMinPoint.y, minkowskiMaxPoint.y)) {
-                        int xAxisPositionUpdate = positionUpdate.x;
+                        float xAxisPositionUpdate = positionUpdate.x;
                         if (entityOffsetPosition.x <= otherEntityOffsetPosition.x) {
                             xAxisPositionUpdate = minkowskiMinPoint.x - entityOffsetPosition.x;
                         } else {
@@ -59,7 +59,7 @@ namespace update {
                         }
                     }
                     if (math::inRange(entityOffsetPosition.x, minkowskiMinPoint.x, minkowskiMaxPoint.x)) {
-                        int yAxisPositionUpdate = positionUpdate.y;
+                        float yAxisPositionUpdate = positionUpdate.y;
                         if (entityOffsetPosition.y <= otherEntityOffsetPosition.y) {
                             yAxisPositionUpdate = minkowskiMinPoint.y - entityOffsetPosition.y;
                         } else {

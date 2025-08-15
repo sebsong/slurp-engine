@@ -19,6 +19,9 @@ namespace projectile {
     static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
     static const render::Sprite ParriedSprite = render::loadSprite(ParriedSpriteFileName);
 
+    static constexpr const char* SoundFileName = "hit.wav";
+    static const audio::Sound HitSound = audio::loadSound(SoundFileName);
+
     Projectile::Projectile(int index)
         : Entity(
               "Projectile" + std::to_string(index),
@@ -75,6 +78,8 @@ namespace projectile {
         Entity::onCollisionEnter(collisionDetails);
 
         if (!_isActive) { return; }
+
+        game::GlobalSoundManager->playSound(HitSound, 0.5f, false);
 
         if (player::Player* player = dynamic_cast<player::Player*>(collisionDetails.entity)) {
             if (player->isParryActive) {
