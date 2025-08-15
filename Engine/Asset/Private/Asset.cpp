@@ -220,7 +220,7 @@ namespace asset {
                 case (Format): {
                     formatChunk = reinterpret_cast<FormatChunk*>(chunkData);
                     ASSERT(formatChunk->formatTag == WAVE_FORMAT_PCM);
-                    ASSERT(formatChunk->numChannels <= 2);
+                    ASSERT(formatChunk->numChannels <= STEREO_NUM_AUDIO_CHANNELS);
                     ASSERT(formatChunk->sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
                     ASSERT(
                         (formatChunk->sampleSizeBytes / formatChunk->numChannels) <=
@@ -238,7 +238,7 @@ namespace asset {
                                                 bit_twiddle::maxSignedValue(
                                                     formatChunk->sampleSizeBytes / formatChunk->numChannels
                                                 );
-                    if (formatChunk->numChannels == MONO_AUDIO_CHANNELS) {
+                    if (formatChunk->numChannels == MONO_NUM_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t sample = getChannelSample(
                                 chunkData,
@@ -251,7 +251,7 @@ namespace asset {
 
                             sampleData[sampleIdx] = (sample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | sample;
                         }
-                    } else if (formatChunk->numChannels == STEREO_AUDIO_CHANNELS) {
+                    } else if (formatChunk->numChannels == STEREO_NUM_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t leftSample = getChannelSample(
                                 chunkData,
