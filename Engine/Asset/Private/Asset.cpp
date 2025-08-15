@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
+#include "BitTwiddle.h"
 #include "Debug.h"
 #include "Types.h"
 #include "WinEngine.h"
@@ -21,27 +22,32 @@ namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
-    static slurp::byte* readBytes(const std::string& filePath) {
+    static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
-        assert(file.good());
 
-        auto fileSize = std::filesystem::file_size(filePath);
-        slurp::byte* fileBytes = new slurp::byte[fileSize];
-        file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSize);
+        ASSERT(file.good());
+        if (!file.good()) { return {}; }
 
-        return fileBytes;
+        uint32_t fileSizeBytes = std::filesystem::file_size(filePath);
+        types::byte* fileBytes = new types::byte[fileSizeBytes]; // TODO: need to free this memory
+        file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSizeBytes);
+
+        return FileReadResult{
+            fileSizeBytes,
+            fileBytes
+        };
     }
 
     static void loadBitmapColorPalette(
-        slurp::byte* spriteFileBytes,
-        slurp::byte* bitmapBytes,
+        types::byte* spriteFileBytes,
+        types::byte* bitmapBytes,
         int width,
         int height,
         int colorPaletteSize,
         int bitsPerIndex,
         render::Pixel* outMap
     ) {
-        assert(bitsPerIndex == 4);
+        ASSERT(bitsPerIndex == 4);
 
         render::Pixel* colorPalette = reinterpret_cast<render::Pixel*>(spriteFileBytes + sizeof(BitmapHeader));
         for (int i = 0; i < colorPaletteSize; i++) {
@@ -64,7 +70,7 @@ namespace asset {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 // TODO: avoid an extra read by re-using this for low + high bitmasking
-                slurp::byte colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
+                types::byte colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
                 if (x % 2 == 0) { colorIndex = (colorIndex & FourBitMaskHigh) >> 4; } else {
                     colorIndex &= FourBitMaskLow;
                 }
@@ -75,13 +81,13 @@ namespace asset {
     }
 
     static void loadBitmapBitFields(
-        slurp::byte* bitmapBytes,
+        types::byte* bitmapBytes,
         int width,
         int height,
         int bitsPerPixel,
         render::Pixel* outMap
     ) {
-        assert(bitsPerPixel == 32);
+        ASSERT(bitsPerPixel == 32);
         render::Pixel* pixels = reinterpret_cast<render::Pixel*>(bitmapBytes);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -96,7 +102,7 @@ namespace asset {
 
         const std::string filePath = PalettesDirectory + paletteHexFileName;
         std::ifstream file(filePath);
-        assert(file.good());
+        ASSERT(file.good());
 
         uint8_t colorPaletteIdx = 0;
         std::string line;
@@ -114,17 +120,20 @@ namespace asset {
 
     struct FileBytesReadResult {
         uintmax_t numBytes;
-        slurp::byte* bytes;
+        types::byte* bytes;
     };
 
     // TODO: move this to windows layer?
     Bitmap loadBitmapFile(const std::string& bitmapFileName) {
         const std::string filePath = SpritesDirectory + bitmapFileName;
-        slurp::byte* fileBytes = readBytes(filePath);
+        types::byte* fileBytes = readBytes(filePath).contents;
+        if (!fileBytes) {
+            return Bitmap{};
+        }
 
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(fileBytes);
 
-        slurp::byte* bitmapBytes = fileBytes + header->fileHeader.bfOffBits;
+        types::byte* bitmapBytes = fileBytes + header->fileHeader.bfOffBits;
         int width = static_cast<int>(header->infoHeader.biHeight);
         int height = static_cast<int>(header->infoHeader.biHeight);
         render::Pixel* map = new render::Pixel[width * height];
@@ -148,7 +157,7 @@ namespace asset {
             );
         } else {
             // TODO: unsupported compression type
-            assert(false);
+            ASSERT(false);
         }
 
         return Bitmap{
@@ -157,23 +166,132 @@ namespace asset {
         };
     }
 
+    static audio::audio_sample_t getChannelSample(
+        types::byte* chunkData,
+        uint32_t totalSampleSize,
+        uint32_t sampleIdx,
+        uint32_t numChannels,
+        uint32_t channelIdx,
+        uint64_t volumeMultiplier
+    ) {
+        audio::audio_sample_t sample = 0;
+        // TODO: move some of these outside
+        uint32_t perChannelSampleSizeBytes = totalSampleSize / numChannels;
+        uint32_t byteOffset = (sampleIdx * totalSampleSize) +
+                              (channelIdx * perChannelSampleSizeBytes);
+        std::copy_n(
+            chunkData + byteOffset,
+            perChannelSampleSizeBytes,
+            reinterpret_cast<types::byte*>(&sample)
+        );
+        sample = bit_twiddle::upsizeInt(
+            sample,
+            perChannelSampleSizeBytes,
+            PER_CHANNEL_AUDIO_SAMPLE_SIZE
+        );
+        return bit_twiddle::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
+    }
+
+    // TODO: pre-process wave files into the engine sample size
+    // TODO: stream the file in async
     WaveData loadWaveFile(const std::string& waveFileName) {
         const std::string filePath = SoundsDirectory + waveFileName;
-        slurp::byte* fileBytes = readBytes(filePath);
-        WaveChunks* chunks = reinterpret_cast<WaveChunks*>(fileBytes);
+        FileReadResult fileReadResult = readBytes(filePath);
+        types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
+        if (!fileBytes) {
+            return WaveData{};
+        }
 
-        FormatChunk formatChunk = chunks->formatChunk;
         // NOTE: coupled with platform audio buffer settings
-        assert(formatChunk.formatTag == WAVE_FORMAT_PCM);
-        assert(formatChunk.numChannels == 1);
-        assert(formatChunk.blockSizeBytes == sizeof(audio::audio_sample_t));
+        ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
 
-        DataChunkHeader dataChunk = chunks->dataChunkHeader;
-        slurp::byte* sampleData = new slurp::byte[dataChunk.chunkSizeBytes];
-        std::copy_n(chunks->data, dataChunk.chunkSizeBytes, sampleData);
-        return WaveData{
-            static_cast<uint32_t>(dataChunk.chunkSizeBytes / sizeof(audio::audio_sample_t)),
-            reinterpret_cast<audio::audio_sample_t*>(sampleData),
-        };
+        types::byte* chunkData = fileBytes;
+        FormatChunk* formatChunk = nullptr;
+        while (chunkData < fileBytes + fileReadResult.sizeBytes) {
+            WaveChunk* chunk = reinterpret_cast<WaveChunk*>(chunkData);
+            switch (chunk->chunkId) {
+                case (Riff): {
+                    RiffChunk* riffChunk = reinterpret_cast<RiffChunk*>(chunkData);
+                    ASSERT(riffChunk->waveId == Wave);
+                    chunkData = riffChunk->chunkData;
+                    continue;
+                }
+                break;
+                case (Format): {
+                    formatChunk = reinterpret_cast<FormatChunk*>(chunkData);
+                    ASSERT(formatChunk->formatTag == WAVE_FORMAT_PCM);
+                    ASSERT(formatChunk->numChannels <= 2);
+                    ASSERT(formatChunk->sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
+                    ASSERT(
+                        (formatChunk->sampleSizeBytes / formatChunk->numChannels) <=
+                        (PER_CHANNEL_AUDIO_SAMPLE_SIZE)
+                    );
+                }
+                break;
+                case (Data): {
+                    ASSERT(formatChunk);
+                    chunkData = chunk->chunkData;
+                    uint32_t numSamples = chunk->chunkSizeBytes / formatChunk->sampleSizeBytes;
+                    audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
+
+                    uint64_t volumeMultiplier = bit_twiddle::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
+                                                bit_twiddle::maxSignedValue(
+                                                    formatChunk->sampleSizeBytes / formatChunk->numChannels
+                                                );
+                    if (formatChunk->numChannels == MONO_AUDIO_CHANNELS) {
+                        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                            audio::audio_sample_t sample = getChannelSample(
+                                chunkData,
+                                formatChunk->sampleSizeBytes,
+                                sampleIdx,
+                                formatChunk->numChannels,
+                                ONLY_AUDIO_CHANNEL_IDX,
+                                volumeMultiplier
+                            );
+
+                            sampleData[sampleIdx] = (sample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | sample;
+                        }
+                    } else if (formatChunk->numChannels == STEREO_AUDIO_CHANNELS) {
+                        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                            audio::audio_sample_t leftSample = getChannelSample(
+                                chunkData,
+                                formatChunk->sampleSizeBytes,
+                                sampleIdx,
+                                formatChunk->numChannels,
+                                LEFT_AUDIO_CHANNEL_IDX,
+                                volumeMultiplier
+                            );
+
+                            audio::audio_sample_t rightSample = getChannelSample(
+                                chunkData,
+                                formatChunk->sampleSizeBytes,
+                                sampleIdx,
+                                formatChunk->numChannels,
+                                RIGHT_AUDIO_CHANNEL_IDX,
+                                volumeMultiplier
+                            );
+
+                            sampleData[sampleIdx] = (rightSample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | leftSample;
+                        }
+                    } else {
+                        ASSERT(false);
+                    }
+                    return WaveData{
+                        numSamples,
+                        sampleData,
+                    };
+                }
+                case (Bext):
+                case (Junk):
+                case (JUNK):
+                    break;
+                default: {
+                    ASSERT(false);
+                }
+            }
+
+            chunkData = chunk->chunkData + chunk->chunkSizeBytes;
+        }
+        return {};
     }
 }

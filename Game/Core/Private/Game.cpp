@@ -19,7 +19,7 @@ namespace game {
     static const slurp::Vec2 ColorPalettePosition = {1140, 702};
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx) {
-        assert(colorPaletteIdx < COLOR_PALETTE_SIZE);
+        ASSERT(colorPaletteIdx < COLOR_PALETTE_SIZE);
         return GlobalColorPalette.colors[colorPaletteIdx];
     }
 

@@ -2,12 +2,24 @@
 #include "Game.h"
 
 namespace global {
+    // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
+    // static const audio::Sound bgm = audio::loadSound("bgm.wav");
+
+    // NOTE: https://opengameart.org/content/since-2-am
+     static const audio::Sound bgm = audio::loadSound("since_2_am.wav");
+
     Global::Global(): Entity(
         "Global",
         render::RenderInfo(),
         physics::PhysicsInfo(),
         collision::CollisionInfo()
     ) {}
+
+    void Global::initialize() {
+        Entity::initialize();
+
+        game::GlobalSoundManager->playSound(bgm, 1, true);
+    }
 
     void Global::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,

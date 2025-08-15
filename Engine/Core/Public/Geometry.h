@@ -13,7 +13,7 @@ namespace geometry {
     };
 
     inline Shape getMinkowskiSum(const Shape& a, const Shape& b) {
-        assert(a.type == Rect && b.type == Rect);
+        ASSERT(a.type == Rect && b.type == Rect);
         return {Rect, a.dimensions + b.dimensions};
     }
 }

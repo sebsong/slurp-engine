@@ -7,6 +7,7 @@
 #include <format>
 #include <shlwapi.h>
 #include <windowsx.h>
+#include <mmreg.h>
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
@@ -19,16 +20,12 @@
 // #define DISPLAY_WIDTH 640
 // #define DISPLAY_HEIGHT 360
 #else
-#define DISPLAY_WIDTH 2560
-#define DISPLAY_HEIGHT 1440
+#define DISPLAY_WIDTH 1280
+#define DISPLAY_HEIGHT 720
 #endif
 #define FIT_TO_SCREEN 1
 #define DEFAULT_MONITOR_REFRESH_RATE 144
 #define DEBUG_MONITOR_REFRESH_RATE 120
-
-#define NUM_AUDIO_CHANNELS 1
-#define AUDIO_SAMPLES_PER_SECOND 44100
-#define AUDIO_WRITE_AHEAD_SECONDS 0.01
 
 static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
@@ -75,7 +72,7 @@ static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int hei
     outBuffer->info.bmiHeader.biWidth = outBuffer->widthPixels;
     outBuffer->info.bmiHeader.biHeight = -outBuffer->heightPixels;
     outBuffer->info.bmiHeader.biPlanes = 1;
-    outBuffer->info.bmiHeader.biBitCount = static_cast<WORD>(bytesPerPixel * 8);
+    outBuffer->info.bmiHeader.biBitCount = static_cast<WORD>(bytesPerPixel * BITS_PER_BYTE);
     outBuffer->info.bmiHeader.biCompression = BI_RGB;
 
     int bitmapSizeBytes = outBuffer->widthPixels * outBuffer->heightPixels * bytesPerPixel;
@@ -159,7 +156,7 @@ static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARA
         case WM_SYSKEYDOWN:
         case WM_SYSKEYUP:
         case WM_KEYDOWN:
-        case WM_KEYUP: { assert(!"Keyboard event should not be handled in Windows handler."); }
+        case WM_KEYUP: { ASSERT(!"Keyboard event should not be handled in Windows handler."); }
         break;
         default: { result = DefWindowProcA(windowHandle, message, wParam, lParam); }
         break;
@@ -360,7 +357,7 @@ static void winHandleGamepadInput(slurp::GamepadState* gamepadStates) {
     }
 };
 
-#define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter)
+#define DIRECT_SOUND_CREATE(fnName) HRESULT WINAPI fnName(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS, LPUNKNOWN pUnkOuter)
 
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
 
@@ -368,28 +365,43 @@ static void winInitDirectSound(HWND windowHandle) {
     HMODULE dSoundLib = LoadLibraryA("dsound.dll");
     if (dSoundLib) {
         GlobalAudioBuffer.samplesPerSec = AUDIO_SAMPLES_PER_SECOND;
-        GlobalAudioBuffer.bytesPerSample = sizeof(audio::audio_sample_t);
-        GlobalAudioBuffer.bufferSizeBytes = GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
+        GlobalAudioBuffer.bytesPerSample = TOTAL_AUDIO_SAMPLE_SIZE;
+        GlobalAudioBuffer.bufferSizeBytes =
+                AUDIO_BUFFER_SECONDS * GlobalAudioBuffer.samplesPerSec * GlobalAudioBuffer.bytesPerSample;
         // NOTE: tuned to the max latency between writeCursor readings.
         GlobalAudioBuffer.writeAheadSampleCount = static_cast<int>(
-            GlobalAudioBuffer.samplesPerSec * AUDIO_WRITE_AHEAD_SECONDS);
+            GlobalAudioBuffer.samplesPerSec * AUDIO_BUFFER_WRITE_AHEAD_SECONDS
+        );
 
         direct_sound_create* directSoundCreate = reinterpret_cast<direct_sound_create*>(GetProcAddress(
             dSoundLib,
-            "DirectSoundCreate"
+            "DirectSoundCreate8"
         ));
-        LPDIRECTSOUND directSound;
+        LPDIRECTSOUND8 directSound;
         if (directSoundCreate && SUCCEEDED(directSoundCreate(nullptr, &directSound, nullptr))) {
             directSound->SetCooperativeLevel(windowHandle, DSSCL_PRIORITY);
 
             WAVEFORMATEX waveFormat = {};
-            waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+            waveFormat.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
             waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
-            waveFormat.wBitsPerSample = sizeof(audio::audio_sample_t) * 8;
-            waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
-            waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
-            waveFormat.cbSize = 0;
+            waveFormat.wBitsPerSample = PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS;
+            waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / BITS_PER_BYTE;
+            waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+            waveFormat.cbSize = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);
+
+            ASSERT((waveFormat.wBitsPerSample % BITS_PER_BYTE) == 0);
+
+            WAVEFORMATEXTENSIBLE waveFormatExtensible = {
+                waveFormat,
+                waveFormat.wBitsPerSample,
+#if NUM_AUDIO_CHANNELS == 2
+                SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT,
+#else
+            SPEAKER_ALL,
+#endif
+                KSDATAFORMAT_SUBTYPE_PCM,
+            };
 
             // Primary Buffer
             DSBUFFERDESC dsBufferDescription = {};
@@ -397,7 +409,7 @@ static void winInitDirectSound(HWND windowHandle) {
             dsBufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
             LPDIRECTSOUNDBUFFER dsPrimaryBuffer;
             if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr))) {
-                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(&waveFormat))) {
+                if (SUCCEEDED(dsPrimaryBuffer->SetFormat(reinterpret_cast<LPCWAVEFORMATEX>(&waveFormatExtensible)))) {
                     OutputDebugStringA("Primary audio buffer created.\n");
                 } else {
                     // TODO: log
@@ -409,9 +421,13 @@ static void winInitDirectSound(HWND windowHandle) {
             dsSecBufferDescription.dwSize = sizeof(dsSecBufferDescription);
             dsSecBufferDescription.dwFlags = DSBCAPS_GETCURRENTPOSITION2;
             dsSecBufferDescription.dwBufferBytes = GlobalAudioBuffer.bufferSizeBytes;
-            dsSecBufferDescription.lpwfxFormat = &waveFormat;
+            dsSecBufferDescription.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&waveFormatExtensible);
             if (SUCCEEDED(
-                directSound->CreateSoundBuffer(&dsSecBufferDescription, &GlobalAudioBuffer.buffer, nullptr)
+                directSound->CreateSoundBuffer(
+                    &dsSecBufferDescription,
+                    &GlobalAudioBuffer.buffer,
+                    nullptr
+                )
             )) { OutputDebugStringA("Secondary audio buffer created.\n"); } else {
                 //TODO: log
             }
@@ -458,7 +474,6 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     region2Buffer.samples = static_cast<audio::audio_sample_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.numSamplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
-    // TODO: maybe just make 1 call to loadAudio with both buffers or have some ring buffer representation?
     GlobalSlurpDll.loadAudio(region2Buffer);
 
     GlobalAudioBuffer.buffer->Unlock(
@@ -483,7 +498,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
     winResizeDIBSection(&GlobalGraphicsBuffer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
     *outWindowHandle = CreateWindowExA(
-        WS_EX_TOPMOST,
+        0,
         windowClass.lpszClassName,
         "Slurp's Up!",
         WS_MAXIMIZE | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
@@ -605,7 +620,7 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
         char buf[256];
         sprintf_s(buf, "Failed to load lib function: %s.\n", fnName);
         OutputDebugStringA(buf);
-        assert(out);
+        ASSERT(out);
         out = stubFn;
     }
 }
@@ -703,7 +718,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile) {
         &fileSize
     );
 
-    assert(fileSize.QuadPart < gigabytes(4));
+    ASSERT(fileSize.QuadPart < gigabytes(4));
     DWORD fileSizeTruncated = static_cast<uint32_t>(fileSize.QuadPart);
     void* buffer = VirtualAlloc(
         nullptr,

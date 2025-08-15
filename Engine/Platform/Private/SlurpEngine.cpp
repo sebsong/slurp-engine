@@ -46,7 +46,7 @@ namespace slurp {
     SLURP_INIT(init) {
         GlobalPlatformDll = &platformDll;
 
-        assert(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
+        ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
 
         new(&sections->entityManager) EntityManager();
@@ -54,7 +54,7 @@ namespace slurp {
         new(&sections->soundManager) audio::SoundManager();
         GlobalSoundManager = &sections->soundManager;
 #if DEBUG
-        assert(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
+        ASSERT(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
 #endif
 
