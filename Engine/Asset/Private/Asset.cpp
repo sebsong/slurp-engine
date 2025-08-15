@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "BitTwiddle.h"
 #include "Debug.h"
-#include "Math.h"
 #include "Types.h"
 #include "WinEngine.h"
 
@@ -184,12 +184,12 @@ namespace asset {
             perChannelSampleSizeBytes,
             reinterpret_cast<types::byte*>(&sample)
         );
-        sample = math::upsizeInt(
+        sample = bit_twiddle::upsizeInt(
             sample,
             perChannelSampleSizeBytes,
             PER_CHANNEL_AUDIO_SAMPLE_SIZE
         );
-        return math::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
+        return bit_twiddle::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
     }
 
     // TODO: pre-process wave files into the engine sample size
@@ -203,8 +203,7 @@ namespace asset {
         }
 
         // NOTE: coupled with platform audio buffer settings
-        ASSERT(NUM_AUDIO_CHANNELS == 2); // NOTE: assumes output is always stereo
-        ASSERT(IS_TWOS_COMPLEMENT);
+        ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
 
         types::byte* chunkData = fileBytes;
         FormatChunk* formatChunk = nullptr;
@@ -235,32 +234,31 @@ namespace asset {
                     uint32_t numSamples = chunk->chunkSizeBytes / formatChunk->sampleSizeBytes;
                     audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
 
-                    uint8_t perChannelSampleSizeBits = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
-                    uint64_t volumeMultiplier = types::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
-                                                types::maxSignedValue(
+                    uint64_t volumeMultiplier = bit_twiddle::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
+                                                bit_twiddle::maxSignedValue(
                                                     formatChunk->sampleSizeBytes / formatChunk->numChannels
                                                 );
-                    if (formatChunk->numChannels == 1) {
+                    if (formatChunk->numChannels == MONO_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t sample = getChannelSample(
                                 chunkData,
                                 formatChunk->sampleSizeBytes,
                                 sampleIdx,
                                 formatChunk->numChannels,
-                                0,
+                                ONLY_AUDIO_CHANNEL_IDX,
                                 volumeMultiplier
                             );
 
-                            sampleData[sampleIdx] = (sample << perChannelSampleSizeBits) | sample;
+                            sampleData[sampleIdx] = (sample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | sample;
                         }
-                    } else if (formatChunk->numChannels == 2) {
+                    } else if (formatChunk->numChannels == STEREO_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
                             audio::audio_sample_t leftSample = getChannelSample(
                                 chunkData,
                                 formatChunk->sampleSizeBytes,
                                 sampleIdx,
                                 formatChunk->numChannels,
-                                0,
+                                LEFT_AUDIO_CHANNEL_IDX,
                                 volumeMultiplier
                             );
 
@@ -269,12 +267,11 @@ namespace asset {
                                 formatChunk->sampleSizeBytes,
                                 sampleIdx,
                                 formatChunk->numChannels,
-                                1,
+                                RIGHT_AUDIO_CHANNEL_IDX,
                                 volumeMultiplier
                             );
 
-                            // TODO: left and right are swapped, figure out which part of the sample is actually left/right
-                            sampleData[sampleIdx] = (leftSample << perChannelSampleSizeBits) | rightSample;
+                            sampleData[sampleIdx] = (rightSample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | leftSample;
                         }
                     } else {
                         ASSERT(false);

@@ -385,7 +385,7 @@ static void winInitDirectSound(HWND windowHandle) {
             waveFormat.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
             waveFormat.nChannels = NUM_AUDIO_CHANNELS;
             waveFormat.nSamplesPerSec = GlobalAudioBuffer.samplesPerSec;
-            waveFormat.wBitsPerSample = PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE;
+            waveFormat.wBitsPerSample = PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS;
             waveFormat.nBlockAlign = (waveFormat.nChannels * waveFormat.wBitsPerSample) / BITS_PER_BYTE;
             waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
             waveFormat.cbSize = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);

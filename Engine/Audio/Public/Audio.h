@@ -1,7 +1,22 @@
 #pragma once
 #include <cstdint>
 
-#define NUM_AUDIO_CHANNELS 2
+#include "BitTwiddle.h"
+
+#define MONO_AUDIO_CHANNELS 1
+#define STEREO_AUDIO_CHANNELS 2
+#define NUM_AUDIO_CHANNELS STEREO_AUDIO_CHANNELS
+#define IS_MONO_AUDIO (NUM_AUDIO_CHANNELS == MONO_AUDIO_CHANNELS)
+#define IS_STEREO_AUDIO (NUM_AUDIO_CHANNELS == STEREO_AUDIO_CHANNELS)
+#define ONLY_AUDIO_CHANNEL_IDX 0
+#define LEFT_AUDIO_CHANNEL_IDX 0
+#define RIGHT_AUDIO_CHANNEL_IDX 1
+
+#define TOTAL_AUDIO_SAMPLE_SIZE sizeof(audio::audio_sample_t)
+#define PER_CHANNEL_AUDIO_SAMPLE_SIZE (TOTAL_AUDIO_SAMPLE_SIZE / NUM_AUDIO_CHANNELS)
+#define PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE
+#define AUDIO_CHANNEL_MASK (~static_cast<uint64_t>(0) >> ((sizeof(uint64_t) - PER_CHANNEL_AUDIO_SAMPLE_SIZE) * BITS_PER_BYTE))
+
 #define AUDIO_BUFFER_SECONDS 1
 #if DEBUG
 #define AUDIO_BUFFER_WRITE_AHEAD_SECONDS 0.1f
@@ -9,8 +24,6 @@
 #define AUDIO_BUFFER_WRITE_AHEAD_SECONDS 0.01f
 #endif
 #define AUDIO_SAMPLES_PER_SECOND 44100
-#define TOTAL_AUDIO_SAMPLE_SIZE sizeof(audio::audio_sample_t)
-#define PER_CHANNEL_AUDIO_SAMPLE_SIZE (TOTAL_AUDIO_SAMPLE_SIZE / NUM_AUDIO_CHANNELS)
 
 namespace audio {
     // typedef int16_t audio_sample_t; // 16-bit Mono
@@ -24,6 +37,7 @@ namespace audio {
     };
 
     inline audio_sample_t getChannelSample(const audio_sample_t& sample, uint8_t channelIdx) {
-        return sample << (channelIdx * PER_CHANNEL_AUDIO_SAMPLE_SIZE);
+        uint8_t channelShift = channelIdx * PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS;
+        return ((AUDIO_CHANNEL_MASK << channelShift) & sample) >> channelShift;
     }
 }
