@@ -3,7 +3,11 @@
 #include "Sound.h"
 
 namespace audio {
-    SoundManager::SoundManager(): _nextSoundId(0), _queue(std::deque<PlayingSound>()) {}
+    SoundManager::SoundManager(): _nextSoundId(0), _globalVolumeMultiplier(1.f), _queue(std::deque<PlayingSound>()) {}
+
+    void SoundManager::setGlobalVolume(float volumeMultiplier) {
+        _globalVolumeMultiplier = volumeMultiplier;
+    }
 
     void SoundManager::playSound(const Sound& sound) {
         playSound(sound, 1.0f, false);
@@ -23,7 +27,7 @@ namespace audio {
         for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
             PlayingSound& playingSound = *it;
 
-            playingSound.loadAudio(buffer);
+            playingSound.loadAudio(buffer, _globalVolumeMultiplier);
 
             if (!playingSound.isPlaying) {
                 it = _queue.erase(it);

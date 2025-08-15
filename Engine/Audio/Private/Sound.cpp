@@ -12,12 +12,13 @@ namespace audio {
           sampleIndex(0),
           isPlaying(true) {}
 
-    void PlayingSound::loadAudio(const AudioBuffer& buffer) {
+    void PlayingSound::loadAudio(const AudioBuffer& buffer, float globalVolumeMultiplier) {
         int numSamplesWritten = 0;
         while (numSamplesWritten < buffer.numSamplesToWrite && sampleIndex < sound->numSamples) {
             // TODO: allow for pitch shifting
             // TODO: do full mixing in 32-bit space to avoid clipping, convert back to 16-bit space just before writing to buffer
             // NOTE: we could pre-process volume multiplier to trade memory for speed
+            float volumeMultiplier = this->volumeMultiplier * globalVolumeMultiplier;
             const audio_sample_t& fullSample = sound->sampleData[sampleIndex++];
             const audio_sample_t leftSample = modulateSampleVolume(
                 getChannelSample(fullSample, LEFT_AUDIO_CHANNEL_IDX),

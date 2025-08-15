@@ -11,6 +11,8 @@ namespace audio {
     public:
         explicit SoundManager();
 
+        void setGlobalVolume(float volumeMultiplier);
+
         void playSound(const Sound& sound);
 
         void playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop);
@@ -19,6 +21,7 @@ namespace audio {
 
     private:
         uint32_t _nextSoundId;
+        float _globalVolumeMultiplier;
         std::deque<PlayingSound> _queue;
     };
 }

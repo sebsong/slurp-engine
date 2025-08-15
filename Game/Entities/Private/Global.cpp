@@ -6,7 +6,9 @@ namespace global {
     // static const audio::Sound bgm = audio::loadSound("bgm.wav");
 
     // NOTE: https://opengameart.org/content/since-2-am
-     // static const audio::Sound bgm = audio::loadSound("since_2_am.wav");
+    static const audio::Sound bgm = audio::loadSound("since_2_am.wav");
+
+    static const float GlobalVolume = 0.5f;
 
     Global::Global(): Entity(
         "Global",
@@ -18,7 +20,8 @@ namespace global {
     void Global::initialize() {
         Entity::initialize();
 
-        // game::GlobalSoundManager->playSound(bgm, 1, true);
+        game::GlobalSoundManager->setGlobalVolume(GlobalVolume);
+        game::GlobalSoundManager->playSound(bgm, 0.5, true);
     }
 
     void Global::handleMouseAndKeyboardInput(
