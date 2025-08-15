@@ -51,7 +51,9 @@ namespace update {
                         int xAxisPositionUpdate = positionUpdate.x;
                         if (entityOffsetPosition.x <= otherEntityOffsetPosition.x) {
                             xAxisPositionUpdate = minkowskiMinPoint.x - entityOffsetPosition.x;
-                        } else { xAxisPositionUpdate = minkowskiMaxPoint.x - entityOffsetPosition.x; }
+                        } else {
+                            xAxisPositionUpdate = minkowskiMaxPoint.x - entityOffsetPosition.x;
+                        }
                         if (std::abs(xAxisPositionUpdate) < std::abs(positionUpdate.x)) {
                             positionUpdate.x = xAxisPositionUpdate;
                         }
@@ -60,7 +62,9 @@ namespace update {
                         int yAxisPositionUpdate = positionUpdate.y;
                         if (entityOffsetPosition.y <= otherEntityOffsetPosition.y) {
                             yAxisPositionUpdate = minkowskiMinPoint.y - entityOffsetPosition.y;
-                        } else { yAxisPositionUpdate = minkowskiMaxPoint.y - entityOffsetPosition.y; }
+                        } else {
+                            yAxisPositionUpdate = minkowskiMaxPoint.y - entityOffsetPosition.y;
+                        }
                         if (std::abs(yAxisPositionUpdate) < std::abs(positionUpdate.y)) {
                             positionUpdate.y = yAxisPositionUpdate;
                         }

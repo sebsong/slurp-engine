@@ -18,6 +18,8 @@ namespace player {
 
         void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) override;
 
+        void update(float dt) override;
+
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
         void onCollisionExit(const collision::CollisionDetails& collisionDetails) override;

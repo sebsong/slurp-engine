@@ -105,13 +105,21 @@ namespace player {
         game::GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
     }
 
+    void Player::update(float dt) {
+        Entity::update(dt);
+        // std::cout << physicsInfo.position << std::endl;
+    }
+
     void Player::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
         game::GlobalSoundManager->playSound(HitSound);
+        std::cout << "ENTER" << std::endl;
     }
 
     void Player::onCollisionExit(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionExit(collisionDetails);
+        game::GlobalSoundManager->playSound(HitSound);
+        std::cout << "EXIT" << std::endl;
     }
 
     void Player::activateParry() {
