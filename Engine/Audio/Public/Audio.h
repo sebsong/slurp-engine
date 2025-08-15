@@ -22,4 +22,8 @@ namespace audio {
         int samplesPerSec;
         int numSamplesToWrite;
     };
+
+    inline audio_sample_t getChannelSample(const audio_sample_t& sample, uint8_t channelIdx) {
+        return sample << (channelIdx * PER_CHANNEL_AUDIO_SAMPLE_SIZE);
+    }
 }

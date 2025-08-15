@@ -273,6 +273,7 @@ namespace asset {
                                 volumeMultiplier
                             );
 
+                            // TODO: left and right are swapped, figure out which part of the sample is actually left/right
                             sampleData[sampleIdx] = (leftSample << perChannelSampleSizeBits) | rightSample;
                         }
                     } else {
