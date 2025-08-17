@@ -8,6 +8,7 @@
 #include <shlwapi.h>
 #include <windowsx.h>
 #include <mmreg.h>
+#include <GLFW/glfw3.h>
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)
