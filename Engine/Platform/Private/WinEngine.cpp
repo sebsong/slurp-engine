@@ -8,7 +8,11 @@
 #include <shlwapi.h>
 #include <windowsx.h>
 #include <mmreg.h>
+
+#if OPEN_GL
+#include "glad.c"
 #include <GLFW/glfw3.h>
+#endif
 
 #define kilobytes(n) ((int64_t)n * 1024)
 #define megabytes(n) (kilobytes(n) * 1024)

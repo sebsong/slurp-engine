@@ -29,7 +29,12 @@ include_directories(Game/Core/Private)
 include_directories(Game/Entities/Public)
 include_directories(Game/Entities/Private)
 
+include_directories(Engine/OpenGL/Public)
+include_directories(Engine/OpenGL/Private)
+
 include_directories(ExternalLibs/glfw-3.4.bin.WIN64/include)
 link_directories(ExternalLibs/glfw-3.4.bin.WIN64/lib-vc2022)
+
+include_directories(ExternalLibs/glad/include)
 
 add_subdirectory(Engine/Platform/Private)

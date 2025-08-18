@@ -3,6 +3,7 @@ add_compile_definitions(PLATFORM_WINDOWS)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(DEBUG)
 endif ()
+add_compile_definitions(OPEN_GL)
 #add_compile_definitions(ASSETS_DIR="C:/Users/sebys/Workspace/slurp-engine/SlurpEngine/Assets/")
 
 # COMPILER AND LINKER FLAGS
