@@ -16,12 +16,54 @@ namespace open_gl_slurp {
         return _window != nullptr;
     }
 
+    static const char* vertexShaderSrc = R"(
+        #version 330 core
+        layout (location = 0) in vec3 aPos;
+        void main() {
+            gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+        }
+    )";
+    static void validateShader(uint32_t shaderId) {
+        int success;
+        glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            char infoLog[512];
+            glGetShaderInfoLog(shaderId, sizeof(infoLog), nullptr, infoLog);
+            logging::error("Failed to compile shader: \n" + std::string(infoLog));
+        }
+    }
+    static void initShaders() {
+        uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShaderId, 1, &vertexShaderSrc, nullptr);
+        glCompileShader(vertexShaderId);
+        validateShader(vertexShaderId);
+    }
+
+    static void debugTestDraw() {
+        glClearColor(0.3, 0.2, 0.9, .5f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        uint32_t vertexBufferObjectId;
+        glGenBuffers(1, &vertexBufferObjectId);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjectId);
+        float vertices[] = {
+            0.f, 0.5f, 0.f,
+            -0.5f, -0.5f, 0.f,
+            0.5f, -0.5f, 0.f,
+        };
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        initShaders();
+    }
+
+
     void OpenGLRenderWindow::flip() const {
+        debugTestDraw();
         glfwSwapBuffers(_window);
         // glfwPollEvents();
     }
 
-    bool OpenGLRenderWindow::shouldTerminate() {
+    bool OpenGLRenderWindow::shouldTerminate() const{
         return glfwWindowShouldClose(_window);
     }
 

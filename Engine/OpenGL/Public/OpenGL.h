@@ -1,6 +1,7 @@
 #pragma once
 
 struct GLFWwindow;
+
 namespace open_gl_slurp {
     class OpenGLRenderWindow {
     public:
@@ -10,12 +11,13 @@ namespace open_gl_slurp {
 
         void flip() const;
 
-        bool shouldTerminate();
+        bool shouldTerminate() const;
 
         static void terminate();
 
     private:
         bool init(int width, int height, const char* title);
+
         GLFWwindow* _window;
     };
 }
