@@ -33,7 +33,7 @@ include_directories(Engine/OpenGL/Public)
 include_directories(Engine/OpenGL/Private)
 
 include_directories(ExternalLibs/glfw-3.4.bin.WIN64/include)
-link_directories(ExternalLibs/glfw-3.4.bin.WIN64/lib-vc2022)
+link_directories(ExternalLibs/glfw-3.4.bin.WIN64/lib-mingw-w64)
 
 include_directories(ExternalLibs/glad/include)
 

@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+//TODO: have option to not do unity build
 /* Single translation unit, unity build */
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Asset.cpp"

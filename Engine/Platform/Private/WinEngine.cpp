@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include "WinEngine.h"
+#include "Logging.h"
 #include "Debug.h"
 
 #include <iostream>
@@ -9,9 +10,9 @@
 #include <windowsx.h>
 #include <mmreg.h>
 
+
 #if OPEN_GL
-#include "glad.c"
-#include <GLFW/glfw3.h>
+#include "OpenGL.cpp"
 #endif
 
 #define kilobytes(n) ((int64_t)n * 1024)
@@ -32,10 +33,11 @@
 #define DEFAULT_MONITOR_REFRESH_RATE 144
 #define DEBUG_MONITOR_REFRESH_RATE 120
 
-static const LPCSTR WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
-static const LPCSTR SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
-static const LPCSTR SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
-static const LPCSTR RECORDING_FILE_NAME = "SlurpRecording.rec";
+static const char* WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
+static const char* WINDOW_TITLE = "Slurp's Up!";
+static const char* SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
+static const char* SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
+static const char* RECORDING_FILE_NAME = "SlurpRecording.rec";
 
 static bool GlobalRunning;
 
@@ -274,14 +276,14 @@ static x_input_set_state* XInputSetState_ = XInputSetStateStub;
 static void winLoadXInput() {
     HMODULE xInputLib = LoadLibraryA("xinput1_4.dll");
     if (!xInputLib) {
-        // TODO: log
+        logging::warn("Could not load xinput 1.4, falling back to xinput 1.3");
         xInputLib = LoadLibraryA("xinput1_3.dll");
     }
     if (xInputLib) {
         XInputGetState = reinterpret_cast<x_input_get_state*>(GetProcAddress(xInputLib, "XInputGetState"));
         XInputSetState = reinterpret_cast<x_input_set_state*>(GetProcAddress(xInputLib, "XInputSetState"));
     } else {
-        // TODO: log
+        logging::error("Could not load xinput");
     }
 }
 
@@ -490,9 +492,7 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     return numBytesToWrite;
 }
 
-static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
-    winLoadXInput();
-
+static bool winInitWindow(HINSTANCE instance, HWND* outWindowHandle) {
     WNDCLASSA windowClass = {};
     windowClass.style = CS_HREDRAW;
     windowClass.lpfnWndProc = winMessageHandler;
@@ -500,12 +500,10 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
     windowClass.lpszClassName = WINDOW_CLASS_NAME;
     RegisterClassA(&windowClass);
 
-    winResizeDIBSection(&GlobalGraphicsBuffer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-
     *outWindowHandle = CreateWindowExA(
         0,
         windowClass.lpszClassName,
-        "Slurp's Up!",
+        WINDOW_TITLE,
         WS_MAXIMIZE | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -522,8 +520,7 @@ static bool winInitialize(HINSTANCE instance, HWND* outWindowHandle) {
         return false;
     }
 
-    GlobalRunning = true;
-
+    winResizeDIBSection(&GlobalGraphicsBuffer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     return true;
 }
 
@@ -609,7 +606,7 @@ static void winCaptureAndLogPerformance(
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
 #if VERBOSE
-    std::cout << std::format("Frame: {:.2f}ms {}fps {} processor mega-cycles", frameMillis, fps, frameProcessorMCycles) << std::endl;
+    logging::info(std::format("Frame: {:.2f}ms {}fps {} processor mega-cycles", frameMillis, fps, frameProcessorMCycles));
 #endif
 
     startProcessorCycle = processorCycleEnd;
@@ -1074,8 +1071,16 @@ int WINAPI WinMain(
     PSTR lpCmdLine,
     int nCmdShow
 ) {
-    HWND windowHandle;
-    if (!winInitialize(hInstance, &windowHandle)) { return 1; }
+
+    HWND windowHandle = nullptr;
+#if OPEN_GL
+    open_gl_slurp::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    if (!renderWindow.isValid()) { return 1; }
+#else
+    if (!winInitWindow(hInstance, &windowHandle)) { return 1; }
+#endif
+
+    GlobalRunning = true;
 
     std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);
     const char* dllFilePath = dllFilePathStr.c_str();
@@ -1086,6 +1091,7 @@ int WINAPI WinMain(
     GlobalPlatformDll = loadPlatformDll();
     winAllocateGameMemory(&GlobalGameMemory);
     winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
+    winLoadXInput();
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
 #if DEBUG
@@ -1171,6 +1177,12 @@ int WINAPI WinMain(
 #if 0
         winDrawDebugAudioSync(playCursor, 0x00000000);
         winDrawDebugAudioSync(lockCursor, 0x00FF0000);
+#endif
+#if OPEN_GL
+        renderWindow.flip();
+        if (renderWindow.shouldTerminate()) {
+            GlobalRunning = false;
+        }
 #endif
         HDC deviceContext = GetDC(windowHandle);
         winUpdateWindow(deviceContext, GlobalGraphicsBuffer, dimensions.width, dimensions.height);
