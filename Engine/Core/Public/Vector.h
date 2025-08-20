@@ -120,9 +120,19 @@ namespace slurp {
 
     template<typename T>
     struct Vec3 {
-        T x;
-        T y;
-        T z;
+        union {
+            struct {
+                T x;
+                T y;
+                T z;
+            };
+
+            struct {
+                T r;
+                T g;
+                T b;
+            };
+        };
 
         static const Vec3 Zero;
 

@@ -28,5 +28,9 @@ namespace open_gl_slurp {
         uint32_t _vertexBufferObjectId;
         uint32_t _elementBufferObjectId;
         uint32_t _shaderProgramId;
+
+        uint32_t _otherVertexArrayObjectId;
+        uint32_t _otherVertexBufferObjectId;
+        uint32_t _otherShaderProgramId;
     };
 }

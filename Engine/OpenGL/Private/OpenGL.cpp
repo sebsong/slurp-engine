@@ -7,25 +7,67 @@ namespace open_gl_slurp {
     static constexpr uint32_t INVALID_ID = -1;
     static constexpr uint32_t UNUSED_ID = 0;
     static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
+    static constexpr uint32_t COLOR_VERTEX_ATTRIBUTE_IDX = 1;
     static const char* VERTEX_SHADER_SRC = R"(
         #version 330 core
-        layout (location = 0) in vec3 aPos;
+        layout (location = 0) in vec3 position;
+        layout (location = 1) in vec3 color;
+        out vec3 fragColor;
+
         void main() {
-            gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+            gl_Position = vec4(position, 1.0);
+            fragColor = color;
         }
     )";
     static const char* FRAGMENT_SHADER_SRC = R"(
         #version 330 core
+        in vec3 fragColor;
         out vec4 Color;
+
         void main() {
-            Color = vec4(1.0f, 0.5f, 1.0f, 1.0f);
+            Color = vec4(fragColor, 1.f);
         }
     )";
+    static const char* OTHER_VERTEX_SHADER_SRC = R"(
+        #version 330 core
+        layout (location = 0) in vec3 aPos;
+        void main() {
+            gl_Position = vec4(aPos, 1.0);
+        }
+    )";
+    static const char* OTHER_FRAGMENT_SHADER_SRC = R"(
+        #version 330 core
+        uniform vec2 redBlueColor;
+        out vec4 Color;
+
+        void main() {
+            Color = vec4(redBlueColor.x, 0.5f, redBlueColor.y, 1.0f);
+        }
+    )";
+
     static const slurp::Vec3<float> TRIANGLE_VERTICES[] = {
-        slurp::Vec3(0.f, 0.75f, 0.f),
-        slurp::Vec3(-0.75f, -0.75f, 0.f),
-        slurp::Vec3(0.75f, -0.75f, 0.f),
+        // Vertex 0
+        slurp::Vec3(-0.5f, 0.75f, 0.f),
+        slurp::Vec3(1.f, 0.f, 0.f),
+
+        // Vertex 1
+        slurp::Vec3(-1.f, -0.75f, 0.f),
+        slurp::Vec3(0.f, 1.f, 0.f),
+
+        // Vertex 2
+        slurp::Vec3(0.f, -0.75f, 0.f),
+        slurp::Vec3(0.f, 0.f, 1.f),
+
+        // slurp::Vec3(0.f, 0.75f, 0.f),
+        // slurp::Vec3(-0.75f, -0.75f, 0.f),
+        // slurp::Vec3(0.75f, -0.75f, 0.f),
     };
+    static const slurp::Vec3<float> OTHER_TRIANGLE_VERTICES[] = {
+        slurp::Vec3(0.5f, 0.75f, 0.f),
+        slurp::Vec3(1.f, -0.75f, 0.f),
+        slurp::Vec3(0.f, -0.75f, 0.f),
+    };
+
     static const slurp::Vec3<float> RECTANGLE_VERTICES[] = {
         slurp::Vec3(-0.75f, 0.75f, 0.f),
         slurp::Vec3(0.75f, 0.75f, 0.f),
@@ -118,12 +160,41 @@ namespace open_gl_slurp {
 
         glGenBuffers(1, &this->_vertexBufferObjectId);
         glBindBuffer(GL_ARRAY_BUFFER, this->_vertexBufferObjectId);
-        // glBufferData(GL_ARRAY_BUFFER, sizeof(TRIANGLE_VERTICES), TRIANGLE_VERTICES, GL_STATIC_DRAW);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(RECTANGLE_VERTICES), RECTANGLE_VERTICES, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(TRIANGLE_VERTICES), TRIANGLE_VERTICES, GL_STATIC_DRAW);
+        // glBufferData(GL_ARRAY_BUFFER, sizeof(RECTANGLE_VERTICES), RECTANGLE_VERTICES, GL_STATIC_DRAW);
 
-        glGenBuffers(1, &this->_elementBufferObjectId);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_elementBufferObjectId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(RECTANGLE_INDICES), RECTANGLE_INDICES, GL_STATIC_DRAW);
+        // glGenBuffers(1, &this->_elementBufferObjectId);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_elementBufferObjectId);
+        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(RECTANGLE_INDICES), RECTANGLE_INDICES, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(
+            LOCATION_VERTEX_ATTRIBUTE_IDX,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(slurp::Vec3<float>) * 2,
+            nullptr
+        );
+        glEnableVertexAttribArray(LOCATION_VERTEX_ATTRIBUTE_IDX);
+        glVertexAttribPointer(
+            COLOR_VERTEX_ATTRIBUTE_IDX,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(slurp::Vec3<float>) * 2,
+            reinterpret_cast<void*>(sizeof(slurp::Vec3<float>))
+        );
+        glEnableVertexAttribArray(COLOR_VERTEX_ATTRIBUTE_IDX);
+
+        glBindVertexArray(UNUSED_ID);
+
+        // OTHER
+        glGenVertexArrays(1, &this->_otherVertexArrayObjectId);
+        glBindVertexArray(this->_otherVertexArrayObjectId);
+
+        glGenBuffers(1, &this->_otherVertexBufferObjectId);
+        glBindBuffer(GL_ARRAY_BUFFER, this->_otherVertexBufferObjectId);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(OTHER_TRIANGLE_VERTICES), OTHER_TRIANGLE_VERTICES, GL_STATIC_DRAW);
 
         glVertexAttribPointer(
             LOCATION_VERTEX_ATTRIBUTE_IDX,
@@ -157,18 +228,52 @@ namespace open_gl_slurp {
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
 
+        // OTHER
+        uint32_t otherVertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(otherVertexShaderId, 1, &OTHER_VERTEX_SHADER_SRC, nullptr);
+        glCompileShader(otherVertexShaderId);
+        if (!validateShader(otherVertexShaderId)) { return false; }
+
+        uint32_t otherFragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(otherFragmentShaderId, 1, &OTHER_FRAGMENT_SHADER_SRC, nullptr);
+        glCompileShader(otherFragmentShaderId);
+        if (!validateShader(otherFragmentShaderId)) { return false; }
+
+        this->_otherShaderProgramId = glCreateProgram();
+        glAttachShader(this->_otherShaderProgramId, otherVertexShaderId);
+        glAttachShader(this->_otherShaderProgramId, otherFragmentShaderId);
+        glLinkProgram(this->_otherShaderProgramId);
+        if (!validateShaderProgram(this->_otherShaderProgramId)) { return false; }
+
+        glDeleteShader(otherVertexShaderId);
+        glDeleteShader(otherFragmentShaderId);
+
         return true;
+    }
+
+    static void drawArrays(uint32_t vertexArrayObjectId, uint32_t shaderProgramId, int vertexCount) {
+        glBindVertexArray(vertexArrayObjectId);
+        glUseProgram(shaderProgramId);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        // // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(UNUSED_ID);
+        glUseProgram(UNUSED_ID);
     }
 
     void OpenGLRenderWindow::debugTestDraw() const {
         glClearColor(0.3, 0.2, 0.9, .5f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindVertexArray(this->_vertexArrayObjectId);
-        glUseProgram(this->_shaderProgramId);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(UNUSED_ID);
+        drawArrays(this->_vertexArrayObjectId, this->_shaderProgramId, 3);
+
+        // OTHER
+        float time = glfwGetTime();
+        float blueValue = 0.5f * (1.f + std::sin(time));
+        float redValue = 0.5f * (1.f + std::cos(time));
+        int fragmentColorLocation = glGetUniformLocation(this->_otherShaderProgramId, "redBlueColor");
+        glUseProgram(this->_otherShaderProgramId);
+        glUniform2f(fragmentColorLocation, redValue, blueValue);
+        drawArrays(this->_otherVertexArrayObjectId, this->_otherShaderProgramId, 3);
     }
 }
