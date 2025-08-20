@@ -85,7 +85,7 @@ namespace render {
         Pixel color
     ) {
         const float radius = size / 2;
-        const slurp::Vec2<float> sizeOffset = slurp::Vec2<float>::Unit * -math::getHypotenuse(radius, radius / 2);
+        const slurp::Vec2<float> sizeOffset = slurp::Vec2<float>{1, 1} * -math::getHypotenuse(radius, radius / 2);
         const slurp::Vec2<float> offsetStartPoint = startPoint + sizeOffset;
         const slurp::Vec2<float> offsetEndPoint = endPoint + sizeOffset;
 

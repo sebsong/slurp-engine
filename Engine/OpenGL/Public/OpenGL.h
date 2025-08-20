@@ -18,6 +18,14 @@ namespace open_gl_slurp {
     private:
         bool init(int width, int height, const char* title);
 
+        void initShaders();
+
+        void debugTestDraw() const;
+
+        bool _isValid;
         GLFWwindow* _window;
+        uint32_t _vertexArrayObjectId;
+        uint32_t _vertexBufferObjectId;
+        uint32_t _shaderProgramId;
     };
 }

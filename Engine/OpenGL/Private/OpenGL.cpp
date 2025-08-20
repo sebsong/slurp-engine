@@ -4,58 +4,44 @@
 #include <GLFW/glfw3.h>
 
 namespace open_gl_slurp {
-    static void resizeViewport(GLFWwindow* window, int width, int height) {
-        glViewport(0, 0, width, height);
-    }
-
-    OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title): _window(nullptr) {
-        init(width, height, title);
-    }
-
-    bool OpenGLRenderWindow::isValid() const {
-        return _window != nullptr;
-    }
-
-    static const char* vertexShaderSrc = R"(
+    static constexpr uint32_t INVALID_ID = -1;
+    static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
+    static const char* VERTEX_SHADER_SRC = R"(
         #version 330 core
         layout (location = 0) in vec3 aPos;
         void main() {
             gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
         }
     )";
-    static void validateShader(uint32_t shaderId) {
-        int success;
-        glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            char infoLog[512];
-            glGetShaderInfoLog(shaderId, sizeof(infoLog), nullptr, infoLog);
-            logging::error("Failed to compile shader: \n" + std::string(infoLog));
+    static const char* FRAGMENT_SHADER_SRC = R"(
+        #version 330 core
+        out vec4 Color;
+        void main() {
+            Color = vec4(1.0f, 0.2f, 0.6f, 1.0f);
         }
-    }
-    static void initShaders() {
-        uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShaderId, 1, &vertexShaderSrc, nullptr);
-        glCompileShader(vertexShaderId);
-        validateShader(vertexShaderId);
+    )";
+    static const slurp::Vec3<float> TRIANGLE_VERTICES[] = {
+        slurp::Vec3(0.f, 0.75f, 0.f),
+        slurp::Vec3(-0.75f, -0.75f, 0.f),
+        slurp::Vec3(0.75f, -0.75f, 0.f),
+    };
+
+    static void resizeViewport(GLFWwindow* window, int width, int height) {
+        glViewport(0, 0, width, height);
     }
 
-    static void debugTestDraw() {
-        glClearColor(0.3, 0.2, 0.9, .5f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        uint32_t vertexBufferObjectId;
-        glGenBuffers(1, &vertexBufferObjectId);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjectId);
-        float vertices[] = {
-            0.f, 0.5f, 0.f,
-            -0.5f, -0.5f, 0.f,
-            0.5f, -0.5f, 0.f,
+    OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
+        : _isValid(true),
+          _window(nullptr),
+          _shaderProgramId(INVALID_ID) {
+        if (!init(width, height, title)) {
+            this->_isValid = false;
         };
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        initShaders();
     }
 
+    bool OpenGLRenderWindow::isValid() const {
+        return _isValid;
+    }
 
     void OpenGLRenderWindow::flip() const {
         debugTestDraw();
@@ -63,7 +49,7 @@ namespace open_gl_slurp {
         // glfwPollEvents();
     }
 
-    bool OpenGLRenderWindow::shouldTerminate() const{
+    bool OpenGLRenderWindow::shouldTerminate() const {
         return glfwWindowShouldClose(_window);
     }
 
@@ -71,7 +57,30 @@ namespace open_gl_slurp {
         glfwTerminate();
     }
 
+    static bool validateShader(uint32_t shaderId) {
+        int success;
+        glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            char infoLog[512];
+            glGetShaderInfoLog(shaderId, sizeof(infoLog), nullptr, infoLog);
+            logging::error("Failed to compile shader: \n" + std::string(infoLog));
+        }
+        return success;
+    }
+
+    static bool validateShaderProgram(uint32_t programId) {
+        int success;
+        glGetProgramiv(programId, GL_LINK_STATUS, &success);
+        if (!success) {
+            char infoLog[512];
+            glGetProgramInfoLog(programId, sizeof(infoLog), nullptr, infoLog);
+            logging::error("Failed to link shader program: \n" + std::string(infoLog));
+        }
+        return success;
+    }
+
     bool OpenGLRenderWindow::init(int width, int height, const char* title) {
+        /** Window **/
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -91,6 +100,52 @@ namespace open_gl_slurp {
             return false;
         }
         glfwSetFramebufferSizeCallback(_window, resizeViewport);
+
+        /** Vertex Array/Buffer Object **/
+        glGenVertexArrays(1, &this->_vertexArrayObjectId);
+        glBindVertexArray(this->_vertexArrayObjectId);
+        glGenBuffers(1, &this->_vertexBufferObjectId);
+        glBindBuffer(GL_ARRAY_BUFFER, this->_vertexBufferObjectId);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(TRIANGLE_VERTICES), TRIANGLE_VERTICES, GL_STATIC_DRAW);
+        glVertexAttribPointer(
+            LOCATION_VERTEX_ATTRIBUTE_IDX,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(slurp::Vec3<float>),
+            nullptr
+        );
+        glEnableVertexAttribArray(LOCATION_VERTEX_ATTRIBUTE_IDX);
+
+        /** Shaders **/
+        uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShaderId, 1, &VERTEX_SHADER_SRC, nullptr);
+        glCompileShader(vertexShaderId);
+        if (!validateShader(vertexShaderId)) { return false; }
+
+        uint32_t fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShaderId, 1, &FRAGMENT_SHADER_SRC, nullptr);
+        glCompileShader(fragmentShaderId);
+        if (!validateShader(fragmentShaderId)) { return false; }
+
+        this->_shaderProgramId = glCreateProgram();
+        glAttachShader(this->_shaderProgramId, vertexShaderId);
+        glAttachShader(this->_shaderProgramId, fragmentShaderId);
+        glLinkProgram(this->_shaderProgramId);
+        if (!validateShaderProgram(this->_shaderProgramId)) { return false; }
+
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
+
         return true;
+    }
+
+    void OpenGLRenderWindow::debugTestDraw() const {
+        glClearColor(0.3, 0.2, 0.9, .5f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glBindVertexArray(this->_vertexArrayObjectId);
+        glUseProgram(this->_shaderProgramId);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 }
