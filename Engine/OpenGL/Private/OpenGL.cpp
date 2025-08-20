@@ -5,6 +5,7 @@
 
 namespace open_gl_slurp {
     static constexpr uint32_t INVALID_ID = -1;
+    static constexpr uint32_t UNUSED_ID = 0;
     static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
     static const char* VERTEX_SHADER_SRC = R"(
         #version 330 core
@@ -17,7 +18,7 @@ namespace open_gl_slurp {
         #version 330 core
         out vec4 Color;
         void main() {
-            Color = vec4(1.0f, 0.2f, 0.6f, 1.0f);
+            Color = vec4(1.0f, 0.5f, 1.0f, 1.0f);
         }
     )";
     static const slurp::Vec3<float> TRIANGLE_VERTICES[] = {
@@ -25,6 +26,13 @@ namespace open_gl_slurp {
         slurp::Vec3(-0.75f, -0.75f, 0.f),
         slurp::Vec3(0.75f, -0.75f, 0.f),
     };
+    static const slurp::Vec3<float> RECTANGLE_VERTICES[] = {
+        slurp::Vec3(-0.75f, 0.75f, 0.f),
+        slurp::Vec3(0.75f, 0.75f, 0.f),
+        slurp::Vec3(-0.75f, -0.75f, 0.f),
+        slurp::Vec3(0.75f, -0.75f, 0.f),
+    };
+    static const uint32_t RECTANGLE_INDICES[] = {0, 1, 2, 1, 2, 3};
 
     static void resizeViewport(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
@@ -33,6 +41,9 @@ namespace open_gl_slurp {
     OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
         : _isValid(true),
           _window(nullptr),
+          _vertexArrayObjectId(INVALID_ID),
+          _vertexBufferObjectId(INVALID_ID),
+          _elementBufferObjectId(INVALID_ID),
           _shaderProgramId(INVALID_ID) {
         if (!init(width, height, title)) {
             this->_isValid = false;
@@ -104,9 +115,16 @@ namespace open_gl_slurp {
         /** Vertex Array/Buffer Object **/
         glGenVertexArrays(1, &this->_vertexArrayObjectId);
         glBindVertexArray(this->_vertexArrayObjectId);
+
         glGenBuffers(1, &this->_vertexBufferObjectId);
         glBindBuffer(GL_ARRAY_BUFFER, this->_vertexBufferObjectId);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(TRIANGLE_VERTICES), TRIANGLE_VERTICES, GL_STATIC_DRAW);
+        // glBufferData(GL_ARRAY_BUFFER, sizeof(TRIANGLE_VERTICES), TRIANGLE_VERTICES, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(RECTANGLE_VERTICES), RECTANGLE_VERTICES, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &this->_elementBufferObjectId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_elementBufferObjectId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(RECTANGLE_INDICES), RECTANGLE_INDICES, GL_STATIC_DRAW);
+
         glVertexAttribPointer(
             LOCATION_VERTEX_ATTRIBUTE_IDX,
             3,
@@ -116,6 +134,8 @@ namespace open_gl_slurp {
             nullptr
         );
         glEnableVertexAttribArray(LOCATION_VERTEX_ATTRIBUTE_IDX);
+
+        glBindVertexArray(UNUSED_ID);
 
         /** Shaders **/
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -146,6 +166,9 @@ namespace open_gl_slurp {
 
         glBindVertexArray(this->_vertexArrayObjectId);
         glUseProgram(this->_shaderProgramId);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(UNUSED_ID);
     }
 }

@@ -26,6 +26,7 @@ namespace open_gl_slurp {
         GLFWwindow* _window;
         uint32_t _vertexArrayObjectId;
         uint32_t _vertexBufferObjectId;
+        uint32_t _elementBufferObjectId;
         uint32_t _shaderProgramId;
     };
 }
