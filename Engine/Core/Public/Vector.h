@@ -9,7 +9,6 @@ namespace slurp {
         T y;
 
         static const Vec2 Zero;
-        static const Vec2 Unit;
 
         Vec2() {
             this->x = 0;
@@ -120,13 +119,149 @@ namespace slurp {
     };
 
     template<typename T>
+    struct Vec3 {
+        T x;
+        T y;
+        T z;
+
+        static const Vec3 Zero;
+
+        Vec3() {
+            this->x = 0;
+            this->y = 0;
+            this->z = 0;
+        }
+
+        Vec3(T _x, T _y, T _z) {
+            this->x = _x;
+            this->y = _y;
+            this->z = _z;
+        }
+
+        bool isZero() const {
+            return *this == Zero;
+        }
+
+        float magnitude() const {
+            // NOTE: square roots are slow, consider magnitudeSquared
+            return static_cast<float>(
+                std::sqrt(
+                    std::pow(this->x, 2) + std::pow(this->y, 2) + std::pow(this->z, 2)
+                )
+            );
+        }
+
+        float magnitudeSquared() const {
+            return static_cast<float>(
+                std::pow(this->x, 2) + std::pow(this->y, 2) + std::pow(this->z, 2)
+            );
+        }
+
+        // TODO: this can't properly normalize an int vector. need to convert to float first
+        Vec3<float> normalize() {
+            float mag = magnitude();
+            if (mag != 0.0f) {
+                *this /= mag;
+            }
+            return *this;
+        }
+
+        template<typename U>
+        float distanceTo(const Vec3<U>& other) const {
+            return (other - *this).magnitude();
+        }
+
+        template<typename U>
+        float distanceSquaredTo(const Vec3<U>& other) const {
+            return (other - *this).magnitudeSquared();
+        }
+
+        template<typename U>
+        bool operator==(const Vec3<U>& other) const {
+            return this->x == other.x && this->y == other.y && this->z == other.z;
+        }
+
+        template<typename U>
+        bool operator!=(const Vec3<U>& other) const {
+            return this->x != other.x && this->y != other.y && this->z != other.z;
+        }
+
+        template<typename U>
+        Vec3<std::common_type_t<T, U> > operator+(const Vec3<U>& other) const {
+            return Vec3<std::common_type_t<T, U> >(this->x + other.x, this->y + other.y, this->z + other.z);
+        }
+
+        template<typename U>
+        Vec3<std::common_type_t<T, U> > operator-(const Vec3<U>& other) const {
+            return Vec3<std::common_type_t<T, U> >(this->x - other.x, this->y - other.y, this->z - other.z);
+        }
+
+        template<typename TScalar>
+        Vec3<std::common_type_t<T, TScalar> > operator*(const TScalar& scalar) const {
+            return Vec3<std::common_type_t<T, TScalar> >(this->x * scalar, this->y * scalar, this->z * scalar);
+        }
+
+        template<typename TScalar>
+        Vec3<std::common_type_t<T, TScalar> > operator/(const TScalar& scalar) const {
+            return Vec3<std::common_type_t<T, TScalar> >(this->x / scalar, this->y / scalar, this->z / scalar);
+        }
+
+        Vec3& operator+=(const Vec3& other) {
+            this->x += other.x;
+            this->y += other.y;
+            this->z += other.z;
+            return *this;
+        }
+
+        Vec3& operator-=(const Vec3& other) {
+            this->x -= other.x;
+            this->y -= other.y;
+            this->z -= other.z;
+            return *this;
+        }
+
+        template<typename TScalar>
+        Vec3& operator*=(const TScalar& scalar) {
+            this->x *= scalar;
+            this->y *= scalar;
+            this->z *= scalar;
+            return *this;
+        }
+
+        template<typename TScalar>
+        Vec3& operator/=(const TScalar& scalar) {
+            this->x = static_cast<T>(this->x / scalar);
+            this->y = static_cast<T>(this->y / scalar);
+            this->z = static_cast<T>(this->z / scalar);
+            return *this;
+        }
+
+        Vec3 operator-() const {
+            return Vec3(-this->x, -this->y, this->z);
+        }
+
+        template<typename TNew>
+        operator Vec3<TNew>() const {
+            return Vec3<TNew>(static_cast<TNew>(this->x), static_cast<TNew>(this->y), static_cast<TNew>(this->z));
+        }
+    };
+
+    /** Constants **/
+    template<typename T>
     const Vec2<T> Vec2<T>::Zero{0, 0};
     template<typename T>
-    const Vec2<T> Vec2<T>::Unit{1, 1};
+    const Vec3<T> Vec3<T>::Zero{0, 0, 0};
+
 
     template<typename T>
     std::ostream& operator<<(std::ostream& os, const Vec2<T>& vector) {
         os << "(" << vector.x << ", " << vector.y << ")";
+        return os;
+    }
+
+    template<typename T>
+    std::ostream& operator<<(std::ostream& os, const Vec3<T>& vector) {
+        os << "(" << vector.x << ", " << vector.y << ", " << vector.z << ")";
         return os;
     }
 }
