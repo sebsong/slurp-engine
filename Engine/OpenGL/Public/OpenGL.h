@@ -2,7 +2,7 @@
 
 struct GLFWwindow;
 
-namespace o_gl {
+namespace open_gl {
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
@@ -17,8 +17,6 @@ namespace o_gl {
 
     private:
         bool init(int width, int height, const char* title);
-
-        void initShaders();
 
         void debugTestDraw() const;
 

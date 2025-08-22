@@ -3,7 +3,6 @@
 #include "Logging.h"
 #include "Debug.h"
 
-#include <iostream>
 #include <string>
 #include <format>
 #include <shlwapi.h>
@@ -1073,7 +1072,7 @@ int WINAPI WinMain(
 ) {
     HWND windowHandle = nullptr;
 #if OPEN_GL
-    o_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #else
     if (!winInitWindow(hInstance, &windowHandle)) { return 1; }
