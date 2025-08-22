@@ -1071,10 +1071,9 @@ int WINAPI WinMain(
     PSTR lpCmdLine,
     int nCmdShow
 ) {
-
     HWND windowHandle = nullptr;
 #if OPEN_GL
-    open_gl_slurp::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    o_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #else
     if (!winInitWindow(hInstance, &windowHandle)) { return 1; }

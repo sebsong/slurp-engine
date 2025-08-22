@@ -2,7 +2,7 @@
 
 struct GLFWwindow;
 
-namespace open_gl_slurp {
+namespace o_gl {
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);

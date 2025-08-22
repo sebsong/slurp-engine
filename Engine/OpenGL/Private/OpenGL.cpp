@@ -3,7 +3,10 @@
 #include "WinGlad.c"
 #include <GLFW/glfw3.h>
 
-namespace open_gl_slurp {
+#include "OpenGLShader.h"
+#include "Logging.h"
+
+namespace o_gl {
     static constexpr uint32_t INVALID_ID = -1;
     static constexpr uint32_t UNUSED_ID = 0;
     static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
@@ -209,6 +212,7 @@ namespace open_gl_slurp {
         glBindVertexArray(UNUSED_ID);
 
         /** Shaders **/
+        OpenGLShader test("tutorial.glsl", "tutorial.glsl");
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderId, 1, &VERTEX_SHADER_SRC, nullptr);
         glCompileShader(vertexShaderId);
