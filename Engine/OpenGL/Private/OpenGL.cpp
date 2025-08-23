@@ -6,7 +6,7 @@
 #include "Logging.h"
 
 namespace open_gl {
-    static constexpr uint32_t INVALID_ID = -1;
+    static constexpr uint32_t INVALID_ID = 0;
     static constexpr uint32_t UNUSED_ID = 0;
     static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
     static constexpr uint32_t COLOR_VERTEX_ATTRIBUTE_IDX = 1;
@@ -277,5 +277,28 @@ namespace open_gl {
         glUseProgram(this->_otherShaderProgramId);
         glUniform2f(fragmentColorLocation, redValue, blueValue);
         drawArrays(this->_otherVertexArrayObjectId, this->_otherShaderProgramId, 3);
+    }
+
+    shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource) {
+        uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShaderId, 1, &vertexShaderSource, nullptr);
+        glCompileShader(vertexShaderId);
+        if (!validateShader(vertexShaderId)) { return INVALID_ID; }
+
+        uint32_t fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShaderId, 1, &fragmentShaderSource, nullptr);
+        glCompileShader(fragmentShaderId);
+        if (!validateShader(fragmentShaderId)) { return INVALID_ID; }
+
+        shader_program_id shaderProgramId = glCreateProgram();
+        glAttachShader(shaderProgramId, vertexShaderId);
+        glAttachShader(shaderProgramId, fragmentShaderId);
+        glLinkProgram(shaderProgramId);
+        if (!validateShaderProgram(shaderProgramId)) { return INVALID_ID; }
+
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
+
+        return shaderProgramId;
     }
 }

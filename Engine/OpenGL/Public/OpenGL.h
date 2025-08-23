@@ -3,6 +3,8 @@
 struct GLFWwindow;
 
 namespace open_gl {
+    typedef uint32_t shader_program_id;
+
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
@@ -31,4 +33,6 @@ namespace open_gl {
         uint32_t _otherVertexBufferObjectId;
         uint32_t _otherShaderProgramId;
     };
+
+    shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 }
