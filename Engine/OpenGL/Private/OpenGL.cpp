@@ -136,7 +136,11 @@ namespace open_gl {
 
     bool OpenGLRenderWindow::init(int width, int height, const char* title) {
         /** Window **/
-        glfwInit();
+        if (glfwInit() == GLFW_FALSE) {
+            logging::error("Failed to initialize GLFW");
+            glfwTerminate();
+            return false;
+        }
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

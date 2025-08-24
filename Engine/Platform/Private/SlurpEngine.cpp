@@ -51,7 +51,7 @@ namespace slurp {
 
     SLURP_INIT(init) {
         GlobalPlatformDll = &platformDll;
-        open_gl::OpenGLShader test("tutorial.glsl", "tutorial.glsl");
+        // open_gl::OpenGLShader test("tutorial.glsl", "tutorial.glsl");
 
         ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);

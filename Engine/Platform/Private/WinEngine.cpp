@@ -629,7 +629,9 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
 static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
     CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
-    if (!GlobalSlurpLib) { OutputDebugStringA("Failed to load SlurpEngine.dll.\n"); } else {
+    if (!GlobalSlurpLib) {
+        OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
+    } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
             "init",
@@ -658,7 +660,9 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
 }
 
 static void winUnloadSlurpLib() {
-    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) { OutputDebugStringA("Failed to unload Slurp lib.\n"); }
+    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) {
+        OutputDebugStringA("Failed to unload Slurp lib.\n");
+    }
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
