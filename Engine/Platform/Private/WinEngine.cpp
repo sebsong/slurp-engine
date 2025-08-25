@@ -45,6 +45,7 @@ static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
+static render::RenderApi GlobalRenderApi;
 static platform::GameMemory GlobalGameMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
@@ -688,7 +689,7 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
-    GlobalSlurpDll.init(GlobalPlatformDll, GlobalGameMemory);
+    GlobalSlurpDll.init(GlobalGameMemory, GlobalPlatformDll, GlobalRenderApi);
 }
 
 static std::string getLocalFilePath(LPCSTR filename) {
@@ -1040,10 +1041,6 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color) {
 }
 #endif
 
-PLATFORM_CREATE_SHADER_PROGRAM(platform::createShaderProgram) {
-    return open_gl::createShaderProgram(vertexShaderSource, fragmentShaderSource);
-}
-
 PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
@@ -1058,7 +1055,6 @@ PLATFORM_SHUTDOWN(platform::shutdown) { GlobalRunning = false; }
 
 static platform::PlatformDll loadPlatformDll() {
     platform::PlatformDll platformDll = {};
-    platformDll.createShaderProgram = platform::createShaderProgram;
     platformDll.vibrateGamepad = platform::vibrateGamepad;
     platformDll.shutdown = platform::shutdown;
 #if DEBUG
@@ -1071,6 +1067,12 @@ static platform::PlatformDll loadPlatformDll() {
     platformDll.DEBUG_beginPlayback = platform::DEBUG_beginPlayback;
 #endif
     return platformDll;
+}
+
+static render::RenderApi loadRenderApi() {
+    render::RenderApi renderApi = {};
+    renderApi.createShaderProgram = open_gl::createShaderProgram;
+    return renderApi;
 }
 
 int WINAPI WinMain(
@@ -1096,6 +1098,7 @@ int WINAPI WinMain(
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
     GlobalPlatformDll = loadPlatformDll();
+    GlobalRenderApi = loadRenderApi();
     winAllocateGameMemory(&GlobalGameMemory);
     winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
     winLoadXInput();

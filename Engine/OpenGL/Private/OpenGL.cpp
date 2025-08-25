@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 
 #include "Logging.h"
+#include "RenderApi.h"
 
 namespace open_gl {
     static const char* VERTEX_SHADER_SRC = R"(
@@ -81,10 +82,10 @@ namespace open_gl {
     OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
         : _isValid(true),
           _window(nullptr),
-          _vertexArrayObjectId(INVALID_ID),
-          _vertexBufferObjectId(INVALID_ID),
-          _elementBufferObjectId(INVALID_ID),
-          _shaderProgramId(INVALID_ID) {
+          _vertexArrayObjectId(render::INVALID_ID),
+          _vertexBufferObjectId(render::INVALID_ID),
+          _elementBufferObjectId(render::INVALID_ID),
+          _shaderProgramId(render::INVALID_ID) {
         if (!init(width, height, title)) {
             this->_isValid = false;
         };
@@ -170,25 +171,25 @@ namespace open_gl {
         // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(RECTANGLE_INDICES), RECTANGLE_INDICES, GL_STATIC_DRAW);
 
         glVertexAttribPointer(
-            LOCATION_VERTEX_ATTRIBUTE_IDX,
+            render::LOCATION_VERTEX_ATTRIBUTE_IDX,
             3,
             GL_FLOAT,
             GL_FALSE,
             sizeof(slurp::Vec3<float>) * 2,
             nullptr
         );
-        glEnableVertexAttribArray(LOCATION_VERTEX_ATTRIBUTE_IDX);
+        glEnableVertexAttribArray(render::LOCATION_VERTEX_ATTRIBUTE_IDX);
         glVertexAttribPointer(
-            COLOR_VERTEX_ATTRIBUTE_IDX,
+            render::COLOR_VERTEX_ATTRIBUTE_IDX,
             3,
             GL_FLOAT,
             GL_FALSE,
             sizeof(slurp::Vec3<float>) * 2,
             reinterpret_cast<void*>(sizeof(slurp::Vec3<float>))
         );
-        glEnableVertexAttribArray(COLOR_VERTEX_ATTRIBUTE_IDX);
+        glEnableVertexAttribArray(render::COLOR_VERTEX_ATTRIBUTE_IDX);
 
-        glBindVertexArray(UNUSED_ID);
+        glBindVertexArray(render::UNUSED_ID);
 
         // OTHER
         glGenVertexArrays(1, &this->_otherVertexArrayObjectId);
@@ -199,16 +200,16 @@ namespace open_gl {
         glBufferData(GL_ARRAY_BUFFER, sizeof(OTHER_TRIANGLE_VERTICES), OTHER_TRIANGLE_VERTICES, GL_STATIC_DRAW);
 
         glVertexAttribPointer(
-            LOCATION_VERTEX_ATTRIBUTE_IDX,
+            render::LOCATION_VERTEX_ATTRIBUTE_IDX,
             3,
             GL_FLOAT,
             GL_FALSE,
             sizeof(slurp::Vec3<float>),
             nullptr
         );
-        glEnableVertexAttribArray(LOCATION_VERTEX_ATTRIBUTE_IDX);
+        glEnableVertexAttribArray(render::LOCATION_VERTEX_ATTRIBUTE_IDX);
 
-        glBindVertexArray(UNUSED_ID);
+        glBindVertexArray(render::UNUSED_ID);
 
         /** Shaders **/
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -259,8 +260,8 @@ namespace open_gl {
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         // // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(UNUSED_ID);
-        glUseProgram(UNUSED_ID);
+        glBindVertexArray(render::UNUSED_ID);
+        glUseProgram(render::UNUSED_ID);
     }
 
     void OpenGLRenderWindow::debugTestDraw() const {
@@ -279,22 +280,22 @@ namespace open_gl {
         drawArrays(this->_otherVertexArrayObjectId, this->_otherShaderProgramId, 3);
     }
 
-    shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource) {
+    render::shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource) {
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderId, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShaderId);
-        if (!validateShader(vertexShaderId)) { return INVALID_ID; }
+        if (!validateShader(vertexShaderId)) { return render::INVALID_ID; }
 
         uint32_t fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShaderId, 1, &fragmentShaderSource, nullptr);
         glCompileShader(fragmentShaderId);
-        if (!validateShader(fragmentShaderId)) { return INVALID_ID; }
+        if (!validateShader(fragmentShaderId)) { return render::INVALID_ID; }
 
-        shader_program_id shaderProgramId = glCreateProgram();
+        render::shader_program_id shaderProgramId = glCreateProgram();
         glAttachShader(shaderProgramId, vertexShaderId);
         glAttachShader(shaderProgramId, fragmentShaderId);
         glLinkProgram(shaderProgramId);
-        if (!validateShaderProgram(shaderProgramId)) { return INVALID_ID; }
+        if (!validateShaderProgram(shaderProgramId)) { return render::INVALID_ID; }
 
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
