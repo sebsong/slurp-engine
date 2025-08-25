@@ -56,7 +56,7 @@ namespace asset {
         std::ifstream file(filePath);
         ASSERT(file.good());
 
-        std::stringstream stream;
+        std::ostringstream stream;
         stream << file.rdbuf();
 
         return stream.str();

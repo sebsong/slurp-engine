@@ -31,8 +31,6 @@ else ()
     list(APPEND compiler_flags ${release_flags})
 endif ()
 
-# GLFW
-
 # SLURP ENGINE LIBRARY
 add_library(slurp_engine SHARED SlurpEngine.cpp)
 set_target_properties(slurp_engine PROPERTIES

@@ -1040,6 +1040,10 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color) {
 }
 #endif
 
+PLATFORM_CREATE_SHADER_PROGRAM(platform::createShaderProgram) {
+    return open_gl::createShaderProgram(vertexShaderSource, fragmentShaderSource);
+}
+
 PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
@@ -1054,6 +1058,7 @@ PLATFORM_SHUTDOWN(platform::shutdown) { GlobalRunning = false; }
 
 static platform::PlatformDll loadPlatformDll() {
     platform::PlatformDll platformDll = {};
+    platformDll.createShaderProgram = platform::createShaderProgram;
     platformDll.vibrateGamepad = platform::vibrateGamepad;
     platformDll.shutdown = platform::shutdown;
 #if DEBUG

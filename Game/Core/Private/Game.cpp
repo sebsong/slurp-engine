@@ -45,6 +45,14 @@ namespace game {
         GlobalSoundManager = &soundManager;
         GlobalColorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
 
+#if 1
+        std::string vertexShaderSource = asset::loadVertexShaderSource("tutorial.glsl");
+        std::string fragmentShaderSource = asset::loadFragmentShaderSource("tutorial.glsl");
+
+        open_gl::shader_program_id programId = GlobalPlatformDll->createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+        // open_gl::OpenGLShader test("tutorial.glsl", "tutorial.glsl");
+#endif
+
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
         random::setRandomSeed(GlobalGameState->randomSeed);
 

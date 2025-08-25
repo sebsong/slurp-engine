@@ -6,10 +6,6 @@
 #include "Logging.h"
 
 namespace open_gl {
-    static constexpr uint32_t INVALID_ID = 0;
-    static constexpr uint32_t UNUSED_ID = 0;
-    static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
-    static constexpr uint32_t COLOR_VERTEX_ATTRIBUTE_IDX = 1;
     static const char* VERTEX_SHADER_SRC = R"(
         #version 330 core
         layout (location = 0) in vec3 position;
