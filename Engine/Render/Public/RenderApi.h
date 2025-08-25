@@ -19,5 +19,10 @@ namespace render {
 
     struct RenderApi {
         dyn_createShaderProgram* createShaderProgram = stub_createShaderProgram;
+
+        shader_program_id loadShaderProgram(
+            const std::string& vertexShaderFileName,
+            const std::string& fragmentShaderFileName
+        ) const;
     };
 }

@@ -8,7 +8,7 @@ add_compile_definitions(OPEN_GL)
 
 # COMPILER AND LINKER FLAGS
 set(win_libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a libglfw3.a)
-set(slurp_libs libglfw3.a) #TODO: don't think we should need opengl and glfw libs in both slurp and win
+set(slurp_libs)
 if (MSVC)
     set(compiler_flags -nologo -FC -EHsc -Oi -std:c++20)
     set(warning_flags -WX -W4 -wd4100 -wd4189 -wd4505)
