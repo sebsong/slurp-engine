@@ -15,5 +15,9 @@ namespace asset {
 
     Bitmap loadBitmapFile(const std::string& bitmapFileName);
 
+    std::string loadVertexShaderSource(const std::string& shaderSourceFileName);
+
+    std::string loadFragmentShaderSource(const std::string& shaderSourceFileName);
+
     WaveData loadWaveFile(const std::string& waveFileName);
 }

@@ -1,13 +1,11 @@
 #include "OpenGL.h"
 
 #include "WinGlad.c"
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
-namespace open_gl_slurp {
-    static constexpr uint32_t INVALID_ID = -1;
-    static constexpr uint32_t UNUSED_ID = 0;
-    static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
-    static constexpr uint32_t COLOR_VERTEX_ATTRIBUTE_IDX = 1;
+#include "Logging.h"
+
+namespace open_gl {
     static const char* VERTEX_SHADER_SRC = R"(
         #version 330 core
         layout (location = 0) in vec3 position;
@@ -134,7 +132,11 @@ namespace open_gl_slurp {
 
     bool OpenGLRenderWindow::init(int width, int height, const char* title) {
         /** Window **/
-        glfwInit();
+        if (glfwInit() == GLFW_FALSE) {
+            logging::error("Failed to initialize GLFW");
+            glfwTerminate();
+            return false;
+        }
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -275,5 +277,28 @@ namespace open_gl_slurp {
         glUseProgram(this->_otherShaderProgramId);
         glUniform2f(fragmentColorLocation, redValue, blueValue);
         drawArrays(this->_otherVertexArrayObjectId, this->_otherShaderProgramId, 3);
+    }
+
+    shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource) {
+        uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShaderId, 1, &vertexShaderSource, nullptr);
+        glCompileShader(vertexShaderId);
+        if (!validateShader(vertexShaderId)) { return INVALID_ID; }
+
+        uint32_t fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShaderId, 1, &fragmentShaderSource, nullptr);
+        glCompileShader(fragmentShaderId);
+        if (!validateShader(fragmentShaderId)) { return INVALID_ID; }
+
+        shader_program_id shaderProgramId = glCreateProgram();
+        glAttachShader(shaderProgramId, vertexShaderId);
+        glAttachShader(shaderProgramId, fragmentShaderId);
+        glLinkProgram(shaderProgramId);
+        if (!validateShaderProgram(shaderProgramId)) { return INVALID_ID; }
+
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
+
+        return shaderProgramId;
     }
 }

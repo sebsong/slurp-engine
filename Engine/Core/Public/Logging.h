@@ -17,7 +17,7 @@ namespace logging {
 
     template<typename T>
     void info(const T& message) {
-        log("DEBUG", message);
+        log("INFO", message);
     }
 
     template<typename T>

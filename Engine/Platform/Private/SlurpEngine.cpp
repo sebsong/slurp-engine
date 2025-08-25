@@ -36,6 +36,11 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "OpenGL.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "OpenGLShader.cpp"
+
 namespace slurp {
     static const platform::PlatformDll* GlobalPlatformDll;
     static EntityManager* GlobalEntityManager;

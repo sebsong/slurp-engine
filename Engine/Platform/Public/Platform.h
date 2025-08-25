@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <functional>
 
+#include "OpenGL.h"
+
 namespace platform {
     struct MemoryBlock {
         uint64_t sizeBytes;
@@ -21,6 +23,9 @@ namespace platform {
     };
 #endif
 
+    // TODO: make this not open gl specific
+#define PLATFORM_CREATE_SHADER_PROGRAM(fnName) open_gl::shader_program_id fnName(const char * vertexShaderSource, const char * fragmentShaderSource)
+
 #define PLATFORM_VIBRATE_GAMEPAD(fnName) void fnName(int gamepadIndex, float leftMotorSpeed, float rightMotorSpeed)
 #define PLATFORM_SHUTDOWN(fnName) void fnName()
 #if DEBUG
@@ -32,6 +37,8 @@ namespace platform {
 #define PLATFORM_DEBUG_END_RECORDING(fnName) void fnName()
 #define PLATFORM_DEBUG_BEGIN_PLAYBACK(fnName) void fnName(const std::function<void()>& onPlaybackEnd)
 #endif
+
+    SLURP_DECLARE_DYNAMIC_RETURN(PLATFORM_CREATE_SHADER_PROGRAM, createShaderProgram, open_gl::INVALID_ID)
 
     SLURP_DECLARE_DYNAMIC_VOID(PLATFORM_VIBRATE_GAMEPAD, vibrateGamepad)
 
@@ -54,6 +61,7 @@ namespace platform {
 
     // TODO: ASSERT that we actually replace these stubs properly
     struct PlatformDll {
+        dyn_createShaderProgram* createShaderProgram = stub_createShaderProgram;
         dyn_vibrateGamepad* vibrateGamepad = stub_vibrateGamepad;
         dyn_shutdown* shutdown = stub_shutdown;
 #if DEBUG

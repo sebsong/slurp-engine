@@ -2,7 +2,14 @@
 
 struct GLFWwindow;
 
-namespace open_gl_slurp {
+namespace open_gl {
+    typedef uint32_t shader_program_id;
+
+    static constexpr uint32_t INVALID_ID = 0;
+    static constexpr uint32_t UNUSED_ID = 0;
+    static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
+    static constexpr uint32_t COLOR_VERTEX_ATTRIBUTE_IDX = 1;
+
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
@@ -18,8 +25,6 @@ namespace open_gl_slurp {
     private:
         bool init(int width, int height, const char* title);
 
-        void initShaders();
-
         void debugTestDraw() const;
 
         bool _isValid;
@@ -33,4 +38,6 @@ namespace open_gl_slurp {
         uint32_t _otherVertexBufferObjectId;
         uint32_t _otherShaderProgramId;
     };
+
+    shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 }

@@ -3,7 +3,6 @@
 #include "Logging.h"
 #include "Debug.h"
 
-#include <iostream>
 #include <string>
 #include <format>
 #include <shlwapi.h>
@@ -630,7 +629,9 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
 static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
     CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
-    if (!GlobalSlurpLib) { OutputDebugStringA("Failed to load SlurpEngine.dll.\n"); } else {
+    if (!GlobalSlurpLib) {
+        OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
+    } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
             "init",
@@ -659,7 +660,9 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
 }
 
 static void winUnloadSlurpLib() {
-    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) { OutputDebugStringA("Failed to unload Slurp lib.\n"); }
+    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) {
+        OutputDebugStringA("Failed to unload Slurp lib.\n");
+    }
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
@@ -1037,6 +1040,10 @@ void winDrawDebugAudioSync(DWORD cursor, uint32_t color) {
 }
 #endif
 
+PLATFORM_CREATE_SHADER_PROGRAM(platform::createShaderProgram) {
+    return open_gl::createShaderProgram(vertexShaderSource, fragmentShaderSource);
+}
+
 PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
     uint16_t leftMotorSpeedRaw = static_cast<uint16_t>(leftMotorSpeed * XINPUT_VIBRATION_MAG);
     uint16_t rightMotorSpeedRaw = static_cast<uint16_t>(rightMotorSpeed * XINPUT_VIBRATION_MAG);
@@ -1051,6 +1058,7 @@ PLATFORM_SHUTDOWN(platform::shutdown) { GlobalRunning = false; }
 
 static platform::PlatformDll loadPlatformDll() {
     platform::PlatformDll platformDll = {};
+    platformDll.createShaderProgram = platform::createShaderProgram;
     platformDll.vibrateGamepad = platform::vibrateGamepad;
     platformDll.shutdown = platform::shutdown;
 #if DEBUG
@@ -1071,10 +1079,9 @@ int WINAPI WinMain(
     PSTR lpCmdLine,
     int nCmdShow
 ) {
-
     HWND windowHandle = nullptr;
 #if OPEN_GL
-    open_gl_slurp::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #else
     if (!winInitWindow(hInstance, &windowHandle)) { return 1; }
