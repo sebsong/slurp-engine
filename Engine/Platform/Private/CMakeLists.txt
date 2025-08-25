@@ -7,7 +7,8 @@ add_compile_definitions(OPEN_GL)
 #add_compile_definitions(ASSETS_DIR="C:/Users/sebys/Workspace/slurp-engine/SlurpEngine/Assets/")
 
 # COMPILER AND LINKER FLAGS
-set(libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a opengl32.lib libglfw3.a)
+set(win_libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a libglfw3.a)
+set(slurp_libs libglfw3.a) #TODO: don't think we should need opengl and glfw libs in both slurp and win
 if (MSVC)
     set(compiler_flags -nologo -FC -EHsc -Oi -std:c++20)
     set(warning_flags -WX -W4 -wd4100 -wd4189 -wd4505)
@@ -30,8 +31,6 @@ else ()
     list(APPEND compiler_flags ${release_flags})
 endif ()
 
-# GLFW
-
 # SLURP ENGINE LIBRARY
 add_library(slurp_engine SHARED SlurpEngine.cpp)
 set_target_properties(slurp_engine PROPERTIES
@@ -40,11 +39,12 @@ set_target_properties(slurp_engine PROPERTIES
         SUFFIX ".dll"
 )
 target_compile_options(slurp_engine PRIVATE ${compiler_flags})
+target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
 target_link_options(slurp_engine PRIVATE ${linker_flags})
 
 # WIN ENGINE EXE
 add_executable(win_engine WIN32 WinEngine.cpp)
-target_link_libraries(win_engine PRIVATE ${libs})
 target_compile_options(win_engine PRIVATE ${compiler_flags})
+target_link_libraries(win_engine PRIVATE ${win_libs})
 target_link_options(win_engine PRIVATE ${linker_flags})
 

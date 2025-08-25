@@ -75,7 +75,7 @@ namespace slurp {
         F4,
     };
 
-    typedef std::pair<const slurp::KeyboardCode, slurp::DigitalInputState> keyboard_state_entry;
+    typedef std::pair<const KeyboardCode, DigitalInputState> keyboard_state_entry;
 
     struct KeyboardState {
         std::unordered_map<KeyboardCode, DigitalInputState> state;

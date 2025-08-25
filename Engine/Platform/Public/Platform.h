@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <functional>
 
+#include "OpenGL.h"
+
 namespace platform {
     struct MemoryBlock {
         uint64_t sizeBytes;
@@ -20,6 +22,7 @@ namespace platform {
         uint32_t sizeBytes;
     };
 #endif
+
 
 #define PLATFORM_VIBRATE_GAMEPAD(fnName) void fnName(int gamepadIndex, float leftMotorSpeed, float rightMotorSpeed)
 #define PLATFORM_SHUTDOWN(fnName) void fnName()

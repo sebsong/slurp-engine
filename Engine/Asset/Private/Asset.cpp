@@ -18,11 +18,24 @@ namespace asset {
     static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
     static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
     static const std::string SoundsDirectory = AssetsDirectory + "Sounds/";
+    static const std::string ShadersDirectory = AssetsDirectory + "Shaders/";
+    static const std::string VertexShadersDirectory = ShadersDirectory + "Vertex/";
+    static const std::string FragmentShadersDirectory = ShadersDirectory + "Fragment/";
 
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
-    static FileReadResult readBytes(const std::string& filePath) {
+    static std::ifstream getFile(const std::string& directory, const std::string& fileName) {
+        const std::string filePath = directory + fileName;
+        std::ifstream file(filePath, std::ios::binary);
+
+        ASSERT(file.good());
+
+        return file;
+    }
+
+    static FileReadResult readBytes(const std::string& directory, const std::string& fileName) {
+        const std::string filePath = directory + fileName;
         std::ifstream file(filePath, std::ios::binary);
 
         ASSERT(file.good());
@@ -37,6 +50,43 @@ namespace asset {
             fileBytes
         };
     }
+
+    static std::string readTextFile(const std::string& directory, const std::string& fileName) {
+        const std::string filePath = directory + fileName;
+        std::ifstream file(filePath);
+        ASSERT(file.good());
+
+        std::ostringstream stream;
+        stream << file.rdbuf();
+
+        return stream.str();
+    }
+
+    render::ColorPalette loadColorPalette(const std::string& paletteHexFileName) {
+        render::ColorPalette palette = {};
+
+        const std::string filePath = PalettesDirectory + paletteHexFileName;
+        std::ifstream file(filePath);
+        ASSERT(file.good());
+
+        uint8_t colorPaletteIdx = 0;
+        std::string line;
+        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
+            render::Pixel color = std::stoi(line, nullptr, 16);
+            if (colorPaletteIdx != 0) {
+                color |= render::AlphaMask;
+            }
+            palette.colors[colorPaletteIdx] = color;
+            colorPaletteIdx++;
+        }
+
+        return palette;
+    }
+
+    struct FileBytesReadResult {
+        uintmax_t numBytes;
+        types::byte* bytes;
+    };
 
     static void loadBitmapColorPalette(
         types::byte* spriteFileBytes,
@@ -97,36 +147,9 @@ namespace asset {
         }
     }
 
-    render::ColorPalette loadColorPalette(const std::string& paletteHexFileName) {
-        render::ColorPalette palette = {};
-
-        const std::string filePath = PalettesDirectory + paletteHexFileName;
-        std::ifstream file(filePath);
-        ASSERT(file.good());
-
-        uint8_t colorPaletteIdx = 0;
-        std::string line;
-        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            render::Pixel color = std::stoi(line, nullptr, 16);
-            if (colorPaletteIdx != 0) {
-                color |= render::AlphaMask;
-            }
-            palette.colors[colorPaletteIdx] = color;
-            colorPaletteIdx++;
-        }
-
-        return palette;
-    }
-
-    struct FileBytesReadResult {
-        uintmax_t numBytes;
-        types::byte* bytes;
-    };
-
     // TODO: move this to windows layer?
     Bitmap loadBitmapFile(const std::string& bitmapFileName) {
-        const std::string filePath = SpritesDirectory + bitmapFileName;
-        types::byte* fileBytes = readBytes(filePath).contents;
+        types::byte* fileBytes = readBytes(SpritesDirectory, bitmapFileName).contents;
         if (!fileBytes) {
             return Bitmap{};
         }
@@ -166,6 +189,14 @@ namespace asset {
         };
     }
 
+    std::string loadVertexShaderSource(const std::string& shaderSourceFileName) {
+        return readTextFile(VertexShadersDirectory, shaderSourceFileName);
+    }
+
+    std::string loadFragmentShaderSource(const std::string& shaderSourceFileName) {
+        return readTextFile(FragmentShadersDirectory, shaderSourceFileName);
+    }
+
     static audio::audio_sample_t getChannelSample(
         types::byte* chunkData,
         uint32_t totalSampleSize,
@@ -195,8 +226,7 @@ namespace asset {
     // TODO: pre-process wave files into the engine sample size
     // TODO: stream the file in async
     WaveData loadWaveFile(const std::string& waveFileName) {
-        const std::string filePath = SoundsDirectory + waveFileName;
-        FileReadResult fileReadResult = readBytes(filePath);
+        FileReadResult fileReadResult = readBytes(SoundsDirectory, waveFileName);
         types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
         if (!fileBytes) {
             return WaveData{};

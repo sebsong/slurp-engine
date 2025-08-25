@@ -36,8 +36,14 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "OpenGL.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "OpenGLShader.cpp"
+
 namespace slurp {
     static const platform::PlatformDll* GlobalPlatformDll;
+    static const render::RenderApi* GlobalRenderApi;
     static EntityManager* GlobalEntityManager;
     static audio::SoundManager* GlobalSoundManager;
 #if DEBUG
@@ -46,6 +52,7 @@ namespace slurp {
 
     SLURP_INIT(init) {
         GlobalPlatformDll = &platformDll;
+        GlobalRenderApi = &renderApi;
 
         ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
@@ -59,7 +66,7 @@ namespace slurp {
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
 #endif
 
-        game::initGame(platformDll, sections->gameState, sections->entityManager, sections->soundManager);
+        game::initGame(sections->gameState, sections->entityManager, sections->soundManager, platformDll, renderApi);
         GlobalEntityManager->initialize();
     }
 

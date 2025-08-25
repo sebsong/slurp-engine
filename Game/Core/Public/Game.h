@@ -35,11 +35,18 @@ namespace game {
     };
 
     static const platform::PlatformDll* GlobalPlatformDll;
+    static const render::RenderApi* GlobalRenderApi;
     static GameState* GlobalGameState;
     static audio::SoundManager* GlobalSoundManager;
     static render::ColorPalette GlobalColorPalette;
 
-    void init(GameState& gameState, slurp::EntityManager& entityManager);
+    void initGame(
+        GameState& gameState,
+        slurp::EntityManager& entityManager,
+        audio::SoundManager& soundManager,
+        const platform::PlatformDll& platformDll,
+        const render::RenderApi& renderApi
+    );
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx);
 }

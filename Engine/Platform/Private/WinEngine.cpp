@@ -3,7 +3,6 @@
 #include "Logging.h"
 #include "Debug.h"
 
-#include <iostream>
 #include <string>
 #include <format>
 #include <shlwapi.h>
@@ -46,6 +45,7 @@ static WinGraphicsBuffer GlobalGraphicsBuffer;
 static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
+static render::RenderApi GlobalRenderApi;
 static platform::GameMemory GlobalGameMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
@@ -630,7 +630,9 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
 static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
     CopyFileA(dllFilePath, dllLoadFilePath, false);
     GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
-    if (!GlobalSlurpLib) { OutputDebugStringA("Failed to load SlurpEngine.dll.\n"); } else {
+    if (!GlobalSlurpLib) {
+        OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
+    } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
             "init",
@@ -659,7 +661,9 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
 }
 
 static void winUnloadSlurpLib() {
-    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) { OutputDebugStringA("Failed to unload Slurp lib.\n"); }
+    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) {
+        OutputDebugStringA("Failed to unload Slurp lib.\n");
+    }
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
@@ -685,7 +689,7 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
-    GlobalSlurpDll.init(GlobalPlatformDll, GlobalGameMemory);
+    GlobalSlurpDll.init(GlobalGameMemory, GlobalPlatformDll, GlobalRenderApi);
 }
 
 static std::string getLocalFilePath(LPCSTR filename) {
@@ -1065,16 +1069,21 @@ static platform::PlatformDll loadPlatformDll() {
     return platformDll;
 }
 
+static render::RenderApi loadRenderApi() {
+    render::RenderApi renderApi = {};
+    renderApi.createShaderProgram = open_gl::createShaderProgram;
+    return renderApi;
+}
+
 int WINAPI WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     PSTR lpCmdLine,
     int nCmdShow
 ) {
-
     HWND windowHandle = nullptr;
 #if OPEN_GL
-    open_gl_slurp::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #else
     if (!winInitWindow(hInstance, &windowHandle)) { return 1; }
@@ -1089,6 +1098,7 @@ int WINAPI WinMain(
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
     GlobalPlatformDll = loadPlatformDll();
+    GlobalRenderApi = loadRenderApi();
     winAllocateGameMemory(&GlobalGameMemory);
     winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
     winLoadXInput();

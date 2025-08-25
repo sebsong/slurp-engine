@@ -1,8 +1,9 @@
 #pragma once
+#include "RenderApi.h"
 
 struct GLFWwindow;
 
-namespace open_gl_slurp {
+namespace open_gl {
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
@@ -18,8 +19,6 @@ namespace open_gl_slurp {
     private:
         bool init(int width, int height, const char* title);
 
-        void initShaders();
-
         void debugTestDraw() const;
 
         bool _isValid;
@@ -33,4 +32,8 @@ namespace open_gl_slurp {
         uint32_t _otherVertexBufferObjectId;
         uint32_t _otherShaderProgramId;
     };
+
+    CREATE_SHADER_PROGRAM(createShaderProgram);
+
+    // render::shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 }
