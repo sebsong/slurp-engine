@@ -197,7 +197,7 @@ namespace open_gl {
 
         glGenBuffers(1, &this->_otherVertexBufferObjectId);
         glBindBuffer(GL_ARRAY_BUFFER, this->_otherVertexBufferObjectId);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(OTHER_TRIANGLE_VERTICES), OTHER_TRIANGLE_VERTICES, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(slurp::Vec3<float>) * 3, OTHER_TRIANGLE_VERTICES, GL_STATIC_DRAW);
 
         glVertexAttribPointer(
             render::LOCATION_VERTEX_ATTRIBUTE_IDX,
@@ -288,8 +288,18 @@ namespace open_gl {
         uint32_t vertexBufferId;
         glGenBuffers(1, &vertexBufferId);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
+        glVertexAttribPointer(
+            render::LOCATION_VERTEX_ATTRIBUTE_IDX,
+            slurp::Vec3<float>::Count,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(slurp::Vec3<float>),
+            nullptr
+        );
+        glEnableVertexAttribArray(render::LOCATION_VERTEX_ATTRIBUTE_IDX);
+
         // TODO: allow usage control
-        glBufferData(GL_ARRAY_BUFFER, sizeof(slurp::Vec3<float>) * vertexCount, TRIANGLE_VERTICES, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(slurp::Vec3<float>) * vertexCount, vertexArray, GL_STATIC_DRAW);
 
         // glBindVertexArray(render::UNUSED_ID);
         // glBindBuffer(GL_ARRAY_BUFFER, render::UNUSED_ID);
@@ -320,6 +330,9 @@ namespace open_gl {
     }
 
     DRAW_ARRAY(drawArray) {
+        glClearColor(0.3, 0.2, 0.9, .5f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -9,6 +9,7 @@ namespace slurp {
         T y;
 
         static const Vec2 Zero;
+        static const uint32_t Count;
 
         Vec2() {
             this->x = 0;
@@ -135,6 +136,7 @@ namespace slurp {
         };
 
         static const Vec3 Zero;
+        static const uint32_t Count;
 
         Vec3() {
             this->x = 0;
@@ -260,7 +262,11 @@ namespace slurp {
     template<typename T>
     const Vec2<T> Vec2<T>::Zero{0, 0};
     template<typename T>
+    const uint32_t Vec2<T>::Count{2};
+    template<typename T>
     const Vec3<T> Vec3<T>::Zero{0, 0, 0};
+    template<typename T>
+    const uint32_t Vec3<T>::Count{3};
 
 
     template<typename T>

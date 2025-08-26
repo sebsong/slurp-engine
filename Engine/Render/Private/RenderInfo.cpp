@@ -12,12 +12,14 @@ namespace render {
 
     RenderInfo::RenderInfo()
         : renderingEnabled(false),
+          openGLInfo({}),
           sprite({}),
           renderShape({}),
           renderOffset({}) {}
 
     RenderInfo::RenderInfo(const Sprite& sprite, bool isCentered)
         : renderingEnabled(true),
+          openGLInfo({}),
           sprite(sprite),
           renderShape({}),
           renderOffset(getRenderOffset(sprite.bitmap.dimensions, isCentered)) {}
@@ -26,6 +28,7 @@ namespace render {
         const RenderShape& renderShape,
         bool isCentered
     ): renderingEnabled(true),
+       openGLInfo({}),
        sprite({}),
        renderShape(renderShape),
        renderOffset(getRenderOffset(renderShape.shape.dimensions, isCentered)) {}
