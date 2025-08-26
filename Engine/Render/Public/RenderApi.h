@@ -10,10 +10,10 @@ namespace render {
     typedef uint32_t shader_program_id;
     typedef uint32_t vertexArrayId;
 
-    static constexpr uint32_t INVALID_ID = 0;
-    static constexpr uint32_t UNUSED_ID = 0;
+    static constexpr int INVALID_ID = -1;
     static constexpr uint32_t LOCATION_VERTEX_ATTRIBUTE_IDX = 0;
     static constexpr uint32_t COLOR_VERTEX_ATTRIBUTE_IDX = 1;
+    static constexpr const char* TIME_UNIFORM_NAME = "time";
 
 #define GEN_ARRAY_BUFFER(fnName) render::vertexArrayId fnName(const slurp::Vec3<float> vertexArray[], int vertexCount)
 #define CREATE_SHADER_PROGRAM(fnName) render::shader_program_id fnName(const char * vertexShaderSource, const char * fragmentShaderSource)

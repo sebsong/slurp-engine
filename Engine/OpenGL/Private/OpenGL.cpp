@@ -209,7 +209,7 @@ namespace open_gl {
         );
         glEnableVertexAttribArray(render::LOCATION_VERTEX_ATTRIBUTE_IDX);
 
-        glBindVertexArray(render::UNUSED_ID);
+        glBindVertexArray(render::INVALID_ID);
 
         /** Shaders **/
         // uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -260,8 +260,8 @@ namespace open_gl {
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         // // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(render::UNUSED_ID);
-        glUseProgram(render::UNUSED_ID);
+        glBindVertexArray(render::INVALID_ID);
+        glUseProgram(render::INVALID_ID);
     }
 
     void OpenGLRenderWindow::debugTestDraw() const {
@@ -330,11 +330,12 @@ namespace open_gl {
     }
 
     DRAW_ARRAY(drawArray) {
-        glClearColor(0.3, 0.2, 0.9, .5f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
+        int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
+        if (timeUniformLoc != render::INVALID_ID) {
+            glUniform1f(timeUniformLoc, static_cast<GLfloat>(glfwGetTime()));
+        }
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         // // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

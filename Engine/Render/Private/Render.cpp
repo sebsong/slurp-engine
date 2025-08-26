@@ -4,10 +4,6 @@
 #include "Math.h"
 #include "Debug.h"
 
-#include <filesystem>
-#include <fstream>
-#include <string>
-
 namespace render {
     static void _blendAlpha(Pixel& existingColor, const Pixel& newColor, uint8_t alpha) {
         uint8_t existingRed = (existingColor & RedMask) >> RedShift;
