@@ -6,7 +6,9 @@
 #include "Render.h"
 
 namespace slurp {
-    EntityManager::EntityManager() : _pipeline(std::deque<Entity*>()) {}
+    EntityManager::EntityManager(
+        const render::RenderApi* renderApi
+    ) : _pipeline(std::deque<Entity*>()), _renderApi(renderApi) {}
 
     void EntityManager::registerEntity(Entity& entity) {
         uint32_t id = _pipeline.size();
@@ -39,7 +41,11 @@ namespace slurp {
                 entity->update(dt);
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
-                render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
+                if (entity->renderInfo.openGLInfo.vertexCount > 0) {
+                    render::drawRenderable(entity->renderInfo, entity->physicsInfo.position, _renderApi);
+                } else {
+                    render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
+                }
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
                 const Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;

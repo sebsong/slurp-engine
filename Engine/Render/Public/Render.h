@@ -51,6 +51,11 @@ namespace render {
         renderable.draw(buffer, position);
     }
 
+    template<Renderable T>
+    void drawRenderable(const T& renderable, const slurp::Vec2<float>& position, const RenderApi* renderApi) {
+        renderable.draw(position, renderApi);
+    }
+
     void drawRectBorder(
         const GraphicsBuffer& buffer,
         const slurp::Vec2<float>& startPoint,

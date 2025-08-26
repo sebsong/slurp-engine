@@ -16,15 +16,6 @@ namespace render {
           renderShape({}),
           renderOffset({}) {}
 
-    RenderInfo::RenderInfo(
-        std::string&& spriteFileName,
-        bool isCentered
-    )
-        : renderingEnabled(true),
-          sprite(render::loadSprite(spriteFileName)),
-          renderShape({}),
-          renderOffset(getRenderOffset(sprite.bitmap.dimensions, isCentered)) {}
-
     RenderInfo::RenderInfo(const Sprite& sprite, bool isCentered)
         : renderingEnabled(true),
           sprite(sprite),
@@ -39,10 +30,21 @@ namespace render {
        renderShape(renderShape),
        renderOffset(getRenderOffset(renderShape.shape.dimensions, isCentered)) {}
 
+    RenderInfo::RenderInfo(const open_gl::OpenGLRenderInfo& openGLInfo, bool isCentered)
+        : renderingEnabled(true),
+          openGLInfo(openGLInfo),
+          renderShape({}),
+          renderOffset(getRenderOffset(sprite.bitmap.dimensions, isCentered)) {}
+
     void RenderInfo::draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) const {
         if (!renderingEnabled) { return; }
 
         slurp::Vec2<float> startPoint = position + renderOffset;
         if (sprite.bitmap.map) { sprite.draw(buffer, startPoint); } else { renderShape.draw(buffer, startPoint); }
+    }
+
+    void RenderInfo::draw(const slurp::Vec2<float>& position, const RenderApi* renderApi) const {
+        // TODO: handle position
+        renderApi->drawArray(openGLInfo.vertexArrayObjectId, openGLInfo.vertexCount, openGLInfo.shaderProgramId);
     }
 }

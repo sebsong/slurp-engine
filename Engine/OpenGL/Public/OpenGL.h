@@ -33,7 +33,15 @@ namespace open_gl {
         uint32_t _otherShaderProgramId;
     };
 
+    struct OpenGLRenderInfo {
+        render::vertexArrayId vertexArrayObjectId;
+        uint32_t vertexCount;
+        render::shader_program_id shaderProgramId;
+    };
+
+    GEN_ARRAY_BUFFER(genArrayBuffer);
+
     CREATE_SHADER_PROGRAM(createShaderProgram);
 
-    // render::shader_program_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
+    DRAW_ARRAY(drawArray);
 }

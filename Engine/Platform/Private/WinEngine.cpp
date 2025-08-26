@@ -1071,7 +1071,9 @@ static platform::PlatformDll loadPlatformDll() {
 
 static render::RenderApi loadRenderApi() {
     render::RenderApi renderApi = {};
+    renderApi.genArrayBuffer = open_gl::genArrayBuffer;
     renderApi.createShaderProgram = open_gl::createShaderProgram;
+    renderApi.drawArray = open_gl::drawArray;
     return renderApi;
 }
 
