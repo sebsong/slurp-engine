@@ -96,7 +96,7 @@ namespace open_gl {
     }
 
     void OpenGLRenderWindow::flip() const {
-        debugTestDraw();
+        // debugTestDraw();
         glfwSwapBuffers(_window);
         // glfwPollEvents();
     }

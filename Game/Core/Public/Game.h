@@ -24,6 +24,7 @@ namespace game {
         obstacle::Obstacle obstacle1;
         obstacle::Obstacle obstacle2;
 
+        slurp::Entity triangleBackground;
         slurp::Entity triangle;
 
         slurp::Entity testAlpha;

@@ -19,8 +19,8 @@ namespace asset {
     static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
     static const std::string SoundsDirectory = AssetsDirectory + "Sounds/";
     static const std::string ShadersDirectory = AssetsDirectory + "Shaders/";
-    static const std::string VertexShadersDirectory = ShadersDirectory + "Vertex/";
-    static const std::string FragmentShadersDirectory = ShadersDirectory + "Fragment/";
+    static const std::string VertexShadersDirectory = ShadersDirectory + "1_Vertex/";
+    static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
