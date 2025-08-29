@@ -11,7 +11,8 @@ void main() {
     //    float redValue = 0.5f * (1.f + cos(time));
     //    float blueValue = 0.5f * (1.f + sin(time));
     //    color = vec4(redValue, 0.2f, blueValue, 1.f);
-//    vec3 colorOffset = vec3(0.5, 0.5, 0.5);
-//    color = vec4(inFragPosition / 2 + colorOffset, 1);
-    color = texture(inTexture, textureCoord);
+    //    vec3 colorOffset = vec3(0.5, 0.5, 0.5);
+    //    color = vec4(inFragPosition / 2 + colorOffset, 1);
+    vec4 texColor = texture(inTexture, textureCoord);
+    color = texColor.bgra;
 }

@@ -45,6 +45,9 @@ namespace open_gl {
         }
         glfwSetFramebufferSizeCallback(_window, resizeViewport);
 
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+
         return true;
     }
 
@@ -162,19 +165,19 @@ namespace open_gl {
         glEnableVertexAttribArray(render::POSITION_VERTEX_ATTRIBUTE_IDX);
 
         // TODO: make this optional?
-        // glVertexAttribPointer(
-        //     render::TEXTURE_VERTEX_ATTRIBUTE_IDX,
-        //     slurp::Vec2<float>::Count,
-        //     GL_FLOAT,
-        //     GL_FALSE,
-        //     render::VERTEX_SIZE,
-        //     reinterpret_cast<void*>(render::POSITION_ATTRIBUTE_SIZE)
-        // );
-        // glEnableVertexAttribArray(render::TEXTURE_VERTEX_ATTRIBUTE_IDX);
+        glVertexAttribPointer(
+            render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX,
+            slurp::Vec2<float>::Count,
+            GL_FLOAT,
+            GL_FALSE,
+            render::VERTEX_SIZE,
+            reinterpret_cast<void*>(render::POSITION_ATTRIBUTE_SIZE)
+        );
+        glEnableVertexAttribArray(render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX);
 
 
         // TODO: allow usage control
-        glBufferData(GL_ARRAY_BUFFER, render::VERTEX_SIZE * vertexCount, vertexArray, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, render::VERTEX_SIZE * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
 
         // glBindVertexArray(render::UNUSED_ID);
         // glBindBuffer(GL_ARRAY_BUFFER, render::UNUSED_ID);

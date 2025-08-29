@@ -51,17 +51,14 @@ namespace game {
         GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
 #if 1
-        // TODO: incorporate uv tex coords
-        // TODO: maybe make structs for the vertices
-        const slurp::Vec3<float> triangleVertices[] = {
-            slurp::Vec3(0.5f, 0.5f, 0.f),
-            slurp::Vec3(-0.5f, 0.5f, 0.f),
-            slurp::Vec3(-0.5f, -0.5f, 0.f),
-            slurp::Vec3(0.5f, -0.5f, 0.f),
-            slurp::Vec3(0.5f, 0.5f, 0.f),
-            slurp::Vec3(-0.5f, -0.5f, 0.f),
+        const render::Vertex triangleVertices[] = {
+            render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
+            render::Vertex{{-0.5f, 0.5f, 0.f}, {0, 1}},
+            render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
+            render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
+            render::Vertex{{0.5f, -0.5f, 0.f}, {1, 0}},
+            render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
         };
-        // TODO: update genArrayBuffer to take in float array
         render::vertex_array_id vertexArrayId = GlobalRenderApi->genArrayBuffer(triangleVertices, 6);
         asset::Bitmap bitmap = asset::loadBitmapFile("player.bmp");
         render::texture_id textureId = GlobalRenderApi->createTexture(bitmap);

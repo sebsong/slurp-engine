@@ -10,7 +10,7 @@ out vec2 textureCoord;
 void main() {
     float xOffset = sin(time) / 2;
     float yOffset = cos(time * 4) / 4;
-    vec3 position = vec3(inPosition.x + xOffset, inPosition.y + yOffset, inPosition.z);
+    vec3 position = vec3(inPosition.x + xOffset, -inPosition.y + yOffset, inPosition.z);
     gl_Position = vec4(position, 1.0);
     fragPosition = position;
     textureCoord = inTextureCoord;
