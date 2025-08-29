@@ -39,9 +39,11 @@ namespace open_gl {
         render::shader_program_id shaderProgramId;
     };
 
-    GEN_ARRAY_BUFFER(genArrayBuffer);
+    RENDER_SET_BACKGROUND_COLOR(setBackgroundColor);
 
-    CREATE_SHADER_PROGRAM(createShaderProgram);
+    RENDER_GEN_ARRAY_BUFFER(genArrayBuffer);
 
-    DRAW_ARRAY(drawArray);
+    RENDER_CREATE_SHADER_PROGRAM(createShaderProgram);
+
+    RENDER_DRAW_ARRAY(drawArray);
 }

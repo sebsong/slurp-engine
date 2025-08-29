@@ -1,5 +1,6 @@
 #include "Game.h"
 
+#include "RenderApi.h"
 #include "EntityManager.h"
 
 #include "Global.cpp"
@@ -46,6 +47,8 @@ namespace game {
         GlobalGameState = &gameState;
         GlobalSoundManager = &soundManager;
         GlobalColorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
+
+        GlobalRenderApi->setBackgroundColor(0.6f, 0.2f, 0.8f);
 
 #if 1
         const slurp::Vec3<float> backgroundVertices[] = {
