@@ -10,6 +10,8 @@ namespace slurp {
 }
 
 namespace render {
+    struct RenderApi;
+
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 

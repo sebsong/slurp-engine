@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Render.h"
+#include "Vector.h"
+
 namespace asset {
     // NOTE: follows this structure: https://learn.microsoft.com/en-us/windows/win32/gdi/bitmap-storage
     // NOTE: Designed around Aesprite

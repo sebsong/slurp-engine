@@ -51,12 +51,20 @@ namespace game {
         GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
 #if 1
+        // TODO: incorporate uv tex coords
+        // TODO: maybe make structs for the vertices
         const slurp::Vec3<float> triangleVertices[] = {
-            slurp::Vec3(-0.5f, 0.75f, 0.f),
-            slurp::Vec3(-1.f, -0.75f, 0.f),
-            slurp::Vec3(0.f, -0.75f, 0.f),
+            slurp::Vec3(0.5f, 0.5f, 0.f),
+            slurp::Vec3(-0.5f, 0.5f, 0.f),
+            slurp::Vec3(-0.5f, -0.5f, 0.f),
+            slurp::Vec3(0.5f, -0.5f, 0.f),
+            slurp::Vec3(0.5f, 0.5f, 0.f),
+            slurp::Vec3(-0.5f, -0.5f, 0.f),
         };
-        render::vertexArrayId vertexArrayId = GlobalRenderApi->genArrayBuffer(triangleVertices, 3);
+        // TODO: update genArrayBuffer to take in float array
+        render::vertex_array_id vertexArrayId = GlobalRenderApi->genArrayBuffer(triangleVertices, 6);
+        asset::Bitmap bitmap = asset::loadBitmapFile("player.bmp");
+        render::texture_id textureId = GlobalRenderApi->createTexture(bitmap);
         render::shader_program_id shaderProgramId = GlobalRenderApi->loadShaderProgram(
             "tutorial.glsl",
             "tutorial.glsl"
@@ -69,7 +77,8 @@ namespace game {
                 render::RenderInfo(
                     open_gl::OpenGLRenderInfo(
                         vertexArrayId,
-                        3,
+                        6,
+                        textureId,
                         shaderProgramId
                     ),
                     true

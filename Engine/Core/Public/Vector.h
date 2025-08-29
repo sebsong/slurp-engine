@@ -5,8 +5,17 @@
 namespace slurp {
     template<typename T>
     struct Vec2 {
-        T x;
-        T y;
+        union {
+            struct {
+                T x;
+                T y;
+            };
+
+            struct {
+                T width;
+                T height;
+            };
+        };
 
         static const Vec2 Zero;
         static const uint32_t Count;

@@ -9,7 +9,7 @@ namespace render {
 
         for (int y = clampedStartPoint.y; y < clampedEndPoint.y; y++) {
             for (int x = clampedStartPoint.x; x < clampedEndPoint.x; x++) {
-                Pixel pixel = bitmap.map[(y - roundedStartPoint.y) * bitmap.dimensions.x + (x - roundedStartPoint.x)];
+                Pixel pixel = bitmap.map[(y - roundedStartPoint.y) * bitmap.dimensions.width + (x - roundedStartPoint.x)];
                 _drawAtPoint(
                     buffer,
                     {x, y},

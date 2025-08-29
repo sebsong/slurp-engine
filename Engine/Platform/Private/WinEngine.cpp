@@ -1072,8 +1072,9 @@ static platform::PlatformDll loadPlatformDll() {
 static render::RenderApi loadRenderApi() {
     render::RenderApi renderApi = {};
     renderApi.setBackgroundColor = open_gl::setBackgroundColor;
-    renderApi.genArrayBuffer = open_gl::genArrayBuffer;
+    renderApi.createTexture = open_gl::createTexture;
     renderApi.createShaderProgram = open_gl::createShaderProgram;
+    renderApi.genArrayBuffer = open_gl::genArrayBuffer;
     renderApi.drawArray = open_gl::drawArray;
     return renderApi;
 }

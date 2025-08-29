@@ -9,18 +9,10 @@
 namespace open_gl {
     OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
         : _isValid(true),
-          _window(nullptr),
-          _vertexArrayObjectId(render::INVALID_ID),
-          _vertexBufferObjectId(render::INVALID_ID),
-          _elementBufferObjectId(render::INVALID_ID),
-          _shaderProgramId(render::INVALID_ID) {
+          _window(nullptr) {
         if (!init(width, height, title)) {
             this->_isValid = false;
         }
-    }
-
-    bool OpenGLRenderWindow::isValid() const {
-        return _isValid;
     }
 
     static void resizeViewport(GLFWwindow* window, int width, int height) {
@@ -56,6 +48,10 @@ namespace open_gl {
         return true;
     }
 
+    bool OpenGLRenderWindow::isValid() const {
+        return _isValid;
+    }
+
     void OpenGLRenderWindow::flip() const {
         glfwSwapBuffers(_window);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -73,30 +69,32 @@ namespace open_gl {
         glClearColor(red, green, blue, 1);
     }
 
-    RENDER_GEN_ARRAY_BUFFER(genArrayBuffer) {
-        render::vertexArrayId vertexArrayId;
-        glGenVertexArrays(1, &vertexArrayId);
-        glBindVertexArray(vertexArrayId);
+    RENDER_CREATE_TEXTURE(createTexture) {
+        uint32_t textureId;
+        glGenTextures(1, &textureId);
+        glBindTexture(GL_TEXTURE_2D, textureId);
 
-        uint32_t vertexBufferId;
-        glGenBuffers(1, &vertexBufferId);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
-        glVertexAttribPointer(
-            render::LOCATION_VERTEX_ATTRIBUTE_IDX,
-            slurp::Vec3<float>::Count,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(slurp::Vec3<float>),
-            nullptr
+        // TODO: allow specification of texture modes
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            bitmap.dimensions.width,
+            bitmap.dimensions.height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            bitmap
+            .map
         );
-        glEnableVertexAttribArray(render::LOCATION_VERTEX_ATTRIBUTE_IDX);
+        // glGenerateMipmap(GL_TEXTURE_2D);
 
-        // TODO: allow usage control
-        glBufferData(GL_ARRAY_BUFFER, sizeof(slurp::Vec3<float>) * vertexCount, vertexArray, GL_STATIC_DRAW);
-
-        // glBindVertexArray(render::UNUSED_ID);
-        // glBindBuffer(GL_ARRAY_BUFFER, render::UNUSED_ID);
-        return vertexArrayId;
+        return render::INVALID_ID;
     }
 
     static bool validateShader(uint32_t shaderId) {
@@ -144,8 +142,48 @@ namespace open_gl {
         return shaderProgramId;
     }
 
+
+    RENDER_GEN_ARRAY_BUFFER(genArrayBuffer) {
+        render::vertex_array_id vertexArrayId;
+        glGenVertexArrays(1, &vertexArrayId);
+        glBindVertexArray(vertexArrayId);
+
+        uint32_t vertexBufferId;
+        glGenBuffers(1, &vertexBufferId);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
+        glVertexAttribPointer(
+            render::POSITION_VERTEX_ATTRIBUTE_IDX,
+            slurp::Vec3<float>::Count,
+            GL_FLOAT,
+            GL_FALSE,
+            render::VERTEX_SIZE,
+            nullptr
+        );
+        glEnableVertexAttribArray(render::POSITION_VERTEX_ATTRIBUTE_IDX);
+
+        // TODO: make this optional?
+        // glVertexAttribPointer(
+        //     render::TEXTURE_VERTEX_ATTRIBUTE_IDX,
+        //     slurp::Vec2<float>::Count,
+        //     GL_FLOAT,
+        //     GL_FALSE,
+        //     render::VERTEX_SIZE,
+        //     reinterpret_cast<void*>(render::POSITION_ATTRIBUTE_SIZE)
+        // );
+        // glEnableVertexAttribArray(render::TEXTURE_VERTEX_ATTRIBUTE_IDX);
+
+
+        // TODO: allow usage control
+        glBufferData(GL_ARRAY_BUFFER, render::VERTEX_SIZE * vertexCount, vertexArray, GL_STATIC_DRAW);
+
+        // glBindVertexArray(render::UNUSED_ID);
+        // glBindBuffer(GL_ARRAY_BUFFER, render::UNUSED_ID);
+        return vertexArrayId;
+    }
+
     RENDER_DRAW_ARRAY(drawArray) {
         glBindVertexArray(vertexArrayId);
+        glBindTexture(GL_TEXTURE_2D, textureId);
         glUseProgram(shaderProgramId);
         int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
         if (timeUniformLoc != render::INVALID_ID) {
