@@ -48,37 +48,9 @@ namespace game {
         GlobalSoundManager = &soundManager;
         GlobalColorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
 
-        GlobalRenderApi->setBackgroundColor(0.6f, 0.2f, 0.8f);
+        GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
 #if 1
-        const slurp::Vec3<float> backgroundVertices[] = {
-            slurp::Vec3(0.f, 5.f, 0.f),
-            slurp::Vec3(-5.f, -5.f, 0.f),
-            slurp::Vec3(5.f, -5.f, 0.f),
-        };
-        render::vertexArrayId backgroundVertexArrayId = GlobalRenderApi->genArrayBuffer(backgroundVertices, 3);
-        render::shader_program_id backgroundShaderProgramId = GlobalRenderApi->loadShaderProgram(
-            "default.glsl",
-            "default.glsl"
-        );
-        registerEntity(
-            entityManager,
-            GlobalGameState->triangleBackground,
-            slurp::Entity(
-                "Triangle Background",
-                render::RenderInfo(
-                    open_gl::OpenGLRenderInfo(
-                        backgroundVertexArrayId,
-                        3,
-                        backgroundShaderProgramId
-                    ),
-                    true
-                ),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
-        );
-
         const slurp::Vec3<float> triangleVertices[] = {
             slurp::Vec3(-0.5f, 0.75f, 0.f),
             slurp::Vec3(-1.f, -0.75f, 0.f),

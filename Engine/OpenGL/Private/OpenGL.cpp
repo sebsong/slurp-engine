@@ -58,6 +58,7 @@ namespace open_gl {
 
     void OpenGLRenderWindow::flip() const {
         glfwSwapBuffers(_window);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     bool OpenGLRenderWindow::shouldTerminate() const {
@@ -144,8 +145,6 @@ namespace open_gl {
     }
 
     RENDER_DRAW_ARRAY(drawArray) {
-        glClear(GL_COLOR_BUFFER_BIT);
-
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
