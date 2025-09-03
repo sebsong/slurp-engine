@@ -6,9 +6,7 @@
 #include "Render.h"
 
 namespace slurp {
-    EntityManager::EntityManager(
-        const render::RenderApi* renderApi
-    ) : _pipeline(std::deque<Entity*>()), _renderApi(renderApi) {}
+    EntityManager::EntityManager() : _pipeline(std::deque<Entity*>()) {}
 
     void EntityManager::registerEntity(Entity& entity) {
         uint32_t id = _pipeline.size();
@@ -42,7 +40,7 @@ namespace slurp {
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
                 if (entity->renderInfo.openGLInfo.elementCount > 0) {
-                    render::drawRenderable(entity->renderInfo, entity->physicsInfo.position, _renderApi);
+                    render::drawRenderable(entity->renderInfo, entity->physicsInfo.position);
                 } else {
                     render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
                 }

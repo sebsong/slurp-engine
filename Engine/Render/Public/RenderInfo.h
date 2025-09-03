@@ -20,6 +20,6 @@ namespace render {
 
         void draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) const;
 
-        void draw(const slurp::Vec2<float>& position, const RenderApi* renderApi) const;
+        void draw(const slurp::Vec2<float>& position) const;
     };
 }

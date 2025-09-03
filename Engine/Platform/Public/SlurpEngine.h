@@ -2,7 +2,6 @@
 
 #include "Platform.h"
 #include "DynamicDeclaration.h"
-#include "Entity.h"
 #include "Input.h"
 #include "Audio.h"
 #include "Render.h"
@@ -43,4 +42,12 @@ namespace slurp {
         dyn_loadAudio* loadAudio = stub_loadAudio;
         dyn_updateAndRender* updateAndRender = stub_updateAndRender;
     };
+
+    static const platform::PlatformDll* GlobalPlatformDll;
+    static const render::RenderApi* GlobalRenderApi;
+    static EntityManager* GlobalEntityManager;
+    static audio::SoundManager* GlobalSoundManager;
+#if DEBUG
+    static RecordingState* GlobalRecordingState;
+#endif
 }

@@ -39,14 +39,6 @@
 #include "Game.cpp"
 
 namespace slurp {
-    static const platform::PlatformDll* GlobalPlatformDll;
-    static const render::RenderApi* GlobalRenderApi;
-    static EntityManager* GlobalEntityManager;
-    static audio::SoundManager* GlobalSoundManager;
-#if DEBUG
-    static RecordingState* GlobalRecordingState;
-#endif
-
     SLURP_INIT(init) {
         GlobalPlatformDll = &platformDll;
         GlobalRenderApi = &renderApi;
@@ -54,7 +46,7 @@ namespace slurp {
         ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
 
-        new(&sections->entityManager) EntityManager(&renderApi);
+        new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
         new(&sections->soundManager) audio::SoundManager();
         GlobalSoundManager = &sections->soundManager;
@@ -63,7 +55,7 @@ namespace slurp {
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
 #endif
 
-        game::initGame(sections->gameState, sections->entityManager, sections->soundManager, platformDll, renderApi);
+        game::initGame(sections->gameState);
         GlobalEntityManager->initialize();
     }
 

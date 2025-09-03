@@ -11,7 +11,7 @@ namespace slurp {
 
     class EntityManager {
     public:
-        explicit EntityManager(const render::RenderApi* renderApi);
+        explicit EntityManager();
 
         void registerEntity(Entity& entity);
 
@@ -27,6 +27,5 @@ namespace slurp {
 
     private:
         std::deque<Entity*> _pipeline; // TODO: replace with a priority queue when we want priority
-        const render::RenderApi* _renderApi; // TODO: replace with a priority queue when we want priority
     };
 }

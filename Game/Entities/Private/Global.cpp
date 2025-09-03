@@ -20,8 +20,8 @@ namespace global {
     void Global::initialize() {
         Entity::initialize();
 
-        game::GlobalSoundManager->setGlobalVolume(GlobalVolume);
-        // game::GlobalSoundManager->playSound(bgm, 0.5, true);
+        slurp::GlobalSoundManager->setGlobalVolume(GlobalVolume);
+        // slurp::GlobalSoundManager->playSound(bgm, 0.5, true);
     }
 
     void Global::handleMouseAndKeyboardInput(
@@ -33,14 +33,14 @@ namespace global {
         if (
             (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) ||
             keyboardState.isDown(slurp::KeyboardCode::ESC)
-        ) { game::GlobalPlatformDll->shutdown(); }
+        ) { slurp::GlobalPlatformDll->shutdown(); }
     }
 
     void Global::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
         Entity::handleGamepadInput(gamepadIndex, gamepadState);
 
         if (gamepadState.isDown(slurp::GamepadCode::START) || gamepadState.isDown(slurp::GamepadCode::B)) {
-            game::GlobalPlatformDll->shutdown();
+            slurp::GlobalPlatformDll->shutdown();
         }
     }
 }

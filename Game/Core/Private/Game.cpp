@@ -26,40 +26,20 @@ namespace game {
 
     template<typename T>
     static void registerEntity(
-        slurp::EntityManager& entityManager,
         T& entityLocation,
         T&& entity
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::move(entity));
-        entityManager.registerEntity(entityLocation);
+        slurp::GlobalEntityManager->registerEntity(entityLocation);
     }
 
-    void initGame(
-        GameState& gameState,
-        slurp::EntityManager& entityManager,
-        audio::SoundManager& soundManager,
-        const platform::PlatformDll& platformDll,
-        const render::RenderApi& renderApi
-    ) {
-        GlobalPlatformDll = &platformDll;
-        GlobalRenderApi = &renderApi;
+    void initGame(GameState& gameState) {
         GlobalGameState = &gameState;
-        GlobalSoundManager = &soundManager;
         GlobalColorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
-
-        GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
+        slurp::GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
 #if 1
-        // const render::Vertex triangleVertices[] = {
-        //     render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
-        //     render::Vertex{{-0.5f, 0.5f, 0.f}, {0, 1}},
-        //     render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
-        //     render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
-        //     render::Vertex{{0.5f, -0.5f, 0.f}, {1, 0}},
-        //     render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
-        // };
-
         const render::Vertex triangleVertices[] = {
             render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
             render::Vertex{{-0.5f, 0.5f, 0.f}, {0, 1}},
@@ -67,22 +47,19 @@ namespace game {
             render::Vertex{{0.5f, -0.5f, 0.f}, {1, 0}},
         };
         const uint32_t triangleElements[] = {0, 1, 2, 2, 3, 0};
-
-        // render::object_id vertexArrayId = GlobalRenderApi->genArrayBuffer(triangleVertices, 6);
-        render::object_id vertexArrayId = GlobalRenderApi->genElementArrayBuffer(
+        render::object_id vertexArrayId = slurp::GlobalRenderApi->genElementArrayBuffer(
             triangleVertices,
             4,
             triangleElements,
             6
         );
         asset::Bitmap bitmap = asset::loadBitmapFile("player.bmp");
-        render::object_id textureId = GlobalRenderApi->createTexture(bitmap);
-        render::object_id shaderProgramId = GlobalRenderApi->loadShaderProgram(
+        render::object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);
+        render::object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram(
             "tutorial.glsl",
             "tutorial.glsl"
         );
         registerEntity(
-            entityManager,
             GlobalGameState->triangle,
             slurp::Entity(
                 "Triangle",
@@ -105,13 +82,11 @@ namespace game {
         random::setRandomSeed(GlobalGameState->randomSeed);
 
         registerEntity(
-            entityManager,
             GlobalGameState->global,
             global::Global()
         );
 
         registerEntity(
-            entityManager,
             GlobalGameState->background,
             slurp::Entity(
                 "Background",
@@ -128,7 +103,6 @@ namespace game {
         );
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         registerEntity(
-            entityManager,
             GlobalGameState->wallUp,
             obstacle::Obstacle(
                 "WallUp",
@@ -138,7 +112,6 @@ namespace game {
         );
         geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
         registerEntity(
-            entityManager,
             GlobalGameState->wallDown,
             obstacle::Obstacle(
                 "WallDown",
@@ -148,7 +121,6 @@ namespace game {
         );
         geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
         registerEntity(
-            entityManager,
             GlobalGameState->wallLeft,
             obstacle::Obstacle(
                 "WallLeft",
@@ -158,7 +130,6 @@ namespace game {
         );
         geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
         registerEntity(
-            entityManager,
             GlobalGameState->wallRight,
             obstacle::Obstacle(
                 "WallRight",
@@ -168,7 +139,6 @@ namespace game {
         );
         geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         registerEntity(
-            entityManager,
             GlobalGameState->obstacle1,
             obstacle::Obstacle(
                 "Obstacle1",
@@ -178,7 +148,6 @@ namespace game {
         );
         geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         registerEntity(
-            entityManager,
             GlobalGameState->obstacle2,
             obstacle::Obstacle(
                 "Obstacle2",
@@ -189,14 +158,12 @@ namespace game {
 
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
-                entityManager,
                 GlobalGameState->projectiles[i],
                 projectile::Projectile(i)
             );
         }
 
         registerEntity(
-            entityManager,
             GlobalGameState->player,
             player::Player()
         );
@@ -204,20 +171,17 @@ namespace game {
         // TODO: move some of these to separate classes/files
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
-                entityManager,
                 GlobalGameState->enemies[i],
                 enemy::Enemy(i)
             );
         }
 
         registerEntity(
-            entityManager,
             GlobalGameState->mouseCursor,
             mouse_cursor::MouseCursor()
         );
 
         registerEntity(
-            entityManager,
             GlobalGameState->testAlpha,
             slurp::Entity(
                 "testAlpha",
@@ -237,7 +201,6 @@ namespace game {
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
             registerEntity(
-                entityManager,
                 GlobalGameState->colorPaletteSwatch[i],
                 slurp::Entity(
                     "ColorPaletteSwatch" + std::to_string(i),

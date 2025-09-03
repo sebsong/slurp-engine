@@ -100,7 +100,7 @@ namespace player {
 
         float leftTrigger = gamepadState.leftTrigger.end;
         float rightTrigger = gamepadState.rightTrigger.end;
-        game::GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
+        slurp::GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
     }
 
     void Player::update(float dt) {

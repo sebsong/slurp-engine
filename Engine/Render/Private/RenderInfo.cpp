@@ -46,10 +46,10 @@ namespace render {
         if (sprite.bitmap.map) { sprite.draw(buffer, startPoint); } else { renderShape.draw(buffer, startPoint); }
     }
 
-    void RenderInfo::draw(const slurp::Vec2<float>& position, const RenderApi* renderApi) const {
+    void RenderInfo::draw(const slurp::Vec2<float>& position) const {
         // TODO: handle position
         // renderApi->drawArray(openGLInfo.vertexArrayObjectId, openGLInfo.elementCount, openGLInfo.textureId, openGLInfo.shaderProgramId);
-        renderApi->drawElementArray(
+        slurp::GlobalRenderApi->drawElementArray(
             openGLInfo.vertexArrayObjectId,
             openGLInfo.elementCount,
             openGLInfo.textureId,
