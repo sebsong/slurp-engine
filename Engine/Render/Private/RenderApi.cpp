@@ -3,7 +3,7 @@
 #include "Asset.h"
 
 namespace render {
-    shader_program_id RenderApi::loadShaderProgram(
+    object_id RenderApi::loadShaderProgram(
         const std::string& vertexShaderFileName,
         const std::string& fragmentShaderFileName
     ) const {

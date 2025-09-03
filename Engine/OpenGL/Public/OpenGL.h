@@ -24,19 +24,9 @@ namespace open_gl {
     };
 
     struct OpenGLRenderInfo {
-        render::vertex_array_id vertexArrayObjectId;
-        uint32_t vertexCount;
-        render::texture_id textureId;
-        render::shader_program_id shaderProgramId;
+        render::object_id vertexArrayObjectId;
+        uint32_t elementCount;
+        render::object_id textureId;
+        render::object_id shaderProgramId;
     };
-
-    RENDER_SET_BACKGROUND_COLOR(setBackgroundColor);
-
-    RENDER_CREATE_TEXTURE(createTexture);
-
-    RENDER_CREATE_SHADER_PROGRAM(createShaderProgram);
-
-    RENDER_GEN_ARRAY_BUFFER(genArrayBuffer);
-
-    RENDER_DRAW_ARRAY(drawArray);
 }

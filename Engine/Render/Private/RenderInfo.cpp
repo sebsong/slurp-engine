@@ -48,6 +48,12 @@ namespace render {
 
     void RenderInfo::draw(const slurp::Vec2<float>& position, const RenderApi* renderApi) const {
         // TODO: handle position
-        renderApi->drawArray(openGLInfo.vertexArrayObjectId, openGLInfo.vertexCount, openGLInfo.textureId, openGLInfo.shaderProgramId);
+        // renderApi->drawArray(openGLInfo.vertexArrayObjectId, openGLInfo.elementCount, openGLInfo.textureId, openGLInfo.shaderProgramId);
+        renderApi->drawElementArray(
+            openGLInfo.vertexArrayObjectId,
+            openGLInfo.elementCount,
+            openGLInfo.textureId,
+            openGLInfo.shaderProgramId
+        );
     }
 }

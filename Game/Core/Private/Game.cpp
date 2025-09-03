@@ -51,18 +51,33 @@ namespace game {
         GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
 #if 1
+        // const render::Vertex triangleVertices[] = {
+        //     render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
+        //     render::Vertex{{-0.5f, 0.5f, 0.f}, {0, 1}},
+        //     render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
+        //     render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
+        //     render::Vertex{{0.5f, -0.5f, 0.f}, {1, 0}},
+        //     render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
+        // };
+
         const render::Vertex triangleVertices[] = {
             render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
             render::Vertex{{-0.5f, 0.5f, 0.f}, {0, 1}},
             render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
-            render::Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
             render::Vertex{{0.5f, -0.5f, 0.f}, {1, 0}},
-            render::Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
         };
-        render::vertex_array_id vertexArrayId = GlobalRenderApi->genArrayBuffer(triangleVertices, 6);
+        const uint32_t triangleElements[] = {0, 1, 2, 2, 3, 0};
+
+        // render::object_id vertexArrayId = GlobalRenderApi->genArrayBuffer(triangleVertices, 6);
+        render::object_id vertexArrayId = GlobalRenderApi->genElementArrayBuffer(
+            triangleVertices,
+            4,
+            triangleElements,
+            6
+        );
         asset::Bitmap bitmap = asset::loadBitmapFile("player.bmp");
-        render::texture_id textureId = GlobalRenderApi->createTexture(bitmap);
-        render::shader_program_id shaderProgramId = GlobalRenderApi->loadShaderProgram(
+        render::object_id textureId = GlobalRenderApi->createTexture(bitmap);
+        render::object_id shaderProgramId = GlobalRenderApi->loadShaderProgram(
             "tutorial.glsl",
             "tutorial.glsl"
         );

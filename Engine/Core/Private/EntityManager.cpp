@@ -41,7 +41,7 @@ namespace slurp {
                 entity->update(dt);
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
-                if (entity->renderInfo.openGLInfo.vertexCount > 0) {
+                if (entity->renderInfo.openGLInfo.elementCount > 0) {
                     render::drawRenderable(entity->renderInfo, entity->physicsInfo.position, _renderApi);
                 } else {
                     render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);

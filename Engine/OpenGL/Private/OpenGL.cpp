@@ -92,8 +92,7 @@ namespace open_gl {
             0,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            bitmap
-            .map
+            bitmap.map
         );
         // glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -133,7 +132,7 @@ namespace open_gl {
         glCompileShader(fragmentShaderId);
         if (!validateShader(fragmentShaderId)) { return render::INVALID_ID; }
 
-        render::shader_program_id shaderProgramId = glCreateProgram();
+        render::object_id shaderProgramId = glCreateProgram();
         glAttachShader(shaderProgramId, vertexShaderId);
         glAttachShader(shaderProgramId, fragmentShaderId);
         glLinkProgram(shaderProgramId);
@@ -147,7 +146,7 @@ namespace open_gl {
 
 
     RENDER_GEN_ARRAY_BUFFER(genArrayBuffer) {
-        render::vertex_array_id vertexArrayId;
+        render::object_id vertexArrayId;
         glGenVertexArrays(1, &vertexArrayId);
         glBindVertexArray(vertexArrayId);
 
@@ -159,7 +158,7 @@ namespace open_gl {
             slurp::Vec3<float>::Count,
             GL_FLOAT,
             GL_FALSE,
-            render::VERTEX_SIZE,
+            sizeof(render::Vertex),
             nullptr
         );
         glEnableVertexAttribArray(render::POSITION_VERTEX_ATTRIBUTE_IDX);
@@ -170,21 +169,33 @@ namespace open_gl {
             slurp::Vec2<float>::Count,
             GL_FLOAT,
             GL_FALSE,
-            render::VERTEX_SIZE,
-            reinterpret_cast<void*>(render::POSITION_ATTRIBUTE_SIZE)
+            sizeof(render::Vertex),
+            reinterpret_cast<void*>(sizeof(render::Vertex::position))
         );
         glEnableVertexAttribArray(render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX);
 
-
         // TODO: allow usage control
-        glBufferData(GL_ARRAY_BUFFER, render::VERTEX_SIZE * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
-
-        // glBindVertexArray(render::UNUSED_ID);
-        // glBindBuffer(GL_ARRAY_BUFFER, render::UNUSED_ID);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(render::Vertex) * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
         return vertexArrayId;
     }
 
-    RENDER_DRAW_ARRAY(drawArray) {
+    RENDER_GEN_ELEMENT_ARRAY_BUFFER(genElementArrayBuffer) {
+        render::object_id vertexArrayId = open_gl::genArrayBuffer(vertexArray, vertexCount);
+
+        uint32_t elementBufferId;
+        glGenBuffers(1, &elementBufferId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferId);
+        // TODO: allow usage control
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * elementCount, elementArray, GL_STATIC_DRAW);
+
+        return vertexArrayId;
+    }
+
+    static void prepareDraw(
+        render::object_id vertexArrayId,
+        render::object_id textureId,
+        render::object_id shaderProgramId
+    ) {
         glBindVertexArray(vertexArrayId);
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUseProgram(shaderProgramId);
@@ -193,7 +204,16 @@ namespace open_gl {
             glUniform1f(timeUniformLoc, static_cast<GLfloat>(glfwGetTime()));
         }
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+    RENDER_DRAW_ARRAY(drawArray) {
+        prepareDraw(vertexArrayId, textureId, shaderProgramId);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    }
+
+    RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
+        prepareDraw(vertexArrayId, textureId, shaderProgramId);
+        glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
 
         // glBindVertexArray(render::UNUSED_ID);
         // glUseProgram(render::UNUSED_ID);

@@ -1075,7 +1075,9 @@ static render::RenderApi loadRenderApi() {
     renderApi.createTexture = open_gl::createTexture;
     renderApi.createShaderProgram = open_gl::createShaderProgram;
     renderApi.genArrayBuffer = open_gl::genArrayBuffer;
+    renderApi.genElementArrayBuffer = open_gl::genElementArrayBuffer;
     renderApi.drawArray = open_gl::drawArray;
+    renderApi.drawElementArray = open_gl::drawElementArray;
     return renderApi;
 }
 
