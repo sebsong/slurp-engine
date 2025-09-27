@@ -18,7 +18,6 @@ namespace projectile {
     static constexpr const char* ParriedSpriteFileName = "projectile_parried.bmp";
 
     static constexpr const char* SoundFileName = "hit.wav";
-    static const audio::Sound HitSound = audio::loadSound(SoundFileName);
 
     Projectile::Projectile(int index)
         : Entity(
@@ -77,7 +76,7 @@ namespace projectile {
 
         if (!_isActive) { return; }
 
-        slurp::GlobalSoundManager->playSound(HitSound, 0.5f, false);
+        slurp::GlobalSoundManager->playSound(game::GlobalGameAssets->projectileHitSound, 0.5f, false);
 
         if (player::Player* player = dynamic_cast<player::Player*>(collisionDetails.entity)) {
             if (player->isParryActive) {

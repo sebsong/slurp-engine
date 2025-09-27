@@ -37,14 +37,16 @@ namespace game {
 
     static void loadAssets() {
         GlobalGameAssets->colorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
+
         GlobalGameAssets->enemySprite = render::loadSprite(enemy::SpriteFileName);
         GlobalGameAssets->mouseCursorSprite = render::loadSprite(mouse_cursor::SpriteFileName);
-
         GlobalGameAssets->playerSprite = render::loadSprite(player::SpriteFileName);
         GlobalGameAssets->playerParrySprite = render::loadSprite(player::ParrySpriteFileName);
-
         GlobalGameAssets->projectileSprite = render::loadSprite(projectile::SpriteFileName);
         GlobalGameAssets->projectileParriedSprite = render::loadSprite(projectile::ParriedSpriteFileName);
+
+        GlobalGameAssets->backgroundMusic = audio::loadSound(projectile::SoundFileName);
+        GlobalGameAssets->projectileHitSound = audio::loadSound(projectile::SoundFileName);
     }
 
     void initGame(GameAssets& gameAssets, GameState& gameState) {
