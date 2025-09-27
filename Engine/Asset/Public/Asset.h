@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Render.h"
-#include "Bitmap.h"
 #include "Wave.h"
 
 namespace asset {

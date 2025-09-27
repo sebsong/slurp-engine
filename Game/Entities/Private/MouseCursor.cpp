@@ -4,12 +4,11 @@
 
 namespace mouse_cursor {
     static const std::string SpriteFileName = "mouse_cursor.bmp";
-    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
 
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
         render::RenderInfo(
-            Sprite,
+            game::GlobalGameAssets->mouseCursorSprite,
             true
         ),
         physics::PhysicsInfo(slurp::Vec2<float>::Zero),

@@ -39,11 +39,7 @@ namespace slurp {
                 entity->update(dt);
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
-                if (entity->renderInfo.openGLInfo.elementCount > 0) {
-                    render::drawRenderable(entity->renderInfo, entity->physicsInfo.position);
-                } else {
-                    render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
-                }
+                render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
                 const Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;

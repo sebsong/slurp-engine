@@ -1,12 +1,12 @@
 #include "Asset.h"
 
-#include <filesystem>
-#include <fstream>
-
 #include "BitTwiddle.h"
 #include "Debug.h"
 #include "Types.h"
 #include "WinEngine.h"
+
+#include <filesystem>
+#include <fstream>
 
 namespace asset {
 #ifdef ASSETS_DIR

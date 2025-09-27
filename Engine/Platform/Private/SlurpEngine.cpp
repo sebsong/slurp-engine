@@ -55,7 +55,7 @@ namespace slurp {
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
 #endif
 
-        game::initGame(sections->gameState);
+        game::initGame(sections->gameAssets, sections->gameState);
         GlobalEntityManager->initialize();
     }
 

@@ -16,8 +16,6 @@ namespace projectile {
     static constexpr float ParriedDuration = 2.f;
     static constexpr const char* SpriteFileName = "projectile.bmp";
     static constexpr const char* ParriedSpriteFileName = "projectile_parried.bmp";
-    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
-    static const render::Sprite ParriedSprite = render::loadSprite(ParriedSpriteFileName);
 
     static constexpr const char* SoundFileName = "hit.wav";
     static const audio::Sound HitSound = audio::loadSound(SoundFileName);
@@ -26,7 +24,7 @@ namespace projectile {
         : Entity(
               "Projectile" + std::to_string(index),
               render::RenderInfo(
-                  Sprite,
+                  game::GlobalGameAssets->projectileSprite,
                   true
               ),
               physics::PhysicsInfo(
@@ -96,7 +94,7 @@ namespace projectile {
 
     void Projectile::onParried() {
         this->_isParried = true;
-        this->renderInfo.sprite = ParriedSprite;
+        this->renderInfo.sprite = &game::GlobalGameAssets->projectileParriedSprite;
         this->physicsInfo.maxSpeed = ParriedSpeed;
         this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
         timer::start(
@@ -104,7 +102,7 @@ namespace projectile {
             ParriedDuration,
             false,
             [this] {
-                this->renderInfo.sprite = Sprite;
+                this->renderInfo.sprite = &game::GlobalGameAssets->projectileSprite;
                 this->physicsInfo.maxSpeed = BaseSpeed;
                 this->_isParried = false;
             }

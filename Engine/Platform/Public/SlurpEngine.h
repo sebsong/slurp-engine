@@ -13,6 +13,7 @@ namespace slurp {
     struct MemorySections {
         EntityManager entityManager;
         audio::SoundManager soundManager;
+        game::GameAssets gameAssets;
         game::GameState gameState;
     };
 

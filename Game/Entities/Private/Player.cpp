@@ -17,9 +17,6 @@ namespace player {
     static constexpr const char* Name = "Player";
     static constexpr const char* SpriteFileName = "player.bmp";
     static constexpr const char* ParrySpriteFileName = "player_parry.bmp";
-    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
-    static const render::Sprite ParrySprite = render::loadSprite(ParrySpriteFileName);
-
 
     static const timer::timer_handle ParryTimerHandle = timer::getNewHandle();
     static constexpr float ParryActiveDuration = .2f;
@@ -28,7 +25,7 @@ namespace player {
     Player::Player()
         : Entity(
               Name,
-              render::RenderInfo(Sprite, true),
+              render::RenderInfo(game::GlobalGameAssets->playerSprite, true),
               physics::PhysicsInfo(
                   StartPosition,
                   BaseSpeed,
@@ -117,12 +114,12 @@ namespace player {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderInfo.sprite = ParrySprite;
+        this->renderInfo.sprite = &game::GlobalGameAssets->playerParrySprite;
         timer::start(ParryTimerHandle, ParryActiveDuration, false, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderInfo.sprite = Sprite;
+        this->renderInfo.sprite = &game::GlobalGameAssets->playerSprite;
     }
 }

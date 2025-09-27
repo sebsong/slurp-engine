@@ -1,5 +1,6 @@
 #include "Game.h"
 
+#include "SlurpEngine.h"
 #include "RenderApi.h"
 #include "EntityManager.h"
 
@@ -21,7 +22,7 @@ namespace game {
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx) {
         ASSERT(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        return GlobalColorPalette.colors[colorPaletteIdx];
+        return GlobalGameAssets->colorPalette.colors[colorPaletteIdx];
     }
 
     template<typename T>
@@ -30,13 +31,28 @@ namespace game {
         T&& entity
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
-        new(&entityLocation) T(std::move(entity));
+        new(&entityLocation) T(std::forward<T>(entity));
         slurp::GlobalEntityManager->registerEntity(entityLocation);
     }
 
-    void initGame(GameState& gameState) {
+    static void loadAssets() {
+        GlobalGameAssets->colorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
+        GlobalGameAssets->enemySprite = render::loadSprite(enemy::SpriteFileName);
+        GlobalGameAssets->mouseCursorSprite = render::loadSprite(mouse_cursor::SpriteFileName);
+
+        GlobalGameAssets->playerSprite = render::loadSprite(player::SpriteFileName);
+        GlobalGameAssets->playerParrySprite = render::loadSprite(player::ParrySpriteFileName);
+
+        GlobalGameAssets->projectileSprite = render::loadSprite(projectile::SpriteFileName);
+        GlobalGameAssets->projectileParriedSprite = render::loadSprite(projectile::ParriedSpriteFileName);
+    }
+
+    void initGame(GameAssets& gameAssets, GameState& gameState) {
+        GlobalGameAssets = &gameAssets;
         GlobalGameState = &gameState;
-        GlobalColorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
+
+        loadAssets();
+
         slurp::GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
 #if 1
@@ -64,12 +80,7 @@ namespace game {
             slurp::Entity(
                 "Triangle",
                 render::RenderInfo(
-                    open_gl::OpenGLRenderInfo(
-                        vertexArrayId,
-                        6,
-                        textureId,
-                        shaderProgramId
-                    ),
+                    GlobalGameAssets->playerSprite,
                     true
                 ),
                 physics::PhysicsInfo(),

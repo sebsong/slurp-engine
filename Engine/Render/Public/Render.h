@@ -1,6 +1,8 @@
 #pragma once
+
 #include "Vector.h"
 #include "Geometry.h"
+
 #include <cstdint>
 
 #define COLOR_PALETTE_SIZE 9
@@ -10,8 +12,6 @@ namespace slurp {
 }
 
 namespace render {
-    struct RenderApi;
-
     typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
@@ -51,11 +51,6 @@ namespace render {
     template<Renderable T>
     void drawRenderable(const GraphicsBuffer& buffer, const T& renderable, const slurp::Vec2<float>& position) {
         renderable.draw(buffer, position);
-    }
-
-    template<Renderable T>
-    void drawRenderable(const T& renderable, const slurp::Vec2<float>& position) {
-        renderable.draw(position);
     }
 
     void drawRectBorder(

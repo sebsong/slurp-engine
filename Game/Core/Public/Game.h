@@ -10,6 +10,17 @@
 #define PROJECTILE_POOL_SIZE 10
 
 namespace game {
+    struct GameAssets {
+        render::ColorPalette colorPalette;
+
+        render::Sprite enemySprite;
+        render::Sprite mouseCursorSprite;
+        render::Sprite playerSprite;
+        render::Sprite playerParrySprite;
+        render::Sprite projectileSprite;
+        render::Sprite projectileParriedSprite;
+    };
+
     struct GameState {
         uint32_t randomSeed;
         bool isInitialized;
@@ -37,10 +48,11 @@ namespace game {
         slurp::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
+    static GameAssets* GlobalGameAssets;
     static GameState* GlobalGameState;
-    static render::ColorPalette GlobalColorPalette;
 
     void initGame(
+        GameAssets& gameAssets,
         GameState& gameState,
         slurp::EntityManager& entityManager
     );

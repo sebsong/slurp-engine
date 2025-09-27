@@ -11,14 +11,13 @@ namespace enemy {
     static constexpr float BaseDirectionChangeDelay = 2;
     static constexpr float DirectionChangeDelayDelta = 1.5;
     static constexpr const char* SpriteFileName = "enemy.bmp";
-    static const render::Sprite Sprite = render::loadSprite(SpriteFileName);
 
     static const geometry::Shape Shape = {geometry::Rect, {36, 25}};
 
     Enemy::Enemy(int i): Entity(
         "Enemy" + std::to_string(i),
         render::RenderInfo(
-            Sprite,
+            game::GlobalGameAssets->enemySprite,
             true
         ),
         physics::PhysicsInfo(
@@ -31,7 +30,7 @@ namespace enemy {
             false,
             collision::CollisionShape{
                 Shape,
-                -(Sprite.bitmap.dimensions / 2) + CollisionShapeOffset
+                -(game::GlobalGameAssets->enemySprite.bitmap.dimensions / 2) + CollisionShapeOffset
             }
         )
     ) {}

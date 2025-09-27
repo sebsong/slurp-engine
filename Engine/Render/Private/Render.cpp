@@ -1,6 +1,5 @@
 #include "Render.h"
 
-#include "Entity.h"
 #include "Math.h"
 #include "Debug.h"
 
