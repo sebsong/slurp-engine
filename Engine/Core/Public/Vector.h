@@ -18,7 +18,7 @@ namespace slurp {
         };
 
         static const Vec2 Zero;
-        static const uint32_t Count;
+        static const uint32_t DimensionCount;
 
         Vec2() {
             this->x = 0;
@@ -145,7 +145,7 @@ namespace slurp {
         };
 
         static const Vec3 Zero;
-        static const uint32_t Count;
+        static const uint32_t DimensionCount;
 
         Vec3() {
             this->x = 0;
@@ -271,11 +271,11 @@ namespace slurp {
     template<typename T>
     const Vec2<T> Vec2<T>::Zero{0, 0};
     template<typename T>
-    const uint32_t Vec2<T>::Count{2};
+    const uint32_t Vec2<T>::DimensionCount{2};
     template<typename T>
     const Vec3<T> Vec3<T>::Zero{0, 0, 0};
     template<typename T>
-    const uint32_t Vec3<T>::Count{3};
+    const uint32_t Vec3<T>::DimensionCount{3};
 
 
     template<typename T>

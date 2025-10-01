@@ -154,7 +154,7 @@ namespace open_gl {
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
         glVertexAttribPointer(
             render::POSITION_VERTEX_ATTRIBUTE_IDX,
-            slurp::Vec3<float>::Count,
+            slurp::Vec3<float>::DimensionCount,
             GL_FLOAT,
             GL_FALSE,
             sizeof(render::Vertex),
@@ -165,7 +165,7 @@ namespace open_gl {
         // TODO: make this optional?
         glVertexAttribPointer(
             render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX,
-            slurp::Vec2<float>::Count,
+            slurp::Vec2<float>::DimensionCount,
             GL_FLOAT,
             GL_FALSE,
             sizeof(render::Vertex),
@@ -174,6 +174,12 @@ namespace open_gl {
         glEnableVertexAttribArray(render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX);
 
         // TODO: allow usage control
+        for (int i = 0; i < vertexCount; i++) {
+            render::Vertex& vertex = vertexArray[i];
+            // TODO: replace with world to clip space matrix transformation
+            vertex.position.x /= DISPLAY_WIDTH;
+            vertex.position.y /= DISPLAY_HEIGHT;
+        }
         glBufferData(GL_ARRAY_BUFFER, sizeof(render::Vertex) * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
         return vertexArrayId;
     }

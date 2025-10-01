@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include "WinEngine.h"
+#include "Settings.h"
 #include "Logging.h"
 #include "Debug.h"
 
@@ -13,24 +14,6 @@
 #if OPEN_GL
 #include "OpenGL.cpp"
 #endif
-
-#define kilobytes(n) ((int64_t)n * 1024)
-#define megabytes(n) (kilobytes(n) * 1024)
-#define gigabytes(n) (megabytes(n) * 1024)
-#define terabytes(n) (gigabytes(n) * 1024)
-
-#if DEBUG
-#define DISPLAY_WIDTH 1280
-#define DISPLAY_HEIGHT 720
-// #define DISPLAY_WIDTH 640
-// #define DISPLAY_HEIGHT 360
-#else
-#define DISPLAY_WIDTH 1280
-#define DISPLAY_HEIGHT 720
-#endif
-#define FIT_TO_SCREEN 1
-#define DEFAULT_MONITOR_REFRESH_RATE 144
-#define DEBUG_MONITOR_REFRESH_RATE 120
 
 static const char* WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const char* WINDOW_TITLE = "Slurp's Up!";

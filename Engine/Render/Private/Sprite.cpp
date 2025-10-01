@@ -35,12 +35,26 @@ namespace render {
         asset::Bitmap bitmap = asset::loadBitmapFile(spriteFileName);
 
         // TODO: specify these in world coords, have the graphics api layer convert to homogenous clip space coords
-        const Vertex triangleVertices[SpriteMeshVertexCount] = {
-            Vertex{{0.5f, 0.5f, 0.f}, {1, 1}},
-            Vertex{{-0.5f, 0.5f, 0.f}, {0, 1}},
-            Vertex{{-0.5f, -0.5f, 0.f}, {0, 0}},
-            Vertex{{0.5f, -0.5f, 0.f}, {1, 0}},
+        slurp::Vec2<float> dimensions = bitmap.dimensions;
+        Vertex triangleVertices[SpriteMeshVertexCount] = {
+            Vertex{
+                {dimensions.width, dimensions.height, 0},
+                {1, 1}
+            },
+            Vertex{
+                {0, dimensions.height, 0},
+                {0, 1}
+            },
+            Vertex{
+                {0, 0, 0},
+                {0, 0}
+            },
+            Vertex{
+                {dimensions.width, 0, 0},
+                {1, 0}
+            },
         };
+
         const uint32_t triangleElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
         object_id vertexArrayId = slurp::GlobalRenderApi->genElementArrayBuffer(
             triangleVertices,
