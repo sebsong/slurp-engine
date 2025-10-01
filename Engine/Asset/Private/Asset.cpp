@@ -88,6 +88,19 @@ namespace asset {
         types::byte* bytes;
     };
 
+    static void writePixel(
+        int x,
+        int y,
+        int width,
+        int height,
+        render::Pixel color,
+        render::Pixel* outMap,
+        bool invertVertical
+    ) {
+        int yCoord = invertVertical ? (height - 1 - y) : y;
+        outMap[x + yCoord * width] = color;
+    }
+
     static void loadBitmapColorPalette(
         types::byte* spriteFileBytes,
         types::byte* bitmapBytes,
@@ -95,7 +108,8 @@ namespace asset {
         int height,
         int colorPaletteSize,
         int bitsPerIndex,
-        render::Pixel* outMap
+        render::Pixel* outMap,
+        bool invertVertical = false
     ) {
         ASSERT(bitsPerIndex == 4);
 
@@ -125,7 +139,15 @@ namespace asset {
                     colorIndex &= FourBitMaskLow;
                 }
                 render::Pixel color = colorPalette[colorIndex];
-                outMap[x + ((height - 1) - y) * width] = color;
+                writePixel(
+                    x,
+                    y,
+                    width,
+                    height,
+                    color,
+                    outMap,
+                    invertVertical
+                );
             }
         }
     }
@@ -135,14 +157,23 @@ namespace asset {
         int width,
         int height,
         int bitsPerPixel,
-        render::Pixel* outMap
+        render::Pixel* outMap,
+        bool invertVertical = false
     ) {
         ASSERT(bitsPerPixel == 32);
         render::Pixel* pixels = reinterpret_cast<render::Pixel*>(bitmapBytes);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 render::Pixel color = pixels[x + y * width];
-                outMap[x + ((height - 1) - y) * width] = color;
+                writePixel(
+                    x,
+                    y,
+                    width,
+                    height,
+                    color,
+                    outMap,
+                    invertVertical
+                );
             }
         }
     }

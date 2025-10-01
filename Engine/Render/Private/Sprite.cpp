@@ -34,8 +34,9 @@ namespace render {
     Sprite loadSprite(const std::string& spriteFileName) {
         asset::Bitmap bitmap = asset::loadBitmapFile(spriteFileName);
 
-        // TODO: specify these in world coords, have the graphics api layer convert to homogenous clip space coords
-        slurp::Vec2<float> dimensions = bitmap.dimensions;
+        // TODO: specify scale factor
+        float scale = 5.f;
+        slurp::Vec2<float> dimensions = bitmap.dimensions * scale;
         Vertex triangleVertices[SpriteMeshVertexCount] = {
             Vertex{
                 {dimensions.width, dimensions.height, 0},
@@ -66,8 +67,8 @@ namespace render {
 
         // TODO: allow specification of shader
         object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram(
-            "tutorial.glsl",
-            "tutorial.glsl"
+            "default.glsl",
+            "default.glsl"
         );
 
         return Sprite{
