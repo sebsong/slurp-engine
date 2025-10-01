@@ -96,7 +96,7 @@ namespace open_gl {
         );
         // glGenerateMipmap(GL_TEXTURE_2D);
 
-        return render::INVALID_ID;
+        return textureId;
     }
 
     static bool validateShader(uint32_t shaderId) {
@@ -143,7 +143,6 @@ namespace open_gl {
 
         return shaderProgramId;
     }
-
 
     RENDER_GEN_ARRAY_BUFFER(genArrayBuffer) {
         render::object_id vertexArrayId;
