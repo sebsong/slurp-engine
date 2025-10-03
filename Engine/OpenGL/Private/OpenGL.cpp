@@ -199,7 +199,8 @@ namespace open_gl {
     static void prepareDraw(
         render::object_id vertexArrayId,
         render::object_id textureId,
-        render::object_id shaderProgramId
+        render::object_id shaderProgramId,
+        const slurp::Vec2<float>& positionTransform
     ) {
         glBindVertexArray(vertexArrayId);
         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -208,16 +209,28 @@ namespace open_gl {
         if (timeUniformLoc != render::INVALID_ID) {
             glUniform1f(timeUniformLoc, static_cast<GLfloat>(glfwGetTime()));
         }
+        int positionTransformUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::POSITION_TRANSFORM_UNIFORM_NAME
+        );
+        if (positionTransformUniformLoc != render::INVALID_ID) {
+            // TODO: turn into matrix transformation, properly map to clip space
+            float position[slurp::Vec2<float>::DimensionCount] = {
+                positionTransform.x / DISPLAY_WIDTH,
+                positionTransform.y / DISPLAY_HEIGHT
+            };
+            glUniform2fv(positionTransformUniformLoc, 1, position);
+        }
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
     RENDER_DRAW_ARRAY(drawArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
     RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform);
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
 
         // glBindVertexArray(render::UNUSED_ID);

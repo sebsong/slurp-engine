@@ -27,7 +27,8 @@ namespace render {
             mesh.vertexArrayId,
             mesh.elementCount,
             material.textureId,
-            material.shaderProgramId
+            material.shaderProgramId,
+            startPoint
         );
     }
 

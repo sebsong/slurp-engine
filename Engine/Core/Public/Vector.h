@@ -15,6 +15,8 @@ namespace slurp {
                 T width;
                 T height;
             };
+
+            T values[2];
         };
 
         static const Vec2 Zero;
@@ -142,6 +144,8 @@ namespace slurp {
                 T g;
                 T b;
             };
+
+            T values[3];
         };
 
         static const Vec3 Zero;
