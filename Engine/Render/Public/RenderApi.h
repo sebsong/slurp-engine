@@ -11,7 +11,7 @@ namespace render {
     typedef uint32_t object_id;
 
     struct Vertex {
-        slurp::Vec3<float> position;
+        slurp::Vec2<float> position;
         slurp::Vec2<float> textureCoord;
     };
 

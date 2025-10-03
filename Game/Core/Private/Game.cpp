@@ -65,21 +65,21 @@ namespace game {
             global::Global()
         );
 
-        registerEntity(
-            GlobalGameState->background,
-            slurp::Entity(
-                "Background",
-                render::RenderInfo(
-                    render::RenderShape{
-                        {geometry::Rect, {1280, 720}},
-                        getColor(2)
-                    },
-                    false
-                ),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
-        );
+        // registerEntity(
+        //     GlobalGameState->background,
+        //     slurp::Entity(
+        //         "Background",
+        //         render::RenderInfo(
+        //             render::RenderShape{
+        //                 {geometry::Rect, {1280, 720}},
+        //                 getColor(2)
+        //             },
+        //             false
+        //         ),
+        //         physics::PhysicsInfo(),
+        //         collision::CollisionInfo()
+        //     )
+        // );
         geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
         registerEntity(
             GlobalGameState->wallUp,
@@ -116,24 +116,24 @@ namespace game {
                 {1260, 0}
             )
         );
-        geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
-        registerEntity(
-            GlobalGameState->obstacle1,
-            obstacle::Obstacle(
-                "Obstacle1",
-                obstacle1Shape,
-                {200, 500}
-            )
-        );
-        geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
-        registerEntity(
-            GlobalGameState->obstacle2,
-            obstacle::Obstacle(
-                "Obstacle2",
-                obstacle2Shape,
-                {500, 400}
-            )
-        );
+        // geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
+        // registerEntity(
+        //     GlobalGameState->obstacle1,
+        //     obstacle::Obstacle(
+        //         "Obstacle1",
+        //         obstacle1Shape,
+        //         {200, 500}
+        //     )
+        // );
+        // geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
+        // registerEntity(
+        //     GlobalGameState->obstacle2,
+        //     obstacle::Obstacle(
+        //         "Obstacle2",
+        //         obstacle2Shape,
+        //         {500, 400}
+        //     )
+        // );
 
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(

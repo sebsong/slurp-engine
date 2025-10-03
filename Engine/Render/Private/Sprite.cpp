@@ -4,6 +4,7 @@ namespace render {
     // NOTE: represents a rectangle made of 2 triangles
     static constexpr int SpriteMeshVertexCount = 4;
     static constexpr int SpriteMeshElementCount = 6;
+    static constexpr uint32_t SpriteElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
 
     void Sprite::draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& startPoint) const {
         // const slurp::Vec2<int> roundedStartPoint = static_cast<slurp::Vec2<int>>(startPoint);
@@ -36,32 +37,31 @@ namespace render {
         asset::Bitmap bitmap = asset::loadBitmapFile(spriteFileName);
 
         // TODO: specify scale factor on entity that also applies to collision shapes
-        float scale = 1.f;
+        float scale = 3.f;
         slurp::Vec2<float> dimensions = bitmap.dimensions * scale;
         Vertex triangleVertices[SpriteMeshVertexCount] = {
             Vertex{
-                {dimensions.width, dimensions.height, 0},
+                {dimensions.width, dimensions.height},
                 {1, 1}
             },
             Vertex{
-                {0, dimensions.height, 0},
+                {0, dimensions.height},
                 {0, 1}
             },
             Vertex{
-                {0, 0, 0},
+                {0, 0},
                 {0, 0}
             },
             Vertex{
-                {dimensions.width, 0, 0},
+                {dimensions.width, 0},
                 {1, 0}
             },
         };
 
-        const uint32_t triangleElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
         object_id vertexArrayId = slurp::GlobalRenderApi->genElementArrayBuffer(
             triangleVertices,
             SpriteMeshVertexCount,
-            triangleElements,
+            SpriteElements,
             SpriteMeshElementCount
         );
         object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);

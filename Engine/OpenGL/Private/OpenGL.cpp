@@ -8,6 +8,14 @@
 #include "RenderApi.h"
 
 namespace open_gl {
+    // e.g. [0, 0]                          -> [-1, -1]
+    // e.g. [DISPLAY_WIDTH, DISPLAY_HEIGHT] -> [1, 1]
+    static const slurp::Mat32<float> WorldToOpenGLClipSpaceMatrix = {
+        {2.f / DISPLAY_WIDTH, 0.f},
+        {0.f, 2.f / DISPLAY_HEIGHT},
+        {-1.f, -1.f}
+    };
+
     OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
         : _isValid(true),
           _window(nullptr) {
@@ -174,13 +182,14 @@ namespace open_gl {
         );
         glEnableVertexAttribArray(render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX);
 
-        // TODO: allow usage control
         for (int i = 0; i < vertexCount; i++) {
             render::Vertex& vertex = vertexArray[i];
             // TODO: replace with world to clip space matrix transformation
             vertex.position.x /= DISPLAY_WIDTH;
             vertex.position.y /= DISPLAY_HEIGHT;
+            // vertex.position *= WorldToOpenGLClipSpaceMatrix;
         }
+        // TODO: allow usage control
         glBufferData(GL_ARRAY_BUFFER, sizeof(render::Vertex) * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
         return vertexArrayId;
     }
@@ -215,18 +224,8 @@ namespace open_gl {
             render::POSITION_TRANSFORM_UNIFORM_NAME
         );
         if (positionTransformUniformLoc != render::INVALID_ID) {
-            // TODO: turn into matrix transformation, properly map to clip space
-            // slurp::Mat32<float> positionTransformMatrix = {
-            //     {2 / DISPLAY_WIDTH, 0},
-            //     {0, 2 / DISPLAY_HEIGHT},
-            //     {-1, -1}
-            // };
-            slurp::Vec2<float> test[3] = {{0, 0}, {0, 0}, {0, 0}};
-            float position[slurp::Vec2<float>::DimensionCount] = {
-                positionTransform.x / DISPLAY_WIDTH,
-                positionTransform.y / DISPLAY_HEIGHT
-            };
-            glUniform2fv(positionTransformUniformLoc, 1, position);
+            const slurp::Vec2<float>& position = positionTransform * WorldToOpenGLClipSpaceMatrix;
+            glUniform2fv(positionTransformUniformLoc, 1, position.values);
         }
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
