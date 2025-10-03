@@ -35,8 +35,8 @@ namespace render {
     Sprite loadSprite(const std::string& spriteFileName) {
         asset::Bitmap bitmap = asset::loadBitmapFile(spriteFileName);
 
-        // TODO: specify scale factor
-        float scale = 5.f;
+        // TODO: specify scale factor on entity that also applies to collision shapes
+        float scale = 1.f;
         slurp::Vec2<float> dimensions = bitmap.dimensions * scale;
         Vertex triangleVertices[SpriteMeshVertexCount] = {
             Vertex{

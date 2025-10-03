@@ -47,9 +47,9 @@ namespace player {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
         slurp::Vec2<float> directionUpdate{};
-        if (keyboardState.isDown(slurp::KeyboardCode::W)) { directionUpdate.y -= 1; }
+        if (keyboardState.isDown(slurp::KeyboardCode::W)) { directionUpdate.y += 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::A)) { directionUpdate.x -= 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::S)) { directionUpdate.y += 1; }
+        if (keyboardState.isDown(slurp::KeyboardCode::S)) { directionUpdate.y -= 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::D)) { directionUpdate.x += 1; }
         if (!directionUpdate.isZero()) {
             this->physicsInfo.direction = directionUpdate;
