@@ -11,6 +11,12 @@ namespace slurp {
                 T x3, y3;
             };
 
+            struct {
+                Vec2<T> r1;
+                Vec2<T> r2;
+                Vec2<T> r3;
+            };
+
             Vec2<T> rows[3];
         };
     };

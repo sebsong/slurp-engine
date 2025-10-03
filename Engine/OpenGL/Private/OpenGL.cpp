@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 
 #include "Logging.h"
+#include "Matrix.h"
 #include "RenderApi.h"
 
 namespace open_gl {
@@ -215,6 +216,12 @@ namespace open_gl {
         );
         if (positionTransformUniformLoc != render::INVALID_ID) {
             // TODO: turn into matrix transformation, properly map to clip space
+            // slurp::Mat32<float> positionTransformMatrix = {
+            //     {2 / DISPLAY_WIDTH, 0},
+            //     {0, 2 / DISPLAY_HEIGHT},
+            //     {-1, -1}
+            // };
+            slurp::Vec2<float> test[3] = {{0, 0}, {0, 0}, {0, 0}};
             float position[slurp::Vec2<float>::DimensionCount] = {
                 positionTransform.x / DISPLAY_WIDTH,
                 positionTransform.y / DISPLAY_HEIGHT
