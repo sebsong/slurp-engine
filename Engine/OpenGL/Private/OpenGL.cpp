@@ -2,6 +2,8 @@
 
 #include "WinGlad.c"
 #include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
 
 #include "Logging.h"
 #include "Matrix.h"
@@ -22,6 +24,10 @@ namespace open_gl {
         if (!init(width, height, title)) {
             this->_isValid = false;
         }
+    }
+
+    HWND OpenGLRenderWindow::getWin32Handle() const {
+        return glfwGetWin32Window(_window);
     }
 
     slurp::Vec2<int> OpenGLRenderWindow::getDimensions() const {

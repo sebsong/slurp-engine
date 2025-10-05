@@ -94,7 +94,7 @@ static void winHandleMessages(
             }
             break;
             case WM_MOUSEMOVE: {
-                slurp::Vec2<int> mouseScreenPosition = {
+                slurp::Vec2 mouseScreenPosition = {
                     GET_X_LPARAM(message.lParam),
                     screenDimensions.height - GET_Y_LPARAM(message.lParam)
                 };
@@ -890,11 +890,11 @@ int WINAPI WinMain(
     PSTR lpCmdLine,
     int nCmdShow
 ) {
-    HWND windowHandle = nullptr;
 #if RENDER_API == OPEN_GL
     open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #endif
+    HWND windowHandle = renderWindow.getWin32Handle();
 
     GlobalRunning = true;
 

@@ -1,6 +1,8 @@
 #pragma once
 #include "RenderApi.h"
 
+#include <windef.h>
+
 struct GLFWwindow;
 
 namespace open_gl {
@@ -8,6 +10,8 @@ namespace open_gl {
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
+
+        HWND getWin32Handle() const;
 
         slurp::Vec2<int> getDimensions() const;
 
