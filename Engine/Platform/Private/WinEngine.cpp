@@ -11,19 +11,16 @@
 #include <mmreg.h>
 
 
-#if OPEN_GL
+#if RENDER_API == OPEN_GL
 #include "OpenGL.cpp"
 #endif
 
-static const char* WINDOW_CLASS_NAME = "SlurpEngineWindowClass";
 static const char* WINDOW_TITLE = "Slurp's Up!";
 static const char* SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const char* SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
 static const char* RECORDING_FILE_NAME = "SlurpRecording.rec";
 
 static bool GlobalRunning;
-
-static WinGraphicsBuffer GlobalGraphicsBuffer;
 
 static WinAudioBuffer GlobalAudioBuffer;
 
@@ -37,124 +34,6 @@ static HMODULE GlobalSlurpLib;
 static WinRecordingState GlobalRecordingState;
 #endif
 
-static WinScreenDimensions winGetScreenDimensions(HWND windowHandle) {
-    RECT rect;
-    GetClientRect(windowHandle, &rect);
-    return WinScreenDimensions
-    {
-        rect.left,
-        rect.top,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-    };
-};
-
-static void winResizeDIBSection(WinGraphicsBuffer* outBuffer, int width, int height) {
-    if (outBuffer->memory) { VirtualFree(outBuffer->memory, 0, MEM_RELEASE); }
-
-    int bytesPerPixel = 4;
-    outBuffer->widthPixels = width;
-    outBuffer->heightPixels = height;
-    outBuffer->bytesPerPixel = bytesPerPixel;
-    outBuffer->pitchBytes = width * bytesPerPixel;
-
-    outBuffer->info.bmiHeader.biSize = sizeof(outBuffer->info.bmiHeader);
-    outBuffer->info.bmiHeader.biWidth = outBuffer->widthPixels;
-    outBuffer->info.bmiHeader.biHeight = -outBuffer->heightPixels;
-    outBuffer->info.bmiHeader.biPlanes = 1;
-    outBuffer->info.bmiHeader.biBitCount = static_cast<WORD>(bytesPerPixel * BITS_PER_BYTE);
-    outBuffer->info.bmiHeader.biCompression = BI_RGB;
-
-    int bitmapSizeBytes = outBuffer->widthPixels * outBuffer->heightPixels * bytesPerPixel;
-    outBuffer->memory = VirtualAlloc(
-        nullptr,
-        bitmapSizeBytes,
-        MEM_RESERVE | MEM_COMMIT,
-        PAGE_READWRITE
-    );
-}
-
-static void winUpdateWindow(
-    HDC deviceContextHandle,
-    const WinGraphicsBuffer& buffer,
-    int screenWidth,
-    int screenHeight
-) {
-#if !FIT_TO_SCREEN
-    PatBlt(
-        deviceContextHandle,
-        0,
-        buffer.heightPixels,
-        screenWidth,
-        screenHeight - buffer.heightPixels,
-        BLACKNESS
-    );
-    PatBlt(
-        deviceContextHandle,
-        buffer.widthPixels,
-        0,
-        screenWidth - buffer.widthPixels,
-        buffer.heightPixels,
-        BLACKNESS
-    );
-#endif
-
-    // TODO: aspect ratio correction
-    StretchDIBits(
-        deviceContextHandle,
-#if FIT_TO_SCREEN
-        0,
-        0,
-        screenWidth,
-        screenHeight,
-#else
-        0, 0, buffer.widthPixels, buffer.heightPixels, // for pixel perfect scaling
-#endif
-        0,
-        0,
-        buffer.widthPixels,
-        buffer.heightPixels,
-        buffer.memory,
-        &buffer.info,
-        DIB_RGB_COLORS,
-        SRCCOPY
-    );
-};
-
-static void winPaint(HWND windowHandle, const WinGraphicsBuffer buffer) {
-    PAINTSTRUCT paintStruct;
-    HDC deviceContext = BeginPaint(windowHandle, &paintStruct);
-    WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
-    winUpdateWindow(deviceContext, buffer, dimensions.width, dimensions.height);
-    EndPaint(windowHandle, &paintStruct);
-    ReleaseDC(windowHandle, deviceContext);
-}
-
-static LRESULT CALLBACK winMessageHandler(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) {
-    LRESULT result = 0;
-
-    switch (message) {
-        case WM_ACTIVATEAPP: {}
-        break;
-        case WM_SIZE: {}
-        break;
-        case WM_DESTROY:
-        case WM_CLOSE: { GlobalRunning = false; }
-        break;
-        case WM_PAINT: { winPaint(windowHandle, GlobalGraphicsBuffer); }
-        break;
-        case WM_SYSKEYDOWN:
-        case WM_SYSKEYUP:
-        case WM_KEYDOWN:
-        case WM_KEYUP: { ASSERT(!"Keyboard event should not be handled in Windows handler."); }
-        break;
-        default: { result = DefWindowProcA(windowHandle, message, wParam, lParam); }
-        break;
-    }
-
-    return result;
-};
-
 static void updateMouseButtonState(slurp::MouseState& outMouseState, slurp::MouseCode mouseCode, bool isDown) {
     slurp::DigitalInputState& inputState = outMouseState.state[mouseCode];
     inputState.transitionCount = inputState.isDown != isDown ? 1 : 0;;
@@ -163,9 +42,7 @@ static void updateMouseButtonState(slurp::MouseState& outMouseState, slurp::Mous
 
 static void winHandleMessages(
     slurp::KeyboardState& outKeyboardState,
-    slurp::MouseState& outMouseState,
-    const WinScreenDimensions& screenDimensions,
-    const WinGraphicsBuffer& buffer
+    slurp::MouseState& outMouseState
 ) {
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -217,15 +94,7 @@ static void winHandleMessages(
             break;
             case WM_MOUSEMOVE: {
                 int xPosition = GET_X_LPARAM(message.lParam);
-                int yPosition = GET_Y_LPARAM(message.lParam);
-#if FIT_TO_SCREEN
-                if (screenDimensions.width) {
-                    xPosition *= (static_cast<float>(buffer.widthPixels) / screenDimensions.width);
-                }
-                if (screenDimensions.height) {
-                    yPosition *= (static_cast<float>(buffer.heightPixels) / screenDimensions.height);
-                }
-#endif
+                int yPosition = DISPLAY_HEIGHT - GET_Y_LPARAM(message.lParam);
                 outMouseState.position = {static_cast<float>(xPosition), static_cast<float>(yPosition)};
             }
             break;
@@ -474,39 +343,6 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     );
     return numBytesToWrite;
 }
-
-static bool winInitWindow(HINSTANCE instance, HWND* outWindowHandle) {
-    WNDCLASSA windowClass = {};
-    windowClass.style = CS_HREDRAW;
-    windowClass.lpfnWndProc = winMessageHandler;
-    windowClass.hInstance = instance;
-    windowClass.lpszClassName = WINDOW_CLASS_NAME;
-    RegisterClassA(&windowClass);
-
-    *outWindowHandle = CreateWindowExA(
-        0,
-        windowClass.lpszClassName,
-        WINDOW_TITLE,
-        WS_MAXIMIZE | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        nullptr,
-        nullptr,
-        instance,
-        nullptr
-    );
-
-    if (!*outWindowHandle) {
-        OutputDebugStringA("Failed to create window.\n");
-        return false;
-    }
-
-    winResizeDIBSection(&GlobalGraphicsBuffer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    return true;
-}
-
 
 static DWORD winGetMonitorRefreshRate() {
     DEVMODEA devMode = {};
@@ -998,30 +834,6 @@ static void winReadInputRecording(
         winReadInputStateMap(outGamepadState.state);
     }
 }
-
-void winDrawDebugLine(int drawX, uint32_t color) {
-    int lineWidth = 8;
-
-    byte* bitmapBytes = static_cast<byte*>(GlobalGraphicsBuffer.memory) + drawX * GlobalGraphicsBuffer.
-                        bytesPerPixel;
-    for (int y = 0; y < GlobalGraphicsBuffer.heightPixels; y++) {
-        uint32_t* rowPixels = reinterpret_cast<uint32_t*>(bitmapBytes);
-        for (int x = 0; x < lineWidth; x++) {
-            if (drawX + x >= GlobalGraphicsBuffer.widthPixels) { return; }
-            *rowPixels++ = color;
-        }
-
-        bitmapBytes += GlobalGraphicsBuffer.pitchBytes;
-    }
-}
-
-void winDrawDebugAudioSync(DWORD cursor, uint32_t color) {
-    int x = static_cast<int>(
-        (static_cast<float>(cursor) / GlobalAudioBuffer.bufferSizeBytes) *
-        (GlobalGraphicsBuffer.widthPixels)
-    );
-    winDrawDebugLine(x, color);
-}
 #endif
 
 PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
@@ -1071,7 +883,7 @@ int WINAPI WinMain(
     int nCmdShow
 ) {
     HWND windowHandle = nullptr;
-#if OPEN_GL
+#if RENDER_API == OPEN_GL
     open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #else
@@ -1138,8 +950,7 @@ int WINAPI WinMain(
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
-        WinScreenDimensions dimensions = winGetScreenDimensions(windowHandle);
-        winHandleMessages(keyboardState, mouseState, dimensions, GlobalGraphicsBuffer);
+        winHandleMessages(keyboardState, mouseState);
         winHandleGamepadInput(gamepadStates);
 #if DEBUG
         if (GlobalRecordingState.isRecording) { winRecordInput(mouseState, keyboardState, gamepadStates); }
@@ -1151,12 +962,7 @@ int WINAPI WinMain(
         if (GlobalRecordingState.isPaused) { continue; }
 #endif
 
-        render::GraphicsBuffer graphicsBuffer = {
-            static_cast<render::Pixel*>(GlobalGraphicsBuffer.memory),
-            GlobalGraphicsBuffer.widthPixels,
-            GlobalGraphicsBuffer.heightPixels
-        };
-        GlobalSlurpDll.updateAndRender(graphicsBuffer, targetSecondsPerFrame);
+        GlobalSlurpDll.updateAndRender(targetSecondsPerFrame);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK) {
             OutputDebugStringA("Get audio buffer position failed.\n");
@@ -1173,19 +979,12 @@ int WINAPI WinMain(
         winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
         winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
 
-#if 0
-        winDrawDebugAudioSync(playCursor, 0x00000000);
-        winDrawDebugAudioSync(lockCursor, 0x00FF0000);
-#endif
-#if OPEN_GL
+#if RENDER_API == OPEN_GL
         renderWindow.flip();
         if (renderWindow.shouldTerminate()) {
             GlobalRunning = false;
         }
 #endif
-        HDC deviceContext = GetDC(windowHandle);
-        winUpdateWindow(deviceContext, GlobalGraphicsBuffer, dimensions.width, dimensions.height);
-        ReleaseDC(windowHandle, deviceContext);
     }
 
     if (isSleepGranular) { timeEndPeriod(1); }

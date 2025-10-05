@@ -28,10 +28,14 @@ namespace render {
        renderShape(renderShape),
        renderOffset(getRenderOffset(renderShape.shape.dimensions, isCentered)) {}
 
-    void RenderInfo::draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) const {
+    void RenderInfo::draw(const slurp::Vec2<float>& position) const {
         if (!renderingEnabled) { return; }
 
         slurp::Vec2<float> startPoint = position + renderOffset;
-        if (sprite && sprite->bitmap.map) { sprite->draw(buffer, startPoint); } else { renderShape.draw(buffer, startPoint); }
+        if (sprite && sprite->bitmap.map) {
+            sprite->draw(startPoint);
+        } else {
+            renderShape.draw(startPoint);
+        }
     }
 }

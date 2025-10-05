@@ -14,6 +14,6 @@ namespace render {
 
         RenderInfo(const RenderShape& renderShape, bool isCentered);
 
-        void draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) const;
+        void draw(const slurp::Vec2<float>& position) const;
     };
 }

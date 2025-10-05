@@ -37,6 +37,7 @@
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
+#include "Settings.h"
 
 namespace slurp {
     SLURP_INIT(init) {
@@ -88,27 +89,25 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        GlobalEntityManager->updateAndRender(graphicsBuffer, dt);
+        GlobalEntityManager->updateAndRender(dt);
 
 #if DEBUG
         if (GlobalRecordingState->isRecording) {
             render::drawRectBorder(
-                graphicsBuffer,
                 {0, 0},
                 {
-                    static_cast<float>(graphicsBuffer.widthPixels),
-                    static_cast<float>(graphicsBuffer.heightPixels)
+                    static_cast<float>(CAMERA_WORLD_WIDTH),
+                    static_cast<float>(CAMERA_WORLD_HEIGHT)
                 },
                 10,
                 DEBUG_RED_COLOR
             );
         } else if (GlobalRecordingState->isPlayingBack) {
             render::drawRectBorder(
-                graphicsBuffer,
                 {0, 0},
                 {
-                    static_cast<float>(graphicsBuffer.widthPixels),
-                    static_cast<float>(graphicsBuffer.heightPixels)
+                    static_cast<float>(CAMERA_WORLD_WIDTH),
+                    static_cast<float>(CAMERA_WORLD_HEIGHT)
                 },
                 10,
                 DEBUG_GREEN_COLOR

@@ -32,19 +32,18 @@ namespace slurp {
         }
     }
 
-    void EntityManager::updateAndRender(const render::GraphicsBuffer& buffer, float dt) {
+    void EntityManager::updateAndRender(float dt) {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
                 entity->update(dt);
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
-                render::drawRenderable(buffer, entity->renderInfo, entity->physicsInfo.position);
+                render::drawRenderable(entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
                 const Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
                 render::drawRectBorder(
-                    buffer,
                     offsetPosition,
                     offsetPosition + entity->collisionInfo.shape.shape.dimensions,
                     1,

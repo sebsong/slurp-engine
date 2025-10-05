@@ -2,7 +2,6 @@
 #include <queue>
 
 namespace render {
-    struct GraphicsBuffer;
     struct ColorPalette;
 }
 
@@ -23,7 +22,7 @@ namespace slurp {
             const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
         ) const;
 
-        void updateAndRender(const render::GraphicsBuffer& buffer, float dt);
+        void updateAndRender(float dt);
 
     private:
         std::deque<Entity*> _pipeline; // TODO: replace with a priority queue when we want priority

@@ -9,10 +9,10 @@
 
 namespace open_gl {
     // e.g. [0, 0]                          -> [-1, -1]
-    // e.g. [DISPLAY_WIDTH, DISPLAY_HEIGHT] -> [1, 1]
+    // e.g. [WORLD_WIDTH, WORLD_HEIGHT] -> [1, 1]
     static const slurp::Mat32<float> WorldToOpenGLClipSpaceMatrix = {
-        {2.f / DISPLAY_WIDTH, 0.f},
-        {0.f, 2.f / DISPLAY_HEIGHT},
+        {2.f / CAMERA_WORLD_WIDTH, 0.f},
+        {0.f, 2.f / CAMERA_WORLD_HEIGHT},
         {-1.f, -1.f}
     };
 
@@ -22,6 +22,12 @@ namespace open_gl {
         if (!init(width, height, title)) {
             this->_isValid = false;
         }
+    }
+
+    slurp::Vec2<int> OpenGLRenderWindow::getDimensions() const {
+        int width, height;
+        glfwGetWindowSize(_window, &width, &height);
+        return {width, height};
     }
 
     static void resizeViewport(GLFWwindow* window, int width, int height) {
@@ -185,8 +191,8 @@ namespace open_gl {
         for (int i = 0; i < vertexCount; i++) {
             render::Vertex& vertex = vertexArray[i];
             // TODO: replace with world to clip space matrix transformation
-            vertex.position.x /= DISPLAY_WIDTH;
-            vertex.position.y /= DISPLAY_HEIGHT;
+            vertex.position.x /= CAMERA_WORLD_WIDTH;
+            vertex.position.y /= CAMERA_WORLD_HEIGHT;
             // vertex.position *= WorldToOpenGLClipSpaceMatrix;
         }
         // TODO: allow usage control

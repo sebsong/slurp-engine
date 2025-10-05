@@ -24,12 +24,6 @@ namespace render {
     constexpr Pixel BlueMask = 0x000000FF;
     constexpr uint8_t BlueShift = 0;
 
-    struct GraphicsBuffer {
-        Pixel* const pixelMap; // memory byte order: XRGB
-        int widthPixels;
-        int heightPixels;
-    };
-
     // TODO: move to game layer
     struct ColorPalette {
         Pixel colors[COLOR_PALETTE_SIZE];
@@ -40,21 +34,20 @@ namespace render {
         geometry::Shape shape;
         Pixel color;
 
-        void draw(const GraphicsBuffer& buffer, const slurp::Vec2<float>& startPoint) const;
+        void draw(const slurp::Vec2<float>& startPoint) const;
     };
 
     template<typename T>
-    concept Renderable = requires(T renderable, const GraphicsBuffer& buffer, const slurp::Vec2<float>& position) {
-        { renderable.draw(buffer, position) } -> std::same_as<void>;
+    concept Renderable = requires(T renderable, const slurp::Vec2<float>& position) {
+        { renderable.draw(position) } -> std::same_as<void>;
     };
 
     template<Renderable T>
-    void drawRenderable(const GraphicsBuffer& buffer, const T& renderable, const slurp::Vec2<float>& position) {
-        renderable.draw(buffer, position);
+    void drawRenderable(const T& renderable, const slurp::Vec2<float>& position) {
+        renderable.draw(position);
     }
 
     void drawRectBorder(
-        const GraphicsBuffer& buffer,
         const slurp::Vec2<float>& startPoint,
         const slurp::Vec2<float>& endPoint,
         uint8_t borderThickness,

@@ -4,9 +4,12 @@
 struct GLFWwindow;
 
 namespace open_gl {
+
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
+
+        slurp::Vec2<int> getDimensions() const;
 
         bool isValid() const;
 

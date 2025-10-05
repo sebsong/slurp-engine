@@ -7,22 +7,6 @@
 #include <unordered_map>
 #include <Xinput.h>
 
-struct WinScreenDimensions {
-    int x;
-    int y;
-    int width;
-    int height;
-};
-
-struct WinGraphicsBuffer {
-    BITMAPINFO info;
-    void* memory;
-    int widthPixels;
-    int heightPixels;
-    int bytesPerPixel;
-    int pitchBytes;
-};
-
 struct WinAudioBuffer {
     LPDIRECTSOUNDBUFFER buffer;
     int samplesPerSec;
