@@ -277,9 +277,9 @@ static void winInitDirectSound(HWND windowHandle) {
             LPDIRECTSOUNDBUFFER dsPrimaryBuffer;
             if (SUCCEEDED(directSound->CreateSoundBuffer(&dsBufferDescription, &dsPrimaryBuffer, nullptr))) {
                 if (SUCCEEDED(dsPrimaryBuffer->SetFormat(reinterpret_cast<LPCWAVEFORMATEX>(&waveFormatExtensible)))) {
-                    OutputDebugStringA("Primary audio buffer created.\n");
+                    logging::info("Primary audio buffer created.");
                 } else {
-                    // TODO: log
+                    logging::error("Failed to create primar audio buffer.");
                 }
             }
 
@@ -295,8 +295,10 @@ static void winInitDirectSound(HWND windowHandle) {
                     &GlobalAudioBuffer.buffer,
                     nullptr
                 )
-            )) { OutputDebugStringA("Secondary audio buffer created.\n"); } else {
-                //TODO: log
+            )) {
+                logging::info("Secondary audio buffer created.");
+            } else {
+                logging::error("Failed to create secondary audio buffer.");
             }
         }
     }

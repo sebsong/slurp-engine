@@ -147,7 +147,6 @@ namespace game {
             player::Player()
         );
 
-        // TODO: move some of these to separate classes/files
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
                 GlobalGameState->enemies[i],
