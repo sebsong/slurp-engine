@@ -2,6 +2,25 @@
 #include "Vector.h"
 
 namespace slurp {
+    template<typename T>
+    struct Mat22 {
+        union {
+            struct {
+                T x1, y1;
+                T x2, y2;
+            };
+
+            struct {
+                Vec2<T> i;
+                Vec2<T> j;
+            };
+
+            Vec2<T> rows[2];
+        };
+
+        Mat22(const Vec2<T>& i, const Vec2<T>& j) : i(i), j(j) {}
+    };
+
     // Represents a homogenous matrix with an implied 3rd `z` column of:
     // [ 0 ]
     // [ 0 ]

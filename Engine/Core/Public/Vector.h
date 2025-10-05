@@ -4,6 +4,8 @@
 
 namespace slurp {
     template<typename T>
+    struct Mat22;
+    template<typename T>
     struct Mat32;
 
     template<typename T>
@@ -90,6 +92,14 @@ namespace slurp {
         template<typename TScalar>
         Vec2<std::common_type_t<T, TScalar> > operator*(const TScalar& scalar) const {
             return Vec2<std::common_type_t<T, TScalar> >(this->x * scalar, this->y * scalar);
+        }
+
+        template<typename TMatrix>
+        Vec2<std::common_type_t<T, TMatrix> > operator*(const Mat22<TMatrix>& matrix) const {
+            return Vec2<std::common_type_t<T, TMatrix> >(
+                x * matrix.x1 + y * matrix.x2,
+                x * matrix.y1 + y * matrix.y2
+            );
         }
 
         // NOTE: Implies a homogenous vector with the `z` component = 1

@@ -42,7 +42,8 @@ static void updateMouseButtonState(slurp::MouseState& outMouseState, slurp::Mous
 
 static void winHandleMessages(
     slurp::KeyboardState& outKeyboardState,
-    slurp::MouseState& outMouseState
+    slurp::MouseState& outMouseState,
+    const slurp::Vec2<int>& screenDimensions
 ) {
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -93,9 +94,16 @@ static void winHandleMessages(
             }
             break;
             case WM_MOUSEMOVE: {
-                int xPosition = GET_X_LPARAM(message.lParam);
-                int yPosition = DISPLAY_HEIGHT - GET_Y_LPARAM(message.lParam);
-                outMouseState.position = {static_cast<float>(xPosition), static_cast<float>(yPosition)};
+                slurp::Vec2<int> mouseScreenPosition = {
+                    GET_X_LPARAM(message.lParam),
+                    screenDimensions.height - GET_Y_LPARAM(message.lParam)
+                };
+                // TODO: maybe this should be cached and updated whenever the screen dimensions (infrequently) update
+                slurp::Mat22<float> screenToWorldMatrix = {
+                    {static_cast<float>(CAMERA_WORLD_WIDTH) / screenDimensions.width, 0.f},
+                    {0.f, static_cast<float>(CAMERA_WORLD_HEIGHT) / screenDimensions.height},
+                };
+                outMouseState.position = mouseScreenPosition * screenToWorldMatrix;
             }
             break;
             case WM_QUIT: { GlobalRunning = false; }
@@ -886,8 +894,6 @@ int WINAPI WinMain(
 #if RENDER_API == OPEN_GL
     open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
-#else
-    if (!winInitWindow(hInstance, &windowHandle)) { return 1; }
 #endif
 
     GlobalRunning = true;
@@ -950,7 +956,7 @@ int WINAPI WinMain(
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
-        winHandleMessages(keyboardState, mouseState);
+        winHandleMessages(keyboardState, mouseState, renderWindow.getDimensions());
         winHandleGamepadInput(gamepadStates);
 #if DEBUG
         if (GlobalRecordingState.isRecording) { winRecordInput(mouseState, keyboardState, gamepadStates); }
@@ -979,12 +985,10 @@ int WINAPI WinMain(
         winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
         winCaptureAndLogPerformance(startProcessorCycle, startTimingInfo);
 
-#if RENDER_API == OPEN_GL
         renderWindow.flip();
         if (renderWindow.shouldTerminate()) {
             GlobalRunning = false;
         }
-#endif
     }
 
     if (isSleepGranular) { timeEndPeriod(1); }
