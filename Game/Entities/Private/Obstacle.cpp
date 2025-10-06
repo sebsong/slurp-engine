@@ -11,14 +11,14 @@ namespace obstacle {
         std::move(name),
         render::RenderInfo(
             render::RenderShape{shape, game::getColor(7)},
-            false
+            true
         ),
         physics::PhysicsInfo(position),
         collision::CollisionInfo(
             true,
             false,
             shape,
-            false
+            true
         )
     ) {}
 }

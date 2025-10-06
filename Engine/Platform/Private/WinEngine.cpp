@@ -99,9 +99,10 @@ static void winHandleMessages(
                     screenDimensions.height - GET_Y_LPARAM(message.lParam)
                 };
                 // TODO: maybe this should be cached and updated whenever the screen dimensions (infrequently) update
-                slurp::Mat22<float> screenToWorldMatrix = {
+                slurp::Mat32<float> screenToWorldMatrix = {
                     {static_cast<float>(CAMERA_WORLD_WIDTH) / screenDimensions.width, 0.f},
                     {0.f, static_cast<float>(CAMERA_WORLD_HEIGHT) / screenDimensions.height},
+                    {-CAMERA_WORLD_WIDTH_MAX, -CAMERA_WORLD_HEIGHT_MAX},
                 };
                 outMouseState.position = mouseScreenPosition * screenToWorldMatrix;
             }

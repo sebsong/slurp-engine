@@ -10,6 +10,7 @@
 #include "Enemy.cpp"
 #include "Projectile.cpp"
 #include "MouseCursor.cpp"
+#include "Settings.h"
 
 namespace game {
     // TODO: maybe move color palette handling to its own module
@@ -80,40 +81,40 @@ namespace game {
         //         collision::CollisionInfo()
         //     )
         // );
-        geometry::Shape wallUpShape = {geometry::Rect, {1500, 20}};
+        geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
         registerEntity(
             GlobalGameState->wallUp,
             obstacle::Obstacle(
                 "WallUp",
                 wallUpShape,
-                {0, 0}
+                {0, CAMERA_WORLD_HEIGHT_MAX}
             )
         );
-        geometry::Shape wallDownShape = {geometry::Rect, {1500, 20}};
+        geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
         registerEntity(
             GlobalGameState->wallDown,
             obstacle::Obstacle(
                 "WallDown",
                 wallDownShape,
-                {0, 700}
+                {0, -CAMERA_WORLD_HEIGHT_MAX}
             )
         );
-        geometry::Shape wallLeftShape = {geometry::Rect, {20, 1000}};
+        geometry::Shape wallLeftShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
         registerEntity(
             GlobalGameState->wallLeft,
             obstacle::Obstacle(
                 "WallLeft",
                 wallLeftShape,
-                {0, 0}
+                {-CAMERA_WORLD_WIDTH_MAX, 0}
             )
         );
-        geometry::Shape wallRightShape = {geometry::Rect, {20, 1000}};
+        geometry::Shape wallRightShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
         registerEntity(
             GlobalGameState->wallRight,
             obstacle::Obstacle(
                 "WallRight",
                 wallRightShape,
-                {1260, 0}
+                {CAMERA_WORLD_WIDTH_MAX, 0}
             )
         );
         // geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};

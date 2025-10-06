@@ -41,12 +41,6 @@ namespace slurp {
                 update::updatePosition(entity, _pipeline, dt);
                 render::drawRenderable(entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
-                debug::drawLine(
-                    {200, 500},
-                    {900, 500},
-                    10,
-                    DEBUG_DRAW_COLOR
-                );
 #if DEBUG_DRAW_COLLISION
                 const Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
                 debug::drawRectBorder(

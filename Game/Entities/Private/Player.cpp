@@ -5,7 +5,7 @@
 #include "Collision.h"
 
 namespace player {
-    static const slurp::Vec2 StartPosition = {640, 360};
+    static const slurp::Vec2 StartPosition = {0, 0};
     static constexpr float BaseSpeed = 300;
     static constexpr float SprintSpeed = 500;
     static constexpr float BaseAcceleration = BaseSpeed * 16;

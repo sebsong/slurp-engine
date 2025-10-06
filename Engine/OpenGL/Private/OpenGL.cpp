@@ -10,12 +10,12 @@
 #include "RenderApi.h"
 
 namespace open_gl {
-    // e.g. [0, 0]                      -> [-1, -1]
-    // e.g. [WORLD_WIDTH, WORLD_HEIGHT] -> [1, 1]
-    static const slurp::Mat32<float> WorldToOpenGLClipSpaceMatrix = {
+    // e.g. [-WORLD_WIDTH / 2, -WORLD_HEIGHT / 2] -> [-1, -1]
+    // e.g. [0, 0]                                -> [0, 0]
+    // e.g. [WORLD_WIDTH / 2, WORLD_HEIGHT / 2]   -> [1, 1]
+    static const slurp::Mat22<float> WorldToOpenGLClipSpaceMatrix = {
         {2.f / CAMERA_WORLD_WIDTH, 0.f},
-        {0.f, 2.f / CAMERA_WORLD_HEIGHT},
-        {-1.f, -1.f}
+        {0.f, 2.f / CAMERA_WORLD_HEIGHT}
     };
 
     OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
@@ -197,9 +197,9 @@ namespace open_gl {
         for (int i = 0; i < vertexCount; i++) {
             render::Vertex& vertex = vertexArray[i];
             // TODO: replace with world to clip space matrix transformation
-            vertex.position.x /= CAMERA_WORLD_WIDTH;
-            vertex.position.y /= CAMERA_WORLD_HEIGHT;
-            // vertex.position *= WorldToOpenGLClipSpaceMatrix;
+            // vertex.position.x /= CAMERA_WORLD_WIDTH;
+            // vertex.position.y /= CAMERA_WORLD_HEIGHT;
+            vertex.position *= WorldToOpenGLClipSpaceMatrix;
         }
         // TODO: allow usage control
         uint32_t vertexSize = sizeof(render::Vertex);
@@ -267,6 +267,6 @@ namespace open_gl {
         if (colorUniformLoc != render::INVALID_ID) {
             glUniform4fv(colorUniformLoc, 1, color.values);
         }
-        glDrawArrays(GL_LINE, 0, vertexCount);
+        glDrawArrays(GL_LINES, 0, vertexCount);
     }
 }

@@ -1,11 +1,12 @@
 #include "Enemy.h"
 
 #include "Random.h"
+#include "Settings.h"
 
 namespace enemy {
-    static const slurp::Vec2 StartPosition = {400, 200};
+    static const slurp::Vec2<float> StartPosition = {-CAMERA_WORLD_WIDTH_MAX + 500, 200};
     static const slurp::Vec2 PositionOffset = {100, 0};
-    static const slurp::Vec2 CollisionShapeOffset = {0, 9};
+    static const slurp::Vec2 CollisionShapeOffset = {0, 2};
     static constexpr int BaseSpeed = 200;
     static constexpr int BaseAcceleration = 400;
     static constexpr float BaseDirectionChangeDelay = 2;

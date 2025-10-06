@@ -135,6 +135,13 @@ namespace slurp {
             return *this;
         }
 
+        template<typename TMatrix>
+        Vec2& operator*=(const Mat22<TMatrix>& matrix) {
+            this->x = x * matrix.x1 + y * matrix.x2;
+            this->y = x * matrix.y1 + y * matrix.y2;
+            return *this;
+        }
+
         // NOTE: Implies a homogenous vector with the `z` component = 1
         template<typename TMatrix>
         Vec2& operator*=(const Mat32<TMatrix>& matrix) {
