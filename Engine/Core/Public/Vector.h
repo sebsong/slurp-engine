@@ -41,13 +41,13 @@ namespace slurp {
             return *this == Zero;
         }
 
-        float magnitude() const {
-            // NOTE: square roots are slow, consider magnitudeSquared
-            return static_cast<float>(std::sqrt(std::pow(this->x, 2) + std::pow(this->y, 2)));
-        }
-
         float magnitudeSquared() const {
             return static_cast<float>(std::pow(this->x, 2) + std::pow(this->y, 2));
+        }
+
+        float magnitude() const {
+            // NOTE: square roots are slow, consider magnitudeSquared
+            return std::sqrt(magnitudeSquared());
         }
 
         // TODO: this can't properly normalize an int vector. need to convert to float first
@@ -76,7 +76,7 @@ namespace slurp {
 
         template<typename U>
         bool operator!=(const Vec2<U>& other) const {
-            return this->x != other.x && this->y != other.y;
+            return !(*this == other);
         }
 
         template<typename U>
@@ -197,19 +197,15 @@ namespace slurp {
             return *this == Zero;
         }
 
-        float magnitude() const {
-            // NOTE: square roots are slow, consider magnitudeSquared
-            return static_cast<float>(
-                std::sqrt(
-                    std::pow(this->x, 2) + std::pow(this->y, 2) + std::pow(this->z, 2)
-                )
-            );
-        }
-
         float magnitudeSquared() const {
             return static_cast<float>(
                 std::pow(this->x, 2) + std::pow(this->y, 2) + std::pow(this->z, 2)
             );
+        }
+
+        float magnitude() const {
+            // NOTE: square roots are slow, consider magnitudeSquared
+            return std::sqrt(magnitudeSquared());
         }
 
         // TODO: this can't properly normalize an int vector. need to convert to float first
@@ -238,7 +234,7 @@ namespace slurp {
 
         template<typename U>
         bool operator!=(const Vec3<U>& other) const {
-            return this->x != other.x && this->y != other.y && this->z != other.z;
+            return !(*this == other);
         }
 
         template<typename U>
@@ -301,17 +297,194 @@ namespace slurp {
         }
     };
 
+    template<typename T>
+    struct Vec4 {
+        union {
+            struct {
+                T x;
+                T y;
+                T z;
+                T w;
+            };
+
+            struct {
+                T r;
+                T g;
+                T b;
+                T a;
+            };
+
+            T values[4];
+        };
+
+        static const Vec4 Zero;
+        static const uint32_t DimensionCount;
+
+        Vec4() {
+            this->x = 0;
+            this->y = 0;
+            this->z = 0;
+            this->w = 0;
+        }
+
+        Vec4(T _x, T _y, T _z, T _w) {
+            this->x = _x;
+            this->y = _y;
+            this->z = _z;
+            this->w = _w;
+        }
+
+        bool isZero() const {
+            return *this == Zero;
+        }
+
+        float magnitudeSquared() const {
+            return static_cast<float>(
+                std::pow(this->x, 2) + std::pow(this->y, 2) + std::pow(this->z, 2) + std::pow(this->w, 2)
+            );
+        }
+
+        float magnitude() const {
+            // NOTE: square roots are slow, consider magnitudeSquared
+            return std::sqrt(magnitudeSquared());
+        }
+
+        // TODO: this can't properly normalize an int vector. need to convert to float first
+        Vec3<float> normalize() {
+            float mag = magnitude();
+            if (mag != 0.0f) {
+                *this /= mag;
+            }
+            return *this;
+        }
+
+        template<typename U>
+        float distanceTo(const Vec4<U>& other) const {
+            return (other - *this).magnitude();
+        }
+
+        template<typename U>
+        float distanceSquaredTo(const Vec4<U>& other) const {
+            return (other - *this).magnitudeSquared();
+        }
+
+        template<typename U>
+        bool operator==(const Vec4<U>& other) const {
+            return this->x == other.x && this->y == other.y && this->z == other.z && this->w == other.w;
+        }
+
+        template<typename U>
+        bool operator!=(const Vec4<U>& other) const {
+            return !(*this == other);
+        }
+
+        template<typename U>
+        Vec4<std::common_type_t<T, U> > operator+(const Vec4<U>& other) const {
+            return Vec4<std::common_type_t<T, U> >(
+                this->x + other.x,
+                this->y + other.y,
+                this->z + other.z,
+                this->w + other.w
+            );
+        }
+
+        template<typename U>
+        Vec4<std::common_type_t<T, U> > operator-(const Vec4<U>& other) const {
+            return Vec4<std::common_type_t<T, U> >(
+                this->x - other.x,
+                this->y - other.y,
+                this->z - other.z,
+                this->w - other.w
+            );
+        }
+
+        template<typename TScalar>
+        Vec4<std::common_type_t<T, TScalar> > operator*(const TScalar& scalar) const {
+            return Vec4<std::common_type_t<T, TScalar> >(
+                this->x * scalar,
+                this->y * scalar,
+                this->z * scalar,
+                this->w * scalar
+            );
+        }
+
+        template<typename TScalar>
+        Vec4<std::common_type_t<T, TScalar> > operator/(const TScalar& scalar) const {
+            return Vec4<std::common_type_t<T, TScalar> >(
+                this->x / scalar,
+                this->y / scalar,
+                this->z / scalar,
+                this->w / scalar
+            );
+        }
+
+        Vec4& operator+=(const Vec4& other) {
+            this->x += other.x;
+            this->y += other.y;
+            this->z += other.z;
+            this->w += other.w;
+            return *this;
+        }
+
+        Vec4& operator-=(const Vec4& other) {
+            this->x -= other.x;
+            this->y -= other.y;
+            this->z -= other.z;
+            this->w -= other.w;
+            return *this;
+        }
+
+        template<typename TScalar>
+        Vec4& operator*=(const TScalar& scalar) {
+            this->x *= scalar;
+            this->y *= scalar;
+            this->z *= scalar;
+            this->w *= scalar;
+            return *this;
+        }
+
+        template<typename TScalar>
+        Vec4& operator/=(const TScalar& scalar) {
+            this->x = static_cast<T>(this->x / scalar);
+            this->y = static_cast<T>(this->y / scalar);
+            this->z = static_cast<T>(this->z / scalar);
+            this->w = static_cast<T>(this->w / scalar);
+            return *this;
+        }
+
+        Vec4 operator-() const {
+            return Vec4(-this->x, -this->y, this->z, this->w);
+        }
+
+        template<typename TNew>
+        operator Vec4<TNew>() const {
+            return Vec4<TNew>(
+                static_cast<TNew>(this->x),
+                static_cast<TNew>(this->y),
+                static_cast<TNew>(this->z),
+                static_cast<TNew>(this->w)
+            );
+        }
+    };
+
     /** Constants **/
     template<typename T>
     const Vec2<T> Vec2<T>::Zero{0, 0};
     template<typename T>
     const uint32_t Vec2<T>::DimensionCount{2};
+
     template<typename T>
     const Vec3<T> Vec3<T>::Zero{0, 0, 0};
     template<typename T>
     const uint32_t Vec3<T>::DimensionCount{3};
 
+    template<typename T>
+    const Vec4<T> Vec4<T>::Zero{0, 0, 0, 0};
+    template<typename T>
+    const uint32_t Vec4<T>::DimensionCount{4};
 
+
+    /** Printing **/
     template<typename T>
     std::ostream& operator<<(std::ostream& os, const Vec2<T>& vector) {
         os << "(" << vector.x << ", " << vector.y << ")";
@@ -321,6 +494,12 @@ namespace slurp {
     template<typename T>
     std::ostream& operator<<(std::ostream& os, const Vec3<T>& vector) {
         os << "(" << vector.x << ", " << vector.y << ", " << vector.z << ")";
+        return os;
+    }
+
+    template<typename T>
+    std::ostream& operator<<(std::ostream& os, const Vec4<T>& vector) {
+        os << "(" << vector.x << ", " << vector.y << ", " << vector.z << ", " << vector.w << ")";
         return os;
     }
 }

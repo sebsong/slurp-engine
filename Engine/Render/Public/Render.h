@@ -47,12 +47,5 @@ namespace render {
         renderable.draw(position);
     }
 
-    void drawRectBorder(
-        const slurp::Vec2<float>& startPoint,
-        const slurp::Vec2<float>& endPoint,
-        uint8_t borderThickness,
-        uint32_t color
-    );
-
     inline Pixel withAlpha(Pixel color, float alpha);
 }

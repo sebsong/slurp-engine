@@ -13,6 +13,8 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Collision.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Debug.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Entity.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "EntityManager.cpp"
@@ -93,7 +95,7 @@ namespace slurp {
 
 #if DEBUG
         if (GlobalRecordingState->isRecording) {
-            render::drawRectBorder(
+            debug::drawRectBorder(
                 {0, 0},
                 {
                     static_cast<float>(CAMERA_WORLD_WIDTH),
@@ -103,7 +105,7 @@ namespace slurp {
                 DEBUG_RED_COLOR
             );
         } else if (GlobalRecordingState->isPlayingBack) {
-            render::drawRectBorder(
+            debug::drawRectBorder(
                 {0, 0},
                 {
                     static_cast<float>(CAMERA_WORLD_WIDTH),

@@ -10,7 +10,7 @@
 #include "RenderApi.h"
 
 namespace open_gl {
-    // e.g. [0, 0]                          -> [-1, -1]
+    // e.g. [0, 0]                      -> [-1, -1]
     // e.g. [WORLD_WIDTH, WORLD_HEIGHT] -> [1, 1]
     static const slurp::Mat32<float> WorldToOpenGLClipSpaceMatrix = {
         {2.f / CAMERA_WORLD_WIDTH, 0.f},
@@ -165,7 +165,7 @@ namespace open_gl {
         return shaderProgramId;
     }
 
-    RENDER_GEN_ARRAY_BUFFER(genArrayBuffer) {
+    RENDER_GEN_VERTEX_ARRAY_BUFFER(genVertexArrayBuffer) {
         render::object_id vertexArrayId;
         glGenVertexArrays(1, &vertexArrayId);
         glBindVertexArray(vertexArrayId);
@@ -202,12 +202,13 @@ namespace open_gl {
             // vertex.position *= WorldToOpenGLClipSpaceMatrix;
         }
         // TODO: allow usage control
-        glBufferData(GL_ARRAY_BUFFER, sizeof(render::Vertex) * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
+        uint32_t vertexSize = sizeof(render::Vertex);
+        glBufferData(GL_ARRAY_BUFFER, vertexSize * vertexCount, vertexArray, GL_STATIC_DRAW);
         return vertexArrayId;
     }
 
     RENDER_GEN_ELEMENT_ARRAY_BUFFER(genElementArrayBuffer) {
-        render::object_id vertexArrayId = open_gl::genArrayBuffer(vertexArray, vertexCount);
+        render::object_id vertexArrayId = open_gl::genVertexArrayBuffer(vertexArray, vertexCount);
 
         uint32_t elementBufferId;
         glGenBuffers(1, &elementBufferId);
@@ -242,7 +243,7 @@ namespace open_gl {
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
-    RENDER_DRAW_ARRAY(drawArray) {
+    RENDER_DRAW_VERTEX_ARRAY(drawVertexArray) {
         prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
@@ -253,5 +254,19 @@ namespace open_gl {
 
         // glBindVertexArray(render::UNUSED_ID);
         // glUseProgram(render::UNUSED_ID);
+    }
+
+    RENDER_DRAW_LINE(drawLine) {
+        glLineWidth(width);
+        glBindVertexArray(vertexArrayId);
+        glUseProgram(shaderProgramId);
+        int colorUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::COLOR_UNIFORM_NAME
+        );
+        if (colorUniformLoc != render::INVALID_ID) {
+            glUniform4fv(colorUniformLoc, 1, color.values);
+        }
+        glDrawArrays(GL_LINE, 0, vertexCount);
     }
 }

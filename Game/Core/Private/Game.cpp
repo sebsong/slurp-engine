@@ -45,7 +45,7 @@ namespace game {
         GlobalGameAssets->projectileSprite = render::loadSprite(projectile::SpriteFileName);
         GlobalGameAssets->projectileParriedSprite = render::loadSprite(projectile::ParriedSpriteFileName);
 
-        GlobalGameAssets->backgroundMusic = audio::loadSound(global::BackgroundMusicSoundFileName);
+        // GlobalGameAssets->backgroundMusic = audio::loadSound(global::BackgroundMusicSoundFileName);
         GlobalGameAssets->projectileHitSound = audio::loadSound(projectile::SoundFileName);
     }
 
@@ -159,23 +159,23 @@ namespace game {
             mouse_cursor::MouseCursor()
         );
 
-        registerEntity(
-            GlobalGameState->testAlpha,
-            slurp::Entity(
-                "testAlpha",
-                render::RenderInfo(
-                    render::RenderShape{
-                        {geometry::Rect, {300, 200}},
-                        render::withAlpha(getColor(6), .7)
-                    },
-                    true
-                ),
-                physics::PhysicsInfo(
-                    {400, 525}
-                ),
-                collision::CollisionInfo()
-            )
-        );
+        // registerEntity(
+        //     GlobalGameState->testAlpha,
+        //     slurp::Entity(
+        //         "testAlpha",
+        //         render::RenderInfo(
+        //             render::RenderShape{
+        //                 {geometry::Rect, {300, 200}},
+        //                 render::withAlpha(getColor(6), .7)
+        //             },
+        //             true
+        //         ),
+        //         physics::PhysicsInfo(
+        //             {400, 525}
+        //         ),
+        //         collision::CollisionInfo()
+        //     )
+        // );
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
             registerEntity(

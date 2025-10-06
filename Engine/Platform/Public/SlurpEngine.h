@@ -4,7 +4,6 @@
 #include "DynamicDeclaration.h"
 #include "Input.h"
 #include "Audio.h"
-#include "Render.h"
 #include "EntityManager.h"
 #include "SoundManager.h"
 #include "Game.h"

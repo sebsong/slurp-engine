@@ -47,12 +47,13 @@ namespace render {
             SpriteElements,
             SpriteMeshElementCount
         );
+
         object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);
 
         // TODO: allow specification of shader
         object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram(
-            "default.glsl",
-            "default.glsl"
+            "sprite.glsl",
+            "sprite.glsl"
         );
 
         return Sprite{

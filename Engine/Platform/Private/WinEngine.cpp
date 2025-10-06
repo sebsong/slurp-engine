@@ -879,10 +879,11 @@ static render::RenderApi loadRenderApi() {
     renderApi.setBackgroundColor = open_gl::setBackgroundColor;
     renderApi.createTexture = open_gl::createTexture;
     renderApi.createShaderProgram = open_gl::createShaderProgram;
-    renderApi.genArrayBuffer = open_gl::genArrayBuffer;
+    renderApi.genVertexArrayBuffer = open_gl::genVertexArrayBuffer;
     renderApi.genElementArrayBuffer = open_gl::genElementArrayBuffer;
-    renderApi.drawArray = open_gl::drawArray;
+    renderApi.drawVertexArray = open_gl::drawVertexArray;
     renderApi.drawElementArray = open_gl::drawElementArray;
+    renderApi.drawLine = open_gl::drawLine;
     return renderApi;
 }
 
