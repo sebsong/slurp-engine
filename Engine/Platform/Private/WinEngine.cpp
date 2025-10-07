@@ -435,7 +435,7 @@ static void winCaptureAndLogPerformance(
     int fps = static_cast<int>(1000 / frameMillis);
     int frameProcessorMCycles = static_cast<int>((processorCycleEnd - startProcessorCycle) / 1000 / 1000);
 
-#if VERBOSE
+#if VERBOSE_LOGGING
     logging::info(std::format("Frame: {:.2f}ms {}fps {} processor mega-cycles", frameMillis, fps, frameProcessorMCycles));
 #endif
 

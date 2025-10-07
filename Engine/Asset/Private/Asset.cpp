@@ -188,7 +188,7 @@ namespace asset {
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(fileBytes);
 
         types::byte* bitmapBytes = fileBytes + header->fileHeader.bfOffBits;
-        int width = static_cast<int>(header->infoHeader.biHeight);
+        int width = static_cast<int>(header->infoHeader.biWidth);
         int height = static_cast<int>(header->infoHeader.biHeight);
         render::Pixel* map = new render::Pixel[width * height];
         if (header->infoHeader.biCompression == BI_RGB && header->infoHeader.biBitCount <= 8) {

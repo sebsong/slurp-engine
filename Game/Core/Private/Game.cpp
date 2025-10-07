@@ -39,7 +39,8 @@ namespace game {
     static void loadAssets() {
         GlobalGameAssets->colorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
 
-        GlobalGameAssets->enemySprite = render::loadSprite(enemy::SpriteFileName);
+        GlobalGameAssets->borderSprite = render::loadSprite("border.bmp");
+        GlobalGameAssets->enemySprite = render::loadSprite("enemy.bmp");
         GlobalGameAssets->mouseCursorSprite = render::loadSprite(mouse_cursor::SpriteFileName);
         GlobalGameAssets->playerSprite = render::loadSprite(player::SpriteFileName);
         GlobalGameAssets->playerParrySprite = render::loadSprite(player::ParrySpriteFileName);
@@ -56,14 +57,24 @@ namespace game {
 
         loadAssets();
 
-        slurp::GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
-
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
         random::setRandomSeed(GlobalGameState->randomSeed);
+
+        slurp::GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
         registerEntity(
             GlobalGameState->global,
             global::Global()
+        );
+
+        registerEntity(
+            GlobalGameState->border,
+            slurp::Entity(
+                "Border",
+                render::RenderInfo(GlobalGameAssets->borderSprite, true),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            )
         );
 
         // registerEntity(

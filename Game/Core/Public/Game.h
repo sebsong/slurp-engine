@@ -14,6 +14,7 @@ namespace game {
     struct GameAssets {
         render::ColorPalette colorPalette;
 
+        render::Sprite borderSprite;
         render::Sprite enemySprite;
         render::Sprite mouseCursorSprite;
         render::Sprite playerSprite;
@@ -31,7 +32,8 @@ namespace game {
 
         global::Global global;
 
-        slurp::Entity background;
+        // slurp::Entity background;
+        slurp::Entity border;
         obstacle::Obstacle wallUp;
         obstacle::Obstacle wallDown;
         obstacle::Obstacle wallLeft;
