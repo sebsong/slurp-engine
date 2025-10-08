@@ -21,13 +21,13 @@ namespace audio {
         _queue.push_back(PlayingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop));
     }
 
-    void SoundManager::loadAudio(const AudioBuffer& buffer) {
+    void SoundManager::bufferAudio(const AudioBuffer& buffer) {
         std::fill_n(buffer.samples, buffer.numSamplesToWrite, static_cast<audio_sample_t>(0));
 
         for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
             PlayingSound& playingSound = *it;
 
-            playingSound.loadAudio(buffer, _globalVolumeMultiplier);
+            playingSound.bufferAudio(buffer, _globalVolumeMultiplier);
 
             if (!playingSound.isPlaying) {
                 it = _queue.erase(it);

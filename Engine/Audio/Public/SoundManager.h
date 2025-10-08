@@ -11,13 +11,15 @@ namespace audio {
     public:
         explicit SoundManager();
 
+        /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
         void playSound(const Sound& sound);
 
         void playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop);
 
-        void loadAudio(const AudioBuffer& buffer);
+        /** Engine **/
+        void bufferAudio(const AudioBuffer& buffer);
 
     private:
         uint32_t _nextSoundId;

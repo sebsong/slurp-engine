@@ -84,8 +84,8 @@ namespace slurp {
 #endif
     }
 
-    SLURP_LOAD_AUDIO(loadAudio) {
-        GlobalSoundManager->loadAudio(buffer);
+    SLURP_BUFFER_AUDIO(bufferAudio) {
+        GlobalSoundManager->bufferAudio(buffer);
     }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender) {

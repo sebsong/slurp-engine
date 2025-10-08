@@ -12,7 +12,7 @@ namespace audio {
           sampleIndex(0),
           isPlaying(true) {}
 
-    void PlayingSound::loadAudio(const AudioBuffer& buffer, float globalVolumeMultiplier) {
+    void PlayingSound::bufferAudio(const AudioBuffer& buffer, float globalVolumeMultiplier) {
         int numSamplesWritten = 0;
         while (numSamplesWritten < buffer.numSamplesToWrite && sampleIndex < sound->numSamples) {
             // TODO: allow for pitch shifting

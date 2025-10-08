@@ -305,7 +305,7 @@ static void winInitDirectSound(HWND windowHandle) {
     }
 }
 
-static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
+static DWORD winBufferAudio(DWORD lockCursor, DWORD targetCursor) {
     DWORD numBytesToWrite = 0;
     if (lockCursor > targetCursor) {
         numBytesToWrite = GlobalAudioBuffer.bufferSizeBytes - lockCursor + targetCursor;
@@ -338,13 +338,13 @@ static DWORD winLoadAudio(DWORD lockCursor, DWORD targetCursor) {
     region1Buffer.samples = static_cast<audio::audio_sample_t*>(audioRegion1Ptr);
     region1Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region1Buffer.numSamplesToWrite = audioRegion1Bytes / GlobalAudioBuffer.bytesPerSample;
-    GlobalSlurpDll.loadAudio(region1Buffer);
+    GlobalSlurpDll.bufferAudio(region1Buffer);
 
     audio::AudioBuffer region2Buffer = {};
     region2Buffer.samples = static_cast<audio::audio_sample_t*>(audioRegion2Ptr);
     region2Buffer.samplesPerSec = GlobalAudioBuffer.samplesPerSec;
     region2Buffer.numSamplesToWrite = audioRegion2Bytes / GlobalAudioBuffer.bytesPerSample;
-    GlobalSlurpDll.loadAudio(region2Buffer);
+    GlobalSlurpDll.bufferAudio(region2Buffer);
 
     GlobalAudioBuffer.buffer->Unlock(
         audioRegion1Ptr,
@@ -475,10 +475,10 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_handleInput,
             GlobalSlurpLib
         );
-        winLoadLibFn<slurp::dyn_loadAudio>(
-            GlobalSlurpDll.loadAudio,
-            "loadAudio",
-            slurp::stub_loadAudio,
+        winLoadLibFn<slurp::dyn_bufferAudio>(
+            GlobalSlurpDll.bufferAudio,
+            "bufferAudio",
+            slurp::stub_bufferAudio,
             GlobalSlurpLib
         );
         winLoadLibFn<slurp::dyn_updateAndRender>(
@@ -984,7 +984,7 @@ int WINAPI WinMain(
         DWORD targetCursor = (writeCursor +
                               GlobalAudioBuffer.writeAheadSampleCount * GlobalAudioBuffer.bytesPerSample
                              ) % GlobalAudioBuffer.bufferSizeBytes;
-        DWORD numBytesWritten = winLoadAudio(lockCursor, targetCursor);
+        DWORD numBytesWritten = winBufferAudio(lockCursor, targetCursor);
         lockCursor = (lockCursor + numBytesWritten) % GlobalAudioBuffer.bufferSizeBytes;
 
         winStallFrameToTarget(targetMillisPerFrame, startTimingInfo, isSleepGranular);
