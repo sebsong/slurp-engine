@@ -21,6 +21,11 @@ namespace slurp {
                 T height;
             };
 
+            struct {
+                T left;
+                T right;
+            };
+
             T values[2];
         };
 

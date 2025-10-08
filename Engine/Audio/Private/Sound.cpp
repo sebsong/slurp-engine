@@ -19,16 +19,11 @@ namespace audio {
             // TODO: do full mixing in 32-bit space to avoid clipping, convert back to 16-bit space just before writing to buffer
             // NOTE: we could pre-process volume multiplier to trade memory for speed
             float volumeMultiplier = this->volumeMultiplier * globalVolumeMultiplier;
-            const audio_sample_t& fullSample = sound->sampleData[sampleIndex++];
-            const audio_sample_t leftSample = modulateSampleVolume(
-                getChannelSample(fullSample, LEFT_AUDIO_CHANNEL_IDX),
-                volumeMultiplier
-            );
-            const audio_sample_t rightSample = modulateSampleVolume(
-                getChannelSample(fullSample, RIGHT_AUDIO_CHANNEL_IDX),
-                volumeMultiplier
-            );
-            buffer.samples[numSamplesWritten++] += assembleStereoSample(leftSample, rightSample);
+            const StereoAudioSampleContainer& fullSample = sound->sampleData[sampleIndex++];
+            buffer.samples[numSamplesWritten++] += StereoAudioSample{
+                static_cast<channel_audio_sample_t>(fullSample.left * volumeMultiplier),
+                static_cast<channel_audio_sample_t>(fullSample.right * volumeMultiplier)
+            };
         }
 
         if (sampleIndex >= sound->numSamples) {

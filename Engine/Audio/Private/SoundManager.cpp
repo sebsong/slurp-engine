@@ -22,7 +22,7 @@ namespace audio {
     }
 
     void SoundManager::bufferAudio(const AudioBuffer& buffer) {
-        std::fill_n(buffer.samples, buffer.numSamplesToWrite, static_cast<audio_sample_t>(0));
+        std::fill_n(buffer.samples, buffer.numSamplesToWrite, StereoAudioSample{});
 
         for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
             PlayingSound& playingSound = *it;

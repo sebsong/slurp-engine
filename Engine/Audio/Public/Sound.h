@@ -8,7 +8,7 @@ namespace audio {
 
     struct Sound {
         uint32_t numSamples;
-        audio_sample_t* sampleData;
+        StereoAudioSampleContainer* sampleData;
     };
 
     struct PlayingSound {
