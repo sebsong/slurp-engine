@@ -13,10 +13,8 @@
 #define STEREO_RIGHT_AUDIO_CHANNEL_IDX 1
 
 #define TOTAL_AUDIO_SAMPLE_SIZE sizeof(audio::audio_sample_t)
-// #define PER_CHANNEL_AUDIO_SAMPLE_SIZE (TOTAL_AUDIO_SAMPLE_SIZE / NUM_AUDIO_CHANNELS)
 #define PER_CHANNEL_AUDIO_SAMPLE_SIZE sizeof(audio::channel_audio_sample_t)
 #define PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS PER_CHANNEL_AUDIO_SAMPLE_SIZE * BITS_PER_BYTE
-#define AUDIO_CHANNEL_MASK (~static_cast<uint64_t>(0) >> ((sizeof(uint64_t) - PER_CHANNEL_AUDIO_SAMPLE_SIZE) * BITS_PER_BYTE))
 
 #define AUDIO_BUFFER_SECONDS 1
 #if DEBUG
@@ -49,17 +47,4 @@ namespace audio {
         int samplesPerSec;
         int numSamplesToWrite;
     };
-
-    inline audio_sample_t getChannelSample(const audio_sample_t& sample, uint8_t channelIdx) {
-        uint8_t channelShift = channelIdx * PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS;
-        return ((AUDIO_CHANNEL_MASK << channelShift) & sample) >> channelShift;
-    }
-
-    inline audio_sample_t assembleStereoSample(const audio_sample_t& leftSample, const audio_sample_t& rightSample) {
-        return (rightSample << PER_CHANNEL_AUDIO_SAMPLE_SIZE_BITS) | leftSample;
-    }
-
-    inline audio_sample_t modulateSampleVolume(const audio_sample_t& sample, float volumeMultiplier) {
-        return bit_twiddle::multiplyPartialInt(sample, PER_CHANNEL_AUDIO_SAMPLE_SIZE, volumeMultiplier);
-    }
 }
