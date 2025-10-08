@@ -146,18 +146,18 @@ namespace open_gl {
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderId, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShaderId);
-        if (!validateShader(vertexShaderId)) { return render::INVALID_ID; }
+        if (!validateShader(vertexShaderId)) { return render::INVALID_OBJECT_ID; }
 
         uint32_t fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShaderId, 1, &fragmentShaderSource, nullptr);
         glCompileShader(fragmentShaderId);
-        if (!validateShader(fragmentShaderId)) { return render::INVALID_ID; }
+        if (!validateShader(fragmentShaderId)) { return render::INVALID_OBJECT_ID; }
 
         render::object_id shaderProgramId = glCreateProgram();
         glAttachShader(shaderProgramId, vertexShaderId);
         glAttachShader(shaderProgramId, fragmentShaderId);
         glLinkProgram(shaderProgramId);
-        if (!validateShaderProgram(shaderProgramId)) { return render::INVALID_ID; }
+        if (!validateShaderProgram(shaderProgramId)) { return render::INVALID_OBJECT_ID; }
 
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
@@ -170,6 +170,7 @@ namespace open_gl {
         glGenVertexArrays(1, &vertexArrayId);
         glBindVertexArray(vertexArrayId);
 
+        // TODO: return this back out for later resource cleanup
         uint32_t vertexBufferId;
         glGenBuffers(1, &vertexBufferId);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
@@ -210,6 +211,7 @@ namespace open_gl {
     RENDER_GEN_ELEMENT_ARRAY_BUFFER(genElementArrayBuffer) {
         render::object_id vertexArrayId = open_gl::genVertexArrayBuffer(vertexArray, vertexCount);
 
+        // TODO: return this back out for later resource cleanup
         uint32_t elementBufferId;
         glGenBuffers(1, &elementBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferId);
@@ -229,14 +231,14 @@ namespace open_gl {
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUseProgram(shaderProgramId);
         int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
-        if (timeUniformLoc != render::INVALID_ID) {
+        if (timeUniformLoc != render::INVALID_OBJECT_ID) {
             glUniform1f(timeUniformLoc, static_cast<GLfloat>(glfwGetTime()));
         }
         int positionTransformUniformLoc = glGetUniformLocation(
             shaderProgramId,
             render::POSITION_TRANSFORM_UNIFORM_NAME
         );
-        if (positionTransformUniformLoc != render::INVALID_ID) {
+        if (positionTransformUniformLoc != render::INVALID_OBJECT_ID) {
             const slurp::Vec2<float>& position = positionTransform * WorldToOpenGLClipSpaceMatrix;
             glUniform2fv(positionTransformUniformLoc, 1, position.values);
         }
@@ -251,22 +253,27 @@ namespace open_gl {
     RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
         prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform);
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
-
-        // glBindVertexArray(render::UNUSED_ID);
-        // glUseProgram(render::UNUSED_ID);
     }
 
     RENDER_DRAW_LINE(drawLine) {
-        glLineWidth(width);
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         int colorUniformLoc = glGetUniformLocation(
             shaderProgramId,
             render::COLOR_UNIFORM_NAME
         );
-        if (colorUniformLoc != render::INVALID_ID) {
+        if (colorUniformLoc != render::INVALID_OBJECT_ID) {
             glUniform4fv(colorUniformLoc, 1, color.values);
         }
+        glLineWidth(width);
         glDrawArrays(GL_LINES, 0, vertexCount);
+    }
+
+    RENDER_DELETE_RESOURCES(deleteResources) {
+        glDeleteVertexArrays(1, &vertexArrayId);
+        glDeleteBuffers(1, &vertexBufferId);
+        glDeleteBuffers(1, &elementBufferId);
+        glDeleteProgram(shaderProgramId);
+        glDeleteTextures(1, &textureId);
     }
 }

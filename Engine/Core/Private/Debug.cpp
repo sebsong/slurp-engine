@@ -1,4 +1,6 @@
 #include "Debug.h"
+
+#include "RenderApi.h"
 #if DEBUG
 static constexpr uint32_t LineVertexCount = 2;
 
@@ -13,8 +15,8 @@ namespace debug {
             {start, {}},
             {end, {}}
         };
-        render::object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram("basic.glsl", "basic.glsl");
         render::object_id vertexArrayId = slurp::GlobalRenderApi->genVertexArrayBuffer(vertexArray, LineVertexCount);
+        render::object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram("basic.glsl", "basic.glsl");
         slurp::GlobalRenderApi->drawLine(
             vertexArrayId,
             LineVertexCount,
@@ -22,7 +24,13 @@ namespace debug {
             lineWidth,
             color
         );
-        // TODO: cleanup vertex array and resources
+        slurp::GlobalRenderApi->deleteResources(
+            vertexArrayId,
+            render::INVALID_OBJECT_ID,
+            render::INVALID_OBJECT_ID,
+            shaderProgramId,
+            render::INVALID_OBJECT_ID
+        );
     }
 
     void drawRectBorder(
