@@ -26,7 +26,7 @@ namespace audio {
             bool shouldLoop
         );
 
-        void bufferAudio(const AudioBuffer& buffer, float globalVolumeMultiplier);
+        void bufferAudio(StereoAudioSampleContainer* sampleContainers, int numSamplesToWrite, float globalVolumeMultiplier);
 
         bool operator==(const PlayingSound&) const;
     };

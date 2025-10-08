@@ -26,17 +26,20 @@
 #endif
 #define AUDIO_SAMPLES_PER_SECOND 44100
 
+#define MAX_NUM_PLAYING_SOUNDS 10
+
 namespace audio {
     // TODO: might be easier to have a separate channel sample type and audio sample type
     // TODO: should have a larger sized type for mixing and a smaller type for the actual buffer
     // typedef int16_t audio_sample_t; // 16-bit Mono
     // typedef int64_t audio_sample_t; // 32-bit stereo TODO: move to xaudio2 to allow for 32 bit samples
 
+    /** Audio sample types  **/
     typedef int32_t audio_sample_t; // 16-bit Stereo
     typedef int16_t channel_audio_sample_t;
     typedef slurp::Vec2<channel_audio_sample_t> StereoAudioSample;
 
-    /** Larger container sizes for audio mixing **/
+    /** Larger container types for audio mixing **/
     typedef int64_t container_audio_sample_t; // 32-bit stereo
     typedef int32_t channel_audio_sample_container_t;
     typedef slurp::Vec2<channel_audio_sample_container_t> StereoAudioSampleContainer;
