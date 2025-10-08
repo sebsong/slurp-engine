@@ -228,15 +228,14 @@ namespace asset {
         return readTextFile(FragmentShadersDirectory, shaderSourceFileName);
     }
 
-    static audio::audio_sample_t getChannelSample(
+    static audio::channel_audio_sample_container_t getChannelSample(
         types::byte* chunkData,
         uint32_t totalSampleSize,
         uint32_t sampleIdx,
         uint32_t numChannels,
-        uint32_t channelIdx,
-        uint64_t volumeMultiplier
+        uint32_t channelIdx
     ) {
-        audio::audio_sample_t sample = 0;
+        audio::channel_audio_sample_container_t sample = 0;
         // TODO: move some of these outside
         uint32_t perChannelSampleSizeBytes = totalSampleSize / numChannels;
         uint32_t byteOffset = (sampleIdx * totalSampleSize) +
@@ -246,12 +245,11 @@ namespace asset {
             perChannelSampleSizeBytes,
             reinterpret_cast<types::byte*>(&sample)
         );
-        sample = bit_twiddle::upsizeInt(
+        return bit_twiddle::upsizeInt(
             sample,
             perChannelSampleSizeBytes,
-            PER_CHANNEL_AUDIO_SAMPLE_SIZE
+            sizeof(sample)
         );
-        return audio::modulateSampleVolume(sample, volumeMultiplier);
     }
 
     // TODO: pre-process wave files into the engine sample size
@@ -293,7 +291,7 @@ namespace asset {
                     ASSERT(formatChunk);
                     chunkData = chunk->chunkData;
                     uint32_t numSamples = chunk->chunkSizeBytes / formatChunk->sampleSizeBytes;
-                    audio::audio_sample_t* sampleData = new audio::audio_sample_t[numSamples];
+                    audio::StereoAudioSampleContainer* sampleData = new audio::StereoAudioSampleContainer[numSamples];
 
                     uint64_t volumeMultiplier = bit_twiddle::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
                                                 bit_twiddle::maxSignedValue(
@@ -301,38 +299,34 @@ namespace asset {
                                                 );
                     if (formatChunk->numChannels == MONO_NUM_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-                            audio::audio_sample_t sample = getChannelSample(
+                            audio::channel_audio_sample_container_t sample = getChannelSample(
                                 chunkData,
                                 formatChunk->sampleSizeBytes,
                                 sampleIdx,
                                 formatChunk->numChannels,
-                                ONLY_AUDIO_CHANNEL_IDX,
-                                volumeMultiplier
-                            );
-
-                            sampleData[sampleIdx] = audio::assembleStereoSample(sample, sample);
+                                MONO_AUDIO_CHANNEL_IDX
+                            ) * volumeMultiplier;
+                            sampleData[sampleIdx] = audio::StereoAudioSampleContainer{sample, sample};
                         }
                     } else if (formatChunk->numChannels == STEREO_NUM_AUDIO_CHANNELS) {
                         for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-                            audio::audio_sample_t leftSample = getChannelSample(
+                            audio::channel_audio_sample_container_t leftSample = getChannelSample(
                                 chunkData,
                                 formatChunk->sampleSizeBytes,
                                 sampleIdx,
                                 formatChunk->numChannels,
-                                LEFT_AUDIO_CHANNEL_IDX,
-                                volumeMultiplier
-                            );
+                                STEREO_LEFT_AUDIO_CHANNEL_IDX
+                            ) * volumeMultiplier;
 
-                            audio::audio_sample_t rightSample = getChannelSample(
+                            audio::channel_audio_sample_container_t rightSample = getChannelSample(
                                 chunkData,
                                 formatChunk->sampleSizeBytes,
                                 sampleIdx,
                                 formatChunk->numChannels,
-                                RIGHT_AUDIO_CHANNEL_IDX,
-                                volumeMultiplier
-                            );
+                                STEREO_RIGHT_AUDIO_CHANNEL_IDX
+                            ) * volumeMultiplier;
 
-                            sampleData[sampleIdx] = audio::assembleStereoSample(leftSample, rightSample);
+                            sampleData[sampleIdx] = audio::StereoAudioSampleContainer{leftSample, rightSample};
                         }
                     } else {
                         ASSERT(false);

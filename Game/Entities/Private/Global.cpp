@@ -2,7 +2,7 @@
 #include "Game.h"
 
 namespace global {
-    static const float GlobalVolume = 0.5f;
+    static const float GlobalVolume = 0.2f;
     // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
     // static constexpr const char* BackgroundMusicSoundFileName = "bgm.wav";
 

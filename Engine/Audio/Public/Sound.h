@@ -8,7 +8,7 @@ namespace audio {
 
     struct Sound {
         uint32_t numSamples;
-        audio_sample_t* sampleData;
+        StereoAudioSampleContainer* sampleData;
     };
 
     struct PlayingSound {
@@ -26,7 +26,7 @@ namespace audio {
             bool shouldLoop
         );
 
-        void bufferAudio(const AudioBuffer& buffer, float globalVolumeMultiplier);
+        void bufferAudio(StereoAudioSampleContainer* sampleContainers, int numSamplesToWrite, float globalVolumeMultiplier);
 
         bool operator==(const PlayingSound&) const;
     };

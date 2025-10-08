@@ -10,6 +10,7 @@
 namespace render {
     typedef uint32_t object_id;
 
+    // TODO: does this need to be [[gnu::packed]]?
     struct Vertex {
         slurp::Vec2<float> position;
         slurp::Vec2<float> textureCoord;
