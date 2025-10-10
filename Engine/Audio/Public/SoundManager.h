@@ -24,6 +24,7 @@ namespace audio {
     private:
         uint32_t _nextSoundId;
         float _globalVolumeMultiplier;
-        std::deque<PlayingSound> _queue;
+        std::deque<PlayingSound> _loopingQueue;
+        std::deque<PlayingSound> _oneShotQueue;
     };
 }

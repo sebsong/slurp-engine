@@ -47,7 +47,7 @@ namespace game {
         GlobalGameAssets->projectileSprite = render::loadSprite(projectile::SpriteFileName);
         GlobalGameAssets->projectileParriedSprite = render::loadSprite(projectile::ParriedSpriteFileName);
 
-        // GlobalGameAssets->backgroundMusic = audio::loadSound(global::BackgroundMusicSoundFileName);
+        GlobalGameAssets->backgroundMusic = audio::loadSound(global::BackgroundMusicSoundFileName);
         GlobalGameAssets->projectileHitSound = audio::loadSound(projectile::SoundFileName);
     }
 

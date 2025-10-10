@@ -2,7 +2,7 @@
 #include "Game.h"
 
 namespace global {
-    static const float GlobalVolume = 0.2f;
+    static const float GlobalVolume = 0.3f;
     // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
     // static constexpr const char* BackgroundMusicSoundFileName = "bgm.wav";
 
@@ -20,7 +20,7 @@ namespace global {
         Entity::initialize();
 
         slurp::GlobalSoundManager->setGlobalVolume(GlobalVolume);
-        // slurp::GlobalSoundManager->playSound(game::GlobalGameAssets->backgroundMusic, 0.5, true);
+        slurp::GlobalSoundManager->playSound(game::GlobalGameAssets->backgroundMusic, 0.5, true);
     }
 
     void Global::handleMouseAndKeyboardInput(

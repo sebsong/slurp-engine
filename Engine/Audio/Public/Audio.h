@@ -24,7 +24,8 @@
 #endif
 #define AUDIO_SAMPLES_PER_SECOND 44100
 
-#define MAX_NUM_PLAYING_SOUNDS 10
+#define MAX_NUM_PLAYING_ONE_SHOT_SOUNDS 10
+#define SOUND_DAMP_FACTOR 0.5f
 
 namespace audio {
     // TODO: might be easier to have a separate channel sample type and audio sample type

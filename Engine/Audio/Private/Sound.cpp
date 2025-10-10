@@ -15,13 +15,20 @@ namespace audio {
     void PlayingSound::bufferAudio(
         StereoAudioSampleContainer* sampleContainers,
         int numSamplesToWrite,
-        float globalVolumeMultiplier
+        float globalVolumeMultiplier,
+        bool dampMix
     ) {
         int numSamplesWritten = 0;
         while (numSamplesWritten < numSamplesToWrite && sampleIndex < sound->numSamples) {
             // TODO: allow for pitch shifting
             float volumeMultiplier = this->volumeMultiplier * globalVolumeMultiplier;
-            sampleContainers[numSamplesWritten++] += sound->sampleData[sampleIndex++] * volumeMultiplier;
+            StereoAudioSampleContainer& sampleContainer = sampleContainers[numSamplesWritten++];
+            bool hasExistingSound = !sampleContainer.isZero();
+            const StereoAudioSampleContainer& sample = sound->sampleData[sampleIndex++] * volumeMultiplier;
+            sampleContainer += sample;
+            if (dampMix && hasExistingSound) {
+                sampleContainer *= SOUND_DAMP_FACTOR;
+            }
         }
 
         if (sampleIndex >= sound->numSamples) {

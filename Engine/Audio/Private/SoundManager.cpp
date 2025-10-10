@@ -3,7 +3,10 @@
 #include "Sound.h"
 
 namespace audio {
-    SoundManager::SoundManager(): _nextSoundId(0), _globalVolumeMultiplier(1.f), _queue(std::deque<PlayingSound>()) {}
+    SoundManager::SoundManager(): _nextSoundId(0),
+                                  _globalVolumeMultiplier(1.f),
+                                  _loopingQueue(std::deque<PlayingSound>()),
+                                  _oneShotQueue(std::deque<PlayingSound>()) {}
 
     void SoundManager::setGlobalVolume(float volumeMultiplier) {
         _globalVolumeMultiplier = volumeMultiplier;
@@ -18,11 +21,37 @@ namespace audio {
         if (!sound.sampleData) {
             return;
         }
-        _queue.push_back(PlayingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop));
+
+        PlayingSound playingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop);
+        if (shouldLoop) {
+            _loopingQueue.push_back(playingSound);
+        } else {
+            _oneShotQueue.push_back(playingSound);
+        }
 
         // TODO: have separate maximums for different sound categories
-        if (_queue.size() > MAX_NUM_PLAYING_SOUNDS) {
-            _queue.pop_front();
+        if (_oneShotQueue.size() > MAX_NUM_PLAYING_ONE_SHOT_SOUNDS) {
+            _oneShotQueue.pop_front();
+        }
+    }
+
+    static void bufferFromQueue(
+        StereoAudioSampleContainer* sampleContainers,
+        std::deque<PlayingSound>& queue,
+        int numSamplesToWrite,
+        float volumeMultiplier,
+        bool dampMix
+    ) {
+        for (std::deque<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
+            PlayingSound& playingSound = *it;
+
+            playingSound.bufferAudio(sampleContainers, numSamplesToWrite, volumeMultiplier, dampMix);
+
+            if (!playingSound.isPlaying) {
+                it = queue.erase(it);
+            } else {
+                it++;
+            }
         }
     }
 
@@ -30,17 +59,10 @@ namespace audio {
         // TODO: allocate from custom memory allocator instead
         StereoAudioSampleContainer* sampleContainers = new StereoAudioSampleContainer[buffer.numSamplesToWrite]();
 
-        for (std::deque<PlayingSound>::iterator it = _queue.begin(); it != _queue.end();) {
-            PlayingSound& playingSound = *it;
-
-            playingSound.bufferAudio(sampleContainers, buffer.numSamplesToWrite, _globalVolumeMultiplier);
-
-            if (!playingSound.isPlaying) {
-                it = _queue.erase(it);
-            } else {
-                it++;
-            }
-        }
+        /** Buffer one shot sounds first with damping to avoid clipping **/
+        /** Buffer looping sounds after without damping to preserve persistent sounds (e.g. music) **/
+        bufferFromQueue(sampleContainers, _oneShotQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, true);
+        bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
 
         std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
         delete[] sampleContainers;

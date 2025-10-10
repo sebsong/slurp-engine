@@ -26,7 +26,12 @@ namespace audio {
             bool shouldLoop
         );
 
-        void bufferAudio(StereoAudioSampleContainer* sampleContainers, int numSamplesToWrite, float globalVolumeMultiplier);
+        void bufferAudio(
+            StereoAudioSampleContainer* sampleContainers,
+            int numSamplesToWrite,
+            float globalVolumeMultiplier,
+            bool dampMix
+        );
 
         bool operator==(const PlayingSound&) const;
     };
