@@ -23,10 +23,9 @@ namespace audio {
             // TODO: allow for pitch shifting
             float volumeMultiplier = this->volumeMultiplier * globalVolumeMultiplier;
             StereoAudioSampleContainer& sampleContainer = sampleContainers[numSamplesWritten++];
-            bool hasExistingSound = !sampleContainer.isZero();
             const StereoAudioSampleContainer& sample = sound->sampleData[sampleIndex++] * volumeMultiplier;
             sampleContainer += sample;
-            if (dampMix && hasExistingSound) {
+            if (dampMix) {
                 sampleContainer *= SOUND_DAMP_FACTOR;
             }
         }
