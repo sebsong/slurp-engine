@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Asset.h"
 #include "Render.h"
 #include "Vector.h"
 

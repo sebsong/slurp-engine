@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Material.h"
 #include "Mesh.h"
+#include "Material.h"
 
-namespace render {
+namespace asset {
+    // TODO: convert into async loaded asset::Asset
     struct Sprite {
-        asset::Bitmap bitmap; // TODO: this could just be dimensions, or maybe dimensions goes on the Mesh
+        slurp::Vec2<int> dimensions;
         Mesh mesh;
         Material material;
 

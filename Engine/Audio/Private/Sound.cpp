@@ -46,8 +46,7 @@ namespace audio {
     Sound loadSound(const std::string& waveFileName) {
         asset::WaveData waveData = asset::loadWaveFile(waveFileName);
         return Sound{
-            waveData.numSamples,
-            waveData.sampleData
+            waveData
         };
     }
 }

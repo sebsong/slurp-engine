@@ -1,6 +1,6 @@
 #include "Sprite.h"
 
-namespace render {
+namespace asset {
     // NOTE: represents a rectangle made of 2 triangles
     static constexpr int SpriteMeshVertexCount = 4;
     static constexpr int SpriteMeshElementCount = 6;
@@ -17,47 +17,47 @@ namespace render {
     }
 
     Sprite loadSprite(const std::string& spriteFileName) {
-        asset::Bitmap bitmap = asset::loadBitmapFile(spriteFileName);
+        Bitmap bitmap = loadBitmapFile(spriteFileName);
 
         // TODO: specify scale factor on entity that also applies to collision shapes
         float scale = 1.f;
         slurp::Vec2<float> dimensions = bitmap.dimensions * scale;
-        Vertex triangleVertices[SpriteMeshVertexCount] = {
-            Vertex{
+        render::Vertex triangleVertices[SpriteMeshVertexCount] = {
+            render::Vertex{
                 {dimensions.width, dimensions.height},
                 {1, 1}
             },
-            Vertex{
+            render::Vertex{
                 {0, dimensions.height},
                 {0, 1}
             },
-            Vertex{
+            render::Vertex{
                 {0, 0},
                 {0, 0}
             },
-            Vertex{
+            render::Vertex{
                 {dimensions.width, 0},
                 {1, 0}
             },
         };
 
-        object_id vertexArrayId = slurp::GlobalRenderApi->genElementArrayBuffer(
+        render::object_id vertexArrayId = slurp::GlobalRenderApi->genElementArrayBuffer(
             triangleVertices,
             SpriteMeshVertexCount,
             SpriteElements,
             SpriteMeshElementCount
         );
 
-        object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);
+        render::object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);
 
         // TODO: allow specification of shader
-        object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram(
+        render::object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram(
             "sprite.glsl",
             "sprite.glsl"
         );
 
         return Sprite{
-            bitmap,
+            dimensions,
             Mesh{vertexArrayId, SpriteMeshElementCount},
             Material{textureId, shaderProgramId},
         };

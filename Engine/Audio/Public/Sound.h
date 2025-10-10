@@ -7,8 +7,7 @@ namespace audio {
     struct AudioBuffer;
 
     struct Sound {
-        uint32_t numSamples;
-        StereoAudioSampleContainer* sampleData;
+        const asset::WaveData& waveData;
     };
 
     struct PlayingSound {

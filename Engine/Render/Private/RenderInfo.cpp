@@ -18,7 +18,7 @@ namespace render {
         : renderingEnabled(true),
           sprite(&sprite),
           renderShape({}),
-          renderOffset(getRenderOffset(sprite.bitmap.dimensions, isCentered)) {}
+          renderOffset(getRenderOffset(sprite.dimensions, isCentered)) {}
 
     RenderInfo::RenderInfo(
         const RenderShape& renderShape,
@@ -32,9 +32,10 @@ namespace render {
         if (!renderingEnabled) { return; }
 
         slurp::Vec2<float> startPoint = position + renderOffset;
-        if (sprite && sprite->bitmap.map) {
+        if (sprite && !sprite->dimensions.isZero()) {
             sprite->draw(startPoint);
         } else {
+            // TODO: this path is deprecated
             renderShape.draw(startPoint);
         }
     }

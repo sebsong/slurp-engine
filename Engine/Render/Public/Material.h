@@ -2,9 +2,9 @@
 
 #include "RenderApi.h"
 
-namespace render {
+namespace asset {
     struct Material {
-        object_id textureId;
-        object_id shaderProgramId;
+        render::object_id textureId;
+        render::object_id shaderProgramId;
     };
 }

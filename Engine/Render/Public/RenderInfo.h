@@ -4,7 +4,7 @@
 namespace render {
     struct RenderInfo {
         bool renderingEnabled;
-        const Sprite* sprite;
+        const asset::Sprite* sprite;
         RenderShape renderShape;
         slurp::Vec2<float> renderOffset;
 

@@ -14,13 +14,13 @@ namespace game {
     struct GameAssets {
         render::ColorPalette colorPalette;
 
-        render::Sprite borderSprite;
-        render::Sprite enemySprite;
-        render::Sprite mouseCursorSprite;
-        render::Sprite playerSprite;
-        render::Sprite playerParrySprite;
-        render::Sprite projectileSprite;
-        render::Sprite projectileParriedSprite;
+        asset::Sprite borderSprite;
+        asset::Sprite enemySprite;
+        asset::Sprite mouseCursorSprite;
+        asset::Sprite playerSprite;
+        asset::Sprite playerParrySprite;
+        asset::Sprite projectileSprite;
+        asset::Sprite projectileParriedSprite;
 
         audio::Sound backgroundMusic;
         audio::Sound projectileHitSound;

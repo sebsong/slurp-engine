@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vector.h"
+
 #if DEBUG
 #define ASSERT(expression) if (!(expression)) *(int*)(nullptr) = 0
 #else
@@ -17,6 +19,7 @@
 #define DEBUG_SHOW_MOUSE_CURSOR 1
 
 #if DEBUG
+
 namespace debug {
     void drawLine(
         const slurp::Vec2<float>& start,
