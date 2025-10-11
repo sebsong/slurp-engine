@@ -25,14 +25,7 @@ namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
-    static std::ifstream getFile(const std::string& directory, const std::string& fileName) {
-        const std::string filePath = directory + fileName;
-        std::ifstream file(filePath, std::ios::binary);
-
-        ASSERT(file.good());
-
-        return file;
-    }
+    AssetLoader::AssetLoader(): _nextAssetId(0), _assets(std::unordered_map<asset_id, Asset*>()) {}
 
     static FileReadResult readBytes(const std::string& directory, const std::string& fileName) {
         const std::string filePath = directory + fileName;
@@ -61,32 +54,6 @@ namespace asset {
 
         return stream.str();
     }
-
-    render::ColorPalette loadColorPalette(const std::string& paletteHexFileName) {
-        render::ColorPalette palette = {};
-
-        const std::string filePath = PalettesDirectory + paletteHexFileName;
-        std::ifstream file(filePath);
-        ASSERT(file.good());
-
-        uint8_t colorPaletteIdx = 0;
-        std::string line;
-        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            render::Pixel color = std::stoi(line, nullptr, 16);
-            if (colorPaletteIdx != 0) {
-                color |= render::AlphaMask;
-            }
-            palette.colors[colorPaletteIdx] = color;
-            colorPaletteIdx++;
-        }
-
-        return palette;
-    }
-
-    struct FileBytesReadResult {
-        uintmax_t numBytes;
-        types::byte* bytes;
-    };
 
     static void writePixel(
         int x,
@@ -135,7 +102,9 @@ namespace asset {
             for (int x = 0; x < width; x++) {
                 // TODO: avoid an extra read by re-using this for low + high bitmasking
                 types::byte colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
-                if (x % 2 == 0) { colorIndex = (colorIndex & FourBitMaskHigh) >> 4; } else {
+                if (x % 2 == 0) {
+                    colorIndex = (colorIndex & FourBitMaskHigh) >> 4;
+                } else {
                     colorIndex &= FourBitMaskLow;
                 }
                 render::Pixel color = colorPalette[colorIndex];
@@ -178,8 +147,8 @@ namespace asset {
         }
     }
 
-    // TODO: move this to windows layer?
-    Bitmap loadBitmapFile(const std::string& bitmapFileName) {
+
+    Bitmap AssetLoader::loadBitmapFile(const std::string& bitmapFileName) {
         types::byte* fileBytes = readBytes(SpritesDirectory, bitmapFileName).contents;
         if (!fileBytes) {
             return Bitmap{};
@@ -220,133 +189,54 @@ namespace asset {
         };
     }
 
-    std::string loadVertexShaderSource(const std::string& shaderSourceFileName) {
+    // TODO: pre-process wave files into the engine sample size
+    // TODO: stream the file in async
+    Sound* AssetLoader::loadWaveFile(const std::string& waveFileName) {
+        Sound* sound = new Sound();
+        asset_id assetId = _registerAsset(sound);
+
+        FileReadResult fileReadResult = readBytes(SoundsDirectory, waveFileName);
+        types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
+        ASSERT(fileBytes);
+        if (!fileBytes) {
+            return sound;
+        }
+
+        loadSoundData(*sound, fileBytes, fileReadResult.sizeBytes);
+    }
+
+    std::string AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {
         return readTextFile(VertexShadersDirectory, shaderSourceFileName);
     }
 
-    std::string loadFragmentShaderSource(const std::string& shaderSourceFileName) {
+    std::string AssetLoader::loadFragmentShaderSource(const std::string& shaderSourceFileName) {
         return readTextFile(FragmentShadersDirectory, shaderSourceFileName);
     }
 
-    static audio::channel_audio_sample_container_t getChannelSample(
-        types::byte* chunkData,
-        uint32_t totalSampleSize,
-        uint32_t sampleIdx,
-        uint32_t numChannels,
-        uint32_t channelIdx
-    ) {
-        audio::channel_audio_sample_container_t sample = 0;
-        // TODO: move some of these outside
-        uint32_t perChannelSampleSizeBytes = totalSampleSize / numChannels;
-        uint32_t byteOffset = (sampleIdx * totalSampleSize) +
-                              (channelIdx * perChannelSampleSizeBytes);
-        std::copy_n(
-            chunkData + byteOffset,
-            perChannelSampleSizeBytes,
-            reinterpret_cast<types::byte*>(&sample)
-        );
-        return bit_twiddle::upsizeInt(
-            sample,
-            perChannelSampleSizeBytes,
-            sizeof(sample)
-        );
+    render::ColorPalette AssetLoader::loadColorPalette(const std::string& paletteHexFileName) {
+        render::ColorPalette palette = {};
+
+        const std::string filePath = PalettesDirectory + paletteHexFileName;
+        std::ifstream file(filePath);
+        ASSERT(file.good());
+
+        uint8_t colorPaletteIdx = 0;
+        std::string line;
+        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
+            render::Pixel color = std::stoi(line, nullptr, 16);
+            if (colorPaletteIdx != 0) {
+                color |= render::AlphaMask;
+            }
+            palette.colors[colorPaletteIdx] = color;
+            colorPaletteIdx++;
+        }
+
+        return palette;
     }
 
-    // TODO: pre-process wave files into the engine sample size
-    // TODO: stream the file in async
-    WaveData loadWaveFile(const std::string& waveFileName) {
-        FileReadResult fileReadResult = readBytes(SoundsDirectory, waveFileName);
-        types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
-        if (!fileBytes) {
-            return WaveData{};
-        }
-
-        ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
-
-        types::byte* chunkData = fileBytes;
-        FormatChunk* formatChunk = nullptr;
-        while (chunkData < fileBytes + fileReadResult.sizeBytes) {
-            WaveChunk* chunk = reinterpret_cast<WaveChunk*>(chunkData);
-            switch (chunk->chunkId) {
-                case (Riff): {
-                    RiffChunk* riffChunk = reinterpret_cast<RiffChunk*>(chunkData);
-                    ASSERT(riffChunk->waveId == Wave);
-                    chunkData = riffChunk->chunkData;
-                    continue;
-                }
-                break;
-                case (Format): {
-                    formatChunk = reinterpret_cast<FormatChunk*>(chunkData);
-                    // NOTE: coupled with platform audio buffer settings
-                    ASSERT(formatChunk->formatTag == WAVE_FORMAT_PCM);
-                    ASSERT(formatChunk->numChannels <= STEREO_NUM_AUDIO_CHANNELS);
-                    ASSERT(formatChunk->sampleSizeBytes <= TOTAL_AUDIO_SAMPLE_SIZE);
-                    ASSERT(
-                        (formatChunk->sampleSizeBytes / formatChunk->numChannels) <=
-                        (PER_CHANNEL_AUDIO_SAMPLE_SIZE)
-                    );
-                }
-                break;
-                case (Data): {
-                    ASSERT(formatChunk);
-                    chunkData = chunk->chunkData;
-                    uint32_t numSamples = chunk->chunkSizeBytes / formatChunk->sampleSizeBytes;
-                    audio::StereoAudioSampleContainer* sampleData = new audio::StereoAudioSampleContainer[numSamples];
-
-                    uint64_t volumeMultiplier = bit_twiddle::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /
-                                                bit_twiddle::maxSignedValue(
-                                                    formatChunk->sampleSizeBytes / formatChunk->numChannels
-                                                );
-                    if (formatChunk->numChannels == MONO_NUM_AUDIO_CHANNELS) {
-                        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-                            audio::channel_audio_sample_container_t sample = getChannelSample(
-                                chunkData,
-                                formatChunk->sampleSizeBytes,
-                                sampleIdx,
-                                formatChunk->numChannels,
-                                MONO_AUDIO_CHANNEL_IDX
-                            ) * volumeMultiplier;
-                            sampleData[sampleIdx] = audio::StereoAudioSampleContainer{sample, sample};
-                        }
-                    } else if (formatChunk->numChannels == STEREO_NUM_AUDIO_CHANNELS) {
-                        for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-                            audio::channel_audio_sample_container_t leftSample = getChannelSample(
-                                chunkData,
-                                formatChunk->sampleSizeBytes,
-                                sampleIdx,
-                                formatChunk->numChannels,
-                                STEREO_LEFT_AUDIO_CHANNEL_IDX
-                            ) * volumeMultiplier;
-
-                            audio::channel_audio_sample_container_t rightSample = getChannelSample(
-                                chunkData,
-                                formatChunk->sampleSizeBytes,
-                                sampleIdx,
-                                formatChunk->numChannels,
-                                STEREO_RIGHT_AUDIO_CHANNEL_IDX
-                            ) * volumeMultiplier;
-
-                            sampleData[sampleIdx] = audio::StereoAudioSampleContainer{leftSample, rightSample};
-                        }
-                    } else {
-                        ASSERT(false);
-                    }
-                    return WaveData{
-                        numSamples,
-                        sampleData,
-                    };
-                }
-                case (Bext):
-                case (Junk):
-                case (JUNK):
-                    break;
-                default: {
-                    ASSERT(false);
-                }
-            }
-
-            chunkData = chunk->chunkData + chunk->chunkSizeBytes;
-        }
-        return {};
+    asset_id AssetLoader::_registerAsset(Asset* asset) {
+        asset_id id = _nextAssetId++;
+        _assets[id] = asset;
+        return id;
     }
 }

@@ -6,10 +6,6 @@
 namespace audio {
     struct AudioBuffer;
 
-    struct Sound {
-        const asset::WaveData& waveData;
-    };
-
     struct PlayingSound {
         uint32_t id;
         const Sound* sound;

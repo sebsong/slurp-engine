@@ -11,6 +11,8 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Audio.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Bitmap.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Collision.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Debug.cpp"
@@ -36,6 +38,8 @@
 #include "Timer.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Update.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Wave.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
