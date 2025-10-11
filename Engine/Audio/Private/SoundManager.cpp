@@ -17,8 +17,8 @@ namespace audio {
     }
 
     void SoundManager::playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
-        ASSERT(sound.sampleData);
-        if (!sound.sampleData) {
+        ASSERT(sound.waveData.sampleData);
+        if (!sound.waveData.sampleData) {
             return;
         }
 
@@ -44,6 +44,9 @@ namespace audio {
     ) {
         for (std::deque<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
             PlayingSound& playingSound = *it;
+            if (!playingSound.sound->waveData.isLoaded) {
+                continue;
+            }
 
             playingSound.bufferAudio(sampleContainers, numSamplesToWrite, volumeMultiplier, dampMix);
 

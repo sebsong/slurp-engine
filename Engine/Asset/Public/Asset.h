@@ -1,6 +1,5 @@
 #pragma once
 #include "Types.h"
-#include "Wave.h"
 
 namespace render {
     struct ColorPalette;
@@ -13,6 +12,7 @@ namespace audio {
 
 namespace asset {
     struct Bitmap;
+    struct WaveData;
 
     // TODO: we should stream assets in async
     struct FileReadResult {
@@ -26,13 +26,18 @@ namespace asset {
         // TODO: ref count
     };
 
-    render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
+    class AssetLoader {
+    public:
+        render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
-    Bitmap loadBitmapFile(const std::string& bitmapFileName);
+        Bitmap loadBitmapFile(const std::string& bitmapFileName);
 
-    std::string loadVertexShaderSource(const std::string& shaderSourceFileName);
+        std::string loadVertexShaderSource(const std::string& shaderSourceFileName);
 
-    std::string loadFragmentShaderSource(const std::string& shaderSourceFileName);
+        std::string loadFragmentShaderSource(const std::string& shaderSourceFileName);
 
-    WaveData loadWaveFile(const std::string& waveFileName);
+        WaveData* loadWaveFile(const std::string& waveFileName);
+    private:
+        std::unordered_map<std::string, Asset> _assets;
+    };
 }

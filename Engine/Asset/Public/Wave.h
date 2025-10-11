@@ -43,7 +43,7 @@ namespace asset {
         types::byte chunkData[];
     };
 
-    struct WaveData {
+    struct WaveData: Asset {
         uint32_t numSamples;
         audio::StereoAudioSampleContainer* sampleData;
     };
