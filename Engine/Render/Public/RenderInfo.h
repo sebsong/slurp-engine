@@ -10,7 +10,7 @@ namespace render {
 
         RenderInfo();
 
-        RenderInfo(const Sprite& sprite, bool isCentered);
+        RenderInfo(const asset::Sprite& sprite, bool isCentered);
 
         RenderInfo(const RenderShape& renderShape, bool isCentered);
 

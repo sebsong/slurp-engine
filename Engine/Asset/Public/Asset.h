@@ -7,10 +7,6 @@ namespace render {
     struct Sprite;
 }
 
-namespace audio {
-    struct Sound;
-}
-
 namespace asset {
     struct Bitmap;
 

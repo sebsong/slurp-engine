@@ -31,7 +31,7 @@ namespace enemy {
             false,
             collision::CollisionShape{
                 Shape,
-                -(game::GlobalGameAssets->enemySprite.bitmap.dimensions / 2) + CollisionShapeOffset
+                -(game::GlobalGameAssets->enemySprite.dimensions / 2) + CollisionShapeOffset
             }
         )
     ) {}

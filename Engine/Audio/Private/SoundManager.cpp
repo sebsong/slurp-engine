@@ -12,17 +12,17 @@ namespace audio {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    void SoundManager::playSound(const Sound& sound) {
+    void SoundManager::playSound(const asset::Sound* sound) {
         playSound(sound, 1.0f, false);
     }
 
-    void SoundManager::playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
-        ASSERT(sound.waveData.sampleData);
-        if (!sound.waveData.sampleData) {
+    void SoundManager::playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+        ASSERT(sound);
+        if (!sound) {
             return;
         }
 
-        PlayingSound playingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop);
+        PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop);
         if (shouldLoop) {
             _loopingQueue.push_back(playingSound);
         } else {
@@ -44,7 +44,7 @@ namespace audio {
     ) {
         for (std::deque<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
             PlayingSound& playingSound = *it;
-            if (!playingSound.sound->waveData.isLoaded) {
+            if (!playingSound.sound->isLoaded) {
                 continue;
             }
 

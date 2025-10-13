@@ -1,6 +1,6 @@
 #include "Asset.h"
 
-#include "BitTwiddle.h"
+#include "Wave.h"
 #include "Debug.h"
 #include "Types.h"
 #include "WinEngine.h"
@@ -193,8 +193,9 @@ namespace asset {
     // TODO: stream the file in async
     Sound* AssetLoader::loadWaveFile(const std::string& waveFileName) {
         Sound* sound = new Sound();
-        asset_id assetId = _registerAsset(sound);
+        asset_id _ = _registerAsset(sound);
 
+        // TODO: do this async
         FileReadResult fileReadResult = readBytes(SoundsDirectory, waveFileName);
         types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
         ASSERT(fileBytes);
@@ -202,7 +203,9 @@ namespace asset {
             return sound;
         }
 
-        loadSoundData(*sound, fileBytes, fileReadResult.sizeBytes);
+        loadWaveData(*sound, fileBytes, fileReadResult.sizeBytes);
+
+        return sound;
     }
 
     std::string AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {

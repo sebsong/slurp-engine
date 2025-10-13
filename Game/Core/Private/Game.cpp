@@ -37,18 +37,18 @@ namespace game {
     }
 
     static void loadAssets() {
-        GlobalGameAssets->colorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
+        GlobalGameAssets->colorPalette = slurp::GlobalAssetLoader->loadColorPalette(ColorPaletteHexFileName);
 
-        GlobalGameAssets->borderSprite = render::loadSprite("border.bmp");
-        GlobalGameAssets->enemySprite = render::loadSprite("enemy.bmp");
-        GlobalGameAssets->mouseCursorSprite = render::loadSprite(mouse_cursor::SpriteFileName);
-        GlobalGameAssets->playerSprite = render::loadSprite(player::SpriteFileName);
-        GlobalGameAssets->playerParrySprite = render::loadSprite(player::ParrySpriteFileName);
-        GlobalGameAssets->projectileSprite = render::loadSprite(projectile::SpriteFileName);
-        GlobalGameAssets->projectileParriedSprite = render::loadSprite(projectile::ParriedSpriteFileName);
+        GlobalGameAssets->borderSprite = asset::loadSprite("border.bmp");
+        GlobalGameAssets->enemySprite = asset::loadSprite("enemy.bmp");
+        GlobalGameAssets->mouseCursorSprite = asset::loadSprite(mouse_cursor::SpriteFileName);
+        GlobalGameAssets->playerSprite = asset::loadSprite(player::SpriteFileName);
+        GlobalGameAssets->playerParrySprite = asset::loadSprite(player::ParrySpriteFileName);
+        GlobalGameAssets->projectileSprite = asset::loadSprite(projectile::SpriteFileName);
+        GlobalGameAssets->projectileParriedSprite = asset::loadSprite(projectile::ParriedSpriteFileName);
 
-        GlobalGameAssets->backgroundMusic = audio::loadSound(global::BackgroundMusicSoundFileName);
-        GlobalGameAssets->projectileHitSound = audio::loadSound(projectile::SoundFileName);
+        GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadWaveFile(global::BackgroundMusicSoundFileName);
+        GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadWaveFile(projectile::SoundFileName);
     }
 
     void initGame(GameAssets& gameAssets, GameState& gameState) {

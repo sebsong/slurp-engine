@@ -25,7 +25,7 @@ namespace asset {
         );
     }
 
-    void loadSoundData(Sound& sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes) {
+    void loadWaveData(Sound& sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes) {
         ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
 
         const types::byte* chunkData = waveFileBytes;

@@ -53,6 +53,8 @@ namespace slurp {
         ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
 
+        new(&sections->assetLoader) asset::AssetLoader();
+        GlobalAssetLoader = &sections->assetLoader;
         new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
         new(&sections->soundManager) audio::SoundManager();

@@ -5,7 +5,6 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Projectile.h"
-#include "Sound.h"
 
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 10
@@ -22,8 +21,8 @@ namespace game {
         asset::Sprite projectileSprite;
         asset::Sprite projectileParriedSprite;
 
-        audio::Sound backgroundMusic;
-        audio::Sound projectileHitSound;
+        asset::Sound* backgroundMusic;
+        asset::Sound* projectileHitSound;
     };
 
     struct GameState {

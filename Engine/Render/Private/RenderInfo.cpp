@@ -14,7 +14,7 @@ namespace render {
           renderShape({}),
           renderOffset({}) {}
 
-    RenderInfo::RenderInfo(const Sprite& sprite, bool isCentered)
+    RenderInfo::RenderInfo(const asset::Sprite& sprite, bool isCentered)
         : renderingEnabled(true),
           sprite(&sprite),
           renderShape({}),

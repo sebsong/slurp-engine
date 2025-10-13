@@ -13,5 +13,6 @@ namespace asset {
         void draw(const slurp::Vec2<float>& startPoint) const;
     };
 
+    // TODO: move to asset loader?
     Sprite loadSprite(const std::string& spriteFileName);
 }

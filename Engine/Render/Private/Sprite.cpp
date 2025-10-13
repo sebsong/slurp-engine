@@ -17,7 +17,7 @@ namespace asset {
     }
 
     Sprite loadSprite(const std::string& spriteFileName) {
-        Bitmap bitmap = loadBitmapFile(spriteFileName);
+        Bitmap bitmap = slurp::GlobalAssetLoader->loadBitmapFile(spriteFileName);
 
         // TODO: specify scale factor on entity that also applies to collision shapes
         float scale = 1.f;

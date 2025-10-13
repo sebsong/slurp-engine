@@ -2,10 +2,13 @@
 #include <cstdint>
 #include <deque>
 
+namespace asset {
+    struct Sound;
+}
+
 namespace audio {
     struct PlayingSound;
     struct AudioBuffer;
-    struct Sound;
 
     class SoundManager {
     public:
@@ -14,9 +17,9 @@ namespace audio {
         /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
-        void playSound(const Sound& sound);
+        void playSound(const asset::Sound* sound);
 
-        void playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop);
+        void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
 
         /** Engine **/
         void bufferAudio(const AudioBuffer& buffer);

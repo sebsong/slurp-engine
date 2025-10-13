@@ -10,6 +10,7 @@
 
 namespace slurp {
     struct MemorySections {
+        asset::AssetLoader assetLoader;
         EntityManager entityManager;
         audio::SoundManager soundManager;
         game::GameAssets gameAssets;
@@ -45,6 +46,8 @@ namespace slurp {
 
     static const platform::PlatformDll* GlobalPlatformDll;
     static const render::RenderApi* GlobalRenderApi;
+
+    static asset::AssetLoader* GlobalAssetLoader;
     static EntityManager* GlobalEntityManager;
     static audio::SoundManager* GlobalSoundManager;
 #if DEBUG
