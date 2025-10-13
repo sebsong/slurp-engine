@@ -16,7 +16,6 @@ namespace asset {
 
     typedef uint32_t asset_id;
 
-    // TODO: we should stream assets in async
     struct FileReadResult {
         uint32_t sizeBytes;
         types::byte* contents;
@@ -28,7 +27,6 @@ namespace asset {
         // TODO: ref count
     };
 
-    // TODO: convert into async loaded asset::Asset
     struct Sprite : Asset {
         slurp::Vec2<int> dimensions;
         Mesh mesh;

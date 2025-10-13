@@ -28,8 +28,6 @@
 #define SOUND_DAMP_FACTOR 0.5f
 
 namespace audio {
-    // TODO: might be easier to have a separate channel sample type and audio sample type
-    // TODO: should have a larger sized type for mixing and a smaller type for the actual buffer
     // typedef int16_t audio_sample_t; // 16-bit Mono
     // typedef int64_t audio_sample_t; // 32-bit stereo TODO: move to xaudio2 to allow for 32 bit samples
 

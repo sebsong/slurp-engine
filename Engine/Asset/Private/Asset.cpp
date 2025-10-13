@@ -121,7 +121,7 @@ namespace asset {
 
         // TODO: load this async
         FileReadResult fileReadResult = readBytes(filePath);
-        types::byte* fileBytes = fileReadResult.contents; // TODO: free the memory
+        types::byte* fileBytes = fileReadResult.contents;
         ASSERT(fileBytes);
         if (!fileBytes) {
             return sound;

@@ -198,9 +198,6 @@ namespace open_gl {
 
         for (int i = 0; i < vertexCount; i++) {
             render::Vertex& vertex = vertexArray[i];
-            // TODO: replace with world to clip space matrix transformation
-            // vertex.position.x /= CAMERA_WORLD_WIDTH;
-            // vertex.position.y /= CAMERA_WORLD_HEIGHT;
             vertex.position *= WorldToOpenGLClipSpaceMatrix;
         }
         // TODO: allow usage control
