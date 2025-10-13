@@ -1,7 +1,5 @@
 #include "RenderApi.h"
 
-#include "Asset.h"
-
 namespace render {
     object_id RenderApi::loadShaderProgram(
         const std::string& vertexShaderFileName,

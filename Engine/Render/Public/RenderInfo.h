@@ -1,5 +1,9 @@
 #pragma once
-#include "Sprite.h"
+#include "Render.h"
+
+namespace asset {
+    struct Sprite;
+}
 
 namespace render {
     struct RenderInfo {

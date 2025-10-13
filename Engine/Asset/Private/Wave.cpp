@@ -1,5 +1,7 @@
 #include "Wave.h"
 
+#include <mmeapi.h>
+
 namespace asset {
     static audio::channel_audio_sample_container_t getChannelSample(
         const types::byte* chunkData,
@@ -25,7 +27,7 @@ namespace asset {
         );
     }
 
-    void loadWaveData(Sound& sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes) {
+    void loadWaveData(PlayingSound& sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes) {
         ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
 
         const types::byte* chunkData = waveFileBytes;

@@ -1,11 +1,15 @@
 #pragma once
 
+#include "Debug.h"
+#include "DynamicDeclaration.h"
+#include "Vector.h"
+
 #include <cstdint>
 #include <string>
 
-#include "Bitmap.h"
-#include "DynamicDeclaration.h"
-#include "Vector.h"
+namespace asset {
+    struct Bitmap;
+}
 
 namespace render {
     typedef uint32_t object_id;
@@ -25,7 +29,7 @@ namespace render {
     static constexpr const char* COLOR_UNIFORM_NAME = "color";
 
 #define RENDER_SET_BACKGROUND_COLOR(fnName) void fnName(float red, float green, float blue)
-#define RENDER_CREATE_TEXTURE(fnName) render::object_id fnName(asset::Bitmap bitmap)
+#define RENDER_CREATE_TEXTURE(fnName) render::object_id fnName(const asset::Bitmap* bitmap)
 #define RENDER_CREATE_SHADER_PROGRAM(fnName) render::object_id fnName(const char* vertexShaderSource, const char* fragmentShaderSource)
 #define RENDER_GEN_VERTEX_ARRAY_BUFFER(fnName) render::object_id fnName(render::Vertex vertexArray[], int vertexCount)
 #define RENDER_GEN_ELEMENT_ARRAY_BUFFER(fnName) \

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace asset {
-    struct Sound;
+    struct PlayingSound;
 }
 
 namespace audio {
@@ -9,7 +9,7 @@ namespace audio {
 
     struct PlayingSound {
         uint32_t id;
-        const asset::Sound* sound;
+        const asset::PlayingSound* sound;
         float volumeMultiplier;
         bool shouldLoop;
         uint32_t sampleIndex;
@@ -17,7 +17,7 @@ namespace audio {
 
         PlayingSound(
             uint32_t id,
-            const asset::Sound* sound,
+            const asset::PlayingSound* sound,
             float volumeMultiplier,
             bool shouldLoop
         );

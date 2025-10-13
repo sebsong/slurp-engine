@@ -1,10 +1,11 @@
 #pragma once
 #include "Audio.h"
+#include "Material.h"
+#include "Mesh.h"
 #include "Types.h"
 
 namespace render {
     struct ColorPalette;
-    struct Sprite;
 }
 
 namespace asset {
@@ -24,7 +25,16 @@ namespace asset {
         // TODO: ref count
     };
 
-    struct Sound : Asset {
+    // TODO: convert into async loaded asset::Asset
+    struct Sprite : Asset {
+        slurp::Vec2<int> dimensions;
+        Mesh mesh;
+        Material material;
+
+        void draw(const slurp::Vec2<float>& startPoint) const;
+    };
+
+    struct PlayingSound : Asset {
         uint32_t numSamples;
         audio::StereoAudioSampleContainer* sampleData;
     };
@@ -37,9 +47,9 @@ namespace asset {
     public:
         AssetLoader();
 
-        Bitmap loadBitmapFile(const std::string& bitmapFileName);
+        Bitmap* loadBitmap(const std::string& bitmapFileName);
 
-        Sound* loadSound(const std::string& waveFileName);
+        PlayingSound* loadSound(const std::string& waveFileName);
 
         ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName);
 

@@ -1,6 +1,6 @@
 #include "SoundManager.h"
 
-#include "Sound.h"
+#include "PlayingSound.h"
 
 namespace audio {
     SoundManager::SoundManager(): _nextSoundId(0),
@@ -12,11 +12,11 @@ namespace audio {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    void SoundManager::playSound(const asset::Sound* sound) {
+    void SoundManager::playSound(const asset::PlayingSound* sound) {
         playSound(sound, 1.0f, false);
     }
 
-    void SoundManager::playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+    void SoundManager::playSound(const asset::PlayingSound* sound, float volumeMultiplier, bool shouldLoop) {
         ASSERT(sound);
         if (!sound) {
             return;

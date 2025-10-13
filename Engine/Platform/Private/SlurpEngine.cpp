@@ -1,49 +1,57 @@
 ﻿#include "SlurpEngine.h"
 #include "Random.h"
 #include "Debug.h"
+#include "Settings.h"
 
 #include <iostream>
 
 //TODO: have option to not do unity build
 /* Single translation unit, unity build */
+
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Asset.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Audio.cpp"
+#include "Debug.cpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Bitmap.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Collision.cpp"
+#include "Sprite.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Debug.cpp"
+#include "Wave.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Entity.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "EntityManager.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Physics.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Render.cpp"
+#include "Asset.cpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include "RenderApi.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "RenderInfo.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Sprite.cpp"
+#include "Render.cpp"
+
+
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Sound.cpp"
+#include "Physics.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "SoundManager.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Timer.cpp"
+#include "Collision.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Update.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Wave.cpp"
+#include "Entity.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "EntityManager.cpp"
+
 
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Audio.cpp" // TODO: delete?
+// ReSharper disable once CppUnusedIncludeDirective
+#include "PlayingSound.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "SoundManager.cpp"
+
+
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Timer.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
-#include "Settings.h"
 
 namespace slurp {
     SLURP_INIT(init) {

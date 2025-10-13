@@ -17,11 +17,11 @@ namespace asset {
     }
 
     Sprite loadSprite(const std::string& spriteFileName) {
-        Bitmap bitmap = slurp::GlobalAssetLoader->loadBitmapFile(spriteFileName);
+        Bitmap* bitmap = slurp::GlobalAssetLoader->loadBitmap(spriteFileName);
 
         // TODO: specify scale factor on entity that also applies to collision shapes
         float scale = 1.f;
-        slurp::Vec2<float> dimensions = bitmap.dimensions * scale;
+        slurp::Vec2<float> dimensions = bitmap->dimensions * scale;
         render::Vertex triangleVertices[SpriteMeshVertexCount] = {
             render::Vertex{
                 {dimensions.width, dimensions.height},
@@ -57,6 +57,8 @@ namespace asset {
         );
 
         return Sprite{
+            0, // TODO: load through asset loader to get a real id
+            true,
             dimensions,
             Mesh{vertexArrayId, SpriteMeshElementCount},
             Material{textureId, shaderProgramId},

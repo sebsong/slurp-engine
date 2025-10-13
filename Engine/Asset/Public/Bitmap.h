@@ -34,8 +34,10 @@ namespace asset {
         BitmapInfoHeader infoHeader;
     };
 
-    struct Bitmap {
+    struct Bitmap : Asset {
         slurp::Vec2<int> dimensions;
         render::Pixel* map;
     };
+
+    void loadBitmapData(Bitmap* bitmap, const types::byte* bitmapFileBytes);
 }

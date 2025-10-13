@@ -8,6 +8,7 @@
 #include "Logging.h"
 #include "Matrix.h"
 #include "RenderApi.h"
+#include "Bitmap.h"
 
 namespace open_gl {
     // e.g. [-WORLD_WIDTH / 2, -WORLD_HEIGHT / 2] -> [-1, -1]
@@ -108,12 +109,12 @@ namespace open_gl {
             GL_TEXTURE_2D,
             0,
             GL_RGBA,
-            bitmap.dimensions.width,
-            bitmap.dimensions.height,
+            bitmap->dimensions.width,
+            bitmap->dimensions.height,
             0,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            bitmap.map
+            bitmap->map
         );
         // glGenerateMipmap(GL_TEXTURE_2D);
 
