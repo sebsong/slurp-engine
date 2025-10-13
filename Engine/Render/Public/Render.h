@@ -46,6 +46,4 @@ namespace render {
     void drawRenderable(const T& renderable, const slurp::Vec2<float>& position) {
         renderable.draw(position);
     }
-
-    inline Pixel withAlpha(Pixel color, float alpha);
 }

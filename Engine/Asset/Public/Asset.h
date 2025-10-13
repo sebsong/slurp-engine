@@ -1,21 +1,83 @@
 #pragma once
 
-#include "Wave.h"
+#include "Audio.h"
+#include "Material.h"
+#include "Mesh.h"
+#include "Types.h"
+
+#include <unordered_map>
+
+namespace render {
+    struct ColorPalette;
+}
 
 namespace asset {
+    struct Bitmap;
+
+    typedef uint32_t asset_id;
+
     // TODO: we should stream assets in async
     struct FileReadResult {
         uint32_t sizeBytes;
         types::byte* contents;
     };
 
-    render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
+    struct Asset {
+        uint32_t id;
+        bool isLoaded;
+        // TODO: ref count
+    };
 
-    Bitmap loadBitmapFile(const std::string& bitmapFileName);
+    // TODO: convert into async loaded asset::Asset
+    struct Sprite : Asset {
+        slurp::Vec2<int> dimensions;
+        Mesh mesh;
+        Material material;
 
-    std::string loadVertexShaderSource(const std::string& shaderSourceFileName);
+        void draw(const slurp::Vec2<float>& startPoint) const;
+    };
 
-    std::string loadFragmentShaderSource(const std::string& shaderSourceFileName);
+    struct PlayingSound : Asset {
+        uint32_t numSamples;
+        audio::StereoAudioSampleContainer* sampleData;
+    };
 
-    WaveData loadWaveFile(const std::string& waveFileName);
+    struct ShaderSource : Asset {
+        std::string source;
+    };
+
+    class AssetLoader {
+    public:
+        AssetLoader();
+
+        Bitmap* loadBitmap(const std::string& bitmapFileName);
+
+        Sprite* loadSprite(
+            const std::string& bitmapFileName
+        );
+
+        Sprite* loadSprite(
+            const std::string& bitmapFileName,
+            const std::string& vertexShaderFileName,
+            const std::string& fragmentShaderFileName
+        );
+
+        PlayingSound* loadSound(const std::string& waveFileName);
+
+        ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName);
+
+        ShaderSource* loadFragmentShaderSource(const std::string& shaderSourceFileName);
+
+        render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
+
+    private:
+        std::hash<std::string> _stringHasher;
+        std::unordered_map<asset_id, Asset*> _assets;
+
+        asset_id _getAssetId(const std::string& assetFilePath) const;
+
+        Asset* _getAsset(asset_id assetId);
+
+        void _registerAsset(asset_id assetId, Asset* asset);
+    };
 }

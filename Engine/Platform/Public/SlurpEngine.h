@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Asset.h"
 #include "Platform.h"
 #include "DynamicDeclaration.h"
 #include "Input.h"
@@ -10,6 +11,7 @@
 
 namespace slurp {
     struct MemorySections {
+        asset::AssetLoader assetLoader;
         EntityManager entityManager;
         audio::SoundManager soundManager;
         game::GameAssets gameAssets;
@@ -45,6 +47,8 @@ namespace slurp {
 
     static const platform::PlatformDll* GlobalPlatformDll;
     static const render::RenderApi* GlobalRenderApi;
+
+    static asset::AssetLoader* GlobalAssetLoader;
     static EntityManager* GlobalEntityManager;
     static audio::SoundManager* GlobalSoundManager;
 #if DEBUG

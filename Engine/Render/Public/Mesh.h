@@ -2,9 +2,9 @@
 
 #include "RenderApi.h"
 
-namespace render {
+namespace asset {
     struct Mesh {
-        object_id vertexArrayId;
+        render::object_id vertexArrayId;
         uint32_t elementCount;
     };
 }

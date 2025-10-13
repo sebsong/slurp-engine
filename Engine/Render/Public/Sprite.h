@@ -1,16 +1,14 @@
 #pragma once
+#include "Asset.h"
 
-#include "Material.h"
-#include "Mesh.h"
+#define DEFAULT_SPRITE_VERTEX_SHADER_FILE_NAME "sprite.glsl"
+#define DEFAULT_SPRITE_FRAGMENT_SHADER_FILE_NAME "sprite.glsl"
 
-namespace render {
-    struct Sprite {
-        asset::Bitmap bitmap; // TODO: this could just be dimensions, or maybe dimensions goes on the Mesh
-        Mesh mesh;
-        Material material;
-
-        void draw(const slurp::Vec2<float>& startPoint) const;
-    };
-
-    Sprite loadSprite(const std::string& spriteFileName);
+namespace asset {
+    void loadSpriteData(
+        Sprite* sprite,
+        const Bitmap* bitmap,
+        const std::string& vertexShaderSource,
+        const std::string& fragmentShaderSource
+    );
 }

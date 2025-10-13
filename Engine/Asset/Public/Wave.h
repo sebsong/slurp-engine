@@ -43,8 +43,5 @@ namespace asset {
         types::byte chunkData[];
     };
 
-    struct WaveData {
-        uint32_t numSamples;
-        audio::StereoAudioSampleContainer* sampleData;
-    };
+    void loadWaveData(PlayingSound* sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes);
 }

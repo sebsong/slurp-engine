@@ -1,19 +1,15 @@
 #pragma once
-#include <string>
 
-#include "Wave.h"
+namespace asset {
+    struct PlayingSound;
+}
 
 namespace audio {
     struct AudioBuffer;
 
-    struct Sound {
-        uint32_t numSamples;
-        StereoAudioSampleContainer* sampleData;
-    };
-
     struct PlayingSound {
         uint32_t id;
-        const Sound* sound;
+        const asset::PlayingSound* sound;
         float volumeMultiplier;
         bool shouldLoop;
         uint32_t sampleIndex;
@@ -21,7 +17,7 @@ namespace audio {
 
         PlayingSound(
             uint32_t id,
-            const Sound* sound,
+            const asset::PlayingSound* sound,
             float volumeMultiplier,
             bool shouldLoop
         );
@@ -35,6 +31,4 @@ namespace audio {
 
         bool operator==(const PlayingSound&) const;
     };
-
-    Sound loadSound(const std::string& waveFileName);
 }

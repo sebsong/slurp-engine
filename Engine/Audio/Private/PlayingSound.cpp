@@ -1,10 +1,10 @@
-#include "Sound.h"
+#include "PlayingSound.h"
 
-#include "Asset.h"
 #include "Audio.h"
+#include "Asset.h"
 
 namespace audio {
-    PlayingSound::PlayingSound(uint32_t id, const Sound* sound, float volumeMultiplier, bool shouldLoop)
+    PlayingSound::PlayingSound(uint32_t id, const asset::PlayingSound* sound, float volumeMultiplier, bool shouldLoop)
         : id(id),
           sound(sound),
           volumeMultiplier(volumeMultiplier),
@@ -41,13 +41,5 @@ namespace audio {
 
     bool PlayingSound::operator==(const PlayingSound& other) const {
         return id == other.id;
-    }
-
-    Sound loadSound(const std::string& waveFileName) {
-        asset::WaveData waveData = asset::loadWaveFile(waveFileName);
-        return Sound{
-            waveData.numSamples,
-            waveData.sampleData
-        };
     }
 }

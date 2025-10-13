@@ -1,6 +1,6 @@
 #include "SoundManager.h"
 
-#include "Sound.h"
+#include "PlayingSound.h"
 
 namespace audio {
     SoundManager::SoundManager(): _nextSoundId(0),
@@ -12,17 +12,17 @@ namespace audio {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    void SoundManager::playSound(const Sound& sound) {
+    void SoundManager::playSound(const asset::PlayingSound* sound) {
         playSound(sound, 1.0f, false);
     }
 
-    void SoundManager::playSound(const Sound& sound, float volumeMultiplier, bool shouldLoop) {
-        ASSERT(sound.sampleData);
-        if (!sound.sampleData) {
+    void SoundManager::playSound(const asset::PlayingSound* sound, float volumeMultiplier, bool shouldLoop) {
+        ASSERT(sound);
+        if (!sound) {
             return;
         }
 
-        PlayingSound playingSound(_nextSoundId++, &sound, volumeMultiplier, shouldLoop);
+        PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop);
         if (shouldLoop) {
             _loopingQueue.push_back(playingSound);
         } else {
@@ -44,6 +44,9 @@ namespace audio {
     ) {
         for (std::deque<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
             PlayingSound& playingSound = *it;
+            if (!playingSound.sound->isLoaded) {
+                continue;
+            }
 
             playingSound.bufferAudio(sampleContainers, numSamplesToWrite, volumeMultiplier, dampMix);
 

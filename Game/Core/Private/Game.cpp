@@ -37,18 +37,18 @@ namespace game {
     }
 
     static void loadAssets() {
-        GlobalGameAssets->colorPalette = asset::loadColorPalette(ColorPaletteHexFileName);
+        GlobalGameAssets->colorPalette = slurp::GlobalAssetLoader->loadColorPalette(ColorPaletteHexFileName);
 
-        GlobalGameAssets->borderSprite = render::loadSprite("border.bmp");
-        GlobalGameAssets->enemySprite = render::loadSprite("enemy.bmp");
-        GlobalGameAssets->mouseCursorSprite = render::loadSprite(mouse_cursor::SpriteFileName);
-        GlobalGameAssets->playerSprite = render::loadSprite(player::SpriteFileName);
-        GlobalGameAssets->playerParrySprite = render::loadSprite(player::ParrySpriteFileName);
-        GlobalGameAssets->projectileSprite = render::loadSprite(projectile::SpriteFileName);
-        GlobalGameAssets->projectileParriedSprite = render::loadSprite(projectile::ParriedSpriteFileName);
+        GlobalGameAssets->borderSprite = slurp::GlobalAssetLoader->loadSprite("border.bmp");
+        GlobalGameAssets->enemySprite = slurp::GlobalAssetLoader->loadSprite("enemy.bmp");
+        GlobalGameAssets->mouseCursorSprite = slurp::GlobalAssetLoader->loadSprite(mouse_cursor::SpriteFileName);
+        GlobalGameAssets->playerSprite = slurp::GlobalAssetLoader->loadSprite(player::SpriteFileName);
+        GlobalGameAssets->playerParrySprite = slurp::GlobalAssetLoader->loadSprite(player::ParrySpriteFileName);
+        GlobalGameAssets->projectileSprite = slurp::GlobalAssetLoader->loadSprite(projectile::SpriteFileName);
+        GlobalGameAssets->projectileParriedSprite = slurp::GlobalAssetLoader->loadSprite(projectile::ParriedSpriteFileName);
 
-        GlobalGameAssets->backgroundMusic = audio::loadSound(global::BackgroundMusicSoundFileName);
-        GlobalGameAssets->projectileHitSound = audio::loadSound(projectile::SoundFileName);
+        GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadSound(global::BackgroundMusicSoundFileName);
+        GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadSound(projectile::SoundFileName);
     }
 
     void initGame(GameAssets& gameAssets, GameState& gameState) {

@@ -1,45 +1,57 @@
 ﻿#include "SlurpEngine.h"
 #include "Random.h"
 #include "Debug.h"
+#include "Settings.h"
 
 #include <iostream>
 
 //TODO: have option to not do unity build
 /* Single translation unit, unity build */
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Asset.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Audio.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Collision.cpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Debug.cpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Entity.cpp"
+#include "Bitmap.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "EntityManager.cpp"
+#include "Sprite.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Physics.cpp"
+#include "Wave.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Render.cpp"
+#include "Asset.cpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include "RenderApi.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "RenderInfo.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Sprite.cpp"
+#include "Render.cpp"
+
+
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Sound.cpp"
+#include "Physics.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Collision.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Update.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Entity.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "EntityManager.cpp"
+
+
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Audio.cpp" // TODO: delete?
+// ReSharper disable once CppUnusedIncludeDirective
+#include "PlayingSound.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SoundManager.cpp"
+
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Update.cpp"
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
-#include "Settings.h"
 
 namespace slurp {
     SLURP_INIT(init) {
@@ -49,6 +61,8 @@ namespace slurp {
         ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
 
+        new(&sections->assetLoader) asset::AssetLoader();
+        GlobalAssetLoader = &sections->assetLoader;
         new(&sections->entityManager) EntityManager();
         GlobalEntityManager = &sections->entityManager;
         new(&sections->soundManager) audio::SoundManager();

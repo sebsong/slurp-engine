@@ -16,7 +16,12 @@ namespace debug {
             {end, {}}
         };
         render::object_id vertexArrayId = slurp::GlobalRenderApi->genVertexArrayBuffer(vertexArray, LineVertexCount);
-        render::object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram("basic.glsl", "basic.glsl");
+        asset::ShaderSource* vertexShaderSource = slurp::GlobalAssetLoader->loadVertexShaderSource("basic.glsl");
+        asset::ShaderSource* fragmentShaderSource = slurp::GlobalAssetLoader->loadFragmentShaderSource("basic.glsl");
+        render::object_id shaderProgramId = slurp::GlobalRenderApi->createShaderProgram(
+            vertexShaderSource->source.c_str(),
+            fragmentShaderSource->source.c_str()
+        );
         slurp::GlobalRenderApi->drawLine(
             vertexArrayId,
             LineVertexCount,

@@ -114,12 +114,12 @@ namespace player {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderInfo.sprite = &game::GlobalGameAssets->playerParrySprite;
+        this->renderInfo.sprite = game::GlobalGameAssets->playerParrySprite;
         timer::start(ParryTimerHandle, ParryActiveDuration, false, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderInfo.sprite = &game::GlobalGameAssets->playerSprite;
+        this->renderInfo.sprite = game::GlobalGameAssets->playerSprite;
     }
 }
