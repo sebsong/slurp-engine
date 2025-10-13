@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Asset.h"
 #include "Platform.h"
 #include "DynamicDeclaration.h"
 #include "Input.h"

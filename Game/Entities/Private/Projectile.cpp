@@ -93,7 +93,7 @@ namespace projectile {
 
     void Projectile::onParried() {
         this->_isParried = true;
-        this->renderInfo.sprite = &game::GlobalGameAssets->projectileParriedSprite;
+        this->renderInfo.sprite = game::GlobalGameAssets->projectileParriedSprite;
         this->physicsInfo.maxSpeed = ParriedSpeed;
         this->_target = game::GlobalGameState->mouseCursor.getClosestEnemy();
         timer::start(
@@ -101,7 +101,7 @@ namespace projectile {
             ParriedDuration,
             false,
             [this] {
-                this->renderInfo.sprite = &game::GlobalGameAssets->projectileSprite;
+                this->renderInfo.sprite = game::GlobalGameAssets->projectileSprite;
                 this->physicsInfo.maxSpeed = BaseSpeed;
                 this->_isParried = false;
             }

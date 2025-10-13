@@ -72,6 +72,40 @@ namespace asset {
         return bitmap;
     }
 
+    Sprite* AssetLoader::loadSprite(const std::string& bitmapFileName) {
+        return loadSprite(
+            bitmapFileName,
+            DEFAULT_SPRITE_VERTEX_SHADER_FILE_NAME,
+            DEFAULT_SPRITE_FRAGMENT_SHADER_FILE_NAME
+        );
+    }
+
+    Sprite* AssetLoader::loadSprite(
+        const std::string& bitmapFileName,
+        const std::string& vertexShaderFileName,
+        const std::string& fragmentShaderFileName
+    ) {
+        std::string filePath = SpritesDirectory + bitmapFileName;
+        asset_id assetId = _getAssetId(filePath + vertexShaderFileName + fragmentShaderFileName);
+
+        if (Asset* existingSprite = _getAsset(assetId)) {
+            return reinterpret_cast<Sprite*>(existingSprite);
+        }
+
+        Sprite* sprite = new Sprite();
+        _registerAsset(assetId, sprite);
+
+        Bitmap* bitmap = slurp::GlobalAssetLoader->loadBitmap(bitmapFileName);
+        std::string vertexShaderSource =
+                slurp::GlobalAssetLoader->loadVertexShaderSource(vertexShaderFileName)->source;
+        std::string fragmentShaderSource =
+                slurp::GlobalAssetLoader->loadFragmentShaderSource(fragmentShaderFileName)->source;
+
+        loadSpriteData(sprite, bitmap, vertexShaderSource, fragmentShaderSource);
+
+        return sprite;
+    }
+
     // TODO: pre-process wave files into the engine sample size
     // TODO: stream the file in async
     PlayingSound* AssetLoader::loadSound(const std::string& waveFileName) {
@@ -92,7 +126,7 @@ namespace asset {
         if (!fileBytes) {
             return sound;
         }
-        loadWaveData(*sound, fileBytes, fileReadResult.sizeBytes);
+        loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
 
         delete[] fileBytes;
         return sound;

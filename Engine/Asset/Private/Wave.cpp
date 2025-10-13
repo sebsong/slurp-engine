@@ -27,7 +27,7 @@ namespace asset {
         );
     }
 
-    void loadWaveData(PlayingSound& sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes) {
+    void loadWaveData(PlayingSound* sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes) {
         ASSERT(IS_STEREO_AUDIO); // NOTE: assumes output is always stereo
 
         const types::byte* chunkData = waveFileBytes;
@@ -100,9 +100,9 @@ namespace asset {
                     } else {
                         ASSERT(false);
                     }
-                    sound.numSamples = numSamples;
-                    sound.sampleData = sampleData;
-                    sound.isLoaded = true;
+                    sound->numSamples = numSamples;
+                    sound->sampleData = sampleData;
+                    sound->isLoaded = true;
                     return;
                 }
                 case (Bext):

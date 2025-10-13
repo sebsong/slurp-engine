@@ -16,9 +16,12 @@ namespace asset {
         );
     }
 
-    Sprite loadSprite(const std::string& spriteFileName) {
-        Bitmap* bitmap = slurp::GlobalAssetLoader->loadBitmap(spriteFileName);
-
+    void loadSpriteData(
+        Sprite* sprite,
+        const Bitmap* bitmap,
+        const std::string& vertexShaderSource,
+        const std::string& fragmentShaderSource
+    ) {
         // TODO: specify scale factor on entity that also applies to collision shapes
         float scale = 1.f;
         slurp::Vec2<float> dimensions = bitmap->dimensions * scale;
@@ -47,21 +50,14 @@ namespace asset {
             SpriteElements,
             SpriteMeshElementCount
         );
-
         render::object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);
-
-        // TODO: allow specification of shader
-        render::object_id shaderProgramId = slurp::GlobalRenderApi->loadShaderProgram(
-            "sprite.glsl",
-            "sprite.glsl"
+        render::object_id shaderProgramId = slurp::GlobalRenderApi->createShaderProgram(
+            vertexShaderSource.c_str(),
+            fragmentShaderSource.c_str()
         );
 
-        return Sprite{
-            0, // TODO: load through asset loader to get a real id
-            true,
-            dimensions,
-            Mesh{vertexArrayId, SpriteMeshElementCount},
-            Material{textureId, shaderProgramId},
-        };
+        sprite->dimensions = dimensions;
+        sprite->mesh = Mesh{vertexArrayId, SpriteMeshElementCount};
+        sprite->material = Material{textureId, shaderProgramId};
     }
 }

@@ -39,13 +39,13 @@ namespace game {
     static void loadAssets() {
         GlobalGameAssets->colorPalette = slurp::GlobalAssetLoader->loadColorPalette(ColorPaletteHexFileName);
 
-        GlobalGameAssets->borderSprite = asset::loadSprite("border.bmp");
-        GlobalGameAssets->enemySprite = asset::loadSprite("enemy.bmp");
-        GlobalGameAssets->mouseCursorSprite = asset::loadSprite(mouse_cursor::SpriteFileName);
-        GlobalGameAssets->playerSprite = asset::loadSprite(player::SpriteFileName);
-        GlobalGameAssets->playerParrySprite = asset::loadSprite(player::ParrySpriteFileName);
-        GlobalGameAssets->projectileSprite = asset::loadSprite(projectile::SpriteFileName);
-        GlobalGameAssets->projectileParriedSprite = asset::loadSprite(projectile::ParriedSpriteFileName);
+        GlobalGameAssets->borderSprite = slurp::GlobalAssetLoader->loadSprite("border.bmp");
+        GlobalGameAssets->enemySprite = slurp::GlobalAssetLoader->loadSprite("enemy.bmp");
+        GlobalGameAssets->mouseCursorSprite = slurp::GlobalAssetLoader->loadSprite(mouse_cursor::SpriteFileName);
+        GlobalGameAssets->playerSprite = slurp::GlobalAssetLoader->loadSprite(player::SpriteFileName);
+        GlobalGameAssets->playerParrySprite = slurp::GlobalAssetLoader->loadSprite(player::ParrySpriteFileName);
+        GlobalGameAssets->projectileSprite = slurp::GlobalAssetLoader->loadSprite(projectile::SpriteFileName);
+        GlobalGameAssets->projectileParriedSprite = slurp::GlobalAssetLoader->loadSprite(projectile::ParriedSpriteFileName);
 
         GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadSound(global::BackgroundMusicSoundFileName);
         GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadSound(projectile::SoundFileName);

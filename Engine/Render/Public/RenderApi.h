@@ -5,7 +5,6 @@
 #include "Vector.h"
 
 #include <cstdint>
-#include <string>
 
 namespace asset {
     struct Bitmap;
@@ -102,10 +101,5 @@ namespace render {
         dyn_drawElementArray* drawElementArray = stub_drawElementArray;
         dyn_drawLine* drawLine = stub_drawLine;
         dyn_deleteResources* deleteResources = stub_deleteResources;
-
-        [[nodiscard]] object_id loadShaderProgram(
-            const std::string& vertexShaderFileName,
-            const std::string& fragmentShaderFileName
-        ) const;
     };
 }

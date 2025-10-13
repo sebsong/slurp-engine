@@ -1,8 +1,11 @@
 #pragma once
+
 #include "Audio.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Types.h"
+
+#include <unordered_map>
 
 namespace render {
     struct ColorPalette;
@@ -48,6 +51,16 @@ namespace asset {
         AssetLoader();
 
         Bitmap* loadBitmap(const std::string& bitmapFileName);
+
+        Sprite* loadSprite(
+            const std::string& bitmapFileName
+        );
+
+        Sprite* loadSprite(
+            const std::string& bitmapFileName,
+            const std::string& vertexShaderFileName,
+            const std::string& fragmentShaderFileName
+        );
 
         PlayingSound* loadSound(const std::string& waveFileName);
 
