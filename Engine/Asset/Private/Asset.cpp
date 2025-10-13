@@ -25,7 +25,8 @@ namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;
     static constexpr uint8_t FourBitMaskHigh = 0b11110000;
 
-    AssetLoader::AssetLoader(): _nextAssetId(0), _assets(std::unordered_map<asset_id, Asset*>()) {}
+    AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
+                                _assets(std::unordered_map<asset_id, Asset*>()) {}
 
     static FileReadResult readBytes(const std::string& directory, const std::string& fileName) {
         const std::string filePath = directory + fileName;
@@ -192,8 +193,14 @@ namespace asset {
     // TODO: pre-process wave files into the engine sample size
     // TODO: stream the file in async
     Sound* AssetLoader::loadSound(const std::string& waveFileName) {
+        asset_id assetId = _getAssetId(waveFileName);
+
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<Sound*>(existingAsset);
+        }
+
         Sound* sound = new Sound();
-        asset_id _ = _registerAsset(sound);
+        _registerAsset(assetId, sound);
 
         // TODO: do this async
         FileReadResult fileReadResult = readBytes(SoundsDirectory, waveFileName);
@@ -205,6 +212,7 @@ namespace asset {
 
         loadWaveData(*sound, fileBytes, fileReadResult.sizeBytes);
 
+        delete[] fileBytes;
         return sound;
     }
 
@@ -237,9 +245,15 @@ namespace asset {
         return palette;
     }
 
-    asset_id AssetLoader::_registerAsset(Asset* asset) {
-        asset_id id = _nextAssetId++;
-        _assets[id] = asset;
-        return id;
+    asset_id AssetLoader::_getAssetId(const std::string& assetFileName) const {
+        return _stringHasher(assetFileName);
+    }
+
+    Asset* AssetLoader::_getAsset(asset_id assetId) {
+        return _assets[assetId];
+    }
+
+    void AssetLoader::_registerAsset(asset_id assetId, Asset* asset) {
+        _assets[assetId] = asset;
     }
 }

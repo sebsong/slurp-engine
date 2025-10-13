@@ -24,7 +24,7 @@ namespace asset {
         // TODO: ref count
     };
 
-    struct Sound: Asset {
+    struct Sound : Asset {
         uint32_t numSamples;
         audio::StereoAudioSampleContainer* sampleData;
     };
@@ -44,9 +44,13 @@ namespace asset {
         render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
     private:
-        asset_id _nextAssetId;
+        std::hash<std::string> _stringHasher;
         std::unordered_map<asset_id, Asset*> _assets;
 
-        asset_id _registerAsset(Asset* asset);
+        asset_id _getAssetId(const std::string& assetFileName) const;
+
+        Asset* _getAsset(asset_id assetId);
+
+        void _registerAsset(asset_id assetId, Asset* asset);
     };
 }
