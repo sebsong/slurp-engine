@@ -191,7 +191,7 @@ namespace asset {
 
     // TODO: pre-process wave files into the engine sample size
     // TODO: stream the file in async
-    Sound* AssetLoader::loadWaveFile(const std::string& waveFileName) {
+    Sound* AssetLoader::loadSound(const std::string& waveFileName) {
         Sound* sound = new Sound();
         asset_id _ = _registerAsset(sound);
 

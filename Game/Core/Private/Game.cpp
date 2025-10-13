@@ -47,8 +47,8 @@ namespace game {
         GlobalGameAssets->projectileSprite = asset::loadSprite(projectile::SpriteFileName);
         GlobalGameAssets->projectileParriedSprite = asset::loadSprite(projectile::ParriedSpriteFileName);
 
-        GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadWaveFile(global::BackgroundMusicSoundFileName);
-        GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadWaveFile(projectile::SoundFileName);
+        GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadSound(global::BackgroundMusicSoundFileName);
+        GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadSound(projectile::SoundFileName);
     }
 
     void initGame(GameAssets& gameAssets, GameState& gameState) {

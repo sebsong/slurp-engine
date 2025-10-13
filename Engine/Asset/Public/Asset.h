@@ -35,7 +35,7 @@ namespace asset {
 
         Bitmap loadBitmapFile(const std::string& bitmapFileName);
 
-        Sound* loadWaveFile(const std::string& waveFileName);
+        Sound* loadSound(const std::string& waveFileName);
 
         std::string loadVertexShaderSource(const std::string& shaderSourceFileName);
 
