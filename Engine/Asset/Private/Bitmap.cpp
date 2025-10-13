@@ -131,5 +131,6 @@ namespace asset {
 
         bitmap->dimensions = {width, height};
         bitmap->map = map;
+        bitmap->isLoaded = true;
     }
 }

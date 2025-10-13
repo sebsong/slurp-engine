@@ -77,5 +77,7 @@ namespace asset {
         Asset* _getAsset(asset_id assetId);
 
         void _registerAsset(asset_id assetId, Asset* asset);
+
+        ShaderSource* _loadShaderSource(const std::string& shaderFilePath);
     };
 }

@@ -132,9 +132,8 @@ namespace asset {
         return sound;
     }
 
-    ShaderSource* AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {
-        std::string filePath = VertexShadersDirectory + shaderSourceFileName;
-        asset_id assetId = _getAssetId(filePath);
+    ShaderSource* AssetLoader::_loadShaderSource(const std::string& shaderFilePath) {
+        asset_id assetId = _getAssetId(shaderFilePath);
 
         if (Asset* existingAsset = _getAsset(assetId)) {
             return reinterpret_cast<ShaderSource*>(existingAsset);
@@ -143,27 +142,21 @@ namespace asset {
         ShaderSource* shaderSource = new ShaderSource();
         _registerAsset(assetId, shaderSource);
 
-        std::string source = readTextFile(filePath);
+        std::string source = readTextFile(shaderFilePath);
+        shaderSource->isLoaded = true;
         shaderSource->source = source;
 
         return shaderSource;
     }
 
+    ShaderSource* AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {
+        std::string filePath = VertexShadersDirectory + shaderSourceFileName;
+        return _loadShaderSource(filePath);
+    }
+
     ShaderSource* AssetLoader::loadFragmentShaderSource(const std::string& shaderSourceFileName) {
         std::string filePath = FragmentShadersDirectory + shaderSourceFileName;
-        asset_id assetId = _getAssetId(filePath);
-
-        if (Asset* existingAsset = _getAsset(assetId)) {
-            return reinterpret_cast<ShaderSource*>(existingAsset);
-        }
-
-        ShaderSource* shaderSource = new ShaderSource();
-        _registerAsset(assetId, shaderSource);
-
-        std::string source = readTextFile(filePath);
-        shaderSource->source = source;
-
-        return shaderSource;
+        return _loadShaderSource(filePath);
     }
 
     render::ColorPalette AssetLoader::loadColorPalette(const std::string& paletteHexFileName) {
