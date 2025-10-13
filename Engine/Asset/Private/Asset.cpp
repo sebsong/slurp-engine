@@ -45,8 +45,7 @@ namespace asset {
         };
     }
 
-    static std::string readTextFile(const std::string& directory, const std::string& fileName) {
-        const std::string filePath = directory + fileName;
+    static std::string readTextFile(const std::string& filePath) {
         std::ifstream file(filePath);
         ASSERT(file.good());
 
@@ -216,12 +215,38 @@ namespace asset {
         return sound;
     }
 
-    std::string AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {
-        return readTextFile(VertexShadersDirectory, shaderSourceFileName);
+    ShaderSource* AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {
+        std::string filePath = VertexShadersDirectory + shaderSourceFileName;
+        asset_id assetId = _getAssetId(filePath);
+
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<ShaderSource*>(existingAsset);
+        }
+
+        ShaderSource* shaderSource = new ShaderSource();
+        _registerAsset(assetId, shaderSource);
+
+        std::string source = readTextFile(filePath);
+        shaderSource->source = source;
+
+        return shaderSource;
     }
 
-    std::string AssetLoader::loadFragmentShaderSource(const std::string& shaderSourceFileName) {
-        return readTextFile(FragmentShadersDirectory, shaderSourceFileName);
+    ShaderSource* AssetLoader::loadFragmentShaderSource(const std::string& shaderSourceFileName) {
+        std::string filePath = FragmentShadersDirectory + shaderSourceFileName;
+        asset_id assetId = _getAssetId(filePath);
+
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<ShaderSource*>(existingAsset);
+        }
+
+        ShaderSource* shaderSource = new ShaderSource();
+        _registerAsset(assetId, shaderSource);
+
+        std::string source = readTextFile(filePath);
+        shaderSource->source = source;
+
+        return shaderSource;
     }
 
     render::ColorPalette AssetLoader::loadColorPalette(const std::string& paletteHexFileName) {
@@ -245,8 +270,8 @@ namespace asset {
         return palette;
     }
 
-    asset_id AssetLoader::_getAssetId(const std::string& assetFileName) const {
-        return _stringHasher(assetFileName);
+    asset_id AssetLoader::_getAssetId(const std::string& assetFilePath) const {
+        return _stringHasher(assetFilePath);
     }
 
     Asset* AssetLoader::_getAsset(asset_id assetId) {
@@ -254,6 +279,7 @@ namespace asset {
     }
 
     void AssetLoader::_registerAsset(asset_id assetId, Asset* asset) {
+        asset->id = assetId;
         _assets[assetId] = asset;
     }
 }

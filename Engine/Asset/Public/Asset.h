@@ -29,6 +29,10 @@ namespace asset {
         audio::StereoAudioSampleContainer* sampleData;
     };
 
+    struct ShaderSource : Asset {
+        std::string source;
+    };
+
     class AssetLoader {
     public:
         AssetLoader();
@@ -37,9 +41,9 @@ namespace asset {
 
         Sound* loadSound(const std::string& waveFileName);
 
-        std::string loadVertexShaderSource(const std::string& shaderSourceFileName);
+        ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName);
 
-        std::string loadFragmentShaderSource(const std::string& shaderSourceFileName);
+        ShaderSource* loadFragmentShaderSource(const std::string& shaderSourceFileName);
 
         render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
@@ -47,7 +51,7 @@ namespace asset {
         std::hash<std::string> _stringHasher;
         std::unordered_map<asset_id, Asset*> _assets;
 
-        asset_id _getAssetId(const std::string& assetFileName) const;
+        asset_id _getAssetId(const std::string& assetFilePath) const;
 
         Asset* _getAsset(asset_id assetId);
 
