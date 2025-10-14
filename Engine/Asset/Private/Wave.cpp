@@ -103,6 +103,7 @@ namespace asset {
                     sound->numSamples = numSamples;
                     sound->sampleData = sampleData;
                     sound->isLoaded = true;
+                    delete[] waveFileBytes;
                     return;
                 }
                 case (Bext):
@@ -116,5 +117,6 @@ namespace asset {
 
             chunkData = chunk->chunkData + chunk->chunkSizeBytes;
         }
+        delete[] waveFileBytes;
     }
 }

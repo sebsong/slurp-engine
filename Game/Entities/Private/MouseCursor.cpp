@@ -3,8 +3,6 @@
 #include "Game.h"
 
 namespace mouse_cursor {
-    static const std::string SpriteFileName = "mouse_cursor.bmp";
-
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
         render::RenderInfo(

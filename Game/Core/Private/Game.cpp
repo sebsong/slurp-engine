@@ -41,11 +41,11 @@ namespace game {
 
         GlobalGameAssets->borderSprite = slurp::GlobalAssetLoader->loadSprite("border.bmp");
         GlobalGameAssets->enemySprite = slurp::GlobalAssetLoader->loadSprite("enemy.bmp");
-        GlobalGameAssets->mouseCursorSprite = slurp::GlobalAssetLoader->loadSprite(mouse_cursor::SpriteFileName);
-        GlobalGameAssets->playerSprite = slurp::GlobalAssetLoader->loadSprite(player::SpriteFileName);
-        GlobalGameAssets->playerParrySprite = slurp::GlobalAssetLoader->loadSprite(player::ParrySpriteFileName);
-        GlobalGameAssets->projectileSprite = slurp::GlobalAssetLoader->loadSprite(projectile::SpriteFileName);
-        GlobalGameAssets->projectileParriedSprite = slurp::GlobalAssetLoader->loadSprite(projectile::ParriedSpriteFileName);
+        GlobalGameAssets->mouseCursorSprite = slurp::GlobalAssetLoader->loadSprite("mouse_cursor.bmp");
+        GlobalGameAssets->playerSprite = slurp::GlobalAssetLoader->loadSprite("player.bmp");
+        GlobalGameAssets->playerParrySprite = slurp::GlobalAssetLoader->loadSprite("player_parry.bmp");
+        GlobalGameAssets->projectileSprite = slurp::GlobalAssetLoader->loadSprite("projectile.bmp");
+        GlobalGameAssets->projectileParriedSprite = slurp::GlobalAssetLoader->loadSprite("projectile_parried.bmp");
 
         GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadSound(global::BackgroundMusicSoundFileName);
         GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadSound(projectile::SoundFileName);

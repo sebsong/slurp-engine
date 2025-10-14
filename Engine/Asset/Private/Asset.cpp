@@ -128,7 +128,6 @@ namespace asset {
         }
         loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
 
-        delete[] fileBytes;
         return sound;
     }
 

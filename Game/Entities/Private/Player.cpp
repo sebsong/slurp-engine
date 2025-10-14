@@ -15,8 +15,6 @@ namespace player {
         {ShapeSize, ShapeSize}
     };
     static constexpr const char* Name = "Player";
-    static constexpr const char* SpriteFileName = "player.bmp";
-    static constexpr const char* ParrySpriteFileName = "player_parry.bmp";
 
     static const timer::timer_handle ParryTimerHandle = timer::getNewHandle();
     static constexpr float ParryActiveDuration = .2f;

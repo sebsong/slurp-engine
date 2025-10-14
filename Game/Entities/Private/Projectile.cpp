@@ -14,8 +14,6 @@ namespace projectile {
     };
     static constexpr float ActivationDelay = .2f;
     static constexpr float ParriedDuration = 2.f;
-    static constexpr const char* SpriteFileName = "projectile.bmp";
-    static constexpr const char* ParriedSpriteFileName = "projectile_parried.bmp";
 
     static constexpr const char* SoundFileName = "hit.wav";
 
