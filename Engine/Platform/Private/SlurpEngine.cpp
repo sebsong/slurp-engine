@@ -10,6 +10,10 @@
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Debug.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "JobRunner.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Timer.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Bitmap.cpp"
@@ -43,9 +47,6 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SoundManager.cpp"
 
-
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Timer.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
@@ -57,12 +58,14 @@ namespace slurp {
         ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
         MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
 
-        new(&sections->assetLoader) asset::AssetLoader();
-        GlobalAssetLoader = &sections->assetLoader;
-        new(&sections->entityManager) EntityManager();
-        GlobalEntityManager = &sections->entityManager;
-        new(&sections->soundManager) audio::SoundManager();
-        GlobalSoundManager = &sections->soundManager;
+        new(&sections->engineSystems.jobRunner) job::JobRunner();
+        GlobalJobRunner = &sections->engineSystems.jobRunner;
+        new(&sections->engineSystems.assetLoader) asset::AssetLoader();
+        GlobalAssetLoader = &sections->engineSystems.assetLoader;
+        new(&sections->engineSystems.entityManager) EntityManager();
+        GlobalEntityManager = &sections->engineSystems.entityManager;
+        new(&sections->engineSystems.soundManager) audio::SoundManager();
+        GlobalSoundManager = &sections->engineSystems.soundManager;
 #if DEBUG
         ASSERT(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
         GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);

@@ -45,6 +45,7 @@ namespace audio {
         for (std::deque<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
             PlayingSound& playingSound = *it;
             if (!playingSound.sound->isLoaded) {
+                it++;
                 continue;
             }
 

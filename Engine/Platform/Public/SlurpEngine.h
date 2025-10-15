@@ -1,5 +1,6 @@
 #pragma once
 
+#include "JobRunner.h"
 #include "Asset.h"
 #include "Platform.h"
 #include "DynamicDeclaration.h"
@@ -10,10 +11,15 @@
 #include "Game.h"
 
 namespace slurp {
-    struct MemorySections {
+    struct EngineSystems {
+        job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
         EntityManager entityManager;
         audio::SoundManager soundManager;
+    };
+
+    struct MemorySections {
+        EngineSystems engineSystems;
         game::GameAssets gameAssets;
         game::GameState gameState;
     };
@@ -48,6 +54,7 @@ namespace slurp {
     static const platform::PlatformDll* GlobalPlatformDll;
     static const render::RenderApi* GlobalRenderApi;
 
+    static job::JobRunner* GlobalJobRunner;
     static asset::AssetLoader* GlobalAssetLoader;
     static EntityManager* GlobalEntityManager;
     static audio::SoundManager* GlobalSoundManager;

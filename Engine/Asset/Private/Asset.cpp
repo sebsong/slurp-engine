@@ -1,5 +1,6 @@
 #include "Asset.h"
 
+#include "SlurpEngine.h"
 #include "Bitmap.h"
 #include "Wave.h"
 #include "Debug.h"
@@ -126,7 +127,9 @@ namespace asset {
         if (!fileBytes) {
             return sound;
         }
-        loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
+
+        auto loadFn = [sound, fileBytes, fileReadResult](){loadWaveData(sound, fileBytes, fileReadResult.sizeBytes); };
+        slurp::GlobalJobRunner->queueJob(loadFn);
 
         return sound;
     }
