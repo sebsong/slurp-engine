@@ -3,6 +3,7 @@
 #include "Vector.h"
 
 #if DEBUG
+// TODO: add logging when assert fails
 #define ASSERT(expression) if (!(expression)) *(int*)(nullptr) = 0
 #else
 #define ASSERT(expression)

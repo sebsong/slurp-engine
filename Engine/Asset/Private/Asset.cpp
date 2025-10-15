@@ -120,15 +120,15 @@ namespace asset {
         PlayingSound* sound = new PlayingSound();
         _registerAsset(assetId, sound);
 
-        // TODO: load this async
-        FileReadResult fileReadResult = readBytes(filePath);
-        types::byte* fileBytes = fileReadResult.contents;
-        ASSERT(fileBytes);
-        if (!fileBytes) {
-            return sound;
-        }
-
-        auto loadFn = [sound, fileBytes, fileReadResult](){loadWaveData(sound, fileBytes, fileReadResult.sizeBytes); };
+        auto loadFn = [sound, filePath]() {
+            FileReadResult fileReadResult = readBytes(filePath);
+            types::byte* fileBytes = fileReadResult.contents;
+            ASSERT(fileBytes);
+            if (!fileBytes) {
+                return;
+            }
+            loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
+        };
         slurp::GlobalJobRunner->queueJob(loadFn);
 
         return sound;
