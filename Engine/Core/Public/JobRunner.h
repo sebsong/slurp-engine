@@ -5,6 +5,8 @@
 #include <functional>
 #include <thread>
 
+#define WORKER_POOL_SIZE 1
+
 namespace job {
     typedef uint32_t job_id;
 
@@ -32,12 +34,12 @@ namespace job {
         // TODO: method for checking status of a job_id
         // TODO: method for waiting on a job_id
 
-        void runJobs();
 
     private:
         job_id _nextJobId;
         std::deque<Job> _jobQueue;
-        std::thread _jobThread;
-        // TODO: thread pool
+        std::thread _workerPool[WORKER_POOL_SIZE];
+
+        void _processJobs();
     };
 }
