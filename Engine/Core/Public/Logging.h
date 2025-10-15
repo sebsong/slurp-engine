@@ -4,7 +4,7 @@
 namespace logging {
     template<typename T>
     static void log(const char* level, T message) {
-        // TODO: replace with real logging
+        // TODO: replace with real logging to a file
         std::cout << level << ": " << message << std::endl;
     }
 

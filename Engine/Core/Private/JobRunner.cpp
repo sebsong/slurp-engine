@@ -1,10 +1,13 @@
 #include "JobRunner.h"
+#include "Logging.h"
+
+#include <format>
 
 namespace job {
     JobRunner::JobRunner(): _nextJobId(0),
                             _jobQueue(std::deque<Job>()) {
         for (int i = 0; i < WORKER_POOL_SIZE; i++) {
-            _workerPool[i] = std::thread(&JobRunner::_processJobs, this);
+            _workerPool[i] = std::thread(&JobRunner::_processJobs, this, i);
         }
     }
 
@@ -19,7 +22,8 @@ namespace job {
         return job.jobId;
     }
 
-    void JobRunner::_processJobs() {
+    void JobRunner::_processJobs(uint8_t workerIndex) {
+        logging::info(std::format("Job worker {} started", workerIndex));
         while (true) {
             if (_jobQueue.empty()) {
                 continue;
