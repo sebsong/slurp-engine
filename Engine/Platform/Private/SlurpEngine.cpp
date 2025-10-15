@@ -11,6 +11,8 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Debug.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "SpinLock.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "JobRunner.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Timer.cpp"
