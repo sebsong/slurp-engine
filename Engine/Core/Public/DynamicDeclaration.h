@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Debug.h"
+
 #define DLL_EXPORT
 #if PLATFORM_WINDOWS
 #undef DLL_EXPORT

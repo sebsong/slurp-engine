@@ -1,5 +1,6 @@
 #include "Bitmap.h"
 
+#include <windef.h>
 #include <wingdi.h>
 
 namespace asset {

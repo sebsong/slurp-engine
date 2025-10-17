@@ -1,9 +1,8 @@
 #pragma once
 #include <DynamicDeclaration.h>
-#include <cstdint>
-#include <functional>
 
-#include "OpenGL.h"
+#include <functional>
+#include <cstdint>
 
 namespace platform {
     struct MemoryBlock {

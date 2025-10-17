@@ -7,7 +7,7 @@
 #include <functional>
 #include <thread>
 
-#define WORKER_POOL_SIZE 8
+#define WORKER_POOL_SIZE 4
 
 namespace job {
     typedef uint32_t job_id;

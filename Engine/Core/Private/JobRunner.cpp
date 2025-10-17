@@ -26,6 +26,7 @@ namespace job {
         logging::info(std::format("Job worker {} started", workerIndex));
         while (true) {
             if (_jobQueue.empty()) {
+                // TODO: put these threads to sleep if there are no jobs for many iterations to save CPU
                 continue;
             }
 

@@ -388,7 +388,7 @@ static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
         PAGE_READWRITE
     );
     outGameMemory->permanentMemory.memory = memory;
-    outGameMemory->transientMemory.memory = static_cast<uint8_t*>(memory) + permanentMemorySizeBytes;
+    outGameMemory->transientMemory.memory = static_cast<types::byte*>(memory) + permanentMemorySizeBytes;
 }
 
 static float winGetFrameMillis(
