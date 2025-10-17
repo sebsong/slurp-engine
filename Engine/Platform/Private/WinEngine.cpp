@@ -371,24 +371,30 @@ static DWORD winGetMonitorRefreshRate() {
 }
 
 static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
-    uint64_t permanentMemorySizeBytes = megabytes(64);
-    uint64_t transientMemorySizeBytes = gigabytes(4);
-    outGameMemory->permanentMemory.sizeBytes = permanentMemorySizeBytes;
-    outGameMemory->transientMemory.sizeBytes = transientMemorySizeBytes;
+    size_t permanentMemorySizeBytes = megabytes(64);
+    size_t transientMemorySizeBytes = gigabytes(4);
 #if DEBUG
     void* baseAddress = (void*) terabytes(1);
 #else
 	void* baseAddress = nullptr;
 #endif
-    void* memory = VirtualAlloc(
+    types::byte* memory = static_cast<types::byte*>(VirtualAlloc(
         baseAddress,
         permanentMemorySizeBytes + transientMemorySizeBytes,
         MEM_RESERVE | MEM_COMMIT,
         // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
         PAGE_READWRITE
+    ));
+    new(&outGameMemory->permanentMemory) memory::MemoryArena(
+        "Permanent Memory",
+        memory,
+        permanentMemorySizeBytes
     );
-    outGameMemory->permanentMemory.memory = memory;
-    outGameMemory->transientMemory.memory = static_cast<types::byte*>(memory) + permanentMemorySizeBytes;
+    new(&outGameMemory->transientMemory) memory::MemoryArena(
+        "Transient Memory",
+        memory + permanentMemorySizeBytes,
+        transientMemorySizeBytes
+    );
 }
 
 static float winGetFrameMillis(
@@ -632,11 +638,12 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording) {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     );
+    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanentMemory.getMemoryBlock();
     DWORD _;
     WriteFile(
         GlobalRecordingState.recordingFileHandle,
-        GlobalGameMemory.permanentMemory.memory,
-        static_cast<DWORD>(GlobalGameMemory.permanentMemory.sizeBytes),
+        gameMemoryBlock.memory,
+        gameMemoryBlock.size,
         &_,
         nullptr
     );
@@ -741,11 +748,12 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback) {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     );
+    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanentMemory.getMemoryBlock();
     DWORD _;
     ReadFile(
         GlobalRecordingState.recordingFileHandle,
-        GlobalGameMemory.permanentMemory.memory,
-        static_cast<DWORD>(GlobalGameMemory.permanentMemory.sizeBytes),
+        gameMemoryBlock.memory,
+        gameMemoryBlock.size,
         &_,
         nullptr
     );

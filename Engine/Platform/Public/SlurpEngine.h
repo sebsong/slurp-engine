@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Platform.h"
 #include "JobRunner.h"
 #include "Asset.h"
-#include "Platform.h"
 #include "DynamicDeclaration.h"
 #include "Input.h"
 #include "Audio.h"
@@ -10,8 +10,18 @@
 #include "SoundManager.h"
 #include "Game.h"
 
+/** Single translation unit, unity build **/
+//TODO: have option to not do unity build
+
+// TODO: figure out if we can move these with the other unity build includes
+// ReSharper disable once CppUnusedIncludeDirective
+#include "SpinLock.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Memory.cpp"
+
 namespace slurp {
     struct EngineSystems {
+        memory::MemoryArena permanentMemory;
         job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
         EntityManager entityManager;
@@ -50,6 +60,8 @@ namespace slurp {
         dyn_bufferAudio* bufferAudio = stub_bufferAudio;
         dyn_updateAndRender* updateAndRender = stub_updateAndRender;
     };
+
+    static const memory::MemoryArena* GlobalPermanentMemory;
 
     static const platform::PlatformDll* GlobalPlatformDll;
     static const render::RenderApi* GlobalRenderApi;

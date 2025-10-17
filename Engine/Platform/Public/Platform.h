@@ -1,18 +1,14 @@
 #pragma once
-#include <DynamicDeclaration.h>
+#include "DynamicDeclaration.h"
+#include "Memory.h"
 
 #include <functional>
 #include <cstdint>
 
 namespace platform {
-    struct MemoryBlock {
-        uint64_t sizeBytes;
-        void* memory;
-    };
-
     struct GameMemory {
-        MemoryBlock permanentMemory;
-        MemoryBlock transientMemory;
+        memory::MemoryArena permanentMemory;
+        memory::MemoryArena transientMemory;
     };
 
 #if DEBUG

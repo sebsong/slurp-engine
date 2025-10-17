@@ -5,13 +5,11 @@
 
 #include <iostream>
 
+/** Single translation unit, unity build **/
 //TODO: have option to not do unity build
-/* Single translation unit, unity build */
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Debug.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "SpinLock.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "JobRunner.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
@@ -57,8 +55,7 @@ namespace slurp {
         GlobalPlatformDll = &platformDll;
         GlobalRenderApi = &renderApi;
 
-        ASSERT(sizeof(MemorySections) <= gameMemory.permanentMemory.sizeBytes);
-        MemorySections* sections = static_cast<MemorySections*>(gameMemory.permanentMemory.memory);
+        MemorySections* sections = gameMemory.permanentMemory.allocate<MemorySections>();
 
         new(&sections->engineSystems.jobRunner) job::JobRunner();
         GlobalJobRunner = &sections->engineSystems.jobRunner;
@@ -69,8 +66,7 @@ namespace slurp {
         new(&sections->engineSystems.soundManager) audio::SoundManager();
         GlobalSoundManager = &sections->engineSystems.soundManager;
 #if DEBUG
-        ASSERT(sizeof(RecordingState) <= gameMemory.transientMemory.sizeBytes);
-        GlobalRecordingState = static_cast<RecordingState*>(gameMemory.transientMemory.memory);
+        GlobalRecordingState = gameMemory.transientMemory.allocate<RecordingState>();
 #endif
 
         game::initGame(sections->gameAssets, sections->gameState);
