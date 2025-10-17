@@ -111,21 +111,15 @@ namespace slurp {
 #if DEBUG
         if (GlobalRecordingState->isRecording) {
             debug::drawRectBorder(
-                {0, 0},
-                {
-                    static_cast<float>(CAMERA_WORLD_WIDTH),
-                    static_cast<float>(CAMERA_WORLD_HEIGHT)
-                },
+                {-CAMERA_WORLD_WIDTH_MAX, -CAMERA_WORLD_HEIGHT_MAX},
+                {CAMERA_WORLD_WIDTH_MAX,CAMERA_WORLD_HEIGHT_MAX},
                 10,
                 DEBUG_RED_COLOR
             );
         } else if (GlobalRecordingState->isPlayingBack) {
             debug::drawRectBorder(
-                {0, 0},
-                {
-                    static_cast<float>(CAMERA_WORLD_WIDTH),
-                    static_cast<float>(CAMERA_WORLD_HEIGHT)
-                },
+                {-CAMERA_WORLD_WIDTH_MAX, -CAMERA_WORLD_HEIGHT_MAX},
+                {CAMERA_WORLD_WIDTH_MAX,CAMERA_WORLD_HEIGHT_MAX},
                 10,
                 DEBUG_GREEN_COLOR
             );
