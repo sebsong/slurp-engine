@@ -14,6 +14,9 @@ include_directories(Engine/Core/Private)
 include_directories(Engine/Input/Public)
 include_directories(Engine/Input/Private)
 
+include_directories(Engine/Memory/Public)
+include_directories(Engine/Memory/Private)
+
 include_directories(Engine/Platform/Public)
 include_directories(Engine/Platform/Private)
 

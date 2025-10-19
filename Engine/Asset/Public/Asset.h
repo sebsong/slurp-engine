@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MemoryAllocator.h"
 #include "Audio.h"
 #include "Material.h"
 #include "Mesh.h"
