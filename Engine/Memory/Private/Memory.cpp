@@ -9,11 +9,16 @@ namespace memory {
 
     MemoryArena::MemoryArena(
         std::string&& name,
-        types::byte* memory,
-        size_t size
+        MemoryBlock memoryBlock
     ): _name(std::move(name)),
-       _fullMemoryBlock({memory, size}),
-       _availableMemoryBlock({memory, size}) {}
+       _fullMemoryBlock(memoryBlock),
+       _availableMemoryBlock(memoryBlock) {}
+
+    MemoryArena::MemoryArena(
+        const MemoryArena& other
+    ): _name(other._name),
+       _fullMemoryBlock(other._fullMemoryBlock),
+       _availableMemoryBlock(other._availableMemoryBlock) {}
 
     types::byte* MemoryArena::allocate(size_t size) {
         _lock.lock();
@@ -32,6 +37,10 @@ namespace memory {
         return memory;
     }
 
+    MemoryArena MemoryArena::allocateSubArena(std::string&& name, size_t size) {
+        MemoryBlock memoryBlock = {allocate(size), size};
+        return MemoryArena(std::move(name), memoryBlock);
+    }
 
     void MemoryArena::freeAll() {
         _availableMemoryBlock = _fullMemoryBlock;
@@ -39,5 +48,12 @@ namespace memory {
 
     MemoryBlock MemoryArena::getMemoryBlock() const {
         return _fullMemoryBlock;
+    }
+
+    MemoryArena& MemoryArena::operator=(const MemoryArena& newArena) {
+        _name = newArena._name;
+        _fullMemoryBlock = newArena._fullMemoryBlock;
+        _availableMemoryBlock = newArena._availableMemoryBlock;
+        return *this;
     }
 }

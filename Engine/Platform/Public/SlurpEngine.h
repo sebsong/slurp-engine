@@ -27,12 +27,6 @@ namespace slurp {
         audio::SoundManager soundManager;
     };
 
-    struct MemorySections {
-        EngineSystems engineSystems;
-        game::GameAssets gameAssets;
-        game::GameState gameState;
-    };
-
 #if DEBUG
     struct RecordingState {
         bool isRecording;
@@ -40,7 +34,7 @@ namespace slurp {
     };
 #endif
 
-#define SLURP_INIT(fnName) void fnName(memory::GameMemory& gameMemory, const platform::PlatformDll& platformDll, const render::RenderApi& renderApi)
+#define SLURP_INIT(fnName) void fnName(memory::MemoryBlock& permanentMemory, memory::MemoryBlock& transientMemory, const platform::PlatformDll& platformDll, const render::RenderApi& renderApi)
 #define SLURP_HANDLE_INPUT(fnName) void fnName(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState, const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS])
 #define SLURP_BUFFER_AUDIO(fnName) void fnName(const audio::AudioBuffer& buffer)
 #define SLURP_UPDATE_AND_RENDER(fnName) void fnName(float dt)

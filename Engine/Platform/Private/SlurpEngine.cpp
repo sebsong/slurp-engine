@@ -52,26 +52,33 @@
 
 namespace slurp {
     SLURP_INIT(init) {
-        memory::GlobalGameMemory = &gameMemory;
+        memory::GlobalGameMemory.permanent = memory::MemoryArena("Permanent", permanentMemory);
+        memory::GlobalGameMemory.transient = memory::MemoryArena("Transient", transientMemory);
+        memory::GlobalGameMemory.assetLoader = memory::GlobalGameMemory.transient.allocateSubArena(
+            "Asset Loader",
+            ASSET_LOADER_ARENA_SIZE
+        );
+
         GlobalPlatformDll = &platformDll;
         GlobalRenderApi = &renderApi;
 
         // TODO: when hot reloading, don't reinitialize these systems
-        MemorySections* sections = gameMemory.permanent.allocate<MemorySections>();
-
-        new(&sections->engineSystems.jobRunner) job::JobRunner();
-        GlobalJobRunner = &sections->engineSystems.jobRunner;
-        new(&sections->engineSystems.assetLoader) asset::AssetLoader();
-        GlobalAssetLoader = &sections->engineSystems.assetLoader;
-        new(&sections->engineSystems.entityManager) EntityManager();
-        GlobalEntityManager = &sections->engineSystems.entityManager;
-        new(&sections->engineSystems.soundManager) audio::SoundManager();
-        GlobalSoundManager = &sections->engineSystems.soundManager;
+        EngineSystems* engineSystems = memory::GlobalGameMemory.permanent.allocate<EngineSystems>();
+        new(&engineSystems->jobRunner) job::JobRunner();
+        new(&engineSystems->assetLoader) asset::AssetLoader();
+        new(&engineSystems->entityManager) EntityManager();
+        new(&engineSystems->soundManager) audio::SoundManager();
+        GlobalJobRunner = &engineSystems->jobRunner;
+        GlobalAssetLoader = &engineSystems->assetLoader;
+        GlobalEntityManager = &engineSystems->entityManager;
+        GlobalSoundManager = &engineSystems->soundManager;
 #if DEBUG
-        GlobalRecordingState = gameMemory.transient.allocate<RecordingState>();
+        GlobalRecordingState = memory::GlobalGameMemory.transient.allocate<RecordingState>();
 #endif
 
-        game::initGame(sections->gameAssets, sections->gameState);
+        game::GameAssets* gameAssets = memory::GlobalGameMemory.permanent.allocate<game::GameAssets>();
+        game::GameState* gameState = memory::GlobalGameMemory.permanent.allocate<game::GameState>();
+        game::initGame(gameAssets, gameState);
         GlobalEntityManager->initialize();
     }
 

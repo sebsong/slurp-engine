@@ -7,7 +7,15 @@
 
 #include <string>
 
-#include "Logging.h"
+#define kilobytes(n) ((int64_t)n * 1024)
+#define megabytes(n) (kilobytes(n) * 1024)
+#define gigabytes(n) (megabytes(n) * 1024)
+#define terabytes(n) (gigabytes(n) * 1024)
+
+#define PERMANENT_ARENA_SIZE megabytes(64)
+
+#define TRANSIENT_ARENA_SIZE gigabytes(4)
+#define ASSET_LOADER_ARENA_SIZE gigabytes(1)
 
 namespace memory {
     /**
@@ -34,7 +42,9 @@ namespace memory {
     public:
         MemoryArena();
 
-        MemoryArena(std::string&& name, types::byte* memory, size_t size);
+        MemoryArena(std::string&& name, MemoryBlock memoryBlock);
+
+        MemoryArena(const MemoryArena& other);
 
         types::byte* allocate(size_t size);
 
@@ -48,21 +58,29 @@ namespace memory {
             return allocate<T>(1);
         }
 
+        MemoryArena allocateSubArena(std::string&& name, size_t size);
+
         void freeAll();
 
         MemoryBlock getMemoryBlock() const;
 
+        MemoryArena& operator=(const MemoryArena& newArena);
+
     private:
-        const std::string _name;
-        const MemoryBlock _fullMemoryBlock;
+        std::string _name;
+        MemoryBlock _fullMemoryBlock;
         MemoryBlock _availableMemoryBlock;
         lock::SpinLock _lock;
     };
 
     struct GameMemory {
+        /** PERMANENT **/
         MemoryArena permanent;
+
+        /** TRANSIENT **/
         MemoryArena transient;
+        MemoryArena assetLoader;
     };
 
-    static GameMemory* GlobalGameMemory;
+    static GameMemory GlobalGameMemory;
 }

@@ -26,7 +26,8 @@ static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
 static render::RenderApi GlobalRenderApi;
-static memory::GameMemory GlobalGameMemory;
+static memory::MemoryBlock GlobalPermanentMemory;
+static memory::MemoryBlock GlobalTransientMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
 
@@ -370,9 +371,9 @@ static DWORD winGetMonitorRefreshRate() {
     return devMode.dmDisplayFrequency;
 }
 
-static void winAllocateGameMemory(memory::GameMemory* outGameMemory) {
-    size_t permanentMemorySizeBytes = megabytes(64);
-    size_t transientMemorySizeBytes = gigabytes(4);
+static void winAllocateGameMemory(memory::MemoryBlock& outPermanentMemory, memory::MemoryBlock& outTransientMemory) {
+    size_t permanentMemorySizeBytes = PERMANENT_ARENA_SIZE;
+    size_t transientMemorySizeBytes = TRANSIENT_ARENA_SIZE;
 #if DEBUG
     void* baseAddress = (void*) terabytes(1);
 #else
@@ -385,13 +386,11 @@ static void winAllocateGameMemory(memory::GameMemory* outGameMemory) {
         // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
         PAGE_READWRITE
     ));
-    new(&outGameMemory->permanent) memory::MemoryArena(
-        "Permanent Memory",
+    outPermanentMemory = memory::MemoryBlock(
         memory,
         permanentMemorySizeBytes
     );
-    new(&outGameMemory->transient) memory::MemoryArena(
-        "Transient Memory",
+    outTransientMemory = memory::MemoryBlock(
         memory + permanentMemorySizeBytes,
         transientMemorySizeBytes
     );
@@ -525,7 +524,7 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
-    GlobalSlurpDll.init(GlobalGameMemory, GlobalPlatformDll, GlobalRenderApi);
+    GlobalSlurpDll.init(GlobalPermanentMemory, GlobalTransientMemory, GlobalPlatformDll, GlobalRenderApi);
 }
 
 static std::string getLocalFilePath(LPCSTR filename) {
@@ -638,12 +637,11 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording) {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     );
-    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanent.getMemoryBlock();
     DWORD _;
     WriteFile(
         GlobalRecordingState.recordingFileHandle,
-        gameMemoryBlock.memory,
-        gameMemoryBlock.size,
+        GlobalPermanentMemory.memory,
+        GlobalPermanentMemory.size,
         &_,
         nullptr
     );
@@ -748,12 +746,11 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback) {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     );
-    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanent.getMemoryBlock();
     DWORD _;
     ReadFile(
         GlobalRecordingState.recordingFileHandle,
-        gameMemoryBlock.memory,
-        gameMemoryBlock.size,
+        GlobalPermanentMemory.memory,
+        GlobalPermanentMemory.size,
         &_,
         nullptr
     );
@@ -919,7 +916,7 @@ int WINAPI WinMain(
 
     GlobalPlatformDll = loadPlatformDll();
     GlobalRenderApi = loadRenderApi();
-    winAllocateGameMemory(&GlobalGameMemory);
+    winAllocateGameMemory(GlobalPermanentMemory, GlobalTransientMemory);
     winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
     winLoadXInput();
 

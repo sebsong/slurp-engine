@@ -51,9 +51,9 @@ namespace game {
         GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadSound(projectile::SoundFileName);
     }
 
-    void initGame(GameAssets& gameAssets, GameState& gameState) {
-        GlobalGameAssets = &gameAssets;
-        GlobalGameState = &gameState;
+    void initGame(GameAssets* gameAssets, GameState* gameState) {
+        GlobalGameAssets = gameAssets;
+        GlobalGameState = gameState;
 
         loadAssets();
 
