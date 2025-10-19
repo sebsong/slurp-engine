@@ -24,7 +24,7 @@ namespace asset {
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
     AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
-                                _assets(std::unordered_map<asset_id, Asset*>()) {}
+                                _assets(unordered_map_arena<asset_id, Asset*>()) {}
 
     static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);

@@ -1,9 +1,13 @@
 #pragma once
 
+#include <format>
+
 #include "Types.h"
 #include "SpinLock.h"
 
 #include <string>
+
+#include "Logging.h"
 
 namespace memory {
     /**
@@ -35,8 +39,13 @@ namespace memory {
         types::byte* allocate(size_t size);
 
         template<typename T>
+        T* allocate(size_t n) {
+            return reinterpret_cast<T*>(allocate(n * sizeof(T)));
+        }
+
+        template<typename T>
         T* allocate() {
-            return reinterpret_cast<T*>(allocate(sizeof(T)));
+            return allocate<T>(1);
         }
 
         void freeAll();
@@ -48,5 +57,59 @@ namespace memory {
         const MemoryBlock _fullMemoryBlock;
         MemoryBlock _availableMemoryBlock;
         lock::SpinLock _lock;
+    };
+
+    struct GameMemory {
+        MemoryArena permanent;
+        MemoryArena transient;
+    };
+
+    static GameMemory* GlobalGameMemory;
+
+    template<typename T>
+    class MemoryArenaAllocator {
+    public:
+        typedef T value_type;
+
+        MemoryArenaAllocator() = default;
+
+        template<typename U>
+        MemoryArenaAllocator(const MemoryArenaAllocator<U>& allocator) {
+            this->arena = allocator.arena;
+        }
+
+        T* allocate(size_t n) {
+            logging::debug(std::format("ALLOCATE: {}", n));
+            return arena->allocate<T>(n); // TODO: respect memory alignment
+        }
+
+        void deallocate(T* ptr, size_t n) {
+            logging::debug(std::format("DE-ALLOCATE: {}", n));
+            // NOTE: rely on manual, bulk free instead of deallocating each pointer
+        }
+
+        MemoryArena* arena;
+    };
+
+    template<typename T>
+    class PermanentArenaAllocator : public MemoryArenaAllocator<T> {
+    public:
+        PermanentArenaAllocator(): MemoryArenaAllocator<T>() {
+            this->arena = &GlobalGameMemory->permanent;
+        }
+
+        template<typename U>
+        PermanentArenaAllocator(const PermanentArenaAllocator<U>& allocator): MemoryArenaAllocator<T>(allocator) {}
+    };
+
+    template<typename T>
+    class TransientArenaAllocator : public MemoryArenaAllocator<T> {
+    public:
+        TransientArenaAllocator(): MemoryArenaAllocator<T>() {
+            this->arena = &GlobalGameMemory->transient;
+        }
+
+        template<typename U>
+        TransientArenaAllocator(const TransientArenaAllocator<U>& allocator): MemoryArenaAllocator<T>(allocator) {}
     };
 }

@@ -26,7 +26,7 @@ static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
 static render::RenderApi GlobalRenderApi;
-static platform::GameMemory GlobalGameMemory;
+static memory::GameMemory GlobalGameMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
 
@@ -370,7 +370,7 @@ static DWORD winGetMonitorRefreshRate() {
     return devMode.dmDisplayFrequency;
 }
 
-static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
+static void winAllocateGameMemory(memory::GameMemory* outGameMemory) {
     size_t permanentMemorySizeBytes = megabytes(64);
     size_t transientMemorySizeBytes = gigabytes(4);
 #if DEBUG
@@ -385,12 +385,12 @@ static void winAllocateGameMemory(platform::GameMemory* outGameMemory) {
         // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
         PAGE_READWRITE
     ));
-    new(&outGameMemory->permanentMemory) memory::MemoryArena(
+    new(&outGameMemory->permanent) memory::MemoryArena(
         "Permanent Memory",
         memory,
         permanentMemorySizeBytes
     );
-    new(&outGameMemory->transientMemory) memory::MemoryArena(
+    new(&outGameMemory->transient) memory::MemoryArena(
         "Transient Memory",
         memory + permanentMemorySizeBytes,
         transientMemorySizeBytes
@@ -638,7 +638,7 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording) {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     );
-    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanentMemory.getMemoryBlock();
+    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanent.getMemoryBlock();
     DWORD _;
     WriteFile(
         GlobalRecordingState.recordingFileHandle,
@@ -748,7 +748,7 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback) {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     );
-    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanentMemory.getMemoryBlock();
+    memory::MemoryBlock gameMemoryBlock = GlobalGameMemory.permanent.getMemoryBlock();
     DWORD _;
     ReadFile(
         GlobalRecordingState.recordingFileHandle,

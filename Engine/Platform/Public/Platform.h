@@ -6,11 +6,6 @@
 #include <cstdint>
 
 namespace platform {
-    struct GameMemory {
-        memory::MemoryArena permanentMemory;
-        memory::MemoryArena transientMemory;
-    };
-
 #if DEBUG
     struct DEBUG_FileReadResult {
         void* fileContents;

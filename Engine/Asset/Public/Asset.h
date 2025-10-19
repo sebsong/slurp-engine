@@ -70,7 +70,18 @@ namespace asset {
 
     private:
         std::hash<std::string> _stringHasher;
-        std::unordered_map<asset_id, Asset*> _assets;
+
+        template<typename key_t, typename value_t>
+        using unordered_map_arena =
+        std::unordered_map<
+            key_t,
+            value_t,
+            std::hash<key_t>,
+            std::equal_to<key_t>,
+            memory::PermanentArenaAllocator<std::pair<const asset_id, Asset*>>
+        >;
+
+        unordered_map_arena<asset_id, Asset*> _assets;
 
         asset_id _getAssetId(const std::string& assetFilePath) const;
 

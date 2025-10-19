@@ -52,10 +52,12 @@
 
 namespace slurp {
     SLURP_INIT(init) {
+        memory::GlobalGameMemory = &gameMemory;
         GlobalPlatformDll = &platformDll;
         GlobalRenderApi = &renderApi;
 
-        MemorySections* sections = gameMemory.permanentMemory.allocate<MemorySections>();
+        // TODO: when hot reloading, don't reinitialize these systems
+        MemorySections* sections = gameMemory.permanent.allocate<MemorySections>();
 
         new(&sections->engineSystems.jobRunner) job::JobRunner();
         GlobalJobRunner = &sections->engineSystems.jobRunner;
@@ -66,7 +68,7 @@ namespace slurp {
         new(&sections->engineSystems.soundManager) audio::SoundManager();
         GlobalSoundManager = &sections->engineSystems.soundManager;
 #if DEBUG
-        GlobalRecordingState = gameMemory.transientMemory.allocate<RecordingState>();
+        GlobalRecordingState = gameMemory.transient.allocate<RecordingState>();
 #endif
 
         game::initGame(sections->gameAssets, sections->gameState);
