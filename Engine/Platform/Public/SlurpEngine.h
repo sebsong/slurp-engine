@@ -41,6 +41,7 @@ namespace slurp {
 #define SLURP_BUFFER_AUDIO(fnName) void fnName(const audio::AudioBuffer& buffer)
 #define SLURP_UPDATE_AND_RENDER(fnName) void fnName(float dt)
 #define SLURP_FRAME_END(fnName) void fnName()
+#define SLURP_SHUTDOWN(fnName) void fnName()
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
 
@@ -54,6 +55,8 @@ namespace slurp {
 
     SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_FRAME_END, frameEnd)
 
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_SHUTDOWN, shutdown)
+
     struct SlurpDll {
         dyn_init* init = stub_init;
         dyn_frameStart* frameStart = stub_frameStart;
@@ -61,6 +64,7 @@ namespace slurp {
         dyn_bufferAudio* bufferAudio = stub_bufferAudio;
         dyn_updateAndRender* updateAndRender = stub_updateAndRender;
         dyn_frameEnd* frameEnd = stub_frameEnd;
+        dyn_shutdown* shutdown = stub_shutdown;
     };
 
     static const platform::PlatformDll* GlobalPlatformDll;

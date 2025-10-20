@@ -504,10 +504,17 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_frameEnd,
             GlobalSlurpLib
         );
+        winLoadLibFn<slurp::dyn_shutdown>(
+            GlobalSlurpDll.shutdown,
+            "shutdown",
+            slurp::stub_shutdown,
+            GlobalSlurpLib
+        );
     }
 }
 
 static void winUnloadSlurpLib() {
+    GlobalSlurpDll.shutdown();
     if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) {
         OutputDebugStringA("Failed to unload Slurp lib.\n");
     }

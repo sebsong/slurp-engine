@@ -145,4 +145,6 @@ namespace slurp {
     SLURP_FRAME_END(frameEnd) {
         memory::GlobalGameMemory.singleFrame.freeAll();
     }
+
+    SLURP_SHUTDOWN(shutdown) {}
 }
