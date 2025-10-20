@@ -1,5 +1,4 @@
 ﻿#include "Timer.h"
-#include <set>
 
 namespace timer {
     Timer::Timer(): _nextTimerHandle(0),

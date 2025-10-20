@@ -53,6 +53,7 @@
 namespace slurp {
     SLURP_INIT(init) {
         memory::GlobalGameMemory.permanent = memory::MemoryArena("Permanent", permanentMemory);
+        bool& isInitialized = *memory::GlobalGameMemory.permanent.allocate<bool>();
         memory::GlobalGameMemory.transient = memory::MemoryArena("Transient", transientMemory);
         memory::GlobalGameMemory.singleFrame =
                 memory::GlobalGameMemory.transient.allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
@@ -64,19 +65,29 @@ namespace slurp {
 
         // TODO: when hot reloading, don't reinitialize these systems
         EngineSystems* engineSystems = memory::GlobalGameMemory.permanent.allocate<EngineSystems>();
-        GlobalTimer = new(&engineSystems->timer) timer::Timer();
-        GlobalJobRunner = new(&engineSystems->jobRunner) job::JobRunner();
-        GlobalAssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
-        GlobalEntityManager = new(&engineSystems->entityManager) EntityManager();
-        GlobalSoundManager = new(&engineSystems->soundManager) audio::SoundManager();
+        if (!isInitialized) {
+            new(&engineSystems->timer) timer::Timer();
+            new(&engineSystems->jobRunner) job::JobRunner();
+            new(&engineSystems->assetLoader) asset::AssetLoader();
+            new(&engineSystems->entityManager) EntityManager();
+            new(&engineSystems->soundManager) audio::SoundManager();
+        }
+        GlobalTimer = &engineSystems->timer;
+        GlobalJobRunner = &engineSystems->jobRunner;
+        GlobalAssetLoader = &engineSystems->assetLoader;
+        GlobalEntityManager = &engineSystems->entityManager;
+        GlobalSoundManager = &engineSystems->soundManager;
 #if DEBUG
         GlobalRecordingState = memory::GlobalGameMemory.transient.allocate<RecordingState>();
 #endif
 
         game::GameAssets* gameAssets = memory::GlobalGameMemory.permanent.allocate<game::GameAssets>();
         game::GameState* gameState = memory::GlobalGameMemory.permanent.allocate<game::GameState>();
-        game::initGame(gameAssets, gameState);
-        GlobalEntityManager->initialize();
+        if (!isInitialized) {
+            game::initGame(gameAssets, gameState);
+            GlobalEntityManager->initialize();
+        }
+        isInitialized = true;
     }
 
     SLURP_FRAME_START(frameStart) {}
