@@ -2,6 +2,7 @@
 
 #include "Entity.h"
 #include "Input.h"
+#include "Timer.h"
 
 namespace player {
     class Player final : public slurp::Entity {
@@ -11,6 +12,8 @@ namespace player {
         bool isParryActive;
 
     private:
+        timer::timer_handle _parryTimerHandle;
+
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
             const slurp::KeyboardState& keyboardState

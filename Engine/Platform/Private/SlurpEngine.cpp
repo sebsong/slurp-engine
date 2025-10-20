@@ -64,14 +64,11 @@ namespace slurp {
 
         // TODO: when hot reloading, don't reinitialize these systems
         EngineSystems* engineSystems = memory::GlobalGameMemory.permanent.allocate<EngineSystems>();
-        new(&engineSystems->jobRunner) job::JobRunner();
-        new(&engineSystems->assetLoader) asset::AssetLoader();
-        new(&engineSystems->entityManager) EntityManager();
-        new(&engineSystems->soundManager) audio::SoundManager();
-        GlobalJobRunner = &engineSystems->jobRunner;
-        GlobalAssetLoader = &engineSystems->assetLoader;
-        GlobalEntityManager = &engineSystems->entityManager;
-        GlobalSoundManager = &engineSystems->soundManager;
+        GlobalTimer = new(&engineSystems->timer) timer::Timer();
+        GlobalJobRunner = new(&engineSystems->jobRunner) job::JobRunner();
+        GlobalAssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
+        GlobalEntityManager = new(&engineSystems->entityManager) EntityManager();
+        GlobalSoundManager = new(&engineSystems->soundManager) audio::SoundManager();
 #if DEBUG
         GlobalRecordingState = memory::GlobalGameMemory.transient.allocate<RecordingState>();
 #endif

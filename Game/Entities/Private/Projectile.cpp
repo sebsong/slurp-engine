@@ -97,7 +97,6 @@ namespace projectile {
         timer::start(
             this->_parriedTimerHandle,
             ParriedDuration,
-            false,
             [this] {
                 this->renderInfo.sprite = game::GlobalGameAssets->projectileSprite;
                 this->physicsInfo.maxSpeed = BaseSpeed;

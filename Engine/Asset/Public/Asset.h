@@ -68,7 +68,7 @@ namespace asset {
         render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
     private:
-        types::hash_arena<std::string> _stringHasher;
+        std::hash<std::string> _stringHasher;
         types::unordered_map_arena<asset_id, Asset*> _assets;
 
         asset_id _getAssetId(const std::string& assetFilePath) const;

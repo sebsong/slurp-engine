@@ -2,7 +2,6 @@
 
 #include "SlurpEngine.h"
 #include "Bitmap.h"
-#include "Wave.h"
 #include "Debug.h"
 #include "Types.h"
 
@@ -23,7 +22,7 @@ namespace asset {
     static const std::string VertexShadersDirectory = ShadersDirectory + "1_Vertex/";
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
-    AssetLoader::AssetLoader(): _stringHasher(types::hash_arena<std::string>()),
+    AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
                                 _assets(types::unordered_map_arena<asset_id, Asset*>()) {}
 
     static FileReadResult readBytes(const std::string& filePath) {

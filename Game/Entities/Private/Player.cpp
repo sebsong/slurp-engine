@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Geometry.h"
 #include "Collision.h"
+#include "Timer.h"
 
 namespace player {
     static const slurp::Vec2 StartPosition = {0, 0};
@@ -16,7 +17,6 @@ namespace player {
     };
     static constexpr const char* Name = "Player";
 
-    static const timer::timer_handle ParryTimerHandle = timer::getNewHandle();
     static constexpr float ParryActiveDuration = .2f;
     static constexpr float ProjectileSpawnOffset = 10.f;
 
@@ -36,7 +36,8 @@ namespace player {
                   true
               )
           ),
-          isParryActive(false) {}
+          isParryActive(false),
+          _parryTimerHandle(timer::getNewHandle()) {}
 
     void Player::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
@@ -113,7 +114,7 @@ namespace player {
     void Player::activateParry() {
         this->isParryActive = true;
         this->renderInfo.sprite = game::GlobalGameAssets->playerParrySprite;
-        timer::start(ParryTimerHandle, ParryActiveDuration, false, [this] { deactivateParry(); });
+        timer::start(_parryTimerHandle, ParryActiveDuration, false, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {

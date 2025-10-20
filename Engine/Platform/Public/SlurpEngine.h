@@ -21,6 +21,7 @@
 
 namespace slurp {
     struct EngineSystems {
+        timer::Timer timer;
         job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
         EntityManager entityManager;
@@ -62,11 +63,10 @@ namespace slurp {
         dyn_frameEnd* frameEnd = stub_frameEnd;
     };
 
-    static const memory::MemoryArena* GlobalPermanentMemory;
-
     static const platform::PlatformDll* GlobalPlatformDll;
     static const render::RenderApi* GlobalRenderApi;
 
+    static timer::Timer* GlobalTimer;
     static job::JobRunner* GlobalJobRunner;
     static asset::AssetLoader* GlobalAssetLoader;
     static EntityManager* GlobalEntityManager;

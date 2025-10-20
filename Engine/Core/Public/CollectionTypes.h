@@ -20,7 +20,4 @@ namespace types {
         std::equal_to<key_t>,
         memory::PermanentArenaAllocator<std::pair<const key_t, value_t> >
     >;
-
-    template<typename T>
-    using hash_arena = std::hash<memory::PermanentArenaAllocator<T> >;
 }
