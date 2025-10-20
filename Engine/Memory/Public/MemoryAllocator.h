@@ -19,12 +19,10 @@ namespace memory {
         }
 
         T* allocate(size_t n) {
-            logging::debug(std::format("ALLOCATE: {}", n));
             return arena->allocate<T>(n); // TODO: respect memory alignment
         }
 
         void deallocate(T* ptr, size_t n) {
-            logging::debug(std::format("DE-ALLOCATE: {}", n));
             // NOTE: rely on manual, bulk free instead of deallocating each pointer
         }
 

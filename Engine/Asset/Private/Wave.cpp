@@ -58,7 +58,8 @@ namespace asset {
                     ASSERT(formatChunk);
                     chunkData = chunk->chunkData;
                     uint32_t numSamples = chunk->chunkSizeBytes / formatChunk->sampleSizeBytes;
-                    audio::StereoAudioSampleContainer* sampleData = new audio::StereoAudioSampleContainer[numSamples];
+                    audio::StereoAudioSampleContainer* sampleData =
+                            memory::GlobalGameMemory.permanent.allocate<audio::StereoAudioSampleContainer>(numSamples);
 
                     uint64_t volumeMultiplier =
                             bit_twiddle::maxSignedValue(PER_CHANNEL_AUDIO_SAMPLE_SIZE) /

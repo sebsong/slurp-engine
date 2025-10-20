@@ -10,9 +10,9 @@
 #define gigabytes(n) (megabytes(n) * 1024)
 #define terabytes(n) (gigabytes(n) * 1024)
 
-#define PERMANENT_ARENA_SIZE megabytes(64)
+#define PERMANENT_ARENA_SIZE gigabytes(1)
 
-#define TRANSIENT_ARENA_SIZE gigabytes(4)
+#define TRANSIENT_ARENA_SIZE gigabytes(3)
 #define SINGLE_FRAME_ARENA_SIZE megabytes(1)
 #define ASSET_LOADER_ARENA_SIZE gigabytes(1)
 
