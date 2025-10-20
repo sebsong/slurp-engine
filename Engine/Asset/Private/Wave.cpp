@@ -1,6 +1,7 @@
 #include "Wave.h"
 
-#include <mmeapi.h>
+// WAVE format constant (from Windows mmeapi.h)
+#define WAVE_FORMAT_PCM  1
 
 namespace asset {
     static audio::channel_audio_sample_container_t getChannelSample(

@@ -894,15 +894,15 @@ static platform::PlatformDll loadPlatformDll() {
 
 static render::RenderApi loadRenderApi() {
     render::RenderApi renderApi = {};
-    renderApi.setBackgroundColor = open_gl::setBackgroundColor;
-    renderApi.createTexture = open_gl::createTexture;
-    renderApi.createShaderProgram = open_gl::createShaderProgram;
-    renderApi.genVertexArrayBuffer = open_gl::genVertexArrayBuffer;
-    renderApi.genElementArrayBuffer = open_gl::genElementArrayBuffer;
-    renderApi.drawVertexArray = open_gl::drawVertexArray;
-    renderApi.drawElementArray = open_gl::drawElementArray;
-    renderApi.drawLine = open_gl::drawLine;
-    renderApi.deleteResources = open_gl::deleteResources;
+    renderApi.setBackgroundColor = opengl::setBackgroundColor;
+    renderApi.createTexture = opengl::createTexture;
+    renderApi.createShaderProgram = opengl::createShaderProgram;
+    renderApi.genVertexArrayBuffer = opengl::genVertexArrayBuffer;
+    renderApi.genElementArrayBuffer = opengl::genElementArrayBuffer;
+    renderApi.drawVertexArray = opengl::drawVertexArray;
+    renderApi.drawElementArray = opengl::drawElementArray;
+    renderApi.drawLine = opengl::drawLine;
+    renderApi.deleteResources = opengl::deleteResources;
     return renderApi;
 }
 
@@ -913,7 +913,7 @@ int WINAPI WinMain(
     int nCmdShow
 ) {
 #if RENDER_API == OPEN_GL
-    open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    opengl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
     if (!renderWindow.isValid()) { return 1; }
 #endif
     HWND windowHandle = renderWindow.getWin32Handle();

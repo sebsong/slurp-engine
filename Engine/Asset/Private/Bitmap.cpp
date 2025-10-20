@@ -1,7 +1,8 @@
 #include "Bitmap.h"
 
-#include <windef.h>
-#include <wingdi.h>
+// Bitmap compression types (from Windows GDI)
+#define BI_RGB        0
+#define BI_BITFIELDS  3
 
 namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;

@@ -1,16 +1,20 @@
 #include "OpenGL.h"
 
+extern "C" {
 #include "WinGlad.c"
+}
 #include "GLFW/glfw3.h"
+#ifdef PLATFORM_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
+#endif
 
 #include "Logging.h"
 #include "Matrix.h"
 #include "RenderApi.h"
 #include "Bitmap.h"
 
-namespace open_gl {
+namespace opengl {
     // e.g. [-WORLD_WIDTH / 2, -WORLD_HEIGHT / 2] -> [-1, -1]
     // e.g. [0, 0]                                -> [0, 0]
     // e.g. [WORLD_WIDTH / 2, WORLD_HEIGHT / 2]   -> [1, 1]
@@ -27,9 +31,11 @@ namespace open_gl {
         }
     }
 
+#ifdef PLATFORM_WINDOWS
     HWND OpenGLRenderWindow::getWin32Handle() const {
         return glfwGetWin32Window(_window);
     }
+#endif
 
     slurp::Vec2<int> OpenGLRenderWindow::getDimensions() const {
         int width, height;
@@ -207,7 +213,7 @@ namespace open_gl {
     }
 
     RENDER_GEN_ELEMENT_ARRAY_BUFFER(genElementArrayBuffer) {
-        render::object_id vertexArrayId = open_gl::genVertexArrayBuffer(vertexArray, vertexCount);
+        render::object_id vertexArrayId = opengl::genVertexArrayBuffer(vertexArray, vertexCount);
 
         // TODO: return this back out for later resource cleanup
         uint32_t elementBufferId;

@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstdint>
 
-namespace random {
+namespace slurp_random {
     inline void setRandomSeed(uint32_t seed) {
         srand(seed);
     }

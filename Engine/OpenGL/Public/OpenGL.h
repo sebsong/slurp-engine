@@ -1,17 +1,21 @@
 #pragma once
 #include "RenderApi.h"
 
+#ifdef PLATFORM_WINDOWS
 #include <windef.h>
+#endif
 
 struct GLFWwindow;
 
-namespace open_gl {
+namespace opengl {
 
     class OpenGLRenderWindow {
     public:
         OpenGLRenderWindow(int width, int height, const char* title);
 
+#ifdef PLATFORM_WINDOWS
         HWND getWin32Handle() const;
+#endif
 
         slurp::Vec2<int> getDimensions() const;
 

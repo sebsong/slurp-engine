@@ -1,13 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <deque>
+#include "PlayingSound.h"
 
 namespace asset {
     struct PlayingSound;
 }
 
 namespace audio {
-    struct PlayingSound;
     struct AudioBuffer;
 
     class SoundManager {

@@ -86,7 +86,7 @@ static PFNGLXGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 #endif
 
 static
-int open_gl(void) {
+int glad_open_gl(void) {
 #ifdef __APPLE__
     static const char *NAMES[] = {
         "../Frameworks/OpenGL.framework/OpenGL",
@@ -149,7 +149,7 @@ void* get_proc(const char* namez) {
 int gladLoadGL(void) {
 	int status = 0;
 
-	if (_open_gl()) {
+	if (glad_open_gl()) {
 		status = gladLoadGLLoader(&get_proc);
 		close_gl();
 	}

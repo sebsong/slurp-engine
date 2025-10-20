@@ -1,6 +1,6 @@
 #include "Physics.h"
 
-#include "Math.h"
+#include "SlurpMath.h"
 
 namespace physics {
     PhysicsInfo::PhysicsInfo()

@@ -2,7 +2,7 @@
 
 #define EMPTY_COLOR_PALETTE_IDX 6
 #include "Collision.h"
-#include "Math.h"
+#include "SlurpMath.h"
 #include "Physics.h"
 
 namespace slurp {

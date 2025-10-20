@@ -58,7 +58,7 @@ namespace game {
         loadAssets();
 
         GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
-        random::setRandomSeed(GlobalGameState->randomSeed);
+        slurp_random::setRandomSeed(GlobalGameState->randomSeed);
 
         slurp::GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
