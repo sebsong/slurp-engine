@@ -13,7 +13,7 @@ endif ()
 if(WIN32)
     # Windows-specific libraries
     set(platform_libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a libglfw3.a)
-    set(platform_source WinEngine.cpp)
+    set(platform_source WinEngine.cpp ../../Core/Private/FileWatcherWin.cpp)
     set(engine_suffix ".dll")
     set(executable_name win_engine)
 
@@ -42,9 +42,10 @@ elseif(APPLE)
         "-framework IOKit"
         "-framework CoreVideo"
         "-framework OpenGL"
+        "-framework CoreServices"
     )
     link_directories(${SDL2_LIBRARY_DIRS})
-    set(platform_source MacEngine.cpp)
+    set(platform_source MacEngine.cpp ../../Core/Private/FileWatcherMac.cpp)
     set(engine_suffix ".dylib")
     set(executable_name mac_engine)
 

@@ -67,15 +67,28 @@ namespace asset {
 
         render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
+        // Hot reload support
+        void reloadAsset(const std::string& assetFilePath);
+        void reloadBitmap(Bitmap* bitmap, const std::string& bitmapFileName);
+        void reloadSprite(Sprite* sprite, const std::string& bitmapFileName);
+        void reloadSound(Sound* sound, const std::string& waveFileName);
+        void reloadShader(ShaderSource* shader, const std::string& shaderFileName);
+
+        // Get asset file path for hot reload tracking
+        std::string getAssetFilePath(asset_id assetId) const;
+
     private:
         std::hash<std::string> _stringHasher;
         types::unordered_map_arena<asset_id, Asset*> _assets;
+        types::unordered_map_arena<asset_id, std::string> _assetFilePaths; // Track file paths for hot reload
 
         asset_id _getAssetId(const std::string& assetFilePath) const;
 
         Asset* _getAsset(asset_id assetId);
 
         void _registerAsset(asset_id assetId, Asset* asset);
+
+        void _registerAssetFilePath(asset_id assetId, const std::string& filePath);
 
         ShaderSource* _loadShaderSource(const std::string& shaderFilePath);
     };

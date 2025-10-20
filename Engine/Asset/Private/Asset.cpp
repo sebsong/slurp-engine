@@ -24,7 +24,8 @@ namespace asset {
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
     AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
-                                _assets(types::unordered_map_arena<asset_id, Asset*>()) {}
+                                _assets(types::unordered_map_arena<asset_id, Asset*>()),
+                                _assetFilePaths(types::unordered_map_arena<asset_id, std::string>()) {}
 
     static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
@@ -192,5 +193,88 @@ namespace asset {
     void AssetLoader::_registerAsset(asset_id assetId, Asset* asset) {
         asset->id = assetId;
         _assets[assetId] = asset;
+    }
+
+    void AssetLoader::_registerAssetFilePath(asset_id assetId, const std::string& filePath) {
+        _assetFilePaths[assetId] = filePath;
+    }
+
+    std::string AssetLoader::getAssetFilePath(asset_id assetId) const {
+        auto it = _assetFilePaths.find(assetId);
+        if (it != _assetFilePaths.end()) {
+            return it->second;
+        }
+        return "";
+    }
+
+    // Hot reload methods
+    void AssetLoader::reloadAsset(const std::string& assetFilePath) {
+        asset_id assetId = _getAssetId(assetFilePath);
+        Asset* asset = _getAsset(assetId);
+
+        if (!asset || !asset->isLoaded) {
+            return; // Asset not loaded yet
+        }
+
+        // Determine asset type and reload accordingly
+        if (assetFilePath.find(".bmp") != std::string::npos) {
+            Bitmap* bitmap = reinterpret_cast<Bitmap*>(asset);
+            std::string fileName = assetFilePath.substr(assetFilePath.find_last_of("/") + 1);
+            reloadBitmap(bitmap, fileName);
+        } else if (assetFilePath.find(".wav") != std::string::npos) {
+            Sound* sound = reinterpret_cast<Sound*>(asset);
+            std::string fileName = assetFilePath.substr(assetFilePath.find_last_of("/") + 1);
+            reloadSound(sound, fileName);
+        } else if (assetFilePath.find(".glsl") != std::string::npos) {
+            ShaderSource* shader = reinterpret_cast<ShaderSource*>(asset);
+            std::string fileName = assetFilePath.substr(assetFilePath.find_last_of("/") + 1);
+            reloadShader(shader, fileName);
+        }
+    }
+
+    void AssetLoader::reloadBitmap(Bitmap* bitmap, const std::string& bitmapFileName) {
+        std::string filePath = SpritesDirectory + bitmapFileName;
+        types::byte* fileBytes = readBytes(filePath).contents;
+        if (!fileBytes) {
+            return;
+        }
+        loadBitmapData(bitmap, fileBytes);
+    }
+
+    void AssetLoader::reloadSprite(Sprite* sprite, const std::string& bitmapFileName) {
+        // Reload the bitmap and update the texture on GPU
+        if (slurp::GlobalRenderApi) {
+            Bitmap* bitmap = loadBitmap(bitmapFileName);
+            if (bitmap && bitmap->isLoaded) {
+                slurp::GlobalRenderApi->updateTexture(sprite->material.textureId, bitmap);
+            }
+        }
+    }
+
+    void AssetLoader::reloadSound(Sound* sound, const std::string& waveFileName) {
+        std::string filePath = SoundsDirectory + waveFileName;
+        types::byte* fileBytes = readBytes(filePath).contents;
+        if (!fileBytes) {
+            return;
+        }
+
+        // Free old sound data if needed
+        // Note: We're reusing the same pointer, so the Sound* remains valid
+        loadWaveData(sound, fileBytes, readBytes(filePath).sizeBytes);
+    }
+
+    void AssetLoader::reloadShader(ShaderSource* shader, const std::string& shaderFileName) {
+        std::string filePath;
+        if (shaderFileName.find("Vertex") != std::string::npos || shaderFileName.find("1_") != std::string::npos) {
+            filePath = VertexShadersDirectory + shaderFileName;
+        } else {
+            filePath = FragmentShadersDirectory + shaderFileName;
+        }
+
+        shader->source = readTextFile(filePath);
+        shader->isLoaded = true;
+
+        // Note: Shader program recompilation will need to be triggered separately
+        // This is handled in the OpenGL layer
     }
 }

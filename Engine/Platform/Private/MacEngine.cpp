@@ -19,6 +19,9 @@
 #include "OpenGL.cpp"
 #endif
 
+#include "FileWatcher.h"
+#include "Asset.h"
+
 static const char* WINDOW_TITLE = "Slurp's Up!";
 static const char* SLURP_DYLIB_FILE_NAME = "libSlurpEngine.dylib";
 static const char* SLURP_LOAD_DYLIB_FILE_NAME = "libSlurpEngineLoad.dylib";
@@ -36,6 +39,9 @@ static void* GlobalSlurpLib;
 
 // SDL gamepad tracking
 static SDL_GameController* GlobalGamepads[MAX_NUM_GAMEPADS] = {nullptr};
+
+// File watcher for hot reload
+static file_watcher::FileWatcher* GlobalFileWatcher = nullptr;
 
 #if DEBUG
 static MacRecordingState GlobalRecordingState;
@@ -347,6 +353,12 @@ static void macLoadSlurpLib(const char* dylibFilePath, const char* dylibLoadFile
             slurp::stub_frameEnd,
             GlobalSlurpLib
         );
+        macLoadLibFn<slurp::dyn_hotReloadAsset>(
+            GlobalSlurpDll.hotReloadAsset,
+            "hotReloadAsset",
+            slurp::stub_hotReloadAsset,
+            GlobalSlurpLib
+        );
     }
 }
 
@@ -583,7 +595,17 @@ static render::RenderApi loadRenderApi() {
     renderApi.drawElementArray = opengl::drawElementArray;
     renderApi.drawLine = opengl::drawLine;
     renderApi.deleteResources = opengl::deleteResources;
+    renderApi.updateTexture = opengl::updateTexture;
+    renderApi.recompileShader = opengl::recompileShader;
     return renderApi;
+}
+
+static void handleFileEvent(const file_watcher::FileEvent& event) {
+    // Hot reload assets on file changes
+    if (event.eventType == file_watcher::FileEventType::Modified) {
+        GlobalSlurpDll.hotReloadAsset(event.filePath.c_str());
+        logging::info(std::format("Hot reloaded asset: {}", event.filePath));
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -634,6 +656,15 @@ int main(int argc, char* argv[]) {
 
     macInitSDLAudio();
 
+    // Initialize file watcher for hot reload
+    GlobalFileWatcher = file_watcher::createFileWatcher();
+    if (GlobalFileWatcher) {
+        // Watch the Assets directory for changes
+        std::string assetsPath = getLocalFilePath("../../../../Assets");
+        GlobalFileWatcher->addWatch(assetsPath, handleFileEvent);
+        GlobalFileWatcher->start();
+    }
+
     uint64_t startProcessorCycle = __builtin_readcyclecounter();
     uint64_t performanceFrequency = macGetPerformanceFrequency();
     MacTimingInfo startTimingInfo = {
@@ -644,6 +675,11 @@ int main(int argc, char* argv[]) {
     bool shouldQuit = false;
     while (GlobalRunning && !shouldQuit) {
         macTryReloadSlurpLib(dylibFilePath, dylibLoadFilePath);
+
+        // Poll file watcher for asset hot reload
+        if (GlobalFileWatcher && GlobalFileWatcher->isRunning()) {
+            GlobalFileWatcher->pollEvents();
+        }
 
         GlobalSlurpDll.frameStart();
 
@@ -685,6 +721,12 @@ int main(int argc, char* argv[]) {
     }
 
     // Cleanup
+    if (GlobalFileWatcher) {
+        GlobalFileWatcher->stop();
+        delete GlobalFileWatcher;
+        GlobalFileWatcher = nullptr;
+    }
+
     for (int i = 0; i < MAX_NUM_GAMEPADS; i++) {
         if (GlobalGamepads[i]) {
             SDL_GameControllerClose(GlobalGamepads[i]);

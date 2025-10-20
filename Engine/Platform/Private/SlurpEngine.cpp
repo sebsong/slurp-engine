@@ -137,4 +137,10 @@ namespace slurp {
     SLURP_FRAME_END(frameEnd) {
         memory::GlobalGameMemory.singleFrame.freeAll();
     }
+
+    SLURP_HOT_RELOAD_ASSET(hotReloadAsset) {
+        if (GlobalAssetLoader) {
+            GlobalAssetLoader->reloadAsset(std::string(assetFilePath));
+        }
+    }
 }

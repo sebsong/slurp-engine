@@ -280,4 +280,31 @@ namespace opengl {
         glDeleteProgram(shaderProgramId);
         glDeleteTextures(1, &textureId);
     }
+
+    RENDER_UPDATE_TEXTURE(updateTexture) {
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glTexSubImage2D(
+            GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            bitmap->dimensions.width,
+            bitmap->dimensions.height,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            bitmap->map
+        );
+    }
+
+    RENDER_RECOMPILE_SHADER(recompileShader) {
+        // Create new shader program
+        render::object_id newShaderId = opengl::createShaderProgram(vertexSource, fragmentSource);
+
+        if (newShaderId != static_cast<render::object_id>(render::INVALID_OBJECT_ID)) {
+            // Delete old shader program
+            glDeleteProgram(oldShaderId);
+        }
+
+        return newShaderId;
+    }
 }

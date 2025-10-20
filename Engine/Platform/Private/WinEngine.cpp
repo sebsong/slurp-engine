@@ -15,6 +15,9 @@
 #include "OpenGL.cpp"
 #endif
 
+#include "FileWatcher.h"
+#include "Asset.h"
+
 static const char* WINDOW_TITLE = "Slurp's Up!";
 static const char* SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
 static const char* SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
@@ -30,6 +33,9 @@ static memory::MemoryBlock GlobalPermanentMemory;
 static memory::MemoryBlock GlobalTransientMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
+
+// File watcher for hot reload
+static file_watcher::FileWatcher* GlobalFileWatcher = nullptr;
 
 #if DEBUG
 static WinRecordingState GlobalRecordingState;
@@ -504,6 +510,12 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_frameEnd,
             GlobalSlurpLib
         );
+        winLoadLibFn<slurp::dyn_hotReloadAsset>(
+            GlobalSlurpDll.hotReloadAsset,
+            "hotReloadAsset",
+            slurp::stub_hotReloadAsset,
+            GlobalSlurpLib
+        );
     }
 }
 
@@ -903,7 +915,17 @@ static render::RenderApi loadRenderApi() {
     renderApi.drawElementArray = opengl::drawElementArray;
     renderApi.drawLine = opengl::drawLine;
     renderApi.deleteResources = opengl::deleteResources;
+    renderApi.updateTexture = opengl::updateTexture;
+    renderApi.recompileShader = opengl::recompileShader;
     return renderApi;
+}
+
+static void handleFileEvent(const file_watcher::FileEvent& event) {
+    // Hot reload assets on file changes
+    if (event.eventType == file_watcher::FileEventType::Modified) {
+        GlobalSlurpDll.hotReloadAsset(event.filePath.c_str());
+        logging::info(std::format("Hot reloaded asset: {}", event.filePath));
+    }
 }
 
 int WINAPI WinMain(
@@ -957,6 +979,15 @@ int WINAPI WinMain(
     DWORD lockCursor = 0;
     GlobalAudioBuffer.buffer->Play(0, 0, DSBPLAY_LOOPING);
 
+    // Initialize file watcher for hot reload
+    GlobalFileWatcher = file_watcher::createFileWatcher();
+    if (GlobalFileWatcher) {
+        // Watch the Assets directory for changes
+        std::string assetsPath = getLocalFilePath("../../../../Assets");
+        GlobalFileWatcher->addWatch(assetsPath, handleFileEvent);
+        GlobalFileWatcher->start();
+    }
+
     uint64_t startProcessorCycle = __rdtsc();
     LARGE_INTEGER startPerformanceCounter;
     QueryPerformanceCounter(&startPerformanceCounter);
@@ -969,6 +1000,11 @@ int WINAPI WinMain(
 
     while (GlobalRunning) {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
+
+        // Poll file watcher for asset hot reload
+        if (GlobalFileWatcher && GlobalFileWatcher->isRunning()) {
+            GlobalFileWatcher->pollEvents();
+        }
 
         GlobalSlurpDll.frameStart();
 
@@ -1015,6 +1051,13 @@ int WINAPI WinMain(
         }
 
         GlobalSlurpDll.frameEnd();
+    }
+
+    // Cleanup
+    if (GlobalFileWatcher) {
+        GlobalFileWatcher->stop();
+        delete GlobalFileWatcher;
+        GlobalFileWatcher = nullptr;
     }
 
     if (isSleepGranular) { timeEndPeriod(1); }

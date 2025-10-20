@@ -73,6 +73,10 @@ namespace render {
         render::object_id textureId \
     )
 
+#define RENDER_UPDATE_TEXTURE(fnName) void fnName(render::object_id textureId, const asset::Bitmap* bitmap)
+
+#define RENDER_RECOMPILE_SHADER(fnName) render::object_id fnName(render::object_id oldShaderId, const char* vertexSource, const char* fragmentSource)
+
     SLURP_DECLARE_DYNAMIC_VOID(RENDER_SET_BACKGROUND_COLOR, setBackgroundColor)
 
     SLURP_DECLARE_DYNAMIC_RETURN(RENDER_CREATE_TEXTURE, createTexture, render::INVALID_OBJECT_ID)
@@ -91,6 +95,10 @@ namespace render {
 
     SLURP_DECLARE_DYNAMIC_VOID(RENDER_DELETE_RESOURCES, deleteResources)
 
+    SLURP_DECLARE_DYNAMIC_VOID(RENDER_UPDATE_TEXTURE, updateTexture)
+
+    SLURP_DECLARE_DYNAMIC_RETURN(RENDER_RECOMPILE_SHADER, recompileShader, render::INVALID_OBJECT_ID)
+
     struct RenderApi {
         dyn_setBackgroundColor* setBackgroundColor = stub_setBackgroundColor;
         dyn_createTexture* createTexture = stub_createTexture;
@@ -101,5 +109,7 @@ namespace render {
         dyn_drawElementArray* drawElementArray = stub_drawElementArray;
         dyn_drawLine* drawLine = stub_drawLine;
         dyn_deleteResources* deleteResources = stub_deleteResources;
+        dyn_updateTexture* updateTexture = stub_updateTexture;
+        dyn_recompileShader* recompileShader = stub_recompileShader;
     };
 }
