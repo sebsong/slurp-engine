@@ -1,6 +1,8 @@
 #pragma once
+
+#include "CollectionTypes.h"
+
 #include <cstdint>
-#include <deque>
 
 namespace asset {
     struct PlayingSound;
@@ -27,7 +29,7 @@ namespace audio {
     private:
         uint32_t _nextSoundId;
         float _globalVolumeMultiplier;
-        std::deque<PlayingSound> _loopingQueue;
-        std::deque<PlayingSound> _oneShotQueue;
+        types::deque_arena<PlayingSound> _loopingQueue;
+        types::deque_arena<PlayingSound> _oneShotQueue;
     };
 }

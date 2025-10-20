@@ -5,7 +5,7 @@
 
 namespace job {
     JobRunner::JobRunner(): _nextJobId(0),
-                            _jobQueue(std::deque<Job>()) {
+                            _jobQueue(types::deque_arena<Job>()) {
         for (int i = 0; i < WORKER_POOL_SIZE; i++) {
             _workerPool[i] = std::thread(&JobRunner::_processJobs, this, i);
         }

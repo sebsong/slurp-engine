@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CollectionTypes.h"
 #include "SpinLock.h"
 
 #include <cstdint>
@@ -29,7 +30,7 @@ namespace job {
     private:
         job_id _nextJobId;
         lock::SpinLock _jobQueueLock;
-        std::deque<Job> _jobQueue;
+        types::deque_arena<Job> _jobQueue;
         std::thread _workerPool[WORKER_POOL_SIZE]; // TODO: could set thread CPU core affinity
 
         void _processJobs(uint8_t workerIndex);

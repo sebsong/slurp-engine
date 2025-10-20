@@ -6,7 +6,7 @@
 #include "Render.h"
 
 namespace slurp {
-    EntityManager::EntityManager() : _pipeline(std::deque<Entity*>()) {}
+    EntityManager::EntityManager() : _pipeline(types::deque_arena<Entity*>()) {}
 
     void EntityManager::registerEntity(Entity& entity) {
         uint32_t id = _pipeline.size();

@@ -1,4 +1,7 @@
 #pragma once
+
+#include "CollectionTypes.h"
+
 #include <queue>
 
 namespace render {
@@ -25,6 +28,6 @@ namespace slurp {
         void updateAndRender(float dt);
 
     private:
-        std::deque<Entity*> _pipeline; // TODO: replace with a priority queue when we want priority
+        types::deque_arena<Entity*> _pipeline;
     };
 }

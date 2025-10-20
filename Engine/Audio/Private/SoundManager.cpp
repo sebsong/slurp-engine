@@ -5,8 +5,8 @@
 namespace audio {
     SoundManager::SoundManager(): _nextSoundId(0),
                                   _globalVolumeMultiplier(1.f),
-                                  _loopingQueue(std::deque<PlayingSound>()),
-                                  _oneShotQueue(std::deque<PlayingSound>()) {}
+                                  _loopingQueue(types::deque_arena<PlayingSound>()),
+                                  _oneShotQueue(types::deque_arena<PlayingSound>()) {}
 
     void SoundManager::setGlobalVolume(float volumeMultiplier) {
         _globalVolumeMultiplier = volumeMultiplier;
@@ -37,12 +37,12 @@ namespace audio {
 
     static void bufferFromQueue(
         StereoAudioSampleContainer* sampleContainers,
-        std::deque<PlayingSound>& queue,
+        types::deque_arena<PlayingSound>& queue,
         int numSamplesToWrite,
         float volumeMultiplier,
         bool dampMix
     ) {
-        for (std::deque<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
+        for (types::deque_arena<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
             PlayingSound& playingSound = *it;
             if (!playingSound.sound->isLoaded) {
                 it++;
