@@ -54,10 +54,10 @@ namespace slurp {
     SLURP_INIT(init) {
         memory::GlobalGameMemory.permanent = memory::MemoryArena("Permanent", permanentMemory);
         memory::GlobalGameMemory.transient = memory::MemoryArena("Transient", transientMemory);
-        memory::GlobalGameMemory.assetLoader = memory::GlobalGameMemory.transient.allocateSubArena(
-            "Asset Loader",
-            ASSET_LOADER_ARENA_SIZE
-        );
+        memory::GlobalGameMemory.singleFrame =
+                memory::GlobalGameMemory.transient.allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
+        memory::GlobalGameMemory.assetLoader =
+                memory::GlobalGameMemory.transient.allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
 
         GlobalPlatformDll = &platformDll;
         GlobalRenderApi = &renderApi;
@@ -81,6 +81,8 @@ namespace slurp {
         game::initGame(gameAssets, gameState);
         GlobalEntityManager->initialize();
     }
+
+    SLURP_FRAME_START(frameStart) {}
 
     SLURP_HANDLE_INPUT(handleInput) {
         GlobalEntityManager->handleInput(mouseState, keyboardState, gamepadStates);
@@ -130,5 +132,9 @@ namespace slurp {
             );
         }
 #endif
+    }
+
+    SLURP_FRAME_END(frameEnd) {
+        memory::GlobalGameMemory.singleFrame.freeAll();
     }
 }

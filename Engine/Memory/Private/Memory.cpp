@@ -1,5 +1,7 @@
 #include "Memory.h"
 
+#include <cstring>
+
 #include "Debug.h"
 
 namespace memory {
@@ -20,13 +22,17 @@ namespace memory {
        _fullMemoryBlock(other._fullMemoryBlock),
        _availableMemoryBlock(other._availableMemoryBlock) {}
 
-    types::byte* MemoryArena::allocate(size_t size) {
+    types::byte* MemoryArena::allocate(size_t size, bool clear) {
         _lock.lock();
 
         ASSERT(size <= _availableMemoryBlock.size);
         if (size > _availableMemoryBlock.size) {
             _lock.release();
             return nullptr;
+        }
+
+        if (clear) {
+            memset(_availableMemoryBlock.memory, 0, size);
         }
 
         types::byte* memory = _availableMemoryBlock.memory;

@@ -474,6 +474,12 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             slurp::stub_init,
             GlobalSlurpLib
         );
+        winLoadLibFn<slurp::dyn_frameStart>(
+            GlobalSlurpDll.frameStart,
+            "frameStart",
+            slurp::stub_frameStart,
+            GlobalSlurpLib
+        );
         winLoadLibFn<slurp::dyn_handleInput>(
             GlobalSlurpDll.handleInput,
             "handleInput",
@@ -490,6 +496,12 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
             GlobalSlurpDll.updateAndRender,
             "updateAndRender",
             slurp::stub_updateAndRender,
+            GlobalSlurpLib
+        );
+        winLoadLibFn<slurp::dyn_frameEnd>(
+            GlobalSlurpDll.frameEnd,
+            "frameEnd",
+            slurp::stub_frameEnd,
             GlobalSlurpLib
         );
     }
@@ -958,6 +970,8 @@ int WINAPI WinMain(
     while (GlobalRunning) {
         winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
 
+        GlobalSlurpDll.frameStart();
+
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
@@ -999,6 +1013,8 @@ int WINAPI WinMain(
         if (renderWindow.shouldTerminate()) {
             GlobalRunning = false;
         }
+
+        GlobalSlurpDll.frameEnd();
     }
 
     if (isSleepGranular) { timeEndPeriod(1); }

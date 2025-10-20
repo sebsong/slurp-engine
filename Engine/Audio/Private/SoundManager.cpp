@@ -60,8 +60,8 @@ namespace audio {
     }
 
     void SoundManager::bufferAudio(const AudioBuffer& buffer) {
-        // TODO: allocate from custom memory allocator instead
-        StereoAudioSampleContainer* sampleContainers = new StereoAudioSampleContainer[buffer.numSamplesToWrite]();
+        StereoAudioSampleContainer* sampleContainers =
+                memory::GlobalGameMemory.singleFrame.allocate<StereoAudioSampleContainer>(buffer.numSamplesToWrite, true);
 
         /** Buffer one shot sounds first with damping to avoid clipping **/
         /** Buffer looping sounds after without damping to preserve persistent sounds (e.g. music) **/
@@ -69,6 +69,5 @@ namespace audio {
         bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
 
         std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
-        delete[] sampleContainers;
     }
 }

@@ -13,6 +13,7 @@
 #define PERMANENT_ARENA_SIZE megabytes(64)
 
 #define TRANSIENT_ARENA_SIZE gigabytes(4)
+#define SINGLE_FRAME_ARENA_SIZE megabytes(1)
 #define ASSET_LOADER_ARENA_SIZE gigabytes(1)
 
 namespace memory {
@@ -44,11 +45,11 @@ namespace memory {
 
         MemoryArena(const MemoryArena& other);
 
-        types::byte* allocate(size_t size);
+        types::byte* allocate(size_t size, bool clear = false);
 
         template<typename T>
-        T* allocate(size_t n) {
-            return reinterpret_cast<T*>(allocate(n * sizeof(T)));
+        T* allocate(size_t n, bool clear = false) {
+            return reinterpret_cast<T*>(allocate(n * sizeof(T), clear));
         }
 
         template<typename T>
@@ -77,6 +78,7 @@ namespace memory {
 
         /** TRANSIENT **/
         MemoryArena transient;
+        MemoryArena singleFrame;
         MemoryArena assetLoader;
     };
 
