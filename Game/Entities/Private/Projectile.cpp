@@ -74,7 +74,7 @@ namespace projectile {
 
         if (!_isActive) { return; }
 
-        slurp::GlobalSoundManager->playSound(game::GlobalGameAssets->projectileHitSound, 0.5f, false);
+        audio::playSound(game::GlobalGameAssets->projectileHitSound, 0.5f, false);
 
         if (player::Player* player = dynamic_cast<player::Player*>(collisionDetails.entity)) {
             if (player->isParryActive) {

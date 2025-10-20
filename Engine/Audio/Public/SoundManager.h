@@ -32,4 +32,16 @@ namespace audio {
         types::deque_arena<PlayingSound> _loopingQueue;
         types::deque_arena<PlayingSound> _oneShotQueue;
     };
+
+    /** Global Methods **/
+
+    void setGlobalVolume(float volumeMultiplier);
+
+    void playSound(const asset::Sound* sound);
+
+    void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+
+    /** Engine **/
+    void bufferAudio(const AudioBuffer& buffer);
+
 }

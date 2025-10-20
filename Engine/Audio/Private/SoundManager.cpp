@@ -61,7 +61,10 @@ namespace audio {
 
     void SoundManager::bufferAudio(const AudioBuffer& buffer) {
         StereoAudioSampleContainer* sampleContainers =
-                memory::GlobalGameMemory.singleFrame.allocate<StereoAudioSampleContainer>(buffer.numSamplesToWrite, true);
+                memory::GlobalGameMemory.singleFrame.allocate<StereoAudioSampleContainer>(
+                    buffer.numSamplesToWrite,
+                    true
+                );
 
         /** Buffer one shot sounds first with damping to avoid clipping **/
         /** Buffer looping sounds after without damping to preserve persistent sounds (e.g. music) **/
@@ -69,5 +72,23 @@ namespace audio {
         bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
 
         std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
+    }
+
+    /** Global Methods **/
+
+    void setGlobalVolume(float volumeMultiplier) {
+        slurp::GlobalSoundManager->setGlobalVolume(volumeMultiplier);
+    }
+
+    void playSound(const asset::Sound* sound) {
+        slurp::GlobalSoundManager->playSound(sound);
+    }
+
+    void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+        slurp::GlobalSoundManager->playSound(sound, volumeMultiplier, shouldLoop);
+    }
+
+    void bufferAudio(const AudioBuffer& buffer) {
+        slurp::GlobalSoundManager->bufferAudio(buffer);
     }
 }

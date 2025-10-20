@@ -19,8 +19,8 @@ namespace global {
     void Global::initialize() {
         Entity::initialize();
 
-        slurp::GlobalSoundManager->setGlobalVolume(GlobalVolume);
-        slurp::GlobalSoundManager->playSound(game::GlobalGameAssets->backgroundMusic, 0.5, true);
+        audio::setGlobalVolume(GlobalVolume);
+        audio::playSound(game::GlobalGameAssets->backgroundMusic, 0.5, true);
     }
 
     void Global::handleMouseAndKeyboardInput(
