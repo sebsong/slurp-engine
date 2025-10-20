@@ -12,11 +12,11 @@ namespace audio {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    void SoundManager::playSound(const asset::PlayingSound* sound) {
+    void SoundManager::playSound(const asset::Sound* sound) {
         playSound(sound, 1.0f, false);
     }
 
-    void SoundManager::playSound(const asset::PlayingSound* sound, float volumeMultiplier, bool shouldLoop) {
+    void SoundManager::playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
         ASSERT(sound);
         if (!sound) {
             return;

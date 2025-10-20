@@ -24,7 +24,7 @@ namespace asset {
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
     AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
-                                _assets(unordered_map_arena<asset_id, Asset*>()) {}
+                                _assets(types::unordered_map_arena<asset_id, Asset*>()) {}
 
     static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
@@ -33,7 +33,7 @@ namespace asset {
         if (!file.good()) { return {}; }
 
         uint32_t fileSizeBytes = std::filesystem::file_size(filePath);
-        types::byte* fileBytes = new types::byte[fileSizeBytes]; // TODO: need to free this memory
+        types::byte* fileBytes = memory::GlobalGameMemory.assetLoader.allocate(fileSizeBytes);
         file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSizeBytes);
 
         return FileReadResult{
@@ -59,7 +59,7 @@ namespace asset {
             return reinterpret_cast<Bitmap*>(existingAsset);
         }
 
-        Bitmap* bitmap = new Bitmap();
+        Bitmap* bitmap = memory::GlobalGameMemory.assetLoader.allocate<Bitmap>();
         _registerAsset(assetId, bitmap);
 
         // TODO: load this async?
@@ -69,7 +69,6 @@ namespace asset {
         }
         loadBitmapData(bitmap, fileBytes);
 
-        delete[] fileBytes;
         return bitmap;
     }
 
@@ -93,7 +92,7 @@ namespace asset {
             return reinterpret_cast<Sprite*>(existingSprite);
         }
 
-        Sprite* sprite = new Sprite();
+        Sprite* sprite = memory::GlobalGameMemory.permanent.allocate<Sprite>();
         _registerAsset(assetId, sprite);
 
         Bitmap* bitmap = slurp::GlobalAssetLoader->loadBitmap(bitmapFileName);
@@ -109,15 +108,15 @@ namespace asset {
 
     // TODO: pre-process wave files into the engine sample size
     // TODO: stream the file in async
-    PlayingSound* AssetLoader::loadSound(const std::string& waveFileName) {
+    Sound* AssetLoader::loadSound(const std::string& waveFileName) {
         std::string filePath = SoundsDirectory + waveFileName;
         asset_id assetId = _getAssetId(filePath);
 
         if (Asset* existingAsset = _getAsset(assetId)) {
-            return reinterpret_cast<PlayingSound*>(existingAsset);
+            return reinterpret_cast<Sound*>(existingAsset);
         }
 
-        PlayingSound* sound = new PlayingSound();
+        Sound* sound = memory::GlobalGameMemory.permanent.allocate<Sound>();
         _registerAsset(assetId, sound);
 
         auto loadFn = [sound, filePath]() {
@@ -141,7 +140,7 @@ namespace asset {
             return reinterpret_cast<ShaderSource*>(existingAsset);
         }
 
-        ShaderSource* shaderSource = new ShaderSource();
+        ShaderSource* shaderSource = memory::GlobalGameMemory.assetLoader.allocate<ShaderSource>();
         _registerAsset(assetId, shaderSource);
 
         std::string source = readTextFile(shaderFilePath);

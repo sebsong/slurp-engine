@@ -4,9 +4,7 @@
 #include "Audio.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "Types.h"
-
-#include <unordered_map>
+#include "CollectionTypes.h"
 
 namespace render {
     struct ColorPalette;
@@ -36,7 +34,7 @@ namespace asset {
         void draw(const slurp::Vec2<float>& startPoint) const;
     };
 
-    struct PlayingSound : Asset {
+    struct Sound : Asset {
         uint32_t numSamples;
         audio::StereoAudioSampleContainer* sampleData;
     };
@@ -61,7 +59,7 @@ namespace asset {
             const std::string& fragmentShaderFileName
         );
 
-        PlayingSound* loadSound(const std::string& waveFileName);
+        Sound* loadSound(const std::string& waveFileName);
 
         ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName);
 
@@ -71,18 +69,7 @@ namespace asset {
 
     private:
         std::hash<std::string> _stringHasher;
-
-        template<typename key_t, typename value_t>
-        using unordered_map_arena =
-        std::unordered_map<
-            key_t,
-            value_t,
-            std::hash<key_t>,
-            std::equal_to<key_t>,
-            memory::PermanentArenaAllocator<std::pair<const asset_id, Asset*>>
-        >;
-
-        unordered_map_arena<asset_id, Asset*> _assets;
+        types::unordered_map_arena<asset_id, Asset*> _assets;
 
         asset_id _getAssetId(const std::string& assetFilePath) const;
 

@@ -3,6 +3,8 @@
 #include "Memory.h"
 #include "Logging.h"
 
+#include <format>
+
 namespace memory {
     template<typename T>
     class MemoryArenaAllocator {

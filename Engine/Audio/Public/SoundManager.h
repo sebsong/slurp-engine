@@ -17,9 +17,9 @@ namespace audio {
         /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
-        void playSound(const asset::PlayingSound* sound);
+        void playSound(const asset::Sound* sound);
 
-        void playSound(const asset::PlayingSound* sound, float volumeMultiplier, bool shouldLoop);
+        void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
 
         /** Engine **/
         void bufferAudio(const AudioBuffer& buffer);

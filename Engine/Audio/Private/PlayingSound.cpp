@@ -4,7 +4,7 @@
 #include "Asset.h"
 
 namespace audio {
-    PlayingSound::PlayingSound(uint32_t id, const asset::PlayingSound* sound, float volumeMultiplier, bool shouldLoop)
+    PlayingSound::PlayingSound(uint32_t id, const asset::Sound* sound, float volumeMultiplier, bool shouldLoop)
         : id(id),
           sound(sound),
           volumeMultiplier(volumeMultiplier),

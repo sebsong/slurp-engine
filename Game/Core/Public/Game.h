@@ -21,8 +21,8 @@ namespace game {
         asset::Sprite* projectileSprite;
         asset::Sprite* projectileParriedSprite;
 
-        asset::PlayingSound* backgroundMusic;
-        asset::PlayingSound* projectileHitSound;
+        asset::Sound* backgroundMusic;
+        asset::Sound* projectileHitSound;
     };
 
     struct GameState {

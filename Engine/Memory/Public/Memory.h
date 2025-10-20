@@ -1,7 +1,5 @@
 #pragma once
 
-#include <format>
-
 #include "Types.h"
 #include "SpinLock.h"
 
