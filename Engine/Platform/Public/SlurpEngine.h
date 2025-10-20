@@ -74,7 +74,6 @@ namespace slurp {
     static job::JobRunner* GlobalJobRunner;
     static asset::AssetLoader* GlobalAssetLoader;
     static EntityManager* GlobalEntityManager;
-    static audio::SoundManager* GlobalSoundManager;
 #if DEBUG
     static RecordingState* GlobalRecordingState;
 #endif

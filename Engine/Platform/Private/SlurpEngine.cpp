@@ -3,8 +3,6 @@
 #include "Debug.h"
 #include "Settings.h"
 
-#include <iostream>
-
 /** Single translation unit, unity build **/
 //TODO: have option to not do unity build
 
@@ -76,7 +74,7 @@ namespace slurp {
         GlobalJobRunner = &engineSystems->jobRunner;
         GlobalAssetLoader = &engineSystems->assetLoader;
         GlobalEntityManager = &engineSystems->entityManager;
-        GlobalSoundManager = &engineSystems->soundManager;
+        audio::SoundManager::instance = &engineSystems->soundManager;
 #if DEBUG
         GlobalRecordingState = memory::GlobalGameMemory.transient.allocate<RecordingState>();
 #endif
@@ -115,7 +113,7 @@ namespace slurp {
     }
 
     SLURP_BUFFER_AUDIO(bufferAudio) {
-        GlobalSoundManager->bufferAudio(buffer);
+        audio::bufferAudio(buffer);
     }
 
     SLURP_UPDATE_AND_RENDER(updateAndRender) {

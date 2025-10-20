@@ -4,16 +4,14 @@
 
 #include <cstdint>
 
-namespace asset {
-    struct PlayingSound;
-}
-
 namespace audio {
     struct PlayingSound;
     struct AudioBuffer;
 
     class SoundManager {
     public:
+        static SoundManager* instance;
+
         explicit SoundManager();
 
         /** Game **/
@@ -34,6 +32,7 @@ namespace audio {
     };
 
     /** Global Methods **/
+    SoundManager* SoundManager::instance = nullptr;
 
     void setGlobalVolume(float volumeMultiplier);
 
@@ -43,5 +42,4 @@ namespace audio {
 
     /** Engine **/
     void bufferAudio(const AudioBuffer& buffer);
-
 }

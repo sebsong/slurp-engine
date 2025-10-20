@@ -77,18 +77,18 @@ namespace audio {
     /** Global Methods **/
 
     void setGlobalVolume(float volumeMultiplier) {
-        slurp::GlobalSoundManager->setGlobalVolume(volumeMultiplier);
+        SoundManager::instance->setGlobalVolume(volumeMultiplier);
     }
 
     void playSound(const asset::Sound* sound) {
-        slurp::GlobalSoundManager->playSound(sound);
+        SoundManager::instance->playSound(sound);
     }
 
     void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
-        slurp::GlobalSoundManager->playSound(sound, volumeMultiplier, shouldLoop);
+        SoundManager::instance->playSound(sound, volumeMultiplier, shouldLoop);
     }
 
     void bufferAudio(const AudioBuffer& buffer) {
-        slurp::GlobalSoundManager->bufferAudio(buffer);
+        SoundManager::instance->bufferAudio(buffer);
     }
 }

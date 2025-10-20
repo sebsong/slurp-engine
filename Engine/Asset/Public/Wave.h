@@ -42,5 +42,5 @@ namespace asset {
         types::byte chunkData[];
     };
 
-    void loadWaveData(PlayingSound* sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes);
+    void loadWaveData(Sound* sound, const types::byte* waveFileBytes, uint32_t waveFileSizeBytes);
 }
