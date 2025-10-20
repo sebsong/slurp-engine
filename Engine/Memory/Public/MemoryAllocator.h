@@ -26,6 +26,14 @@ namespace memory {
             // NOTE: rely on manual, bulk free instead of deallocating each pointer
         }
 
+        bool operator==(const MemoryArenaAllocator& other) const {
+            return arena == other.arena;
+        }
+
+        bool operator!=(const MemoryArenaAllocator& other) const {
+            return !(*this == other);
+        }
+
         MemoryArena* arena;
     };
 

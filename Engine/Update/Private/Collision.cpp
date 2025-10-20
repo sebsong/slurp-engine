@@ -8,7 +8,7 @@ namespace collision {
           isStatic(false),
           isTrigger(false),
           shape({}),
-          collidingWith(std::set<slurp::Entity*>()) {}
+          collidingWith(types::set_arena<slurp::Entity*>()) {}
 
     CollisionInfo::CollisionInfo(
         bool isStatic,
@@ -32,7 +32,7 @@ namespace collision {
        isStatic(isStatic),
        isTrigger(isTrigger),
        shape(shape),
-       collidingWith(std::set<slurp::Entity*>()) {}
+       collidingWith(types::set_arena<slurp::Entity*>()) {}
 
     void handleCollisionEnter(slurp::Entity* entity, slurp::Entity* otherEntity) {
         if (!entity->collisionInfo.collidingWith.contains(otherEntity)) {

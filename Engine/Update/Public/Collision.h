@@ -26,7 +26,7 @@ namespace collision {
         bool isStatic;
         bool isTrigger;
         CollisionShape shape;
-        std::set<slurp::Entity*> collidingWith;
+        types::set_arena<slurp::Entity*> collidingWith;
 
         CollisionInfo();
 

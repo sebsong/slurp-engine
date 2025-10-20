@@ -7,7 +7,7 @@
 
 namespace types {
     template<typename T>
-    using set_arena = std::set<T, memory::PermanentArenaAllocator<T> >;
+    using set_arena = std::set<T, std::less<T>, memory::PermanentArenaAllocator<T> >;
 
     template<typename T>
     using deque_arena = std::deque<T, memory::PermanentArenaAllocator<T> >;

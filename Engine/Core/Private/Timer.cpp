@@ -33,7 +33,7 @@ namespace timer {
     }
 
     void tick(float dt) {
-        std::set<timer_handle> timersToCancel;
+        types::set_arena<timer_handle> timersToCancel;
         for (auto& entry: GlobalTimerMap) {
             TimerInfo& info = entry.second;
             info.secondsElapsed += dt;
