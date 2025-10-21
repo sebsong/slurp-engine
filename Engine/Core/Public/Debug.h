@@ -1,13 +1,22 @@
 #pragma once
 
+#include "Logging.h"
 #include "Vector.h"
 
+inline void ASSERT(bool expression) {
 #if DEBUG
-// TODO: add logging when assert fails
-#define ASSERT(expression) if (!(expression)) *(int*)(nullptr) = 0
-#else
-#define ASSERT(expression)
+    if (!(expression)) { *(int*) (nullptr) = 0; }
 #endif
+}
+
+inline void ASSERT_LOG(bool expression, std::string message) {
+#if DEBUG
+    if (!expression) {
+        logging::error(message);
+        *(int*) (nullptr) = 0;
+    }
+#endif
+}
 
 #define VERBOSE_LOGGING 0
 
