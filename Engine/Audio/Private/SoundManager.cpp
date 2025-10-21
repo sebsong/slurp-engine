@@ -61,7 +61,7 @@ namespace audio {
 
     void SoundManager::bufferAudio(const AudioBuffer& buffer) {
         StereoAudioSampleContainer* sampleContainers =
-                memory::GlobalGameMemory.singleFrame.allocate<StereoAudioSampleContainer>(
+                slurp::Globals->GameMemory->singleFrame.allocate<StereoAudioSampleContainer>(
                     buffer.numSamplesToWrite,
                     true
                 );
@@ -77,18 +77,18 @@ namespace audio {
     /** Global Methods **/
 
     void setGlobalVolume(float volumeMultiplier) {
-        SoundManager::instance->setGlobalVolume(volumeMultiplier);
+        slurp::Globals->SoundManager->setGlobalVolume(volumeMultiplier);
     }
 
     void playSound(const asset::Sound* sound) {
-        SoundManager::instance->playSound(sound);
+        slurp::Globals->SoundManager->playSound(sound);
     }
 
     void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
-        SoundManager::instance->playSound(sound, volumeMultiplier, shouldLoop);
+        slurp::Globals->SoundManager->playSound(sound, volumeMultiplier, shouldLoop);
     }
 
     void bufferAudio(const AudioBuffer& buffer) {
-        SoundManager::instance->bufferAudio(buffer);
+        slurp::Globals->SoundManager->bufferAudio(buffer);
     }
 }

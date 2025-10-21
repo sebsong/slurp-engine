@@ -5,7 +5,10 @@
 
 namespace job {
     JobRunner::JobRunner(): _nextJobId(0),
-                            _jobQueue(types::deque_arena<Job>()) {
+                            _jobQueue(types::deque_arena<Job>()) {}
+
+    void JobRunner::initialize() {
+        _killWorkers.store(false);
         for (int i = 0; i < WORKER_POOL_SIZE; i++) {
             _workerPool[i] = std::thread(&JobRunner::_processJobs, this, i);
         }
@@ -22,9 +25,20 @@ namespace job {
         return job.jobId;
     }
 
+    void JobRunner::shutdown() {
+        _killWorkers.store(true);
+        for (std::thread& worker: _workerPool) {
+            worker.join();
+        }
+    }
+
     void JobRunner::_processJobs(uint8_t workerIndex) {
         logging::info(std::format("Job worker {} started", workerIndex));
         while (true) {
+            if (_killWorkers.load()) {
+                return;
+            }
+
             if (_jobQueue.empty()) {
                 // TODO: put these threads to sleep if there are no jobs for many iterations to save CPU
                 continue;

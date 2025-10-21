@@ -35,7 +35,7 @@ namespace slurp {
     };
 #endif
 
-#define SLURP_INIT(fnName) void fnName(memory::MemoryBlock& permanentMemory, memory::MemoryBlock& transientMemory, const platform::PlatformDll& platformDll, const render::RenderApi& renderApi)
+#define SLURP_INIT(fnName) void fnName(memory::MemoryArena& permanentMemory, memory::MemoryArena& transientMemory, const platform::PlatformDll& platformDll, const render::RenderApi& renderApi, bool isInitialized)
 #define SLURP_FRAME_START(fnName) void fnName()
 #define SLURP_HANDLE_INPUT(fnName) void fnName(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState, const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS])
 #define SLURP_BUFFER_AUDIO(fnName) void fnName(const audio::AudioBuffer& buffer)
@@ -67,14 +67,4 @@ namespace slurp {
         dyn_shutdown* shutdown = stub_shutdown;
     };
 
-    static const platform::PlatformDll* GlobalPlatformDll;
-    static const render::RenderApi* GlobalRenderApi;
-
-    static timer::Timer* GlobalTimer;
-    static job::JobRunner* GlobalJobRunner;
-    static asset::AssetLoader* GlobalAssetLoader;
-    static EntityManager* GlobalEntityManager;
-#if DEBUG
-    static RecordingState* GlobalRecordingState;
-#endif
 }

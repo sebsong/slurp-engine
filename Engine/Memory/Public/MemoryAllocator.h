@@ -1,9 +1,5 @@
 #pragma once
-
-#include "Memory.h"
-#include "Logging.h"
-
-#include <format>
+#include "Global.h"
 
 namespace memory {
     template<typename T>
@@ -41,7 +37,7 @@ namespace memory {
     class PermanentArenaAllocator : public MemoryArenaAllocator<T> {
     public:
         PermanentArenaAllocator(): MemoryArenaAllocator<T>() {
-            this->arena = &GlobalGameMemory.permanent;
+            this->arena = slurp::Globals->GameMemory->permanent;
         }
 
         template<typename U>
@@ -52,7 +48,7 @@ namespace memory {
     class TransientArenaAllocator : public MemoryArenaAllocator<T> {
     public:
         TransientArenaAllocator(): MemoryArenaAllocator<T>() {
-            this->arena = &GlobalGameMemory.transient;
+            this->arena = slurp::Globals->GameMemory->transient;
         }
 
         template<typename U>
