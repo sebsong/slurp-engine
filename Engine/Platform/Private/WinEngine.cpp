@@ -17,6 +17,7 @@
 
 static const char* WINDOW_TITLE = "Slurp's Up!";
 static const char* SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
+static const char* SLURP_DLL_MARKER_FILE_NAME = "SlurpEngine.dll.marker";
 static const char* SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
 static const char* RECORDING_FILE_NAME = "SlurpRecording.rec";
 
@@ -450,19 +451,18 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
         GetProcAddress(lib, fnName)
     );
     if (!out) {
-        char buf[256];
-        sprintf_s(buf, "Failed to load lib function: %s.\n", fnName);
-        logging::error(buf);
-        ASSERT(out);
+        ASSERT_LOG(out, std::format("Failed to load lib function: {}.", fnName));
         out = stubFn;
     }
 }
 
 static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
-    CopyFileA(dllFilePath, dllLoadFilePath, false);
-    GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
+    if (!CopyFileA(dllFilePath, dllLoadFilePath, false)) {
+        logging::error("Failed to copy SlurpEngine.dll.");
+    }
+    GlobalSlurpLib = LoadLibraryA(dllLoadFilePath);
     if (!GlobalSlurpLib) {
-        logging::error("Failed to load SlurpEngine.dll.");
+        logging::error("Failed to load SlurpEngineLoad.dll.");
     } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
@@ -521,8 +521,8 @@ static void winUnloadSlurpLib() {
 }
 
 static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath, bool isInitialized) {
-    HANDLE dllFileHandle = CreateFileA(
-        dllFilePath,
+    HANDLE dllMarkerFileHandle = CreateFileA(
+        SLURP_DLL_MARKER_FILE_NAME,
         GENERIC_READ,
         FILE_SHARE_READ,
         nullptr,
@@ -533,11 +533,11 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     static FILETIME previousWriteTime;
     FILETIME writeTime;
     FILETIME _;
-    if (!GetFileTime(dllFileHandle, &_, &_, &writeTime)) {
+    if (!GetFileTime(dllMarkerFileHandle, &_, &_, &writeTime)) {
         logging::error("Failed to get SlurpEngine.dll file time.");
         return;
     }
-    CloseHandle(dllFileHandle);
+    CloseHandle(dllMarkerFileHandle);
     if (CompareFileTime(&writeTime, &previousWriteTime) == 0) { return; }
 
     previousWriteTime = writeTime;

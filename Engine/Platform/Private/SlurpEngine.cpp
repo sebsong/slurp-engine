@@ -56,10 +56,6 @@ namespace slurp {
             Globals->GameMemory = permanentMemory.allocate<memory::GameMemory>();
             Globals->GameMemory->permanent = &permanentMemory;
             Globals->GameMemory->transient = &transientMemory;
-            Globals->GameMemory->singleFrame =
-                    Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
-            Globals->GameMemory->assetLoader =
-                    Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
 
             EngineSystems* engineSystems = Globals->GameMemory->permanent->allocate<EngineSystems>();
 
@@ -74,9 +70,13 @@ namespace slurp {
             Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
         }
 
+        Globals->GameMemory->singleFrame =
+                Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
+        Globals->GameMemory->assetLoader =
+                Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
         Globals->JobRunner->initialize();
 #if DEBUG
-        Globals->RecordingState = Globals->GameMemory->transient->allocate<RecordingState>();
+        Globals->RecordingState = new(Globals->GameMemory->transient->allocate<RecordingState>()) RecordingState();
 #endif
 
         game::initGame(isInitialized);

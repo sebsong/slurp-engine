@@ -15,7 +15,7 @@
 #define _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, fnPrefix, stubReturn)     \
 typedef fnMacro(dyn_##fnName);                                            \
 fnMacro(stub_##fnName){                                                   \
-    ASSERT_LOG(false, std::format("Couldn't load function: {}", #fnName)); \
+    ASSERT_LOG(false, std::format("Calling stub function: {}", #fnName)); \
     stubReturn                                                            \
 }                                                                         \
 fnPrefix fnMacro(fnName);
