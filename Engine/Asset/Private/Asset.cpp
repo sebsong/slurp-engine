@@ -94,11 +94,9 @@ namespace asset {
         Sprite* sprite = slurp::Globals->GameMemory->permanent->allocate<Sprite>();
         _registerAsset(assetId, sprite);
 
-        Bitmap* bitmap = slurp::Globals->AssetLoader->loadBitmap(bitmapFileName);
-        std::string vertexShaderSource =
-                slurp::Globals->AssetLoader->loadVertexShaderSource(vertexShaderFileName)->source;
-        std::string fragmentShaderSource =
-                slurp::Globals->AssetLoader->loadFragmentShaderSource(fragmentShaderFileName)->source;
+        Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
+        std::string vertexShaderSource = asset::loadVertexShaderSource(vertexShaderFileName)->source;
+        std::string fragmentShaderSource = asset::loadFragmentShaderSource(fragmentShaderFileName)->source;
 
         loadSpriteData(sprite, bitmap, vertexShaderSource, fragmentShaderSource);
 
@@ -191,5 +189,37 @@ namespace asset {
     void AssetLoader::_registerAsset(asset_id assetId, Asset* asset) {
         asset->id = assetId;
         _assets[assetId] = asset;
+    }
+
+    Bitmap* loadBitmap(const std::string& bitmapFileName) {
+        return slurp::Globals->AssetLoader->loadBitmap(bitmapFileName);
+    }
+
+    Sprite* loadSprite(const std::string& bitmapFileName) {
+        return slurp::Globals->AssetLoader->loadSprite(bitmapFileName);
+    }
+
+    Sprite* loadSprite(
+        const std::string& bitmapFileName,
+        const std::string& vertexShaderFileName,
+        const std::string& fragmentShaderFileName
+    ) {
+        return slurp::Globals->AssetLoader->loadSprite(
+            bitmapFileName,
+            vertexShaderFileName,
+            fragmentShaderFileName
+        );
+    }
+
+    Sound* loadSound(const std::string& waveFileName) {
+        return slurp::Globals->AssetLoader->loadSound(waveFileName);
+    }
+
+    ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName) {
+        return slurp::Globals->AssetLoader->loadVertexShaderSource(shaderSourceFileName);
+    }
+
+    ShaderSource* loadFragmentShaderSource(const std::string& shaderSourceFileName) {
+        return slurp::Globals->AssetLoader->loadFragmentShaderSource(shaderSourceFileName);
     }
 }

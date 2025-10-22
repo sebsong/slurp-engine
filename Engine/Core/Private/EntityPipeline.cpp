@@ -58,4 +58,8 @@ namespace slurp {
             }
         }
     }
+
+    void registerEntity(Entity& entity) {
+        Globals->EntityPipeline->registerEntity(entity);
+    }
 }

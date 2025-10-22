@@ -30,4 +30,6 @@ namespace slurp {
     private:
         types::deque_arena<Entity*> _pipeline;
     };
+
+    static void registerEntity(Entity& entity);
 }

@@ -79,4 +79,22 @@ namespace asset {
 
         ShaderSource* _loadShaderSource(const std::string& shaderFilePath);
     };
+
+    static Bitmap* loadBitmap(const std::string& bitmapFileName);
+
+    static Sprite* loadSprite(
+        const std::string& bitmapFileName
+    );
+
+    static Sprite* loadSprite(
+        const std::string& bitmapFileName,
+        const std::string& vertexShaderFileName,
+        const std::string& fragmentShaderFileName
+    );
+
+    static Sound* loadSound(const std::string& waveFileName);
+
+    static ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName);
+
+    static ShaderSource* loadFragmentShaderSource(const std::string& shaderSourceFileName);
 }

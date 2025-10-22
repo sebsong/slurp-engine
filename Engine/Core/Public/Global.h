@@ -1,5 +1,8 @@
 #pragma once
-#include "Memory.h"
+
+namespace memory {
+    struct GameMemory;
+}
 
 namespace game {
     struct GameState;

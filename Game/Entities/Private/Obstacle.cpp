@@ -9,10 +9,7 @@ namespace obstacle {
         const slurp::Vec2<float>& position
     ): Entity(
         std::move(name),
-        render::RenderInfo(
-            render::RenderShape{shape, game::getColor(7)},
-            true
-        ),
+        render::RenderInfo{},
         physics::PhysicsInfo(position),
         collision::CollisionInfo(
             true,

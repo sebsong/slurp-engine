@@ -13,19 +13,6 @@
 #include "Settings.h"
 
 namespace game {
-    // TODO: maybe move color palette handling to its own module
-    static const std::string ColorPaletteHexFileName = "slso8.hex";
-    // static const std::string ColorPaletteHexFileName = "dead-weight-8.hex";
-    // static const std::string ColorPaletteHexFileName = "lava-gb.hex";
-
-    static constexpr int ColorPaletteSwatchSize = 15;
-    static const slurp::Vec2 ColorPalettePosition = {1140, 702};
-
-    render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx) {
-        ASSERT(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        return slurp::Globals->GameAssets->colorPalette.colors[colorPaletteIdx];
-    }
-
     template<typename T>
     static void registerEntity(
         T& entityLocation,
@@ -33,22 +20,26 @@ namespace game {
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::forward<T>(entity));
-        slurp::Globals->EntityPipeline->registerEntity(entityLocation);
+        slurp::registerEntity(entityLocation);
     }
 
     static void loadAssets() {
-        slurp::Globals->GameAssets->colorPalette = slurp::Globals->AssetLoader->loadColorPalette(ColorPaletteHexFileName);
+        slurp::Globals->GameAssets->borderSprite = asset::loadSprite("border.bmp");
+        slurp::Globals->GameAssets->enemySprite = asset::loadSprite("enemy.bmp");
+        slurp::Globals->GameAssets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
+        slurp::Globals->GameAssets->playerSprite = asset::loadSprite("player.bmp");
+        slurp::Globals->GameAssets->playerParrySprite = asset::loadSprite("player_parry.bmp");
+        slurp::Globals->GameAssets->projectileSprite = asset::loadSprite("projectile.bmp");
+        slurp::Globals->GameAssets->projectileParriedSprite = asset::loadSprite(
+            "projectile_parried.bmp"
+        );
 
-        slurp::Globals->GameAssets->borderSprite = slurp::Globals->AssetLoader->loadSprite("border.bmp");
-        slurp::Globals->GameAssets->enemySprite = slurp::Globals->AssetLoader->loadSprite("enemy.bmp");
-        slurp::Globals->GameAssets->mouseCursorSprite = slurp::Globals->AssetLoader->loadSprite("mouse_cursor.bmp");
-        slurp::Globals->GameAssets->playerSprite = slurp::Globals->AssetLoader->loadSprite("player.bmp");
-        slurp::Globals->GameAssets->playerParrySprite = slurp::Globals->AssetLoader->loadSprite("player_parry.bmp");
-        slurp::Globals->GameAssets->projectileSprite = slurp::Globals->AssetLoader->loadSprite("projectile.bmp");
-        slurp::Globals->GameAssets->projectileParriedSprite = slurp::Globals->AssetLoader->loadSprite("projectile_parried.bmp");
-
-        slurp::Globals->GameAssets->backgroundMusic = slurp::Globals->AssetLoader->loadSound(global::BackgroundMusicSoundFileName);
-        slurp::Globals->GameAssets->projectileHitSound = slurp::Globals->AssetLoader->loadSound(projectile::SoundFileName);
+        slurp::Globals->GameAssets->backgroundMusic = asset::loadSound(
+            global::BackgroundMusicSoundFileName
+        );
+        slurp::Globals->GameAssets->projectileHitSound = asset::loadSound(
+            projectile::SoundFileName
+        );
     }
 
     void initGame(bool isInitialized) {
@@ -175,43 +166,5 @@ namespace game {
             slurp::Globals->GameState->mouseCursor,
             mouse_cursor::MouseCursor()
         );
-
-        // registerEntity(
-        //     slurp::Globals->GameState->testAlpha,
-        //     slurp::Entity(
-        //         "testAlpha",
-        //         render::RenderInfo(
-        //             render::RenderShape{
-        //                 {geometry::Rect, {300, 200}},
-        //                 render::withAlpha(getColor(6), .7)
-        //             },
-        //             true
-        //         ),
-        //         physics::PhysicsInfo(
-        //             {400, 525}
-        //         ),
-        //         collision::CollisionInfo()
-        //     )
-        // );
-
-        for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
-            registerEntity(
-                slurp::Globals->GameState->colorPaletteSwatch[i],
-                slurp::Entity(
-                    "ColorPaletteSwatch" + std::to_string(i),
-                    render::RenderInfo(
-                        render::RenderShape{
-                            {geometry::Rect, {ColorPaletteSwatchSize, ColorPaletteSwatchSize}},
-                            getColor(i)
-                        },
-                        false
-                    ),
-                    physics::PhysicsInfo(
-                        ColorPalettePosition + slurp::Vec2{i * ColorPaletteSwatchSize, 0}
-                    ),
-                    collision::CollisionInfo()
-                )
-            );
-        }
     }
 }

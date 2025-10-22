@@ -36,6 +36,5 @@ namespace audio {
 
     void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
 
-    /** Engine **/
     void bufferAudio(const AudioBuffer& buffer);
 }

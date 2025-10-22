@@ -11,8 +11,6 @@
 
 namespace game {
     struct GameAssets {
-        render::ColorPalette colorPalette;
-
         asset::Sprite* borderSprite;
         asset::Sprite* enemySprite;
         asset::Sprite* mouseCursorSprite;
