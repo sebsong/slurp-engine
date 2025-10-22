@@ -56,7 +56,8 @@ namespace game {
         GameState state;
     };
 
-    void initGame(bool isInitialized);
+    static GameAssets* Assets;
+    static GameState* State;
 
-    render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx);
+    void initGame(bool isInitialized);
 }

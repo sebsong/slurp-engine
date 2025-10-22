@@ -18,7 +18,7 @@ namespace enemy {
     Enemy::Enemy(int i): Entity(
         "Enemy" + std::to_string(i),
         render::RenderInfo(
-            slurp::Globals->GameAssets->enemySprite,
+            game::Assets->enemySprite,
             true
         ),
         physics::PhysicsInfo(
@@ -31,7 +31,7 @@ namespace enemy {
             false,
             collision::CollisionShape{
                 Shape,
-                -(slurp::Globals->GameAssets->enemySprite->dimensions / 2) + CollisionShapeOffset
+                -(game::Assets->enemySprite->dimensions / 2) + CollisionShapeOffset
             }
         )
     ) {}

@@ -21,7 +21,7 @@ namespace projectile {
         : Entity(
               "Projectile" + std::to_string(index),
               render::RenderInfo(
-                  slurp::Globals->GameAssets->projectileSprite,
+                  game::Assets->projectileSprite,
                   true
               ),
               physics::PhysicsInfo(
@@ -47,7 +47,7 @@ namespace projectile {
         this->_isActive = false;
         this->enabled = true;
         this->physicsInfo.position = position;
-        this->_target = slurp::Globals->GameState->mouseCursor.getClosestEnemy();
+        this->_target = game::State->mouseCursor.getClosestEnemy();
 
         timer::delay(
             ActivationDelay,
@@ -56,8 +56,8 @@ namespace projectile {
             }
         );
 
-        slurp::Globals->GameState->projectileIdx++;
-        if (slurp::Globals->GameState->projectileIdx >= PROJECTILE_POOL_SIZE) { slurp::Globals->GameState->projectileIdx = 0; }
+        game::State->projectileIdx++;
+        if (game::State->projectileIdx >= PROJECTILE_POOL_SIZE) { game::State->projectileIdx = 0; }
     }
 
     void Projectile::update(float dt) {
@@ -74,7 +74,7 @@ namespace projectile {
 
         if (!_isActive) { return; }
 
-        audio::play(slurp::Globals->GameAssets->projectileHitSound, 0.5f, false);
+        audio::play(game::Assets->projectileHitSound, 0.5f, false);
 
         if (player::Player* player = dynamic_cast<player::Player*>(collisionDetails.entity)) {
             if (player->isParryActive) {
@@ -83,7 +83,7 @@ namespace projectile {
                 this->enabled = false;
             }
         } else if (dynamic_cast<enemy::Enemy*>(collisionDetails.entity)) {
-            this->_target = &slurp::Globals->GameState->player;
+            this->_target = &game::State->player;
         } else {
             bounce();
         }
@@ -91,14 +91,14 @@ namespace projectile {
 
     void Projectile::onParried() {
         this->_isParried = true;
-        this->renderInfo.sprite = slurp::Globals->GameAssets->projectileParriedSprite;
+        this->renderInfo.sprite = game::Assets->projectileParriedSprite;
         this->physicsInfo.maxSpeed = ParriedSpeed;
-        this->_target = slurp::Globals->GameState->mouseCursor.getClosestEnemy();
+        this->_target = game::State->mouseCursor.getClosestEnemy();
         timer::start(
             this->_parriedTimerHandle,
             ParriedDuration,
             [this] {
-                this->renderInfo.sprite = slurp::Globals->GameAssets->projectileSprite;
+                this->renderInfo.sprite = game::Assets->projectileSprite;
                 this->physicsInfo.maxSpeed = BaseSpeed;
                 this->_isParried = false;
             }

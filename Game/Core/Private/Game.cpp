@@ -24,47 +24,49 @@ namespace game {
     }
 
     static void loadAssets() {
-        slurp::Globals->GameAssets->borderSprite = asset::loadSprite("border.bmp");
-        slurp::Globals->GameAssets->enemySprite = asset::loadSprite("enemy.bmp");
-        slurp::Globals->GameAssets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
-        slurp::Globals->GameAssets->playerSprite = asset::loadSprite("player.bmp");
-        slurp::Globals->GameAssets->playerParrySprite = asset::loadSprite("player_parry.bmp");
-        slurp::Globals->GameAssets->projectileSprite = asset::loadSprite("projectile.bmp");
-        slurp::Globals->GameAssets->projectileParriedSprite = asset::loadSprite(
+        Assets->borderSprite = asset::loadSprite("border.bmp");
+        Assets->enemySprite = asset::loadSprite("enemy.bmp");
+        Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
+        Assets->playerSprite = asset::loadSprite("player.bmp");
+        Assets->playerParrySprite = asset::loadSprite("player_parry.bmp");
+        Assets->projectileSprite = asset::loadSprite("projectile.bmp");
+        Assets->projectileParriedSprite = asset::loadSprite(
             "projectile_parried.bmp"
         );
 
-        slurp::Globals->GameAssets->backgroundMusic = asset::loadSound(
+        Assets->backgroundMusic = asset::loadSound(
             global::BackgroundMusicSoundFileName
         );
-        slurp::Globals->GameAssets->projectileHitSound = asset::loadSound(
+        Assets->projectileHitSound = asset::loadSound(
             projectile::SoundFileName
         );
     }
 
     void initGame(bool isInitialized) {
         if (isInitialized) {
+            Assets = slurp::Globals->GameAssets;
+            State = slurp::Globals->GameState;
             return;
         }
 
         GameSystems* gameSystems = memory::permanent->allocate<GameSystems>();
-        slurp::Globals->GameAssets = &gameSystems->assets;
-        slurp::Globals->GameState = &gameSystems->state;
+        Assets = slurp::Globals->GameAssets = &gameSystems->assets;
+        State = slurp::Globals->GameState = &gameSystems->state;
 
         loadAssets();
 
-        slurp::Globals->GameState->randomSeed = static_cast<uint32_t>(time(nullptr));
-        random::setRandomSeed(slurp::Globals->GameState->randomSeed);
+        State->randomSeed = static_cast<uint32_t>(time(nullptr));
+        random::setRandomSeed(State->randomSeed);
 
         slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
         registerEntity(
-            slurp::Globals->GameState->global,
+            State->global,
             global::GameGlobal()
         );
 
         registerEntity(
-            slurp::Globals->GameState->border,
+            State->border,
             slurp::Entity(
                 "Border",
                 render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true),
@@ -74,7 +76,7 @@ namespace game {
         );
 
         // registerEntity(
-        //     slurp::Globals->GameState->background,
+        //     GlobalState->background,
         //     slurp::Entity(
         //         "Background",
         //         render::RenderInfo(
@@ -90,7 +92,7 @@ namespace game {
         // );
         geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
         registerEntity(
-            slurp::Globals->GameState->wallUp,
+            State->wallUp,
             obstacle::Obstacle(
                 "WallUp",
                 wallUpShape,
@@ -99,7 +101,7 @@ namespace game {
         );
         geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
         registerEntity(
-            slurp::Globals->GameState->wallDown,
+            State->wallDown,
             obstacle::Obstacle(
                 "WallDown",
                 wallDownShape,
@@ -108,7 +110,7 @@ namespace game {
         );
         geometry::Shape wallLeftShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
         registerEntity(
-            slurp::Globals->GameState->wallLeft,
+            State->wallLeft,
             obstacle::Obstacle(
                 "WallLeft",
                 wallLeftShape,
@@ -117,7 +119,7 @@ namespace game {
         );
         geometry::Shape wallRightShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
         registerEntity(
-            slurp::Globals->GameState->wallRight,
+            State->wallRight,
             obstacle::Obstacle(
                 "WallRight",
                 wallRightShape,
@@ -126,7 +128,7 @@ namespace game {
         );
         // geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         // registerEntity(
-        //     slurp::Globals->GameState->obstacle1,
+        //     GlobalState->obstacle1,
         //     obstacle::Obstacle(
         //         "Obstacle1",
         //         obstacle1Shape,
@@ -135,7 +137,7 @@ namespace game {
         // );
         // geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         // registerEntity(
-        //     slurp::Globals->GameState->obstacle2,
+        //     GlobalState->obstacle2,
         //     obstacle::Obstacle(
         //         "Obstacle2",
         //         obstacle2Shape,
@@ -145,25 +147,25 @@ namespace game {
 
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
-                slurp::Globals->GameState->projectiles[i],
+                State->projectiles[i],
                 projectile::Projectile(i)
             );
         }
 
         registerEntity(
-            slurp::Globals->GameState->player,
+            State->player,
             player::Player()
         );
 
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
-                slurp::Globals->GameState->enemies[i],
+                State->enemies[i],
                 enemy::Enemy(i)
             );
         }
 
         registerEntity(
-            slurp::Globals->GameState->mouseCursor,
+            State->mouseCursor,
             mouse_cursor::MouseCursor()
         );
     }

@@ -6,7 +6,7 @@ namespace mouse_cursor {
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
         render::RenderInfo(
-            slurp::Globals->GameAssets->mouseCursorSprite,
+            game::Assets->mouseCursorSprite,
             true
         ),
         physics::PhysicsInfo(slurp::Vec2<float>::Zero),
@@ -16,7 +16,7 @@ namespace mouse_cursor {
     enemy::Enemy* MouseCursor::getClosestEnemy() const {
         enemy::Enemy* closestEnemy = nullptr;
         float closestDistance = std::numeric_limits<float>::max();
-        for (enemy::Enemy& enemy: slurp::Globals->GameState->enemies) {
+        for (enemy::Enemy& enemy: game::State->enemies) {
             float distance = enemy.physicsInfo.position.distanceSquaredTo(this->physicsInfo.position);
             if (distance < closestDistance) {
                 closestEnemy = &enemy;
