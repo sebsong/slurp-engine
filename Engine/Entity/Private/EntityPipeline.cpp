@@ -38,7 +38,7 @@ namespace entity {
     }
 
     void EntityPipeline::updateAndRender(float dt) {
-        for (entity::Entity* entity: _pipeline) {
+        for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
                 entity->update(dt);
@@ -62,5 +62,21 @@ namespace entity {
 
     void registerEntity(Entity& entity) {
         slurp::Globals->EntityPipeline->registerEntity(entity);
+    }
+
+    void initializeEntities() {
+        slurp::Globals->EntityPipeline->initializeEntities();
+    }
+
+    void handleInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState,
+        const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
+    ) {
+        slurp::Globals->EntityPipeline->handleInput(mouseState, keyboardState, gamepadStates);
+    }
+
+    void updateAndRender(float dt) {
+        slurp::Globals->EntityPipeline->updateAndRender(dt);
     }
 }

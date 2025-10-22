@@ -89,14 +89,14 @@ namespace slurp {
         /** Game **/
         game::initGame(isInitialized);
         if (!isInitialized) {
-            Globals->EntityPipeline->initializeEntities();
+            entity::initializeEntities();
         }
     }
 
     SLURP_FRAME_START(frameStart) {}
 
     SLURP_HANDLE_INPUT(handleInput) {
-        Globals->EntityPipeline->handleInput(mouseState, keyboardState, gamepadStates);
+        entity::handleInput(mouseState, keyboardState, gamepadStates);
 
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P)) { Globals->PlatformDll->DEBUG_togglePause(); }
@@ -124,7 +124,7 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        Globals->EntityPipeline->updateAndRender(dt);
+        entity::updateAndRender(dt);
 
 #if DEBUG
         if (Globals->RecordingState->isRecording) {

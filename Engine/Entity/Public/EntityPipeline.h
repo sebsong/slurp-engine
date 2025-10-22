@@ -32,4 +32,14 @@ namespace entity {
     };
 
     static void registerEntity(Entity& entity);
+
+    static void initializeEntities();
+
+    static void handleInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState,
+        const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
+    );
+
+    static void updateAndRender(float dt);
 }
