@@ -2,7 +2,7 @@
 #include "Entity.h"
 
 namespace enemy {
-    class Enemy final : public slurp::Entity {
+    class Enemy final : public entity::Entity {
     public:
         Enemy(int i);
 

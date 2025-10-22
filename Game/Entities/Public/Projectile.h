@@ -3,7 +3,7 @@
 #include "Timer.h"
 
 namespace projectile {
-    class Projectile final : public slurp::Entity {
+    class Projectile final : public entity::Entity {
     public:
         Projectile(int index);
 

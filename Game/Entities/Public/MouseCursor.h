@@ -6,7 +6,7 @@ namespace enemy {
 }
 
 namespace mouse_cursor {
-    class MouseCursor final : public slurp::Entity {
+    class MouseCursor final : public entity::Entity {
     public:
         MouseCursor();
 

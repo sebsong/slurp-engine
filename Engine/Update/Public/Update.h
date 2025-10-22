@@ -5,7 +5,7 @@
 #include "Math.h"
 #include "Physics.h"
 
-namespace slurp {
+namespace entity {
     struct Entity;
 }
 
@@ -14,8 +14,8 @@ namespace update {
     concept Iterable = std::ranges::range<Container> && std::is_same_v<std::ranges::range_value_t<Container>, Value>;
 
     template<typename T>
-        requires Iterable<T, slurp::Entity*>
-    void updatePosition(slurp::Entity* entity, T& allEntities, float dt) {
+        requires Iterable<T, entity::Entity*>
+    void updatePosition(entity::Entity* entity, T& allEntities, float dt) {
         physics::PhysicsInfo& physicsInfo = entity->physicsInfo;
         collision::CollisionInfo& collisionInfo = entity->collisionInfo;
 
@@ -26,7 +26,7 @@ namespace update {
         if (!collisionInfo.collisionEnabled) { physicsInfo.position += targetPositionUpdate; }
 
         slurp::Vec2<float> positionUpdate = targetPositionUpdate;
-        for (slurp::Entity* otherEntity: allEntities) {
+        for (entity::Entity* otherEntity: allEntities) {
             physics::PhysicsInfo& otherPhysicsInfo = otherEntity->physicsInfo;
             collision::CollisionInfo& otherCollisionInfo = otherEntity->collisionInfo;
             if (!otherEntity->enabled || !otherCollisionInfo.collisionEnabled || otherEntity == entity) { continue; }

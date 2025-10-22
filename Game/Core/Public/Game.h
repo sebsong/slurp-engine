@@ -29,8 +29,8 @@ namespace game {
 
         global::GameGlobal global;
 
-        // slurp::Entity background;
-        slurp::Entity border;
+        // entity::Entity background;
+        entity::Entity border;
         obstacle::Obstacle wallUp;
         obstacle::Obstacle wallDown;
         obstacle::Obstacle wallLeft;
@@ -38,17 +38,17 @@ namespace game {
         obstacle::Obstacle obstacle1;
         obstacle::Obstacle obstacle2;
 
-        slurp::Entity triangleBackground;
-        slurp::Entity triangle;
+        entity::Entity triangleBackground;
+        entity::Entity triangle;
 
-        slurp::Entity testAlpha;
+        entity::Entity testAlpha;
 
         mouse_cursor::MouseCursor mouseCursor;
         player::Player player;
         enemy::Enemy enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         projectile::Projectile projectiles[PROJECTILE_POOL_SIZE];
-        slurp::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
+        entity::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
     struct GameSystems {

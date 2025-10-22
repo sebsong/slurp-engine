@@ -2,7 +2,7 @@
 #include "Entity.h"
 
 namespace global {
-    class GameGlobal final : public slurp::Entity {
+    class GameGlobal final : public entity::Entity {
     public:
         GameGlobal();
 

@@ -4,33 +4,37 @@ namespace memory {
     struct GameMemory;
 }
 
-namespace game {
-    struct GameState;
-    struct GameAssets;
-}
-
-namespace audio {
-    class AudioPlayer;
-}
-
-namespace asset {
-    class AssetLoader;
-}
-
-namespace job {
-    class JobRunner;
-}
-
-namespace timer {
-    class Timer;
+namespace platform {
+    struct PlatformDll;
 }
 
 namespace render {
     struct RenderApi;
 }
 
-namespace platform {
-    struct PlatformDll;
+namespace timer {
+    class Timer;
+}
+
+namespace job {
+    class JobRunner;
+}
+
+namespace asset {
+    class AssetLoader;
+}
+
+namespace entity {
+    class EntityPipeline;
+}
+
+namespace audio {
+    class AudioPlayer;
+}
+
+namespace game {
+    struct GameState;
+    struct GameAssets;
 }
 
 namespace slurp {
@@ -47,7 +51,7 @@ namespace slurp {
         timer::Timer* Timer;
         job::JobRunner* JobRunner;
         asset::AssetLoader* AssetLoader;
-        EntityPipeline* EntityPipeline;
+        entity::EntityPipeline* EntityPipeline;
         audio::AudioPlayer* AudioManager;
 #if DEBUG
         RecordingState* RecordingState;

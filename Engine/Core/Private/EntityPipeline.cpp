@@ -1,11 +1,12 @@
 #include "EntityPipeline.h"
 
+#include "Global.h"
 #include "Entity.h"
 #include "Input.h"
 #include "Update.h"
 #include "Render.h"
 
-namespace slurp {
+namespace entity {
     EntityPipeline::EntityPipeline() : _pipeline(types::deque_arena<Entity*>()) {}
 
     void EntityPipeline::registerEntity(Entity& entity) {
@@ -21,9 +22,9 @@ namespace slurp {
     }
 
     void EntityPipeline::handleInput(
-        const MouseState& mouseState,
-        const KeyboardState& keyboardState,
-        const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState,
+        const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
     ) const {
         for (Entity* entity: _pipeline) {
             if (!entity->enabled) { continue; }
@@ -37,7 +38,7 @@ namespace slurp {
     }
 
     void EntityPipeline::updateAndRender(float dt) {
-        for (Entity* entity: _pipeline) {
+        for (entity::Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
                 entity->update(dt);
@@ -60,6 +61,6 @@ namespace slurp {
     }
 
     void registerEntity(Entity& entity) {
-        Globals->EntityPipeline->registerEntity(entity);
+        slurp::Globals->EntityPipeline->registerEntity(entity);
     }
 }

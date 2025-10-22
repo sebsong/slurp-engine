@@ -4,7 +4,7 @@
 #include "Physics.h"
 #include "RenderInfo.h"
 
-namespace slurp {
+namespace entity {
     struct Entity {
         uint32_t id;
         std::string name;
@@ -28,11 +28,11 @@ namespace slurp {
         virtual void initialize() {};
 
         virtual void handleMouseAndKeyboardInput(
-            const MouseState& mouseState,
-            const KeyboardState& keyboardState
+            const slurp::MouseState& mouseState,
+            const slurp::KeyboardState& keyboardState
         ) {};
 
-        virtual void handleGamepadInput(uint8_t gamepadIndex, const GamepadState& gamepadState) {};
+        virtual void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {};
 
         void updatePhysics(float dt);
 

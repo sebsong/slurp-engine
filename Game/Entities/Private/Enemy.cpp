@@ -36,7 +36,7 @@ namespace enemy {
         )
     ) {}
 
-    static void setRandomDirection(slurp::Entity* entity) {
+    static void setRandomDirection(entity::Entity* entity) {
         float randX = random::randomFloat(-1, 1);
         float randY = random::randomFloat(-1, 1);
         entity->physicsInfo.direction = slurp::Vec2<float>(randX, randY).normalize();
@@ -48,7 +48,7 @@ namespace enemy {
         return random::randomFloat(minDelay, maxDelay);
     }
 
-    static void startUpdateEnemyDirection(slurp::Entity* enemy) {
+    static void startUpdateEnemyDirection(entity::Entity* enemy) {
         setRandomDirection(enemy);
         timer::delay(
             getRandomDirectionChangeDelay(),

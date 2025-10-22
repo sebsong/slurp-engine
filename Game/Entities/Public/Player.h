@@ -5,7 +5,7 @@
 #include "Timer.h"
 
 namespace player {
-    class Player final : public slurp::Entity {
+    class Player final : public entity::Entity {
     public:
         Player();
 

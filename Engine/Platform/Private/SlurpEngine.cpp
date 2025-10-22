@@ -78,7 +78,7 @@ namespace slurp {
             Globals->Timer = new(&engineSystems->timer) timer::Timer();
             Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
             Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
-            Globals->EntityPipeline = new(&engineSystems->entityPipeline) EntityPipeline();
+            Globals->EntityPipeline = new(&engineSystems->entityPipeline) entity::EntityPipeline();
             Globals->AudioManager = new(&engineSystems->audioManager) audio::AudioPlayer();
         }
         job::initialize();

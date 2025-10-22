@@ -24,7 +24,7 @@ namespace slurp {
         timer::Timer timer;
         job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
-        EntityPipeline entityPipeline;
+        entity::EntityPipeline entityPipeline;
         audio::AudioPlayer audioManager;
     };
 

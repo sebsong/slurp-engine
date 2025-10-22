@@ -20,7 +20,7 @@ namespace game {
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::forward<T>(entity));
-        slurp::registerEntity(entityLocation);
+        entity::registerEntity(entityLocation);
     }
 
     static void loadAssets() {
@@ -67,7 +67,7 @@ namespace game {
 
         registerEntity(
             State->border,
-            slurp::Entity(
+            entity::Entity(
                 "Border",
                 render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true),
                 physics::PhysicsInfo(),
@@ -77,7 +77,7 @@ namespace game {
 
         // registerEntity(
         //     GlobalState->background,
-        //     slurp::Entity(
+        //     entity::Entity(
         //         "Background",
         //         render::RenderInfo(
         //             render::RenderShape{

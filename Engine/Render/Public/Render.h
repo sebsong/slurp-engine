@@ -7,7 +7,7 @@
 
 #define COLOR_PALETTE_SIZE 9
 
-namespace slurp {
+namespace entity {
     struct Entity;
 }
 

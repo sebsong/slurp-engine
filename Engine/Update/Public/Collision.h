@@ -3,11 +3,11 @@
 
 #include "Geometry.h"
 
-namespace slurp {
+namespace entity {
     struct Entity;
 }
 
-#define NO_OP_ON_COLLISION [](const slurp::Entity*) {}
+#define NO_OP_ON_COLLISION [](const entity::Entity*) {}
 
 namespace collision {
     struct CollisionShape {
@@ -26,7 +26,7 @@ namespace collision {
         bool isStatic;
         bool isTrigger;
         CollisionShape shape;
-        types::set_arena<slurp::Entity*> collidingWith;
+        types::set_arena<entity::Entity*> collidingWith;
 
         CollisionInfo();
 
@@ -45,11 +45,11 @@ namespace collision {
     };
 
     struct CollisionDetails {
-        slurp::Entity* entity;
+        entity::Entity* entity;
         // TODO: add a collision normal and other collision info
     };
 
-    void handleCollisionEnter(slurp::Entity* entity, slurp::Entity* otherEntity);
+    void handleCollisionEnter(entity::Entity* entity, entity::Entity* otherEntity);
 
-    void handleCollisionExit(slurp::Entity* entity, slurp::Entity* otherEntity);
+    void handleCollisionExit(entity::Entity* entity, entity::Entity* otherEntity);
 }

@@ -8,7 +8,7 @@ namespace render {
     struct ColorPalette;
 }
 
-namespace slurp {
+namespace entity {
     struct Entity;
 
     class EntityPipeline {
@@ -20,9 +20,9 @@ namespace slurp {
         void initializeEntities() const;
 
         void handleInput(
-            const MouseState& mouseState,
-            const KeyboardState& keyboardState,
-            const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
+            const slurp::MouseState& mouseState,
+            const slurp::KeyboardState& keyboardState,
+            const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
         ) const;
 
         void updateAndRender(float dt);

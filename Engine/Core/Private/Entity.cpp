@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-namespace slurp {
+namespace entity {
     Entity::Entity(Entity&& other) noexcept
         : id(std::move(other.id)),
           name(std::move(other.name)),
