@@ -1,5 +1,6 @@
 #include "Debug.h"
 
+#include "Global.h"
 #include "RenderApi.h"
 #if DEBUG
 static constexpr uint32_t LineVertexCount = 2;
@@ -15,21 +16,21 @@ namespace debug {
             {start, {}},
             {end, {}}
         };
-        render::object_id vertexArrayId = slurp::GlobalRenderApi->genVertexArrayBuffer(vertexArray, LineVertexCount);
-        asset::ShaderSource* vertexShaderSource = slurp::GlobalAssetLoader->loadVertexShaderSource("basic.glsl");
-        asset::ShaderSource* fragmentShaderSource = slurp::GlobalAssetLoader->loadFragmentShaderSource("basic.glsl");
-        render::object_id shaderProgramId = slurp::GlobalRenderApi->createShaderProgram(
+        render::object_id vertexArrayId = slurp::Globals->RenderApi->genVertexArrayBuffer(vertexArray, LineVertexCount);
+        asset::ShaderSource* vertexShaderSource = slurp::Globals->AssetLoader->loadVertexShaderSource("basic.glsl");
+        asset::ShaderSource* fragmentShaderSource = slurp::Globals->AssetLoader->loadFragmentShaderSource("basic.glsl");
+        render::object_id shaderProgramId = slurp::Globals->RenderApi->createShaderProgram(
             vertexShaderSource->source.c_str(),
             fragmentShaderSource->source.c_str()
         );
-        slurp::GlobalRenderApi->drawLine(
+        slurp::Globals->RenderApi->drawLine(
             vertexArrayId,
             LineVertexCount,
             shaderProgramId,
             lineWidth,
             color
         );
-        slurp::GlobalRenderApi->deleteResources(
+        slurp::Globals->RenderApi->deleteResources(
             vertexArrayId,
             render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID,

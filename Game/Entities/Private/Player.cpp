@@ -23,7 +23,7 @@ namespace player {
     Player::Player()
         : Entity(
               Name,
-              render::RenderInfo(game::GlobalGameAssets->playerSprite, true),
+              render::RenderInfo(slurp::Globals->GameAssets->playerSprite, true),
               physics::PhysicsInfo(
                   StartPosition,
                   BaseSpeed,
@@ -63,7 +63,7 @@ namespace player {
             keyboardState.justReleased(slurp::KeyboardCode::SPACE)) { this->physicsInfo.maxSpeed = BaseSpeed; }
 
         if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
-            projectile::Projectile& projectile = game::GlobalGameState->projectiles[game::GlobalGameState->
+            projectile::Projectile& projectile = slurp::Globals->GameState->projectiles[slurp::Globals->GameState->
                 projectileIdx];
             const slurp::Vec2<float> direction = (mouseState.position - this->physicsInfo.position).normalize();
             const slurp::Vec2<float> position = this->physicsInfo.position + direction * ProjectileSpawnOffset;
@@ -96,7 +96,7 @@ namespace player {
 
         float leftTrigger = gamepadState.leftTrigger.end;
         float rightTrigger = gamepadState.rightTrigger.end;
-        slurp::GlobalPlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
+        slurp::Globals->PlatformDll->vibrateGamepad(gamepadIndex, leftTrigger, rightTrigger);
     }
 
     void Player::update(float dt) {
@@ -113,12 +113,12 @@ namespace player {
 
     void Player::activateParry() {
         this->isParryActive = true;
-        this->renderInfo.sprite = game::GlobalGameAssets->playerParrySprite;
+        this->renderInfo.sprite = slurp::Globals->GameAssets->playerParrySprite;
         timer::start(_parryTimerHandle, ParryActiveDuration, false, [this] { deactivateParry(); });
     }
 
     void Player::deactivateParry() {
         this->isParryActive = false;
-        this->renderInfo.sprite = game::GlobalGameAssets->playerSprite;
+        this->renderInfo.sprite = slurp::Globals->GameAssets->playerSprite;
     }
 }

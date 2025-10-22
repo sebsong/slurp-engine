@@ -1,5 +1,5 @@
 #pragma once
-#include "Global.h"
+#include "GameGlobal.h"
 #include "MouseCursor.h"
 #include "Obstacle.h"
 #include "Player.h"
@@ -29,7 +29,7 @@ namespace game {
         uint32_t randomSeed;
         bool isInitialized;
 
-        global::Global global;
+        global::GameGlobal global;
 
         // slurp::Entity background;
         slurp::Entity border;
@@ -53,14 +53,12 @@ namespace game {
         slurp::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
-    static GameAssets* GlobalGameAssets;
-    static GameState* GlobalGameState;
+    struct GameSystems {
+        GameAssets assets;
+        GameState state;
+    };
 
-    void initGame(
-        GameAssets& gameAssets,
-        GameState& gameState,
-        slurp::EntityManager& entityManager
-    );
+    void initGame(bool isInitialized);
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx);
 }

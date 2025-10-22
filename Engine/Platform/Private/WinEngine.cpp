@@ -17,6 +17,7 @@
 
 static const char* WINDOW_TITLE = "Slurp's Up!";
 static const char* SLURP_DLL_FILE_NAME = "SlurpEngine.dll";
+static const char* SLURP_DLL_MARKER_FILE_NAME = "SlurpEngine.dll.marker";
 static const char* SLURP_LOAD_DLL_FILE_NAME = "SlurpEngineLoad.dll";
 static const char* RECORDING_FILE_NAME = "SlurpRecording.rec";
 
@@ -26,8 +27,8 @@ static WinAudioBuffer GlobalAudioBuffer;
 
 static platform::PlatformDll GlobalPlatformDll;
 static render::RenderApi GlobalRenderApi;
-static memory::MemoryBlock GlobalPermanentMemory;
-static memory::MemoryBlock GlobalTransientMemory;
+static memory::MemoryArena GlobalPermanentMemory;
+static memory::MemoryArena GlobalTransientMemory;
 static slurp::SlurpDll GlobalSlurpDll;
 static HMODULE GlobalSlurpLib;
 
@@ -64,7 +65,7 @@ static void winHandleMessages(
                     inputState.transitionCount = wasDown != isDown ? 1 : 0;
                     // TODO: do we need to clear this every frame?
                     inputState.isDown = isDown;
-                } else { OutputDebugStringA("Windows keyboard code not registered.\n"); }
+                } else { logging::error("Windows keyboard code not registered.\n"); }
             }
             break;
             case WM_LBUTTONDOWN:
@@ -331,7 +332,7 @@ static DWORD winBufferAudio(DWORD lockCursor, DWORD targetCursor) {
             0
         )
     )) {
-        OutputDebugStringA("Audio buffer lock failed.\n");
+        logging::error("Audio buffer lock failed.\n");
         return 0;
     }
 
@@ -365,13 +366,13 @@ static DWORD winGetMonitorRefreshRate() {
         &devMode,
         EDS_RAWMODE
     )) {
-        OutputDebugStringA("Could not fetch monitor refresh rate.\n");
+        logging::error("Could not fetch monitor refresh rate.\n");
         return DEFAULT_MONITOR_REFRESH_RATE;
     }
     return devMode.dmDisplayFrequency;
 }
 
-static void winAllocateGameMemory(memory::MemoryBlock& outPermanentMemory, memory::MemoryBlock& outTransientMemory) {
+static void winAllocateGameMemory(memory::MemoryArena& outPermanentMemory, memory::MemoryArena& outTransientMemory) {
     size_t permanentMemorySizeBytes = PERMANENT_ARENA_SIZE;
     size_t transientMemorySizeBytes = TRANSIENT_ARENA_SIZE;
 #if DEBUG
@@ -379,21 +380,17 @@ static void winAllocateGameMemory(memory::MemoryBlock& outPermanentMemory, memor
 #else
 	void* baseAddress = nullptr;
 #endif
+    size_t size = permanentMemorySizeBytes + transientMemorySizeBytes;
     types::byte* memory = static_cast<types::byte*>(VirtualAlloc(
         baseAddress,
-        permanentMemorySizeBytes + transientMemorySizeBytes,
+        size,
         MEM_RESERVE | MEM_COMMIT,
         // TODO: could we use MEM_LARGE_PAGES to alleviate TLB
         PAGE_READWRITE
     ));
-    outPermanentMemory = memory::MemoryBlock(
-        memory,
-        permanentMemorySizeBytes
-    );
-    outTransientMemory = memory::MemoryBlock(
-        memory + permanentMemorySizeBytes,
-        transientMemorySizeBytes
-    );
+    memory::MemoryArena fullMemory("Full Memory", {memory, size});
+    outPermanentMemory = fullMemory.allocateSubArena("Permanent Memory", permanentMemorySizeBytes);
+    outTransientMemory = fullMemory.allocateSubArena("Transient Memory", transientMemorySizeBytes);
 }
 
 static float winGetFrameMillis(
@@ -415,7 +412,7 @@ static void winStallFrameToTarget(
     LARGE_INTEGER performanceCounterEnd;
     float frameMillis = winGetFrameMillis(startTimingInfo, performanceCounterEnd);
     if (frameMillis >= targetMillisPerFrame) {
-        // OutputDebugStringA("Frame too slow. Target frame rate missed.\n");
+        // logging::error("Frame too slow. Target frame rate missed.\n");
         return;
     }
     if (isSleepGranular) {
@@ -454,19 +451,18 @@ static void winLoadLibFn(T*& out, LPCSTR fnName, T* stubFn, const HMODULE& lib) 
         GetProcAddress(lib, fnName)
     );
     if (!out) {
-        char buf[256];
-        sprintf_s(buf, "Failed to load lib function: %s.\n", fnName);
-        OutputDebugStringA(buf);
-        ASSERT(out);
+        ASSERT_LOG(out, std::format("Failed to load lib function: {}.", fnName));
         out = stubFn;
     }
 }
 
 static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
-    CopyFileA(dllFilePath, dllLoadFilePath, false);
-    GlobalSlurpLib = LoadLibraryA(SLURP_LOAD_DLL_FILE_NAME);
+    if (!CopyFileA(dllFilePath, dllLoadFilePath, false)) {
+        logging::error("Failed to copy SlurpEngine.dll.");
+    }
+    GlobalSlurpLib = LoadLibraryA(dllLoadFilePath);
     if (!GlobalSlurpLib) {
-        OutputDebugStringA("Failed to load SlurpEngine.dll.\n");
+        logging::error("Failed to load SlurpEngineLoad.dll.");
     } else {
         winLoadLibFn<slurp::dyn_init>(
             GlobalSlurpDll.init,
@@ -514,16 +510,19 @@ static void winLoadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath
 }
 
 static void winUnloadSlurpLib() {
+    if (!GlobalSlurpLib) {
+        return;
+    }
     GlobalSlurpDll.shutdown();
-    if (GlobalSlurpLib && !FreeLibrary(GlobalSlurpLib)) {
-        OutputDebugStringA("Failed to unload Slurp lib.\n");
+    if (!FreeLibrary(GlobalSlurpLib)) {
+        logging::error("Failed to unload Slurp lib.");
     }
     GlobalSlurpDll = slurp::SlurpDll();
 }
 
-static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath) {
-    HANDLE dllFileHandle = CreateFileA(
-        dllFilePath,
+static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFilePath, bool isInitialized) {
+    HANDLE dllMarkerFileHandle = CreateFileA(
+        SLURP_DLL_MARKER_FILE_NAME,
         GENERIC_READ,
         FILE_SHARE_READ,
         nullptr,
@@ -534,16 +533,23 @@ static void winTryReloadSlurpLib(const char* dllFilePath, const char* dllLoadFil
     static FILETIME previousWriteTime;
     FILETIME writeTime;
     FILETIME _;
-    if (!GetFileTime(dllFileHandle, &_, &_, &writeTime)) {
-        OutputDebugStringA("Failed to get SlurpEngine.dll file time.\n");
+    if (!GetFileTime(dllMarkerFileHandle, &_, &_, &writeTime)) {
+        logging::error("Failed to get SlurpEngine.dll file time.");
+        return;
     }
-    CloseHandle(dllFileHandle);
+    CloseHandle(dllMarkerFileHandle);
     if (CompareFileTime(&writeTime, &previousWriteTime) == 0) { return; }
 
     previousWriteTime = writeTime;
     winUnloadSlurpLib();
     winLoadSlurpLib(dllFilePath, dllLoadFilePath);
-    GlobalSlurpDll.init(GlobalPermanentMemory, GlobalTransientMemory, GlobalPlatformDll, GlobalRenderApi);
+    GlobalSlurpDll.init(
+        GlobalPermanentMemory,
+        GlobalTransientMemory,
+        GlobalPlatformDll,
+        GlobalRenderApi,
+        isInitialized
+    );
 }
 
 static std::string getLocalFilePath(LPCSTR filename) {
@@ -568,7 +574,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile) {
     );
 
     if (fileHandle == INVALID_HANDLE_VALUE) {
-        OutputDebugStringA("Invalid file handle.");
+        logging::error("Invalid file handle.");
         return result;
     }
 
@@ -597,7 +603,7 @@ PLATFORM_DEBUG_READ_FILE(platform::DEBUG_readFile) {
     CloseHandle(fileHandle);
 
     if (!success || bytesRead != fileSizeTruncated) {
-        OutputDebugStringA("Could not read file.");
+        logging::error("Could not read file.");
         platform::DEBUG_freeMemory(buffer);
         return result;
     }
@@ -619,7 +625,7 @@ PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile) {
     );
 
     if (fileHandle == INVALID_HANDLE_VALUE) {
-        OutputDebugStringA("Invalid file handle.");
+        logging::error("Invalid file handle.");
         return false;
     }
 
@@ -634,7 +640,7 @@ PLATFORM_DEBUG_WRITE_FILE(platform::DEBUG_writeFile) {
     CloseHandle(fileHandle);
 
     if (!success || bytesWritten != sizeBytes) {
-        OutputDebugStringA("Could not write file.");
+        logging::error("Could not write file.");
         return false;
     }
     return true;
@@ -657,10 +663,11 @@ PLATFORM_DEBUG_BEGIN_RECORDING(platform::DEBUG_beginRecording) {
         nullptr
     );
     DWORD _;
+    memory::MemoryBlock recordingMemory = GlobalPermanentMemory.getMemoryBlock();
     WriteFile(
         GlobalRecordingState.recordingFileHandle,
-        GlobalPermanentMemory.memory,
-        GlobalPermanentMemory.size,
+        recordingMemory.memory,
+        recordingMemory.size,
         &_,
         nullptr
     );
@@ -766,10 +773,11 @@ PLATFORM_DEBUG_BEGIN_PLAYBACK(platform::DEBUG_beginPlayback) {
         nullptr
     );
     DWORD _;
+    memory::MemoryBlock recordingMemory = GlobalPermanentMemory.getMemoryBlock();
     ReadFile(
         GlobalRecordingState.recordingFileHandle,
-        GlobalPermanentMemory.memory,
-        GlobalPermanentMemory.size,
+        recordingMemory.memory,
+        recordingMemory.size,
         &_,
         nullptr
     );
@@ -927,16 +935,16 @@ int WINAPI WinMain(
 
     GlobalRunning = true;
 
-    std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);
-    const char* dllFilePath = dllFilePathStr.c_str();
-    std::string dllLoadFilePathStr = getLocalFilePath(SLURP_LOAD_DLL_FILE_NAME);
-    const char* dllLoadFilePath = dllLoadFilePathStr.c_str();
-    winLoadSlurpLib(dllFilePath, dllLoadFilePath);
+    // winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
     GlobalPlatformDll = loadPlatformDll();
     GlobalRenderApi = loadRenderApi();
     winAllocateGameMemory(GlobalPermanentMemory, GlobalTransientMemory);
-    winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
+    std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);
+    const char* dllFilePath = dllFilePathStr.c_str();
+    std::string dllLoadFilePathStr = getLocalFilePath(SLURP_LOAD_DLL_FILE_NAME);
+    const char* dllLoadFilePath = dllLoadFilePathStr.c_str();
+    winTryReloadSlurpLib(dllFilePath, dllLoadFilePath, false);
     winLoadXInput();
 
     bool isSleepGranular = timeBeginPeriod(1) == TIMERR_NOERROR;
@@ -975,7 +983,7 @@ int WINAPI WinMain(
     };
 
     while (GlobalRunning) {
-        winTryReloadSlurpLib(dllFilePath, dllLoadFilePath);
+        winTryReloadSlurpLib(dllFilePath, dllLoadFilePath, true);
 
         GlobalSlurpDll.frameStart();
 
@@ -1002,7 +1010,7 @@ int WINAPI WinMain(
         GlobalSlurpDll.updateAndRender(targetSecondsPerFrame);
 
         if (GlobalAudioBuffer.buffer->GetCurrentPosition(&playCursor, &writeCursor) != DS_OK) {
-            OutputDebugStringA("Get audio buffer position failed.\n");
+            logging::error("Get audio buffer position failed.\n");
         }
         // NOTE: We always set our targetCursor to right after the write cursor,
         // this means audio is played as soon as possible.

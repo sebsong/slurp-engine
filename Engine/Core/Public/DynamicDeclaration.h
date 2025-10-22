@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Debug.h"
+#include <format>
 
 #define DLL_EXPORT
 #if PLATFORM_WINDOWS
@@ -11,12 +12,12 @@
 // NOTE: Define dynamic types for hot reloading
 #define NO_ARG
 #if DEBUG
-#define _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, fnPrefix, stubReturn) \
-typedef fnMacro(dyn_##fnName);                                        \
-fnMacro(stub_##fnName){                                               \
-    ASSERT(false);                                                    \
-    stubReturn                                                        \
-}                                                                     \
+#define _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, fnPrefix, stubReturn)     \
+typedef fnMacro(dyn_##fnName);                                            \
+fnMacro(stub_##fnName){                                                   \
+    ASSERT_LOG(false, std::format("Calling stub function: {}", #fnName)); \
+    stubReturn                                                            \
+}                                                                         \
 fnPrefix fnMacro(fnName);
 #else
 #define _SLURP_DECLARE_DYNAMIC(fnMacro, fnName, fnPrefix, stubReturn) \

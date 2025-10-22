@@ -1,4 +1,5 @@
 ﻿#include "SlurpEngine.h"
+#include "Global.h"
 #include "Random.h"
 #include "Debug.h"
 #include "Settings.h"
@@ -50,64 +51,60 @@
 
 namespace slurp {
     SLURP_INIT(init) {
-        memory::GlobalGameMemory.permanent = memory::MemoryArena("Permanent", permanentMemory);
-        bool& isInitialized = *memory::GlobalGameMemory.permanent.allocate<bool>();
-        memory::GlobalGameMemory.transient = memory::MemoryArena("Transient", transientMemory);
-        memory::GlobalGameMemory.singleFrame =
-                memory::GlobalGameMemory.transient.allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
-        memory::GlobalGameMemory.assetLoader =
-                memory::GlobalGameMemory.transient.allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
-
-        GlobalPlatformDll = &platformDll;
-        GlobalRenderApi = &renderApi;
-
-        // TODO: when hot reloading, don't reinitialize these systems
-        EngineSystems* engineSystems = memory::GlobalGameMemory.permanent.allocate<EngineSystems>();
         if (!isInitialized) {
-            new(&engineSystems->timer) timer::Timer();
-            new(&engineSystems->jobRunner) job::JobRunner();
-            new(&engineSystems->assetLoader) asset::AssetLoader();
-            new(&engineSystems->entityManager) EntityManager();
-            new(&engineSystems->soundManager) audio::SoundManager();
+            Globals = permanentMemory.allocate<Global>();
+            Globals->GameMemory = permanentMemory.allocate<memory::GameMemory>();
+            Globals->GameMemory->permanent = &permanentMemory;
+            Globals->GameMemory->transient = &transientMemory;
+
+            EngineSystems* engineSystems = Globals->GameMemory->permanent->allocate<EngineSystems>();
+
+            Globals->PlatformDll = &platformDll;
+            Globals->RenderApi = &renderApi;
+            Globals->Timer = new(&engineSystems->timer) timer::Timer();
+            Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
+            Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
+            Globals->EntityManager = new(&engineSystems->entityManager) EntityManager();
+            Globals->SoundManager = new(&engineSystems->soundManager) audio::SoundManager();
+        } else {
+            Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
         }
-        GlobalTimer = &engineSystems->timer;
-        GlobalJobRunner = &engineSystems->jobRunner;
-        GlobalAssetLoader = &engineSystems->assetLoader;
-        GlobalEntityManager = &engineSystems->entityManager;
-        audio::SoundManager::instance = &engineSystems->soundManager;
+
+        Globals->GameMemory->singleFrame =
+                Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
+        Globals->GameMemory->assetLoader =
+                Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
+        Globals->JobRunner->initialize();
 #if DEBUG
-        GlobalRecordingState = memory::GlobalGameMemory.transient.allocate<RecordingState>();
+        Globals->RecordingState = new(Globals->GameMemory->transient->allocate<RecordingState>()) RecordingState();
 #endif
 
-        game::GameAssets* gameAssets = memory::GlobalGameMemory.permanent.allocate<game::GameAssets>();
-        game::GameState* gameState = memory::GlobalGameMemory.permanent.allocate<game::GameState>();
+        game::initGame(isInitialized);
         if (!isInitialized) {
-            game::initGame(gameAssets, gameState);
-            GlobalEntityManager->initialize();
+            Globals->EntityManager->initialize();
         }
-        isInitialized = true;
     }
 
     SLURP_FRAME_START(frameStart) {}
 
     SLURP_HANDLE_INPUT(handleInput) {
-        GlobalEntityManager->handleInput(mouseState, keyboardState, gamepadStates);
+        Globals->EntityManager->handleInput(mouseState, keyboardState, gamepadStates);
 
 #if DEBUG
-        if (keyboardState.justPressed(KeyboardCode::P)) { GlobalPlatformDll->DEBUG_togglePause(); }
-        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState->isPlayingBack) {
-            if (!GlobalRecordingState->isRecording) {
-                GlobalRecordingState->isRecording = true;
-                GlobalPlatformDll->DEBUG_beginRecording();
+        if (keyboardState.justPressed(KeyboardCode::P)) { Globals->PlatformDll->DEBUG_togglePause(); }
+        if (keyboardState.justPressed(KeyboardCode::R) && !Globals->RecordingState->isPlayingBack) {
+            if (!Globals->RecordingState->isRecording) {
+                Globals->RecordingState->isRecording = true;
+                Globals->PlatformDll->DEBUG_beginRecording();
             } else {
-                GlobalPlatformDll->DEBUG_endRecording();
-                GlobalRecordingState->isRecording = false;
+                Globals->PlatformDll->DEBUG_endRecording();
+                Globals->RecordingState->isRecording = false;
             }
         }
         if (keyboardState.justPressed(KeyboardCode::T)) {
-            GlobalRecordingState->isPlayingBack = true;
-            auto onPlaybackEnd = []() -> void { GlobalRecordingState->isPlayingBack = false; };
-            GlobalPlatformDll->DEBUG_beginPlayback(onPlaybackEnd);
+            Globals->RecordingState->isPlayingBack = true;
+            auto onPlaybackEnd = []() -> void { Globals->RecordingState->isPlayingBack = false; };
+            Globals->PlatformDll->DEBUG_beginPlayback(onPlaybackEnd);
         }
 #endif
     }
@@ -119,17 +116,17 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        GlobalEntityManager->updateAndRender(dt);
+        Globals->EntityManager->updateAndRender(dt);
 
 #if DEBUG
-        if (GlobalRecordingState->isRecording) {
+        if (Globals->RecordingState->isRecording) {
             debug::drawRectBorder(
                 {-CAMERA_WORLD_WIDTH_MAX, -CAMERA_WORLD_HEIGHT_MAX},
                 {CAMERA_WORLD_WIDTH_MAX,CAMERA_WORLD_HEIGHT_MAX},
                 10,
                 DEBUG_RED_COLOR
             );
-        } else if (GlobalRecordingState->isPlayingBack) {
+        } else if (Globals->RecordingState->isPlayingBack) {
             debug::drawRectBorder(
                 {-CAMERA_WORLD_WIDTH_MAX, -CAMERA_WORLD_HEIGHT_MAX},
                 {CAMERA_WORLD_WIDTH_MAX,CAMERA_WORLD_HEIGHT_MAX},
@@ -141,8 +138,11 @@ namespace slurp {
     }
 
     SLURP_FRAME_END(frameEnd) {
-        memory::GlobalGameMemory.singleFrame.freeAll();
+        Globals->GameMemory->singleFrame.freeAll();
     }
 
-    SLURP_SHUTDOWN(shutdown) {}
+    SLURP_SHUTDOWN(shutdown) {
+        Globals->JobRunner->shutdown();
+        Globals->GameMemory->transient->freeAll();
+    }
 }

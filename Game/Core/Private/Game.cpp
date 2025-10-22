@@ -4,7 +4,7 @@
 #include "RenderApi.h"
 #include "EntityManager.h"
 
-#include "Global.cpp"
+#include "GameGlobal.cpp"
 #include "Obstacle.cpp"
 #include "Player.cpp"
 #include "Enemy.cpp"
@@ -23,7 +23,7 @@ namespace game {
 
     render::Pixel getColor(render::ColorPaletteIdx colorPaletteIdx) {
         ASSERT(colorPaletteIdx < COLOR_PALETTE_SIZE);
-        return GlobalGameAssets->colorPalette.colors[colorPaletteIdx];
+        return slurp::Globals->GameAssets->colorPalette.colors[colorPaletteIdx];
     }
 
     template<typename T>
@@ -33,52 +33,57 @@ namespace game {
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::forward<T>(entity));
-        slurp::GlobalEntityManager->registerEntity(entityLocation);
+        slurp::Globals->EntityManager->registerEntity(entityLocation);
     }
 
     static void loadAssets() {
-        GlobalGameAssets->colorPalette = slurp::GlobalAssetLoader->loadColorPalette(ColorPaletteHexFileName);
+        slurp::Globals->GameAssets->colorPalette = slurp::Globals->AssetLoader->loadColorPalette(ColorPaletteHexFileName);
 
-        GlobalGameAssets->borderSprite = slurp::GlobalAssetLoader->loadSprite("border.bmp");
-        GlobalGameAssets->enemySprite = slurp::GlobalAssetLoader->loadSprite("enemy.bmp");
-        GlobalGameAssets->mouseCursorSprite = slurp::GlobalAssetLoader->loadSprite("mouse_cursor.bmp");
-        GlobalGameAssets->playerSprite = slurp::GlobalAssetLoader->loadSprite("player.bmp");
-        GlobalGameAssets->playerParrySprite = slurp::GlobalAssetLoader->loadSprite("player_parry.bmp");
-        GlobalGameAssets->projectileSprite = slurp::GlobalAssetLoader->loadSprite("projectile.bmp");
-        GlobalGameAssets->projectileParriedSprite = slurp::GlobalAssetLoader->loadSprite("projectile_parried.bmp");
+        slurp::Globals->GameAssets->borderSprite = slurp::Globals->AssetLoader->loadSprite("border.bmp");
+        slurp::Globals->GameAssets->enemySprite = slurp::Globals->AssetLoader->loadSprite("enemy.bmp");
+        slurp::Globals->GameAssets->mouseCursorSprite = slurp::Globals->AssetLoader->loadSprite("mouse_cursor.bmp");
+        slurp::Globals->GameAssets->playerSprite = slurp::Globals->AssetLoader->loadSprite("player.bmp");
+        slurp::Globals->GameAssets->playerParrySprite = slurp::Globals->AssetLoader->loadSprite("player_parry.bmp");
+        slurp::Globals->GameAssets->projectileSprite = slurp::Globals->AssetLoader->loadSprite("projectile.bmp");
+        slurp::Globals->GameAssets->projectileParriedSprite = slurp::Globals->AssetLoader->loadSprite("projectile_parried.bmp");
 
-        GlobalGameAssets->backgroundMusic = slurp::GlobalAssetLoader->loadSound(global::BackgroundMusicSoundFileName);
-        GlobalGameAssets->projectileHitSound = slurp::GlobalAssetLoader->loadSound(projectile::SoundFileName);
+        slurp::Globals->GameAssets->backgroundMusic = slurp::Globals->AssetLoader->loadSound(global::BackgroundMusicSoundFileName);
+        slurp::Globals->GameAssets->projectileHitSound = slurp::Globals->AssetLoader->loadSound(projectile::SoundFileName);
     }
 
-    void initGame(GameAssets* gameAssets, GameState* gameState) {
-        GlobalGameAssets = gameAssets;
-        GlobalGameState = gameState;
+    void initGame(bool isInitialized) {
+        if (isInitialized) {
+            return;
+        }
+
+        GameSystems* gameSystems = slurp::Globals->GameMemory->permanent->allocate<GameSystems>();
+        slurp::Globals->GameAssets = &gameSystems->assets;
+        slurp::Globals->GameState = &gameSystems->state;
 
         loadAssets();
 
-        GlobalGameState->randomSeed = static_cast<uint32_t>(time(nullptr));
-        random::setRandomSeed(GlobalGameState->randomSeed);
+        slurp::Globals->GameState->randomSeed = static_cast<uint32_t>(time(nullptr));
+        random::setRandomSeed(slurp::Globals->GameState->randomSeed);
 
-        slurp::GlobalRenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
+        slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
         registerEntity(
-            GlobalGameState->global,
-            global::Global()
+            slurp::Globals->GameState->global,
+            global::GameGlobal()
         );
 
         registerEntity(
-            GlobalGameState->border,
+            slurp::Globals->GameState->border,
             slurp::Entity(
                 "Border",
-                render::RenderInfo(GlobalGameAssets->borderSprite, true),
+                render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             )
         );
 
         // registerEntity(
-        //     GlobalGameState->background,
+        //     slurp::Globals->GameState->background,
         //     slurp::Entity(
         //         "Background",
         //         render::RenderInfo(
@@ -94,7 +99,7 @@ namespace game {
         // );
         geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
         registerEntity(
-            GlobalGameState->wallUp,
+            slurp::Globals->GameState->wallUp,
             obstacle::Obstacle(
                 "WallUp",
                 wallUpShape,
@@ -103,7 +108,7 @@ namespace game {
         );
         geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
         registerEntity(
-            GlobalGameState->wallDown,
+            slurp::Globals->GameState->wallDown,
             obstacle::Obstacle(
                 "WallDown",
                 wallDownShape,
@@ -112,7 +117,7 @@ namespace game {
         );
         geometry::Shape wallLeftShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
         registerEntity(
-            GlobalGameState->wallLeft,
+            slurp::Globals->GameState->wallLeft,
             obstacle::Obstacle(
                 "WallLeft",
                 wallLeftShape,
@@ -121,7 +126,7 @@ namespace game {
         );
         geometry::Shape wallRightShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
         registerEntity(
-            GlobalGameState->wallRight,
+            slurp::Globals->GameState->wallRight,
             obstacle::Obstacle(
                 "WallRight",
                 wallRightShape,
@@ -130,7 +135,7 @@ namespace game {
         );
         // geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
         // registerEntity(
-        //     GlobalGameState->obstacle1,
+        //     slurp::Globals->GameState->obstacle1,
         //     obstacle::Obstacle(
         //         "Obstacle1",
         //         obstacle1Shape,
@@ -139,7 +144,7 @@ namespace game {
         // );
         // geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
         // registerEntity(
-        //     GlobalGameState->obstacle2,
+        //     slurp::Globals->GameState->obstacle2,
         //     obstacle::Obstacle(
         //         "Obstacle2",
         //         obstacle2Shape,
@@ -149,30 +154,30 @@ namespace game {
 
         for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
             registerEntity(
-                GlobalGameState->projectiles[i],
+                slurp::Globals->GameState->projectiles[i],
                 projectile::Projectile(i)
             );
         }
 
         registerEntity(
-            GlobalGameState->player,
+            slurp::Globals->GameState->player,
             player::Player()
         );
 
         for (int i = 0; i < NUM_ENEMIES; i++) {
             registerEntity(
-                GlobalGameState->enemies[i],
+                slurp::Globals->GameState->enemies[i],
                 enemy::Enemy(i)
             );
         }
 
         registerEntity(
-            GlobalGameState->mouseCursor,
+            slurp::Globals->GameState->mouseCursor,
             mouse_cursor::MouseCursor()
         );
 
         // registerEntity(
-        //     GlobalGameState->testAlpha,
+        //     slurp::Globals->GameState->testAlpha,
         //     slurp::Entity(
         //         "testAlpha",
         //         render::RenderInfo(
@@ -191,7 +196,7 @@ namespace game {
 
         for (uint8_t i = 0; i < COLOR_PALETTE_SIZE; i++) {
             registerEntity(
-                GlobalGameState->colorPaletteSwatch[i],
+                slurp::Globals->GameState->colorPaletteSwatch[i],
                 slurp::Entity(
                     "ColorPaletteSwatch" + std::to_string(i),
                     render::RenderInfo(

@@ -32,7 +32,7 @@ namespace asset {
         if (!file.good()) { return {}; }
 
         uint32_t fileSizeBytes = std::filesystem::file_size(filePath);
-        types::byte* fileBytes = memory::GlobalGameMemory.assetLoader.allocate(fileSizeBytes);
+        types::byte* fileBytes = slurp::Globals->GameMemory->assetLoader.allocate(fileSizeBytes);
         file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSizeBytes);
 
         return FileReadResult{
@@ -58,7 +58,7 @@ namespace asset {
             return reinterpret_cast<Bitmap*>(existingAsset);
         }
 
-        Bitmap* bitmap = memory::GlobalGameMemory.assetLoader.allocate<Bitmap>();
+        Bitmap* bitmap = slurp::Globals->GameMemory->assetLoader.allocate<Bitmap>();
         _registerAsset(assetId, bitmap);
 
         // TODO: load this async?
@@ -91,14 +91,14 @@ namespace asset {
             return reinterpret_cast<Sprite*>(existingSprite);
         }
 
-        Sprite* sprite = memory::GlobalGameMemory.permanent.allocate<Sprite>();
+        Sprite* sprite = slurp::Globals->GameMemory->permanent->allocate<Sprite>();
         _registerAsset(assetId, sprite);
 
-        Bitmap* bitmap = slurp::GlobalAssetLoader->loadBitmap(bitmapFileName);
+        Bitmap* bitmap = slurp::Globals->AssetLoader->loadBitmap(bitmapFileName);
         std::string vertexShaderSource =
-                slurp::GlobalAssetLoader->loadVertexShaderSource(vertexShaderFileName)->source;
+                slurp::Globals->AssetLoader->loadVertexShaderSource(vertexShaderFileName)->source;
         std::string fragmentShaderSource =
-                slurp::GlobalAssetLoader->loadFragmentShaderSource(fragmentShaderFileName)->source;
+                slurp::Globals->AssetLoader->loadFragmentShaderSource(fragmentShaderFileName)->source;
 
         loadSpriteData(sprite, bitmap, vertexShaderSource, fragmentShaderSource);
 
@@ -115,7 +115,7 @@ namespace asset {
             return reinterpret_cast<Sound*>(existingAsset);
         }
 
-        Sound* sound = memory::GlobalGameMemory.permanent.allocate<Sound>();
+        Sound* sound = slurp::Globals->GameMemory->permanent->allocate<Sound>();
         _registerAsset(assetId, sound);
 
         auto loadFn = [sound, filePath]() {
@@ -127,7 +127,7 @@ namespace asset {
             }
             loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
         };
-        slurp::GlobalJobRunner->queueJob(loadFn);
+        slurp::Globals->JobRunner->queueJob(loadFn);
 
         return sound;
     }
@@ -139,7 +139,7 @@ namespace asset {
             return reinterpret_cast<ShaderSource*>(existingAsset);
         }
 
-        ShaderSource* shaderSource = memory::GlobalGameMemory.assetLoader.allocate<ShaderSource>();
+        ShaderSource* shaderSource = slurp::Globals->GameMemory->assetLoader.allocate<ShaderSource>();
         _registerAsset(assetId, shaderSource);
 
         std::string source = readTextFile(shaderFilePath);

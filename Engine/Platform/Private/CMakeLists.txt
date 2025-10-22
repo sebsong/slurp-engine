@@ -39,6 +39,9 @@ set_target_properties(slurp_engine PROPERTIES
 target_compile_options(slurp_engine PRIVATE ${compiler_flags})
 target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
 target_link_options(slurp_engine PRIVATE ${linker_flags})
+add_custom_command(TARGET slurp_engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E touch "SlurpEngine.dll.marker"
+)
 
 # WIN ENGINE EXE
 add_executable(win_engine WIN32 WinEngine.cpp)

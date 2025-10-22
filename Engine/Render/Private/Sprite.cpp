@@ -7,7 +7,7 @@ namespace asset {
     static constexpr uint32_t SpriteElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
 
     void Sprite::draw(const slurp::Vec2<float>& startPoint) const {
-        slurp::GlobalRenderApi->drawElementArray(
+        slurp::Globals->RenderApi->drawElementArray(
             mesh.vertexArrayId,
             mesh.elementCount,
             material.textureId,
@@ -44,14 +44,14 @@ namespace asset {
             },
         };
 
-        render::object_id vertexArrayId = slurp::GlobalRenderApi->genElementArrayBuffer(
+        render::object_id vertexArrayId = slurp::Globals->RenderApi->genElementArrayBuffer(
             triangleVertices,
             SpriteMeshVertexCount,
             SpriteElements,
             SpriteMeshElementCount
         );
-        render::object_id textureId = slurp::GlobalRenderApi->createTexture(bitmap);
-        render::object_id shaderProgramId = slurp::GlobalRenderApi->createShaderProgram(
+        render::object_id textureId = slurp::Globals->RenderApi->createTexture(bitmap);
+        render::object_id shaderProgramId = slurp::Globals->RenderApi->createShaderProgram(
             vertexShaderSource.c_str(),
             fragmentShaderSource.c_str()
         );

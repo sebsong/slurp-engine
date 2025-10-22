@@ -74,13 +74,11 @@ namespace memory {
 
     struct GameMemory {
         /** PERMANENT **/
-        MemoryArena permanent;
+        MemoryArena* permanent;
 
         /** TRANSIENT **/
-        MemoryArena transient;
+        MemoryArena* transient;
         MemoryArena singleFrame;
         MemoryArena assetLoader;
     };
-
-    static GameMemory GlobalGameMemory;
 }

@@ -10,8 +10,6 @@ namespace audio {
 
     class SoundManager {
     public:
-        static SoundManager* instance;
-
         explicit SoundManager();
 
         /** Game **/
@@ -32,8 +30,6 @@ namespace audio {
     };
 
     /** Global Methods **/
-    SoundManager* SoundManager::instance = nullptr;
-
     void setGlobalVolume(float volumeMultiplier);
 
     void playSound(const asset::Sound* sound);

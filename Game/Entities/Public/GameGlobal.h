@@ -2,9 +2,9 @@
 #include "Entity.h"
 
 namespace global {
-    class Global final : public slurp::Entity {
+    class GameGlobal final : public slurp::Entity {
     public:
-        Global();
+        GameGlobal();
 
     private:
         void initialize() override;
