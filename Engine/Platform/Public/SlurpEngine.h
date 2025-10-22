@@ -25,7 +25,7 @@ namespace slurp {
         job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
         entity::EntityPipeline entityPipeline;
-        audio::AudioPlayer audioManager;
+        audio::AudioPlayer audioPlayer;
     };
 
 #if DEBUG

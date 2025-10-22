@@ -52,7 +52,7 @@ namespace slurp {
         job::JobRunner* JobRunner;
         asset::AssetLoader* AssetLoader;
         entity::EntityPipeline* EntityPipeline;
-        audio::AudioPlayer* AudioManager;
+        audio::AudioPlayer* AudioPlayer;
 #if DEBUG
         RecordingState* RecordingState;
 #endif

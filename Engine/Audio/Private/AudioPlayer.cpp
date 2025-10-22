@@ -3,7 +3,7 @@
 #include "PlayingSound.h"
 
 namespace audio {
-    AudioPlayer::AudioPlayer(): _nextSoundId(0),
+    AudioPlayer::AudioPlayer(): _nextSoundId(1),
                                 _globalVolumeMultiplier(1.f),
                                 _loopingQueue(types::deque_arena<PlayingSound>()),
                                 _oneShotQueue(types::deque_arena<PlayingSound>()) {}
@@ -12,14 +12,14 @@ namespace audio {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    void AudioPlayer::play(const asset::Sound* sound) {
-        play(sound, 1.0f, false);
+    sound_id AudioPlayer::play(const asset::Sound* sound) {
+        return play(sound, 1.0f, false);
     }
 
-    void AudioPlayer::play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+    sound_id AudioPlayer::play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
         ASSERT(sound);
         if (!sound) {
-            return;
+            return INVALID_SOUND_ID;
         }
 
         PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop);
@@ -32,6 +32,24 @@ namespace audio {
         // TODO: have separate maximums for different sound categories
         if (_oneShotQueue.size() > MAX_NUM_PLAYING_ONE_SHOT_SOUNDS) {
             _oneShotQueue.pop_front();
+        }
+
+        return playingSound.id;
+    }
+
+    void AudioPlayer::stop(sound_id id) {
+        // TODO: might be nice to store the playing sounds as a map to not have to search through like this
+        for (types::deque_arena<PlayingSound>::iterator it = _loopingQueue.begin(); it != _loopingQueue.end(); it++) {
+            if (it->id == id) {
+                _loopingQueue.erase(it);
+                return;
+            }
+        }
+        for (types::deque_arena<PlayingSound>::iterator it = _oneShotQueue.begin(); it != _oneShotQueue.end(); it++) {
+            if (it->id == id) {
+                _oneShotQueue.erase(it);
+                return;
+            }
         }
     }
 
@@ -72,23 +90,5 @@ namespace audio {
         bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
 
         std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
-    }
-
-    /** Global Methods **/
-
-    void setGlobalVolume(float volumeMultiplier) {
-        slurp::Globals->AudioManager->setGlobalVolume(volumeMultiplier);
-    }
-
-    void play(const asset::Sound* sound) {
-        slurp::Globals->AudioManager->play(sound);
-    }
-
-    void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
-        slurp::Globals->AudioManager->play(sound, volumeMultiplier, shouldLoop);
-    }
-
-    void bufferAudio(const AudioBuffer& buffer) {
-        slurp::Globals->AudioManager->bufferAudio(buffer);
     }
 }

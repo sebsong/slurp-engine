@@ -79,7 +79,7 @@ namespace slurp {
             Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
             Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
             Globals->EntityPipeline = new(&engineSystems->entityPipeline) entity::EntityPipeline();
-            Globals->AudioManager = new(&engineSystems->audioManager) audio::AudioPlayer();
+            Globals->AudioPlayer = new(&engineSystems->audioPlayer) audio::AudioPlayer();
         }
         job::initialize();
 #if DEBUG
@@ -88,9 +88,7 @@ namespace slurp {
 
         /** Game **/
         game::initGame(isInitialized);
-        if (!isInitialized) {
-            entity::initializeEntities();
-        }
+        entity::initializeEntities();
     }
 
     SLURP_FRAME_START(frameStart) {}

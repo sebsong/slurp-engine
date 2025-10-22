@@ -59,6 +59,11 @@ namespace enemy {
     void Enemy::initialize() {
         Entity::initialize();
 
+        this->renderInfo = {
+            game::Assets->enemySprite,
+            true
+        };
+
         // startUpdateEnemyDirection(this); // TODO: re-enable this
     }
 }

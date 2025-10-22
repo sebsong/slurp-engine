@@ -8,6 +8,9 @@ namespace audio {
     struct PlayingSound;
     struct AudioBuffer;
 
+    typedef uint32_t sound_id;
+    const static sound_id INVALID_SOUND_ID = 0;
+
     class AudioPlayer {
     public:
         explicit AudioPlayer();
@@ -15,26 +18,40 @@ namespace audio {
         /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
-        void play(const asset::Sound* sound);
+        sound_id play(const asset::Sound* sound);
 
-        void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+        sound_id play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+
+        void stop(sound_id id);
 
         /** Engine **/
         void bufferAudio(const AudioBuffer& buffer);
 
     private:
-        uint32_t _nextSoundId;
+        sound_id _nextSoundId;
         float _globalVolumeMultiplier;
         types::deque_arena<PlayingSound> _loopingQueue;
         types::deque_arena<PlayingSound> _oneShotQueue;
     };
 
     /** Global Methods **/
-    void setGlobalVolume(float volumeMultiplier);
+    inline void setGlobalVolume(float volumeMultiplier) {
+        slurp::Globals->AudioPlayer->setGlobalVolume(volumeMultiplier);
+    }
 
-    void play(const asset::Sound* sound);
+    inline sound_id play(const asset::Sound* sound) {
+        return slurp::Globals->AudioPlayer->play(sound);
+    }
 
-    void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+    inline sound_id play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+        return slurp::Globals->AudioPlayer->play(sound, volumeMultiplier, shouldLoop);
+    }
 
-    void bufferAudio(const AudioBuffer& buffer);
+    inline void stop(sound_id id) {
+        slurp::Globals->AudioPlayer->stop(id);
+    }
+
+    inline void bufferAudio(const AudioBuffer& buffer) {
+        slurp::Globals->AudioPlayer->bufferAudio(buffer);
+    }
 }

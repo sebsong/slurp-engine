@@ -46,6 +46,7 @@ namespace game {
         if (isInitialized) {
             Assets = slurp::Globals->GameAssets;
             State = slurp::Globals->GameState;
+            loadAssets();
             return;
         }
 
