@@ -106,7 +106,7 @@ namespace asset {
         const types::byte* bitmapBytes = bitmapFileBytes + header->fileHeader.bfOffBits;
         int width = static_cast<int>(header->infoHeader.biWidth);
         int height = static_cast<int>(header->infoHeader.biHeight);
-        render::Pixel* map = slurp::Globals->GameMemory->assetLoader.allocate<render::Pixel>(width * height);
+        render::Pixel* map = memory::assetLoader->allocate<render::Pixel>(width * height);
 
         if (header->infoHeader.biCompression == BI_RGB && header->infoHeader.biBitCount <= 8) {
             loadBitmapColorPalette(

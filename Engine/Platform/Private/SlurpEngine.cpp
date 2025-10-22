@@ -51,13 +51,27 @@
 
 namespace slurp {
     SLURP_INIT(init) {
+        /** Memory **/
         if (!isInitialized) {
             Globals = permanentMemory.allocate<Global>();
             Globals->GameMemory = permanentMemory.allocate<memory::GameMemory>();
             Globals->GameMemory->permanent = &permanentMemory;
             Globals->GameMemory->transient = &transientMemory;
+        } else {
+            Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
+        }
+        Globals->GameMemory->singleFrame =
+                Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
+        Globals->GameMemory->assetLoader =
+                Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
+        memory::permanent = Globals->GameMemory->permanent;
+        memory::transient = Globals->GameMemory->transient;
+        memory::singleFrame = &Globals->GameMemory->singleFrame;
+        memory::assetLoader = &Globals->GameMemory->assetLoader;
 
-            EngineSystems* engineSystems = Globals->GameMemory->permanent->allocate<EngineSystems>();
+        /** Engine Systems **/
+        if (!isInitialized) {
+            EngineSystems* engineSystems = memory::permanent->allocate<EngineSystems>();
 
             Globals->PlatformDll = &platformDll;
             Globals->RenderApi = &renderApi;
@@ -66,19 +80,13 @@ namespace slurp {
             Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
             Globals->EntityPipeline = new(&engineSystems->entityPipeline) EntityPipeline();
             Globals->AudioManager = new(&engineSystems->audioManager) audio::AudioPlayer();
-        } else {
-            Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
         }
-
-        Globals->GameMemory->singleFrame =
-                Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
-        Globals->GameMemory->assetLoader =
-                Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
-        Globals->JobRunner->initialize();
+        job::initialize();
 #if DEBUG
-        Globals->RecordingState = new(Globals->GameMemory->transient->allocate<RecordingState>()) RecordingState();
+        Globals->RecordingState = new(memory::transient->allocate<RecordingState>()) RecordingState();
 #endif
 
+        /** Game **/
         game::initGame(isInitialized);
         if (!isInitialized) {
             Globals->EntityPipeline->initializeEntities();
@@ -138,11 +146,11 @@ namespace slurp {
     }
 
     SLURP_FRAME_END(frameEnd) {
-        Globals->GameMemory->singleFrame.freeAll();
+        memory::singleFrame->freeAll();
     }
 
     SLURP_SHUTDOWN(shutdown) {
-        Globals->JobRunner->shutdown();
-        Globals->GameMemory->transient->freeAll();
+        job::shutdown();
+        memory::transient->freeAll();
     }
 }

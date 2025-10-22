@@ -56,4 +56,16 @@ namespace job {
             job.fn();
         }
     }
+
+    void initialize() {
+        slurp::Globals->JobRunner->initialize();
+    }
+
+    job_id queueJob(std::function<void()>&& fn) {
+        return slurp::Globals->JobRunner->queueJob(std::move(fn));
+    }
+
+    void shutdown() {
+        slurp::Globals->JobRunner->shutdown();
+    }
 }

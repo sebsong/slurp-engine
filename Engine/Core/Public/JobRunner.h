@@ -40,4 +40,10 @@ namespace job {
 
         void _processJobs(uint8_t workerIndex);
     };
+
+    static void initialize();
+
+    static job_id queueJob(std::function<void()>&& fn);
+
+    static void shutdown();
 }

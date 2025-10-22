@@ -47,7 +47,7 @@ namespace game {
             return;
         }
 
-        GameSystems* gameSystems = slurp::Globals->GameMemory->permanent->allocate<GameSystems>();
+        GameSystems* gameSystems = memory::permanent->allocate<GameSystems>();
         slurp::Globals->GameAssets = &gameSystems->assets;
         slurp::Globals->GameState = &gameSystems->state;
 

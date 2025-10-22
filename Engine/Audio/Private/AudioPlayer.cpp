@@ -4,9 +4,9 @@
 
 namespace audio {
     AudioPlayer::AudioPlayer(): _nextSoundId(0),
-                                  _globalVolumeMultiplier(1.f),
-                                  _loopingQueue(types::deque_arena<PlayingSound>()),
-                                  _oneShotQueue(types::deque_arena<PlayingSound>()) {}
+                                _globalVolumeMultiplier(1.f),
+                                _loopingQueue(types::deque_arena<PlayingSound>()),
+                                _oneShotQueue(types::deque_arena<PlayingSound>()) {}
 
     void AudioPlayer::setGlobalVolume(float volumeMultiplier) {
         _globalVolumeMultiplier = volumeMultiplier;
@@ -61,7 +61,7 @@ namespace audio {
 
     void AudioPlayer::bufferAudio(const AudioBuffer& buffer) {
         StereoAudioSampleContainer* sampleContainers =
-                slurp::Globals->GameMemory->singleFrame.allocate<StereoAudioSampleContainer>(
+                memory::singleFrame->allocate<StereoAudioSampleContainer>(
                     buffer.numSamplesToWrite,
                     true
                 );
