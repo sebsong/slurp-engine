@@ -38,7 +38,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Entity.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "EntityManager.cpp"
+#include "EntityPipeline.cpp"
 
 
 // ReSharper disable once CppUnusedIncludeDirective
@@ -64,7 +64,7 @@ namespace slurp {
             Globals->Timer = new(&engineSystems->timer) timer::Timer();
             Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
             Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
-            Globals->EntityManager = new(&engineSystems->entityManager) EntityManager();
+            Globals->EntityPipeline = new(&engineSystems->entityPipeline) EntityPipeline();
             Globals->AudioManager = new(&engineSystems->audioManager) audio::AudioPlayer();
         } else {
             Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
@@ -81,14 +81,14 @@ namespace slurp {
 
         game::initGame(isInitialized);
         if (!isInitialized) {
-            Globals->EntityManager->initialize();
+            Globals->EntityPipeline->initializeEntities();
         }
     }
 
     SLURP_FRAME_START(frameStart) {}
 
     SLURP_HANDLE_INPUT(handleInput) {
-        Globals->EntityManager->handleInput(mouseState, keyboardState, gamepadStates);
+        Globals->EntityPipeline->handleInput(mouseState, keyboardState, gamepadStates);
 
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P)) { Globals->PlatformDll->DEBUG_togglePause(); }
@@ -116,7 +116,7 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
-        Globals->EntityManager->updateAndRender(dt);
+        Globals->EntityPipeline->updateAndRender(dt);
 
 #if DEBUG
         if (Globals->RecordingState->isRecording) {

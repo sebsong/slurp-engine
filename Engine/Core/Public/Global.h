@@ -32,7 +32,7 @@ namespace platform {
 
 namespace slurp {
     struct RecordingState;
-    class EntityManager;
+    class EntityPipeline;
 
     // TODO: maybe have static helper methods instead of needing to reference these directly
     static struct Global {
@@ -44,7 +44,7 @@ namespace slurp {
         timer::Timer* Timer;
         job::JobRunner* JobRunner;
         asset::AssetLoader* AssetLoader;
-        EntityManager* EntityManager;
+        EntityPipeline* EntityPipeline;
         audio::AudioPlayer* AudioManager;
 #if DEBUG
         RecordingState* RecordingState;

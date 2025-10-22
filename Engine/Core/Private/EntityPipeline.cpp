@@ -1,4 +1,4 @@
-#include "EntityManager.h"
+#include "EntityPipeline.h"
 
 #include "Entity.h"
 #include "Input.h"
@@ -6,17 +6,21 @@
 #include "Render.h"
 
 namespace slurp {
-    EntityManager::EntityManager() : _pipeline(types::deque_arena<Entity*>()) {}
+    EntityPipeline::EntityPipeline() : _pipeline(types::deque_arena<Entity*>()) {}
 
-    void EntityManager::registerEntity(Entity& entity) {
+    void EntityPipeline::registerEntity(Entity& entity) {
         uint32_t id = _pipeline.size();
         _pipeline.emplace_back(&entity);
         entity.id = id;
     }
 
-    void EntityManager::initialize() const { for (Entity* entity: _pipeline) { entity->initialize(); } }
+    void EntityPipeline::initializeEntities() const {
+        for (Entity* entity: _pipeline) {
+            entity->initialize();
+        }
+    }
 
-    void EntityManager::handleInput(
+    void EntityPipeline::handleInput(
         const MouseState& mouseState,
         const KeyboardState& keyboardState,
         const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
@@ -32,7 +36,7 @@ namespace slurp {
         }
     }
 
-    void EntityManager::updateAndRender(float dt) {
+    void EntityPipeline::updateAndRender(float dt) {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {

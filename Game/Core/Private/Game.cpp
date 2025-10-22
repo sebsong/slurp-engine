@@ -2,7 +2,7 @@
 
 #include "SlurpEngine.h"
 #include "RenderApi.h"
-#include "EntityManager.h"
+#include "EntityPipeline.h"
 
 #include "GameGlobal.cpp"
 #include "Obstacle.cpp"
@@ -33,7 +33,7 @@ namespace game {
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
         new(&entityLocation) T(std::forward<T>(entity));
-        slurp::Globals->EntityManager->registerEntity(entityLocation);
+        slurp::Globals->EntityPipeline->registerEntity(entityLocation);
     }
 
     static void loadAssets() {

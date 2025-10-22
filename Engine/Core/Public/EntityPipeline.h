@@ -11,13 +11,13 @@ namespace render {
 namespace slurp {
     struct Entity;
 
-    class EntityManager {
+    class EntityPipeline {
     public:
-        explicit EntityManager();
+        explicit EntityPipeline();
 
         void registerEntity(Entity& entity);
 
-        void initialize() const;
+        void initializeEntities() const;
 
         void handleInput(
             const MouseState& mouseState,

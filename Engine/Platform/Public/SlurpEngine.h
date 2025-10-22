@@ -6,7 +6,7 @@
 #include "DynamicDeclaration.h"
 #include "Input.h"
 #include "Audio.h"
-#include "EntityManager.h"
+#include "EntityPipeline.h"
 #include "AudioPlayer.h"
 #include "Game.h"
 
@@ -24,7 +24,7 @@ namespace slurp {
         timer::Timer timer;
         job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
-        EntityManager entityManager;
+        EntityPipeline entityPipeline;
         audio::AudioPlayer audioManager;
     };
 
