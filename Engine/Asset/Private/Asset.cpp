@@ -32,7 +32,7 @@ namespace asset {
         if (!file.good()) { return {}; }
 
         uint32_t fileSizeBytes = std::filesystem::file_size(filePath);
-        types::byte* fileBytes = memory::assetLoader->allocate(fileSizeBytes);
+        types::byte* fileBytes = memory::AssetLoader->allocate(fileSizeBytes);
         file.read(reinterpret_cast<std::istream::char_type*>(fileBytes), fileSizeBytes);
 
         return FileReadResult{
@@ -58,7 +58,7 @@ namespace asset {
             return reinterpret_cast<Bitmap*>(existingAsset);
         }
 
-        Bitmap* bitmap = memory::assetLoader->allocate<Bitmap>();
+        Bitmap* bitmap = memory::AssetLoader->allocate<Bitmap>();
         _registerAsset(assetId, bitmap);
 
         // TODO: load this async?
@@ -91,7 +91,7 @@ namespace asset {
             return reinterpret_cast<Sprite*>(existingSprite);
         }
 
-        Sprite* sprite = memory::permanent->allocate<Sprite>();
+        Sprite* sprite = memory::Permanent->allocate<Sprite>();
         _registerAsset(assetId, sprite);
 
         Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
@@ -113,7 +113,7 @@ namespace asset {
             return reinterpret_cast<Sound*>(existingAsset);
         }
 
-        Sound* sound = memory::permanent->allocate<Sound>();
+        Sound* sound = memory::Permanent->allocate<Sound>();
         _registerAsset(assetId, sound);
 
         auto loadFn = [sound, filePath]() {
@@ -137,7 +137,7 @@ namespace asset {
             return reinterpret_cast<ShaderSource*>(existingAsset);
         }
 
-        ShaderSource* shaderSource = memory::assetLoader->allocate<ShaderSource>();
+        ShaderSource* shaderSource = memory::AssetLoader->allocate<ShaderSource>();
         _registerAsset(assetId, shaderSource);
 
         std::string source = readTextFile(shaderFilePath);

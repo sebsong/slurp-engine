@@ -64,14 +64,14 @@ namespace slurp {
                 Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
         Globals->GameMemory->assetLoader =
                 Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
-        memory::permanent = Globals->GameMemory->permanent;
-        memory::transient = Globals->GameMemory->transient;
-        memory::singleFrame = &Globals->GameMemory->singleFrame;
-        memory::assetLoader = &Globals->GameMemory->assetLoader;
+        memory::Permanent = Globals->GameMemory->permanent;
+        memory::Transient = Globals->GameMemory->transient;
+        memory::SingleFrame = &Globals->GameMemory->singleFrame;
+        memory::AssetLoader = &Globals->GameMemory->assetLoader;
 
         /** Engine Systems **/
         if (!isInitialized) {
-            EngineSystems* engineSystems = memory::permanent->allocate<EngineSystems>();
+            EngineSystems* engineSystems = memory::Permanent->allocate<EngineSystems>();
 
             Globals->PlatformDll = &platformDll;
             Globals->RenderApi = &renderApi;
@@ -83,7 +83,7 @@ namespace slurp {
         }
         job::initialize();
 #if DEBUG
-        Globals->RecordingState = new(memory::transient->allocate<RecordingState>()) RecordingState();
+        Globals->RecordingState = new(memory::Transient->allocate<RecordingState>()) RecordingState();
 #endif
 
         /** Game **/
@@ -146,11 +146,11 @@ namespace slurp {
     }
 
     SLURP_FRAME_END(frameEnd) {
-        memory::singleFrame->freeAll();
+        memory::SingleFrame->freeAll();
     }
 
     SLURP_SHUTDOWN(shutdown) {
         job::shutdown();
-        memory::transient->freeAll();
+        memory::Transient->freeAll();
     }
 }

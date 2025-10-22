@@ -37,7 +37,7 @@ namespace memory {
     class PermanentArenaAllocator : public MemoryArenaAllocator<T> {
     public:
         PermanentArenaAllocator(): MemoryArenaAllocator<T>() {
-            this->arena = memory::permanent;
+            this->arena = memory::Permanent;
         }
 
         template<typename U>
@@ -48,7 +48,7 @@ namespace memory {
     class TransientArenaAllocator : public MemoryArenaAllocator<T> {
     public:
         TransientArenaAllocator(): MemoryArenaAllocator<T>() {
-            this->arena = memory::transient;
+            this->arena = memory::Transient;
         }
 
         template<typename U>

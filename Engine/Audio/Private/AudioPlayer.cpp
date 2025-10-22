@@ -61,7 +61,7 @@ namespace audio {
 
     void AudioPlayer::bufferAudio(const AudioBuffer& buffer) {
         StereoAudioSampleContainer* sampleContainers =
-                memory::singleFrame->allocate<StereoAudioSampleContainer>(
+                memory::SingleFrame->allocate<StereoAudioSampleContainer>(
                     buffer.numSamplesToWrite,
                     true
                 );

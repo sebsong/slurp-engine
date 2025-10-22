@@ -82,11 +82,11 @@ namespace memory {
         MemoryArena assetLoader;
     };
 
-    static MemoryArena* permanent;
+    static MemoryArena* Permanent;
 
-    static MemoryArena* transient;
+    static MemoryArena* Transient;
 
-    static MemoryArena* singleFrame;
+    static MemoryArena* SingleFrame;
 
-    static MemoryArena* assetLoader;
+    static MemoryArena* AssetLoader;
 }
