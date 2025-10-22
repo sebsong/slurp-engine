@@ -7,7 +7,7 @@
 #include "Input.h"
 #include "Audio.h"
 #include "EntityManager.h"
-#include "SoundManager.h"
+#include "AudioPlayer.h"
 #include "Game.h"
 
 /** Single translation unit, unity build **/
@@ -25,7 +25,7 @@ namespace slurp {
         job::JobRunner jobRunner;
         asset::AssetLoader assetLoader;
         EntityManager entityManager;
-        audio::SoundManager soundManager;
+        audio::AudioPlayer audioManager;
     };
 
 #if DEBUG

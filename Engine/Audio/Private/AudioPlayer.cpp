@@ -1,22 +1,22 @@
-#include "SoundManager.h"
+#include "AudioPlayer.h"
 
 #include "PlayingSound.h"
 
 namespace audio {
-    SoundManager::SoundManager(): _nextSoundId(0),
+    AudioPlayer::AudioPlayer(): _nextSoundId(0),
                                   _globalVolumeMultiplier(1.f),
                                   _loopingQueue(types::deque_arena<PlayingSound>()),
                                   _oneShotQueue(types::deque_arena<PlayingSound>()) {}
 
-    void SoundManager::setGlobalVolume(float volumeMultiplier) {
+    void AudioPlayer::setGlobalVolume(float volumeMultiplier) {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    void SoundManager::playSound(const asset::Sound* sound) {
-        playSound(sound, 1.0f, false);
+    void AudioPlayer::play(const asset::Sound* sound) {
+        play(sound, 1.0f, false);
     }
 
-    void SoundManager::playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+    void AudioPlayer::play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
         ASSERT(sound);
         if (!sound) {
             return;
@@ -59,7 +59,7 @@ namespace audio {
         }
     }
 
-    void SoundManager::bufferAudio(const AudioBuffer& buffer) {
+    void AudioPlayer::bufferAudio(const AudioBuffer& buffer) {
         StereoAudioSampleContainer* sampleContainers =
                 slurp::Globals->GameMemory->singleFrame.allocate<StereoAudioSampleContainer>(
                     buffer.numSamplesToWrite,
@@ -77,18 +77,18 @@ namespace audio {
     /** Global Methods **/
 
     void setGlobalVolume(float volumeMultiplier) {
-        slurp::Globals->SoundManager->setGlobalVolume(volumeMultiplier);
+        slurp::Globals->AudioManager->setGlobalVolume(volumeMultiplier);
     }
 
-    void playSound(const asset::Sound* sound) {
-        slurp::Globals->SoundManager->playSound(sound);
+    void play(const asset::Sound* sound) {
+        slurp::Globals->AudioManager->play(sound);
     }
 
-    void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
-        slurp::Globals->SoundManager->playSound(sound, volumeMultiplier, shouldLoop);
+    void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+        slurp::Globals->AudioManager->play(sound, volumeMultiplier, shouldLoop);
     }
 
     void bufferAudio(const AudioBuffer& buffer) {
-        slurp::Globals->SoundManager->bufferAudio(buffer);
+        slurp::Globals->AudioManager->bufferAudio(buffer);
     }
 }

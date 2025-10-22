@@ -44,7 +44,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "PlayingSound.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "SoundManager.cpp"
+#include "AudioPlayer.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
@@ -65,7 +65,7 @@ namespace slurp {
             Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
             Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
             Globals->EntityManager = new(&engineSystems->entityManager) EntityManager();
-            Globals->SoundManager = new(&engineSystems->soundManager) audio::SoundManager();
+            Globals->AudioManager = new(&engineSystems->audioManager) audio::AudioPlayer();
         } else {
             Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
         }

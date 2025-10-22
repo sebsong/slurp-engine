@@ -7,7 +7,7 @@ namespace game {
 }
 
 namespace audio {
-    class SoundManager;
+    class AudioPlayer;
 }
 
 namespace asset {
@@ -45,7 +45,7 @@ namespace slurp {
         job::JobRunner* JobRunner;
         asset::AssetLoader* AssetLoader;
         EntityManager* EntityManager;
-        audio::SoundManager* SoundManager;
+        audio::AudioPlayer* AudioManager;
 #if DEBUG
         RecordingState* RecordingState;
 #endif

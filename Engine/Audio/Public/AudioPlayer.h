@@ -8,16 +8,16 @@ namespace audio {
     struct PlayingSound;
     struct AudioBuffer;
 
-    class SoundManager {
+    class AudioPlayer {
     public:
-        explicit SoundManager();
+        explicit AudioPlayer();
 
         /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
-        void playSound(const asset::Sound* sound);
+        void play(const asset::Sound* sound);
 
-        void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+        void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
 
         /** Engine **/
         void bufferAudio(const AudioBuffer& buffer);
@@ -32,9 +32,9 @@ namespace audio {
     /** Global Methods **/
     void setGlobalVolume(float volumeMultiplier);
 
-    void playSound(const asset::Sound* sound);
+    void play(const asset::Sound* sound);
 
-    void playSound(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+    void play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
 
     /** Engine **/
     void bufferAudio(const AudioBuffer& buffer);
