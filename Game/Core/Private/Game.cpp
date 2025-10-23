@@ -56,9 +56,8 @@ namespace game {
             GameSystems* gameSystems = memory::Permanent->allocate<GameSystems>();
             Assets = slurp::Globals->GameAssets = &gameSystems->assets;
             State = slurp::Globals->GameState = &gameSystems->state;
+            loadAssets();
         }
-
-        loadAssets();
 
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         random::setRandomSeed(State->randomSeed);

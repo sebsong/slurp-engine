@@ -7,7 +7,6 @@ namespace global {
         GameGlobal();
 
     private:
-        audio::sound_id _bgmId;
 
         void initialize() override;
 
