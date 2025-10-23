@@ -7,8 +7,6 @@ namespace entity {
     struct Entity;
 }
 
-#define NO_OP_ON_COLLISION [](const entity::Entity*) {}
-
 namespace collision {
     struct CollisionShape {
         geometry::Shape shape;

@@ -57,7 +57,9 @@ namespace projectile {
         );
 
         game::State->projectileIdx++;
-        if (game::State->projectileIdx >= PROJECTILE_POOL_SIZE) { game::State->projectileIdx = 0; }
+        if (game::State->projectileIdx >= PROJECTILE_POOL_SIZE) {
+            game::State->projectileIdx = 0;
+        }
     }
 
     void Projectile::update(float dt) {

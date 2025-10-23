@@ -1,8 +1,8 @@
 #include "Memory.h"
 
-#include <cstring>
-
 #include "Debug.h"
+
+#include <cstring>
 
 namespace memory {
     MemoryArena::MemoryArena(): _name("UNINITIALIZED"),

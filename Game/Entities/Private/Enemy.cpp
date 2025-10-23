@@ -59,6 +59,8 @@ namespace enemy {
     void Enemy::initialize() {
         Entity::initialize();
 
+        logging::debug("INIT ENEMY");
+
         this->renderInfo = {
             game::Assets->enemySprite,
             true

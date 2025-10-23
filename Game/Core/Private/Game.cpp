@@ -19,8 +19,14 @@ namespace game {
         T&& entity
     ) {
         // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
-        new(&entityLocation) T(std::forward<T>(entity));
-        entity::registerEntity(entityLocation);
+        if (entityLocation.id != entity::INVALID_ENTITY_ID) {
+            // Entity is already initialized, this is a hot reload
+            // re-instantiate to re-initialize vtable
+            new(&entityLocation) T(entityLocation);
+        } else {
+            new(&entityLocation) T(std::forward<T>(entity));
+            entity::registerEntity(entityLocation);
+        }
     }
 
     static void loadAssets() {
@@ -46,13 +52,11 @@ namespace game {
         if (isInitialized) {
             Assets = slurp::Globals->GameAssets;
             State = slurp::Globals->GameState;
-            loadAssets();
-            return;
+        } else {
+            GameSystems* gameSystems = memory::Permanent->allocate<GameSystems>();
+            Assets = slurp::Globals->GameAssets = &gameSystems->assets;
+            State = slurp::Globals->GameState = &gameSystems->state;
         }
-
-        GameSystems* gameSystems = memory::Permanent->allocate<GameSystems>();
-        Assets = slurp::Globals->GameAssets = &gameSystems->assets;
-        State = slurp::Globals->GameState = &gameSystems->state;
 
         loadAssets();
 

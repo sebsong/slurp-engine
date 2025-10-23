@@ -14,6 +14,8 @@ namespace entity {
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
+        Entity(const Entity& other) noexcept;
+
         Entity(Entity&& other) noexcept;
 
         Entity(

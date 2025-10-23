@@ -60,33 +60,7 @@ namespace timer {
         _timers.erase(handle);
     }
 
-    /** Global Methods **/
-
-    timer_handle getNewHandle() {
-        return slurp::Globals->Timer->getNewHandle();
-    }
-
-    void start(timer_handle handle, float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
-        return slurp::Globals->Timer->start(handle, durationSeconds, shouldLoop, std::move(callback));
-    }
-
-    timer_handle start(float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
-        return slurp::Globals->Timer->start(durationSeconds, shouldLoop, std::move(callback));
-    }
-
-    void delay(float delayDurationSeconds, std::function<void()>&& callback) {
-        slurp::Globals->Timer->delay(delayDurationSeconds, std::move(callback));
-    }
-
-    void tick(float dt) {
-        slurp::Globals->Timer->tick(dt);
-    }
-
-    void reset(timer_handle handle) {
-        slurp::Globals->Timer->reset(handle);
-    }
-
-    void cancel(timer_handle handle) {
-        slurp::Globals->Timer->cancel(handle);
+    void Timer::shutdown() {
+        _timers.clear();
     }
 }

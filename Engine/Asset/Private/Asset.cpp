@@ -54,9 +54,9 @@ namespace asset {
     Bitmap* AssetLoader::loadBitmap(const std::string& bitmapFileName) {
         std::string filePath = SpritesDirectory + bitmapFileName;
         asset_id assetId = _getAssetId(filePath);
-        if (Asset* existingAsset = _getAsset(assetId)) {
-            return reinterpret_cast<Bitmap*>(existingAsset);
-        }
+        // if (Asset* existingAsset = _getAsset(assetId)) {
+        //     return reinterpret_cast<Bitmap*>(existingAsset);
+        // }
 
         Bitmap* bitmap = memory::AssetLoader->allocate<Bitmap>();
         _registerAsset(assetId, bitmap);
@@ -87,9 +87,9 @@ namespace asset {
         std::string filePath = SpritesDirectory + bitmapFileName;
         asset_id assetId = _getAssetId(filePath + vertexShaderFileName + fragmentShaderFileName);
 
-        if (Asset* existingSprite = _getAsset(assetId)) {
-            return reinterpret_cast<Sprite*>(existingSprite);
-        }
+        // if (Asset* existingSprite = _getAsset(assetId)) {
+        //     return reinterpret_cast<Sprite*>(existingSprite);
+        // }
 
         Sprite* sprite = memory::Permanent->allocate<Sprite>();
         _registerAsset(assetId, sprite);

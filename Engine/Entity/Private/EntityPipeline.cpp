@@ -7,12 +7,11 @@
 #include "Render.h"
 
 namespace entity {
-    EntityPipeline::EntityPipeline() : _pipeline(types::deque_arena<Entity*>()) {}
+    EntityPipeline::EntityPipeline() : _nextEntityId(1), _pipeline(types::deque_arena<Entity*>()) {}
 
     void EntityPipeline::registerEntity(Entity& entity) {
-        uint32_t id = _pipeline.size();
         _pipeline.emplace_back(&entity);
-        entity.id = id;
+        entity.id = _nextEntityId++;
     }
 
     void EntityPipeline::initializeEntities() const {

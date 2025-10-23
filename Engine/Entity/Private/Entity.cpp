@@ -1,6 +1,15 @@
 #include "Entity.h"
 
 namespace entity {
+    Entity::Entity(const Entity& other) noexcept
+        : id(other.id),
+          name(other.name),
+          enabled(other.enabled),
+          renderInfo(other.renderInfo),
+          physicsInfo(other.physicsInfo),
+          collisionInfo(other.collisionInfo),
+          shouldDestroy(other.shouldDestroy) {}
+
     Entity::Entity(Entity&& other) noexcept
         : id(std::move(other.id)),
           name(std::move(other.name)),

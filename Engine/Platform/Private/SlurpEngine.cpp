@@ -149,6 +149,7 @@ namespace slurp {
 
     SLURP_SHUTDOWN(shutdown) {
         job::shutdown();
+        timer::shutdown();
         memory::Transient->freeAll();
     }
 }
