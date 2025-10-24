@@ -146,11 +146,6 @@ namespace game {
         );
 
         registerEntity(
-            State->player,
-            player::Player()
-        );
-
-        registerEntity(
             State->mouseCursor,
             mouse_cursor::MouseCursor()
         );
