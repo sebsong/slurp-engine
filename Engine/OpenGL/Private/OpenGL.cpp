@@ -19,10 +19,10 @@ namespace open_gl {
         {0.f, 2.f / CAMERA_WORLD_HEIGHT}
     };
 
-    OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title)
+    OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title, bool isFullscreen)
         : _isValid(true),
           _window(nullptr) {
-        if (!init(width, height, title)) {
+        if (!init(width, height, title, isFullscreen)) {
             this->_isValid = false;
         }
     }
@@ -41,7 +41,7 @@ namespace open_gl {
         glViewport(0, 0, width, height);
     }
 
-    bool OpenGLRenderWindow::init(int width, int height, const char* title) {
+    bool OpenGLRenderWindow::init(int width, int height, const char* title, bool isFullscreen) {
         /** Window **/
         if (glfwInit() == GLFW_FALSE) {
             logging::error("Failed to initialize GLFW");
@@ -52,7 +52,15 @@ namespace open_gl {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        GLFWwindow* window;
+        if (isFullscreen) {
+            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+            window = glfwCreateWindow(mode->width, mode->height, title, monitor, nullptr);
+        } else {
+            window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        }
+
         if (!window) {
             logging::error("Failed to create GLFW window");
             glfwTerminate();

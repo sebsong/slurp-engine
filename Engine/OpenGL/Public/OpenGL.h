@@ -9,7 +9,7 @@ namespace open_gl {
 
     class OpenGLRenderWindow {
     public:
-        OpenGLRenderWindow(int width, int height, const char* title);
+        OpenGLRenderWindow(int width, int height, const char* title, bool isFullscreen);
 
         HWND getWin32Handle() const;
 
@@ -24,7 +24,7 @@ namespace open_gl {
         static void terminate();
 
     private:
-        bool init(int width, int height, const char* title);
+        bool init(int width, int height, const char* title, bool isFullscreen);
 
         bool _isValid;
         GLFWwindow* _window;

@@ -928,7 +928,7 @@ int WINAPI WinMain(
     int nCmdShow
 ) {
 #if RENDER_API == OPEN_GL
-    open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE);
+    open_gl::OpenGLRenderWindow renderWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, WINDOW_TITLE, FULLSCREEN);
     if (!renderWindow.isValid()) { return 1; }
 #endif
     HWND windowHandle = renderWindow.getWin32Handle();
