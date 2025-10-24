@@ -11,7 +11,9 @@
 
 namespace game {
     struct GameAssets {
+        asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
+        asset::Sprite* baseSprite;
         asset::Sprite* enemySprite;
         asset::Sprite* mouseCursorSprite;
         asset::Sprite* playerSprite;
@@ -29,26 +31,19 @@ namespace game {
 
         global::GameGlobal global;
 
-        // entity::Entity background;
+        entity::Entity background;
         entity::Entity border;
         obstacle::Obstacle wallUp;
         obstacle::Obstacle wallDown;
         obstacle::Obstacle wallLeft;
         obstacle::Obstacle wallRight;
-        obstacle::Obstacle obstacle1;
-        obstacle::Obstacle obstacle2;
-
-        entity::Entity triangleBackground;
-        entity::Entity triangle;
-
-        entity::Entity testAlpha;
+        entity::Entity base;
 
         mouse_cursor::MouseCursor mouseCursor;
         player::Player player;
         enemy::Enemy enemies[NUM_ENEMIES];
         uint32_t projectileIdx;
         projectile::Projectile projectiles[PROJECTILE_POOL_SIZE];
-        entity::Entity colorPaletteSwatch[COLOR_PALETTE_SIZE];
     };
 
     struct GameSystems {

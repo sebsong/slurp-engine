@@ -30,7 +30,9 @@ namespace game {
     }
 
     static void loadAssets() {
+        Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
+        Assets->baseSprite = asset::loadSprite("base.bmp");
         Assets->enemySprite = asset::loadSprite("enemy.bmp");
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
         Assets->playerSprite = asset::loadSprite("player.bmp");
@@ -67,6 +69,16 @@ namespace game {
         registerEntity(
             State->global,
             global::GameGlobal()
+        );
+
+        registerEntity(
+            State->background,
+            entity::Entity(
+                "Background",
+                render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            )
         );
 
         registerEntity(
@@ -115,6 +127,27 @@ namespace game {
                 wallRightShape,
                 {CAMERA_WORLD_WIDTH_MAX, 0}
             )
+        );
+
+        geometry::Shape baseShape = {geometry::Rect, {24, 24}};
+        registerEntity(
+            State->base,
+            entity::Entity(
+                "Base",
+                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo(
+                    true,
+                    false,
+                    baseShape,
+                    true
+                )
+            )
+        );
+
+        registerEntity(
+            State->player,
+            player::Player()
         );
 
         registerEntity(
