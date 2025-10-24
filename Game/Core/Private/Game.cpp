@@ -79,22 +79,8 @@ namespace game {
             )
         );
 
-        // registerEntity(
-        //     GlobalState->background,
-        //     entity::Entity(
-        //         "Background",
-        //         render::RenderInfo(
-        //             render::RenderShape{
-        //                 {geometry::Rect, {1280, 720}},
-        //                 getColor(2)
-        //             },
-        //             false
-        //         ),
-        //         physics::PhysicsInfo(),
-        //         collision::CollisionInfo()
-        //     )
-        // );
-        geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
+        float wallThickness = 10;
+        geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, wallThickness}};
         registerEntity(
             State->wallUp,
             obstacle::Obstacle(
@@ -103,7 +89,7 @@ namespace game {
                 {0, CAMERA_WORLD_HEIGHT_MAX}
             )
         );
-        geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, 20}};
+        geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, wallThickness}};
         registerEntity(
             State->wallDown,
             obstacle::Obstacle(
@@ -112,7 +98,7 @@ namespace game {
                 {0, -CAMERA_WORLD_HEIGHT_MAX}
             )
         );
-        geometry::Shape wallLeftShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
+        geometry::Shape wallLeftShape = {geometry::Rect, {wallThickness, CAMERA_WORLD_HEIGHT}};
         registerEntity(
             State->wallLeft,
             obstacle::Obstacle(
@@ -121,7 +107,7 @@ namespace game {
                 {-CAMERA_WORLD_WIDTH_MAX, 0}
             )
         );
-        geometry::Shape wallRightShape = {geometry::Rect, {20, CAMERA_WORLD_HEIGHT}};
+        geometry::Shape wallRightShape = {geometry::Rect, {wallThickness, CAMERA_WORLD_HEIGHT}};
         registerEntity(
             State->wallRight,
             obstacle::Obstacle(
@@ -130,43 +116,6 @@ namespace game {
                 {CAMERA_WORLD_WIDTH_MAX, 0}
             )
         );
-        // geometry::Shape obstacle1Shape = {geometry::Rect, {150, 150}};
-        // registerEntity(
-        //     GlobalState->obstacle1,
-        //     obstacle::Obstacle(
-        //         "Obstacle1",
-        //         obstacle1Shape,
-        //         {200, 500}
-        //     )
-        // );
-        // geometry::Shape obstacle2Shape = {geometry::Rect, {300, 200}};
-        // registerEntity(
-        //     GlobalState->obstacle2,
-        //     obstacle::Obstacle(
-        //         "Obstacle2",
-        //         obstacle2Shape,
-        //         {500, 400}
-        //     )
-        // );
-
-        for (int i = 0; i < PROJECTILE_POOL_SIZE; i++) {
-            registerEntity(
-                State->projectiles[i],
-                projectile::Projectile(i)
-            );
-        }
-
-        registerEntity(
-            State->player,
-            player::Player()
-        );
-
-        for (int i = 0; i < NUM_ENEMIES; i++) {
-            registerEntity(
-                State->enemies[i],
-                enemy::Enemy(i)
-            );
-        }
 
         registerEntity(
             State->mouseCursor,

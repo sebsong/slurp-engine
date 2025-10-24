@@ -960,7 +960,7 @@ int WINAPI WinMain(
     slurp::KeyboardState keyboardState;
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS];
 
-#if !DEBUG_SHOW_MOUSE_CURSOR
+#if HIDE_CURSOR
     ShowCursor(false);
 #endif
 

@@ -46,7 +46,7 @@ namespace entity {
                 render::drawRenderable(entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
-                const Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
+                const slurp::Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
                 debug::drawRectBorder(
                     offsetPosition,
                     offsetPosition + entity->collisionInfo.shape.shape.dimensions,

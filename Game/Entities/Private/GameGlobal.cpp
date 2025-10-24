@@ -20,7 +20,9 @@ namespace global {
         Entity::initialize();
 
         audio::setGlobalVolume(GlobalVolume);
-        audio::play(game::Assets->backgroundMusic, 0.2, true);
+        if (!_bgmId) {
+            _bgmId = audio::play(game::Assets->backgroundMusic, 0.2, true);
+        }
     }
 
     void GameGlobal::handleMouseAndKeyboardInput(
