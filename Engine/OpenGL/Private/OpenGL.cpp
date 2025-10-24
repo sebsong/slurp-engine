@@ -75,6 +75,10 @@ namespace open_gl {
         }
         glfwSetFramebufferSizeCallback(_window, resizeViewport);
 
+        if (HIDE_CURSOR) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        }
+
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
 
