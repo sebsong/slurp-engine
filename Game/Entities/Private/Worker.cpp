@@ -7,10 +7,9 @@ namespace worker {
     Worker::Worker(): Entity("Worker") {}
 
     void Worker::initialize() {
-        logging::debug("INIT WORKER");
         Entity::initialize();
         geometry::Shape workerShape = {geometry::Rect, {5, 2}};
-        this->renderInfo = render::RenderInfo(slurp::Globals->GameAssets->workerSprite, true, {0, 3});
+        this->renderInfo = render::RenderInfo(slurp::Globals->GameAssets->workerSprite, true, {0, 2});
         this->physicsInfo = physics::PhysicsInfo(
             {50, 50},
             BaseSpeed,

@@ -17,6 +17,8 @@ namespace game {
 
         asset::Sprite* baseSprite;
 
+        asset::Sprite* goldSprite;
+
         asset::Sprite* workerSprite;
 
         asset::Sprite* enemySprite;
@@ -44,6 +46,7 @@ namespace game {
         obstacle::Obstacle wallRight;
 
         entity::Entity base;
+        entity::Entity gold;
         worker::Worker worker;
 
         mouse_cursor::MouseCursor mouseCursor;

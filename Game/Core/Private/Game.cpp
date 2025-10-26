@@ -34,6 +34,7 @@ namespace game {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
         Assets->baseSprite = asset::loadSprite("base.bmp");
+        Assets->goldSprite = asset::loadSprite("gold.bmp");
         Assets->workerSprite = asset::loadSprite("worker.bmp");
         Assets->enemySprite = asset::loadSprite("enemy.bmp");
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
@@ -131,17 +132,33 @@ namespace game {
             )
         );
 
-        geometry::Shape baseShape = {geometry::Rect, {24, 10}};
+        geometry::Shape baseShape = {geometry::Rect, {24, 5}};
         registerEntity(
             State->base,
             entity::Entity(
                 "Base",
-                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, {0, 7}),
+                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, {0, 3}),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo(
                     true,
                     false,
                     baseShape,
+                    true
+                )
+            )
+        );
+
+        geometry::Shape goldShape = {geometry::Rect, {16, 7}};
+        registerEntity(
+            State->gold,
+            entity::Entity(
+                "Gold",
+                render::RenderInfo(slurp::Globals->GameAssets->goldSprite, true, {0, 7}),
+                physics::PhysicsInfo({-150, -75}),
+                collision::CollisionInfo(
+                    true,
+                    false,
+                    goldShape,
                     true
                 )
             )
