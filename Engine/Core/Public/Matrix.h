@@ -45,4 +45,25 @@ namespace slurp {
 
         Mat32(const Vec2<T>& i, const Vec2<T>& j, const Vec2<T>& k) : i(i), j(j), k(k) {}
     };
+
+    template<typename T>
+    struct Mat33 {
+        union {
+            struct {
+                T x1, y1, z1;
+                T x2, y2, z2;
+                T x3, y3, z3;
+            };
+
+            struct {
+                Vec3<T> i;
+                Vec3<T> j;
+                Vec3<T> k;
+            };
+
+            Vec3<T> rows[3];
+        };
+
+        Mat33(const Vec3<T>& i, const Vec3<T>& j, const Vec3<T>& k) : i(i), j(j), k(k) {}
+    };
 }

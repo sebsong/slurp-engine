@@ -8,6 +8,8 @@ namespace slurp {
     struct Mat22;
     template<typename T>
     struct Mat32;
+    template<typename T>
+    struct Mat33;
 
     template<typename T>
     struct Vec2 {
@@ -206,6 +208,12 @@ namespace slurp {
             this->z = _z;
         }
 
+        Vec3(const Vec2<T> vec2, T _z) {
+            this->x = vec2.x;
+            this->y = vec2.y;
+            this->z = _z;
+        }
+
         bool isZero() const {
             return *this == Zero;
         }
@@ -256,6 +264,11 @@ namespace slurp {
         }
 
         template<typename U>
+        Vec3<std::common_type_t<T, U> > operator+(const Vec2<U>& other) const {
+            return Vec3<std::common_type_t<T, U> >(this->x + other.x, this->y + other.y, this->z);
+        }
+
+        template<typename U>
         Vec3<std::common_type_t<T, U> > operator-(const Vec3<U>& other) const {
             return Vec3<std::common_type_t<T, U> >(this->x - other.x, this->y - other.y, this->z - other.z);
         }
@@ -263,6 +276,15 @@ namespace slurp {
         template<typename TScalar>
         Vec3<std::common_type_t<T, TScalar> > operator*(const TScalar& scalar) const {
             return Vec3<std::common_type_t<T, TScalar> >(this->x * scalar, this->y * scalar, this->z * scalar);
+        }
+
+        template<typename TMatrix>
+        Vec3<std::common_type_t<T, TMatrix> > operator*(const Mat33<TMatrix>& matrix) const {
+            return Vec3<std::common_type_t<T, TMatrix> >(
+                x * matrix.x1 + y * matrix.x2 + z * matrix.x3,
+                x * matrix.y1 + y * matrix.y2 + z * matrix.y3,
+                x * matrix.z1 + y * matrix.z2 + z * matrix.z3
+            );
         }
 
         template<typename TScalar>
@@ -274,6 +296,12 @@ namespace slurp {
             this->x += other.x;
             this->y += other.y;
             this->z += other.z;
+            return *this;
+        }
+
+        Vec3& operator+=(const Vec2<T>& other) {
+            this->x += other.x;
+            this->y += other.y;
             return *this;
         }
 
