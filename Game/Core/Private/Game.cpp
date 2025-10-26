@@ -3,14 +3,15 @@
 #include "SlurpEngine.h"
 #include "RenderApi.h"
 #include "EntityPipeline.h"
+#include "Settings.h"
 
 #include "GameGlobal.cpp"
 #include "Obstacle.cpp"
+#include "Worker.cpp"
 #include "Player.cpp"
 #include "Enemy.cpp"
 #include "Projectile.cpp"
 #include "MouseCursor.cpp"
-#include "Settings.h"
 
 namespace game {
     template<typename T>
@@ -33,6 +34,7 @@ namespace game {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
         Assets->baseSprite = asset::loadSprite("base.bmp");
+        Assets->workerSprite = asset::loadSprite("worker.bmp");
         Assets->enemySprite = asset::loadSprite("enemy.bmp");
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
         Assets->playerSprite = asset::loadSprite("player.bmp");
@@ -143,6 +145,11 @@ namespace game {
                     true
                 )
             )
+        );
+
+        registerEntity(
+            State->worker,
+            worker::Worker()
         );
 
         registerEntity(

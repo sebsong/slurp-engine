@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Projectile.h"
+#include "Worker.h"
 
 #define NUM_ENEMIES 4
 #define PROJECTILE_POOL_SIZE 10
@@ -13,7 +14,11 @@ namespace game {
     struct GameAssets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
+
         asset::Sprite* baseSprite;
+
+        asset::Sprite* workerSprite;
+
         asset::Sprite* enemySprite;
         asset::Sprite* mouseCursorSprite;
         asset::Sprite* playerSprite;
@@ -37,7 +42,9 @@ namespace game {
         obstacle::Obstacle wallDown;
         obstacle::Obstacle wallLeft;
         obstacle::Obstacle wallRight;
+
         entity::Entity base;
+        worker::Worker worker;
 
         mouse_cursor::MouseCursor mouseCursor;
         player::Player player;

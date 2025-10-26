@@ -7,7 +7,7 @@
 
 #set ($CLASS_NAME_SNAKE_CASE = $CLASS_NAME.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase())
 namespace ${CLASS_NAME_SNAKE_CASE} {
-    class ${CLASS_NAME} final : public slurp::Entity {
+    class ${CLASS_NAME} final : public entity::Entity {
     public:
         ${CLASS_NAME}();
 
@@ -23,8 +23,8 @@ namespace ${CLASS_NAME_SNAKE_CASE} {
         
         void update(float dt) override;
 
-        void onCollisionEnter(const Entity* other) override;
-        
-        void onCollisionExit(const Entity* other) override;
+        void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override {};
+
+        void onCollisionExit(const collision::CollisionDetails& collisionDetails) override {};
     };
 }

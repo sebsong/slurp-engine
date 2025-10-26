@@ -14,9 +14,13 @@ namespace entity {
         collision::CollisionInfo collisionInfo;
         bool shouldDestroy;
 
+        Entity() noexcept;
+
         Entity(const Entity& other) noexcept;
 
         Entity(Entity&& other) noexcept;
+
+        Entity(std::string&& name);
 
         Entity(
             std::string&& name,

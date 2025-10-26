@@ -1,6 +1,8 @@
 #include "Entity.h"
 
 namespace entity {
+    Entity::Entity() noexcept: id(INVALID_ENTITY_ID), enabled(false), shouldDestroy(false) {}
+
     Entity::Entity(const Entity& other) noexcept
         : id(other.id),
           name(other.name),
@@ -19,12 +21,18 @@ namespace entity {
           collisionInfo(std::move(other.collisionInfo)),
           shouldDestroy(std::move(other.shouldDestroy)) {}
 
+    Entity::Entity(std::string&& name)
+        : id(INVALID_ENTITY_ID),
+          name(std::move(name)),
+          enabled(true),
+          shouldDestroy(false) {}
+
     Entity::Entity(
         std::string&& name,
         const render::RenderInfo& renderInfo,
         const physics::PhysicsInfo& physicsInfo,
         const collision::CollisionInfo& collisionInfo
-    ): id(-1),
+    ): id(INVALID_ENTITY_ID),
        name(std::move(name)),
        enabled(true),
        renderInfo(renderInfo),
