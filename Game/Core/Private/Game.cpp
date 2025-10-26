@@ -129,12 +129,12 @@ namespace game {
             )
         );
 
-        geometry::Shape baseShape = {geometry::Rect, {24, 24}};
+        geometry::Shape baseShape = {geometry::Rect, {24, 10}};
         registerEntity(
             State->base,
             entity::Entity(
                 "Base",
-                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true),
+                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, {0, 7}),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo(
                     true,

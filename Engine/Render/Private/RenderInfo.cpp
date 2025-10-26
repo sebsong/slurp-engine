@@ -20,6 +20,12 @@ namespace render {
           renderShape({}),
           renderOffset(getRenderOffset(sprite->dimensions, isCentered)) {}
 
+    RenderInfo::RenderInfo(const asset::Sprite* sprite, bool isCentered, const slurp::Vec2<float>& renderOffset)
+        : renderingEnabled(true),
+          sprite(sprite),
+          renderShape({}),
+          renderOffset(getRenderOffset(sprite->dimensions, isCentered) + renderOffset) {}
+
     RenderInfo::RenderInfo(
         const RenderShape& renderShape,
         bool isCentered

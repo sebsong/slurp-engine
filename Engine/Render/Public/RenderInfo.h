@@ -9,12 +9,14 @@ namespace render {
     struct RenderInfo {
         bool renderingEnabled;
         const asset::Sprite* sprite;
-        RenderShape renderShape;
+        RenderShape renderShape; // TODO: get rid of this?
         slurp::Vec2<float> renderOffset;
 
         RenderInfo();
 
         RenderInfo(const asset::Sprite* sprite, bool isCentered);
+
+        RenderInfo(const asset::Sprite* sprite, bool isCentered, const slurp::Vec2<float>& renderOffset);
 
         RenderInfo(const RenderShape& renderShape, bool isCentered);
 
