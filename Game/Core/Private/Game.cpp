@@ -8,6 +8,7 @@
 #include "GameGlobal.cpp"
 #include "Obstacle.cpp"
 #include "Base.cpp"
+#include "MineSite.cpp"
 #include "Worker.cpp"
 #include "Player.cpp"
 #include "Enemy.cpp"
@@ -138,20 +139,9 @@ namespace game {
             base::Base()
         );
 
-        geometry::Shape goldShape = {geometry::Rect, {16, 7}};
         registerEntity(
-            State->gold,
-            entity::Entity(
-                "Gold",
-                render::RenderInfo(slurp::Globals->GameAssets->goldSprite, true, -75, {0, 7}),
-                physics::PhysicsInfo({-150, -75}),
-                collision::CollisionInfo(
-                    true,
-                    false,
-                    goldShape,
-                    true
-                )
-            )
+            State->mineSite,
+            mine_site::MineSite()
         );
 
         registerEntity(

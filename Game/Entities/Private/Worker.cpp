@@ -1,32 +1,34 @@
 #include "Worker.h"
 
 namespace worker {
+    static const geometry::Shape WorkerShape = {geometry::Rect, {5, 2}};
     static constexpr float BaseSpeed = 100;
     static constexpr float BaseAcceleration = BaseSpeed * 16;
     static const slurp::Vec2<float> StartPos = {50, 50};
 
-    Worker::Worker(): Entity("Worker") {}
-
-    void Worker::initialize() {
-        Entity::initialize();
-        geometry::Shape workerShape = {geometry::Rect, {5, 2}};
-        this->renderInfo = render::RenderInfo(
+    Worker::Worker(): Entity(
+        "Worker",
+        render::RenderInfo(
             slurp::Globals->GameAssets->workerSprite,
             true,
             StartPos.y,
             {0, 2}
-        );
-        this->physicsInfo = physics::PhysicsInfo(
+        ),
+        physics::PhysicsInfo(
             StartPos,
             BaseSpeed,
             BaseAcceleration
-        );
-        this->collisionInfo = collision::CollisionInfo(
+        ),
+        collision::CollisionInfo(
             false,
             false,
-            workerShape,
+            WorkerShape,
             true
-        );
+        )
+    ) {}
+
+    void Worker::initialize() {
+        Entity::initialize();
     }
 
     void Worker::handleMouseAndKeyboardInput(

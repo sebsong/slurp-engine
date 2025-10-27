@@ -1,6 +1,7 @@
 #pragma once
 #include "GameGlobal.h"
 #include "Base.h"
+#include "MineSite.h"
 #include "Obstacle.h"
 #include "MouseCursor.h"
 #include "Player.h"
@@ -47,7 +48,7 @@ namespace game {
         obstacle::Obstacle wallRight;
 
         base::Base base;
-        entity::Entity gold;
+        mine_site::MineSite mineSite;
         worker::Worker worker;
 
         mouse_cursor::MouseCursor mouseCursor;
