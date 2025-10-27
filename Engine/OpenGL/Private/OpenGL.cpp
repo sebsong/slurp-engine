@@ -81,8 +81,8 @@ namespace open_gl {
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
-
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_PROGRAM_POINT_SIZE);
 
         return true;
     }
@@ -276,6 +276,20 @@ namespace open_gl {
     RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
         prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, zOrder);
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
+    }
+
+    RENDER_DRAW_POINT(drawPoint) {
+        glBindVertexArray(vertexArrayId);
+        glUseProgram(shaderProgramId);
+        int colorUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::COLOR_UNIFORM_NAME
+        );
+        if (colorUniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform4fv(colorUniformLoc, 1, color.values);
+        }
+        glPointSize(size);
+        glDrawArrays(GL_POINTS, 0, vertexCount);
     }
 
     RENDER_DRAW_LINE(drawLine) {

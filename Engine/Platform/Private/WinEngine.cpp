@@ -916,6 +916,7 @@ static render::RenderApi loadRenderApi() {
     renderApi.genElementArrayBuffer = open_gl::genElementArrayBuffer;
     renderApi.drawVertexArray = open_gl::drawVertexArray;
     renderApi.drawElementArray = open_gl::drawElementArray;
+    renderApi.drawPoint = open_gl::drawPoint;
     renderApi.drawLine = open_gl::drawLine;
     renderApi.deleteResources = open_gl::deleteResources;
     return renderApi;

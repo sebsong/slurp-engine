@@ -58,6 +58,15 @@ namespace render {
         int zOrder \
     )
 
+#define RENDER_DRAW_POINT(fnName) \
+        void fnName( \
+        render::object_id vertexArrayId, \
+        int vertexCount, \
+        render::object_id shaderProgramId, \
+        float size, \
+        const slurp::Vec4<float>& color \
+    )
+
 #define RENDER_DRAW_LINE(fnName) \
     void fnName( \
         render::object_id vertexArrayId, \
@@ -90,6 +99,8 @@ namespace render {
 
     SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_ELEMENT_ARRAY, drawElementArray)
 
+    SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_POINT, drawPoint)
+
     SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_LINE, drawLine)
 
     SLURP_DECLARE_DYNAMIC_VOID(RENDER_DELETE_RESOURCES, deleteResources)
@@ -102,6 +113,7 @@ namespace render {
         dyn_genElementArrayBuffer* genElementArrayBuffer = stub_genElementArrayBuffer;
         dyn_drawVertexArray* drawVertexArray = stub_drawVertexArray;
         dyn_drawElementArray* drawElementArray = stub_drawElementArray;
+        dyn_drawPoint* drawPoint = stub_drawPoint;
         dyn_drawLine* drawLine = stub_drawLine;
         dyn_deleteResources* deleteResources = stub_deleteResources;
     };

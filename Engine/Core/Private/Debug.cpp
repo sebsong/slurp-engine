@@ -3,9 +3,42 @@
 #include "Global.h"
 #include "RenderApi.h"
 #if DEBUG
+static constexpr uint32_t PointVertexCount = 1;
 static constexpr uint32_t LineVertexCount = 2;
 
 namespace debug {
+    void drawPoint(
+        const slurp::Vec2<float>& point,
+        float size,
+        const slurp::Vec4<float>& color
+    ) {
+        render::Vertex vertexArray[PointVertexCount] = {
+            {point, {}},
+        };
+        render::object_id vertexArrayId = slurp::Globals->RenderApi->
+                genVertexArrayBuffer(vertexArray, PointVertexCount);
+        asset::ShaderSource* vertexShaderSource = asset::loadVertexShaderSource("basic.glsl");
+        asset::ShaderSource* fragmentShaderSource = asset::loadFragmentShaderSource("basic.glsl");
+        render::object_id shaderProgramId = slurp::Globals->RenderApi->createShaderProgram(
+            vertexShaderSource->source.c_str(),
+            fragmentShaderSource->source.c_str()
+        );
+        slurp::Globals->RenderApi->drawPoint(
+            vertexArrayId,
+            PointVertexCount,
+            shaderProgramId,
+            size,
+            color
+        );
+        slurp::Globals->RenderApi->deleteResources(
+            vertexArrayId,
+            render::INVALID_OBJECT_ID,
+            render::INVALID_OBJECT_ID,
+            shaderProgramId,
+            render::INVALID_OBJECT_ID
+        );
+    }
+
     void drawLine(
         const slurp::Vec2<float>& start,
         const slurp::Vec2<float>& end,

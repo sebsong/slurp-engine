@@ -3,6 +3,7 @@
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {24, 5}};
     static const slurp::Vec2<float> RenderOffset = {0, 3};
+    static slurp::Vec2<float> WorkerSpawn = {0, -10};
 
     Base::Base(): Entity(
         "Base",
@@ -18,6 +19,11 @@ namespace base {
 
     void Base::initialize() {
         Entity::initialize();
+    }
+
+    void Base::update(float dt) {
+        Entity::update(dt);
+        debug::drawPoint(WorkerSpawn, 3, DEBUG_DRAW_COLOR);
     }
 
     void Base::handleMouseAndKeyboardInput(

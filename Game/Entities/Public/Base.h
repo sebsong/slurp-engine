@@ -13,6 +13,8 @@ namespace base {
     private:
         void initialize() override;
 
+        void update(float dt);
+
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
             const slurp::KeyboardState& keyboardState
