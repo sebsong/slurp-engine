@@ -1,7 +1,8 @@
 #pragma once
 #include "GameGlobal.h"
-#include "MouseCursor.h"
+#include "Base.h"
 #include "Obstacle.h"
+#include "MouseCursor.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Projectile.h"
@@ -45,7 +46,7 @@ namespace game {
         obstacle::Obstacle wallLeft;
         obstacle::Obstacle wallRight;
 
-        entity::Entity base;
+        base::Base base;
         entity::Entity gold;
         worker::Worker worker;
 

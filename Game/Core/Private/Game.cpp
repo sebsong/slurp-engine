@@ -7,6 +7,7 @@
 
 #include "GameGlobal.cpp"
 #include "Obstacle.cpp"
+#include "Base.cpp"
 #include "Worker.cpp"
 #include "Player.cpp"
 #include "Enemy.cpp"
@@ -132,20 +133,9 @@ namespace game {
             )
         );
 
-        geometry::Shape baseShape = {geometry::Rect, {24, 5}};
         registerEntity(
             State->base,
-            entity::Entity(
-                "Base",
-                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, 0, {0, 3}),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo(
-                    true,
-                    false,
-                    baseShape,
-                    true
-                )
-            )
+            base::Base()
         );
 
         geometry::Shape goldShape = {geometry::Rect, {16, 7}};
