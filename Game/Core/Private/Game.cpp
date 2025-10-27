@@ -78,7 +78,7 @@ namespace game {
             State->background,
             entity::Entity(
                 "Background",
-                render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true, Z_ORDER_MAX),
+                render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true, BACKGROUND_Z),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             )
@@ -88,7 +88,7 @@ namespace game {
             State->border,
             entity::Entity(
                 "Border",
-                render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true, Z_ORDER_MAX),
+                render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true, BORDER_Z),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             )

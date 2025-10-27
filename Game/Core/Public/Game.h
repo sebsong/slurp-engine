@@ -56,6 +56,12 @@ namespace game {
         projectile::Projectile projectiles[PROJECTILE_POOL_SIZE];
     };
 
+    enum ZOrder {
+        BACKGROUND_Z = Z_ORDER_MAX,
+        BORDER_Z = Z_ORDER_MAX - 1,
+        MOUSE_Z = -Z_ORDER_MAX,
+    };
+
     struct GameSystems {
         GameAssets assets;
         GameState state;

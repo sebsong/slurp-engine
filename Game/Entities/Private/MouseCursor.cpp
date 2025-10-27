@@ -8,7 +8,7 @@ namespace mouse_cursor {
         render::RenderInfo(
             game::Assets->mouseCursorSprite,
             true,
-           -Z_ORDER_MAX
+           game::MOUSE_Z
         ),
         physics::PhysicsInfo(slurp::Vec2<float>::Zero),
         collision::CollisionInfo()
