@@ -6,10 +6,6 @@
 #include "Mesh.h"
 #include "CollectionTypes.h"
 
-namespace render {
-    struct ColorPalette;
-}
-
 namespace asset {
     struct Bitmap;
 
@@ -64,8 +60,6 @@ namespace asset {
         ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName);
 
         ShaderSource* loadFragmentShaderSource(const std::string& shaderSourceFileName);
-
-        render::ColorPalette loadColorPalette(const std::string& paletteHexFileName);
 
     private:
         std::hash<std::string> _stringHasher;

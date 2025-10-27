@@ -25,9 +25,6 @@
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "RenderInfo.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Render.cpp"
-
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Physics.cpp"
@@ -39,7 +36,6 @@
 #include "Entity.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "EntityPipeline.cpp"
-
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "PlayingSound.cpp"

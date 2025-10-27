@@ -5,14 +5,11 @@
 
 #include <cstdint>
 
-#define COLOR_PALETTE_SIZE 9
-
 namespace entity {
     struct Entity;
 }
 
 namespace render {
-    typedef uint8_t ColorPaletteIdx;
     typedef uint32_t Pixel;
 
     constexpr Pixel AlphaMask = 0xFF000000;
@@ -23,19 +20,6 @@ namespace render {
     constexpr uint8_t GreenShift = 8;
     constexpr Pixel BlueMask = 0x000000FF;
     constexpr uint8_t BlueShift = 0;
-
-    // TODO: move to game layer
-    struct ColorPalette {
-        Pixel colors[COLOR_PALETTE_SIZE];
-    };
-
-    // TODO: move to RenderInfo?
-    struct RenderShape {
-        geometry::Shape shape;
-        Pixel color;
-
-        void draw(const slurp::Vec2<float>& startPoint) const;
-    };
 
     template<typename T>
     concept Renderable = requires(T renderable, const slurp::Vec2<float>& position) {

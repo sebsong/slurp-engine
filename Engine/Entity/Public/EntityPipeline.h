@@ -4,10 +4,6 @@
 
 #include <queue>
 
-namespace render {
-    struct ColorPalette;
-}
-
 namespace entity {
     struct Entity;
 

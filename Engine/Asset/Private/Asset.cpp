@@ -157,27 +157,6 @@ namespace asset {
         return _loadShaderSource(filePath);
     }
 
-    render::ColorPalette AssetLoader::loadColorPalette(const std::string& paletteHexFileName) {
-        render::ColorPalette palette = {};
-
-        const std::string filePath = PalettesDirectory + paletteHexFileName;
-        std::ifstream file(filePath);
-        ASSERT(file.good());
-
-        uint8_t colorPaletteIdx = 0;
-        std::string line;
-        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            render::Pixel color = std::stoi(line, nullptr, 16);
-            if (colorPaletteIdx != 0) {
-                color |= render::AlphaMask;
-            }
-            palette.colors[colorPaletteIdx] = color;
-            colorPaletteIdx++;
-        }
-
-        return palette;
-    }
-
     asset_id AssetLoader::_getAssetId(const std::string& assetFilePath) const {
         return _stringHasher(assetFilePath);
     }
