@@ -17,6 +17,7 @@ namespace game {
         asset::Sprite* baseSprite;
         asset::Sprite* mineSiteSprite;
         asset::Sprite* workerSprite;
+        asset::Sprite* workerLoadedSprite;
 
         asset::Sprite* mouseCursorSprite;
 

@@ -6,26 +6,28 @@ namespace worker {
     static constexpr float BaseAcceleration = BaseSpeed * 16;
     static const slurp::Vec2<float> StartPos = {50, 50};
 
-    Worker::Worker(): Entity(
-        "Worker",
-        render::RenderInfo(
-            slurp::Globals->GameAssets->workerSprite,
-            true,
-            StartPos.y,
-            {0, 2}
-        ),
-        physics::PhysicsInfo(
-            StartPos,
-            BaseSpeed,
-            BaseAcceleration
-        ),
-        collision::CollisionInfo(
-            false,
-            false,
-            WorkerShape,
-            true
-        )
-    ) {}
+    Worker::Worker()
+        : Entity(
+              "Worker",
+              render::RenderInfo(
+                  slurp::Globals->GameAssets->workerSprite,
+                  true,
+                  StartPos.y,
+                  {0, 2}
+              ),
+              physics::PhysicsInfo(
+                  StartPos,
+                  BaseSpeed,
+                  BaseAcceleration
+              ),
+              collision::CollisionInfo(
+                  false,
+                  false,
+                  WorkerShape,
+                  true
+              )
+          ),
+          _isLoaded(false) {}
 
     Worker::Worker(const Worker& other): Entity(other) {}
 
@@ -59,5 +61,19 @@ namespace worker {
     void Worker::update(float dt) {
         Entity::update(dt);
         renderInfo.zOrder = physicsInfo.position.y;
+    }
+
+    void Worker::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
+        Entity::onCollisionEnter(collisionDetails);
+
+        if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
+            _isLoaded = true;
+            renderInfo.sprite = game::Assets->workerLoadedSprite;
+        }
+
+        if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
+            _isLoaded = false;
+            renderInfo.sprite = game::Assets->workerSprite;
+        }
     }
 }

@@ -9,6 +9,8 @@ namespace worker {
         Worker(const Worker& other);
 
     private:
+        bool _isLoaded;
+
         void initialize() override;
 
         void handleMouseAndKeyboardInput(
@@ -20,8 +22,8 @@ namespace worker {
 
         void update(float dt) override;
 
-        // void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override {};
-        //
+        void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
+
         // void onCollisionExit(const collision::CollisionDetails& collisionDetails) override {};
     };
 }
