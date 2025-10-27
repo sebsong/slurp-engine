@@ -35,12 +35,13 @@ namespace render {
           zOrder(zOrder),
           renderOffset(getRenderOffset(sprite->dimensions, isCentered) + renderOffset) {}
 
-    void RenderInfo::draw(const slurp::Vec2<float>& position) const {
-        if (!renderingEnabled) { return; }
+    void draw(const RenderInfo& renderInfo, const slurp::Vec2<float>& position) {
+        if (!renderInfo.renderingEnabled) { return; }
 
-        slurp::Vec2<float> startPoint = position + renderOffset;
+        slurp::Vec2<float> startPoint = position + renderInfo.renderOffset;
+        const asset::Sprite* sprite = renderInfo.sprite;
         if (sprite && !sprite->dimensions.isZero()) {
-            sprite->draw(startPoint, zOrder);
+            sprite->draw(startPoint, renderInfo.zOrder);
         }
     }
 }

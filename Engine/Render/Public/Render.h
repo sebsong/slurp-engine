@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Vector.h"
-#include "Geometry.h"
 
 #include <cstdint>
 
@@ -20,14 +19,4 @@ namespace render {
     constexpr uint8_t GreenShift = 8;
     constexpr Pixel BlueMask = 0x000000FF;
     constexpr uint8_t BlueShift = 0;
-
-    template<typename T>
-    concept Renderable = requires(T renderable, const slurp::Vec2<float>& position) {
-        { renderable.draw(position) } -> std::same_as<void>;
-    };
-
-    template<Renderable T>
-    void drawRenderable(const T& renderable, const slurp::Vec2<float>& position) {
-        renderable.draw(position);
-    }
 }

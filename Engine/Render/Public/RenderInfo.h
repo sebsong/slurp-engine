@@ -1,5 +1,4 @@
 #pragma once
-#include "Render.h"
 
 #define Z_ORDER_MAX 1000
 
@@ -19,7 +18,7 @@ namespace render {
         RenderInfo(const asset::Sprite* sprite, bool isCentered, int zOrder);
 
         RenderInfo(const asset::Sprite* sprite, bool isCentered, int zOrder, const slurp::Vec2<float>& renderOffset);
-
-        void draw(const slurp::Vec2<float>& position) const;
     };
+
+    void draw(const RenderInfo& renderInfo, const slurp::Vec2<float>& position);
 }

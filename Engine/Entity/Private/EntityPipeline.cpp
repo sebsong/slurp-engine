@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Input.h"
 #include "Update.h"
-#include "Render.h"
 
 namespace entity {
     EntityPipeline::EntityPipeline() : _nextEntityId(1), _pipeline(types::deque_arena<Entity*>()) {}
@@ -43,7 +42,7 @@ namespace entity {
                 entity->update(dt);
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
-                render::drawRenderable(entity->renderInfo, entity->physicsInfo.position);
+                render::draw(entity->renderInfo, entity->physicsInfo.position);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
                 const slurp::Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
