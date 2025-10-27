@@ -23,7 +23,7 @@ namespace player {
     Player::Player()
         : Entity(
               Name,
-              render::RenderInfo(game::Assets->playerSprite, true),
+              render::RenderInfo(game::Assets->playerSprite, true, StartPosition.y),
               physics::PhysicsInfo(
                   StartPosition,
                   BaseSpeed,

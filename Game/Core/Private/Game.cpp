@@ -78,7 +78,7 @@ namespace game {
             State->background,
             entity::Entity(
                 "Background",
-                render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true),
+                render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true, Z_ORDER_MAX),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             )
@@ -88,7 +88,7 @@ namespace game {
             State->border,
             entity::Entity(
                 "Border",
-                render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true),
+                render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true, Z_ORDER_MAX),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             )
@@ -137,7 +137,7 @@ namespace game {
             State->base,
             entity::Entity(
                 "Base",
-                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, {0, 3}),
+                render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, 0, {0, 3}),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo(
                     true,
@@ -153,7 +153,7 @@ namespace game {
             State->gold,
             entity::Entity(
                 "Gold",
-                render::RenderInfo(slurp::Globals->GameAssets->goldSprite, true, {0, 7}),
+                render::RenderInfo(slurp::Globals->GameAssets->goldSprite, true, -75, {0, 7}),
                 physics::PhysicsInfo({-150, -75}),
                 collision::CollisionInfo(
                     true,

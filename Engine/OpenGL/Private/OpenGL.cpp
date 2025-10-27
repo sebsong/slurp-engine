@@ -82,6 +82,8 @@ namespace open_gl {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
 
+        glEnable(GL_DEPTH_TEST);
+
         return true;
     }
 
@@ -91,7 +93,7 @@ namespace open_gl {
 
     void OpenGLRenderWindow::flip() const {
         glfwSwapBuffers(_window);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     bool OpenGLRenderWindow::shouldTerminate() const {
@@ -189,7 +191,7 @@ namespace open_gl {
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
         glVertexAttribPointer(
             render::POSITION_VERTEX_ATTRIBUTE_IDX,
-            slurp::Vec3<float>::DimensionCount,
+            slurp::Vec2<float>::DimensionCount,
             GL_FLOAT,
             GL_FALSE,
             sizeof(render::Vertex),
@@ -235,33 +237,44 @@ namespace open_gl {
         render::object_id vertexArrayId,
         render::object_id textureId,
         render::object_id shaderProgramId,
-        const slurp::Vec2<float>& positionTransform
+        const slurp::Vec2<float>& positionTransform,
+        int zOrder
     ) {
         glBindVertexArray(vertexArrayId);
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUseProgram(shaderProgramId);
+
         int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
         if (timeUniformLoc != render::INVALID_OBJECT_ID) {
             glUniform1f(timeUniformLoc, static_cast<GLfloat>(glfwGetTime()));
         }
+
         int positionTransformUniformLoc = glGetUniformLocation(
             shaderProgramId,
             render::POSITION_TRANSFORM_UNIFORM_NAME
         );
         if (positionTransformUniformLoc != render::INVALID_OBJECT_ID) {
             const slurp::Vec2<float>& position = positionTransform * WorldToOpenGLClipSpaceMatrix;
+            // TODO: is it better to perform this in the shader?
             glUniform2fv(positionTransformUniformLoc, 1, position.values);
         }
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        int zOrderUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::Z_ORDER_UNIFORM_NAME
+        );
+        if (zOrderUniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform1f(zOrderUniformLoc, static_cast<float>(zOrder) / (Z_ORDER_MAX + 1));
+        }
     }
 
     RENDER_DRAW_VERTEX_ARRAY(drawVertexArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, zOrder);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
     RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, zOrder);
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
     }
 

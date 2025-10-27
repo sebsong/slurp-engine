@@ -12,26 +12,40 @@ namespace render {
         : renderingEnabled(false),
           sprite(nullptr),
           renderShape({}),
+          zOrder(0),
           renderOffset({}) {}
 
-    RenderInfo::RenderInfo(const asset::Sprite* sprite, bool isCentered)
+    RenderInfo::RenderInfo(
+        const asset::Sprite* sprite,
+        bool isCentered,
+        int zOrder
+    )
         : renderingEnabled(true),
           sprite(sprite),
           renderShape({}),
+          zOrder(zOrder),
           renderOffset(getRenderOffset(sprite->dimensions, isCentered)) {}
 
-    RenderInfo::RenderInfo(const asset::Sprite* sprite, bool isCentered, const slurp::Vec2<float>& renderOffset)
+    RenderInfo::RenderInfo(
+        const asset::Sprite* sprite,
+        bool isCentered,
+        int zOrder,
+        const slurp::Vec2<float>& renderOffset
+    )
         : renderingEnabled(true),
           sprite(sprite),
           renderShape({}),
+          zOrder(zOrder),
           renderOffset(getRenderOffset(sprite->dimensions, isCentered) + renderOffset) {}
 
     RenderInfo::RenderInfo(
         const RenderShape& renderShape,
-        bool isCentered
+        bool isCentered,
+        int zOrder
     ): renderingEnabled(true),
        sprite(nullptr),
        renderShape(renderShape),
+       zOrder(zOrder),
        renderOffset(getRenderOffset(renderShape.shape.dimensions, isCentered)) {}
 
     void RenderInfo::draw(const slurp::Vec2<float>& position) const {
@@ -39,7 +53,7 @@ namespace render {
 
         slurp::Vec2<float> startPoint = position + renderOffset;
         if (sprite && !sprite->dimensions.isZero()) {
-            sprite->draw(startPoint);
+            sprite->draw(startPoint, zOrder);
         } else {
             // TODO: this path is deprecated
             renderShape.draw(startPoint);

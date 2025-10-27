@@ -24,6 +24,7 @@ namespace render {
     static constexpr uint32_t TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX = 1;
     static constexpr const char* TIME_UNIFORM_NAME = "time";
     static constexpr const char* POSITION_TRANSFORM_UNIFORM_NAME = "positionTransform";
+    static constexpr const char* Z_ORDER_UNIFORM_NAME = "zOrder";
     static constexpr const char* TEXTURE_COORD_UNIFORM_NAME = "textureCoord";
     static constexpr const char* COLOR_UNIFORM_NAME = "color";
 
@@ -44,7 +45,8 @@ namespace render {
         int vertexCount, \
         render::object_id textureId, \
         render::object_id shaderProgramId, \
-        const slurp::Vec2<float>& positionTransform \
+        const slurp::Vec2<float>& positionTransform, \
+        int zOrder \
     )
 #define RENDER_DRAW_ELEMENT_ARRAY(fnName) \
     void fnName( \
@@ -52,7 +54,8 @@ namespace render {
         int elementCount, \
         render::object_id textureId, \
         render::object_id shaderProgramId, \
-        const slurp::Vec2<float>& positionTransform \
+        const slurp::Vec2<float>& positionTransform, \
+        int zOrder \
     )
 
 #define RENDER_DRAW_LINE(fnName) \

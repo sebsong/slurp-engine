@@ -6,13 +6,14 @@ namespace asset {
     static constexpr int SpriteMeshElementCount = 6;
     static constexpr uint32_t SpriteElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
 
-    void Sprite::draw(const slurp::Vec2<float>& startPoint) const {
+    void Sprite::draw(const slurp::Vec2<float>& startPoint, int zOrder) const {
         slurp::Globals->RenderApi->drawElementArray(
             mesh.vertexArrayId,
             mesh.elementCount,
             material.textureId,
             material.shaderProgramId,
-            startPoint
+            startPoint,
+            zOrder
         );
     }
 

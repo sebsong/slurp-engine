@@ -31,7 +31,7 @@ namespace asset {
         Mesh mesh;
         Material material;
 
-        void draw(const slurp::Vec2<float>& startPoint) const;
+        void draw(const slurp::Vec2<float>& startPoint, int zOrder) const;
     };
 
     struct Sound : Asset {

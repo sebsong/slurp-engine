@@ -19,7 +19,8 @@ namespace enemy {
         "Enemy" + std::to_string(i),
         render::RenderInfo(
             game::Assets->enemySprite,
-            true
+            true,
+            StartPosition.y
         ),
         physics::PhysicsInfo(
             StartPosition + (PositionOffset * i),

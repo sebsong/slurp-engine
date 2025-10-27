@@ -22,7 +22,8 @@ namespace projectile {
               "Projectile" + std::to_string(index),
               render::RenderInfo(
                   game::Assets->projectileSprite,
-                  true
+                  true,
+                  0
               ),
               physics::PhysicsInfo(
                   slurp::Vec2<float>::Zero,

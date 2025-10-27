@@ -7,5 +7,8 @@ out vec4 color;
 
 void main() {
     vec4 texColor = texture(inTexture, textureCoord);
+    if (texColor.a == 0) {
+        discard;
+    }
     color = texColor.bgra;
 }
