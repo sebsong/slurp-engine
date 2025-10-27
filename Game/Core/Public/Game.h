@@ -4,9 +4,6 @@
 #include "MineSite.h"
 #include "Obstacle.h"
 #include "MouseCursor.h"
-#include "Player.h"
-#include "Enemy.h"
-#include "Projectile.h"
 #include "Worker.h"
 
 #define NUM_ENEMIES 4
@@ -18,20 +15,12 @@ namespace game {
         asset::Sprite* borderSprite;
 
         asset::Sprite* baseSprite;
-
-        asset::Sprite* goldSprite;
-
+        asset::Sprite* mineSiteSprite;
         asset::Sprite* workerSprite;
 
-        asset::Sprite* enemySprite;
         asset::Sprite* mouseCursorSprite;
-        asset::Sprite* playerSprite;
-        asset::Sprite* playerParrySprite;
-        asset::Sprite* projectileSprite;
-        asset::Sprite* projectileParriedSprite;
 
         asset::Sound* backgroundMusic;
-        asset::Sound* projectileHitSound;
     };
 
     struct GameState {
@@ -52,10 +41,6 @@ namespace game {
         worker::Worker worker;
 
         mouse_cursor::MouseCursor mouseCursor;
-        player::Player player;
-        enemy::Enemy enemies[NUM_ENEMIES];
-        uint32_t projectileIdx;
-        projectile::Projectile projectiles[PROJECTILE_POOL_SIZE];
     };
 
     enum ZOrder {

@@ -10,9 +10,6 @@
 #include "Base.cpp"
 #include "MineSite.cpp"
 #include "Worker.cpp"
-#include "Player.cpp"
-#include "Enemy.cpp"
-#include "Projectile.cpp"
 #include "MouseCursor.cpp"
 
 namespace game {
@@ -36,22 +33,12 @@ namespace game {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
         Assets->baseSprite = asset::loadSprite("base.bmp");
-        Assets->goldSprite = asset::loadSprite("gold.bmp");
+        Assets->mineSiteSprite = asset::loadSprite("gold.bmp");
         Assets->workerSprite = asset::loadSprite("worker.bmp");
-        Assets->enemySprite = asset::loadSprite("enemy.bmp");
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
-        Assets->playerSprite = asset::loadSprite("player.bmp");
-        Assets->playerParrySprite = asset::loadSprite("player_parry.bmp");
-        Assets->projectileSprite = asset::loadSprite("projectile.bmp");
-        Assets->projectileParriedSprite = asset::loadSprite(
-            "projectile_parried.bmp"
-        );
 
         Assets->backgroundMusic = asset::loadSound(
             global::BackgroundMusicSoundFileName
-        );
-        Assets->projectileHitSound = asset::loadSound(
-            projectile::SoundFileName
         );
     }
 

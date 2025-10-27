@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform.h"
+#include "Timer.h"
 #include "JobRunner.h"
 #include "Asset.h"
 #include "DynamicDeclaration.h"

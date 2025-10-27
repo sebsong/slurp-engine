@@ -7,7 +7,7 @@ namespace mine_site {
 
     MineSite::MineSite(): Entity(
         "Mine Site",
-        render::RenderInfo(slurp::Globals->GameAssets->goldSprite, true, StartPos.y, RenderOffset),
+        render::RenderInfo(slurp::Globals->GameAssets->mineSiteSprite, true, StartPos.y, RenderOffset),
         physics::PhysicsInfo(StartPos),
         collision::CollisionInfo(
             true,
