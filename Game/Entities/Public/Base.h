@@ -12,5 +12,10 @@ namespace base {
 
     private:
         void initialize() override;
+
+        void handleMouseAndKeyboardInput(
+            const slurp::MouseState& mouseState,
+            const slurp::KeyboardState& keyboardState
+        ) override;
     };
 }

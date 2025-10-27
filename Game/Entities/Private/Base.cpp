@@ -19,4 +19,14 @@ namespace base {
     void Base::initialize() {
         Entity::initialize();
     }
+
+    void Base::handleMouseAndKeyboardInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState
+    ) {
+        Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
+
+        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
+        }
+    }
 }
