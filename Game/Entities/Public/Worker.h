@@ -5,6 +5,9 @@ namespace worker {
     class Worker final : public entity::Entity {
     public:
         Worker();
+
+        Worker(const Worker& other);
+
     private:
         void initialize() override;
 

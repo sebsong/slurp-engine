@@ -27,6 +27,7 @@ namespace base {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
+            game::State->workers.getNext().enabled = true;
         }
     }
 }

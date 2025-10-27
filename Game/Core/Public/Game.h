@@ -1,13 +1,13 @@
 #pragma once
 #include "GameGlobal.h"
 #include "Base.h"
+#include "EntityPool.h"
 #include "MineSite.h"
 #include "Obstacle.h"
 #include "MouseCursor.h"
 #include "Worker.h"
 
-#define NUM_ENEMIES 4
-#define PROJECTILE_POOL_SIZE 10
+#define MAX_NUM_WORKERS 100
 
 namespace game {
     struct GameAssets {
@@ -38,7 +38,7 @@ namespace game {
 
         base::Base base;
         mine_site::MineSite mineSite;
-        worker::Worker worker;
+        entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
 
         mouse_cursor::MouseCursor mouseCursor;
     };

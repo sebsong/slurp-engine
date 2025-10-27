@@ -27,6 +27,8 @@ namespace worker {
         )
     ) {}
 
+    Worker::Worker(const Worker& other): Entity(other) {}
+
     void Worker::initialize() {
         Entity::initialize();
     }

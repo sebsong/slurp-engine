@@ -131,10 +131,7 @@ namespace game {
             mine_site::MineSite()
         );
 
-        registerEntity(
-            State->worker,
-            worker::Worker()
-        );
+        new (&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
 
         registerEntity(
             State->mouseCursor,
