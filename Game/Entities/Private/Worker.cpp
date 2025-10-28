@@ -9,7 +9,7 @@ namespace worker {
     static const slurp::Vec2<float> StartPos = {50, 50};
     static constexpr float CollectionTime = 2.f;
     static constexpr float DropOffTime = .5f;
-    static constexpr int NumCollectionTransitions = 4;
+    static constexpr int NumCollectionTransitions = 5;
     static const asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
 
     Worker::Worker()
@@ -39,10 +39,11 @@ namespace worker {
 
     void Worker::initialize() {
         Entity::initialize();
-        CollectionAnimationSprites[0] = game::Assets->workerLoading0Sprite;
-        CollectionAnimationSprites[1] = game::Assets->workerLoading1Sprite;
-        CollectionAnimationSprites[2] = game::Assets->workerLoading2Sprite;
-        CollectionAnimationSprites[3] = game::Assets->workerLoadedSprite;
+        CollectionAnimationSprites[0] = game::Assets->workerSprite;
+        CollectionAnimationSprites[1] = game::Assets->workerLoading0Sprite;
+        CollectionAnimationSprites[2] = game::Assets->workerLoading1Sprite;
+        CollectionAnimationSprites[3] = game::Assets->workerLoading2Sprite;
+        CollectionAnimationSprites[4] = game::Assets->workerLoadedSprite;
         dropOff();
     }
 
@@ -82,6 +83,14 @@ namespace worker {
             physicsInfo.position = _targetLocation;
             physicsInfo.speed = 0;
             physicsInfo.acceleration = 0;
+            if (!_isAtTargetLocation) {
+                if (_isLoaded) {
+                    beginDropOff();
+                } else {
+                    beginCollect();
+                }
+                _isAtTargetLocation = true;
+            }
         } else {
             physicsInfo.direction = (_targetLocation - physicsInfo.position).normalize();
             physicsInfo.acceleration = BaseAcceleration;
@@ -90,23 +99,45 @@ namespace worker {
 
     void Worker::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
+        //
+        // if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
+        //     beginCollect();
+        // }
+        //
+        // if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
+        //     beginDropOff();
+        // }
+    }
 
-        if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
-            beginCollect();
-        }
+    void Worker::setTargetLocation(slurp::Vec2<float> newTargetLocation) {
+        _targetLocation = newTargetLocation;
+        _isAtTargetLocation = false;
+    }
 
-        if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
-            timer::delay(
-                DropOffTime,
-                [this] { dropOff(); }
-            );
-        }
+    void Worker::beginDropOff() {
+        timer::delay(
+            DropOffTime,
+            [this] { dropOff(); }
+        );
+        playDropOffAnim();
     }
 
     void Worker::dropOff() {
         _isLoaded = false;
         renderInfo.sprite = game::Assets->workerSprite;
-        _targetLocation = game::State->mineSite.getMiningLocation();
+        setTargetLocation(game::State->mineSite.getMiningLocation());
+    }
+
+    void Worker::playDropOffAnim() {
+        float delay = DropOffTime / NumCollectionTransitions;
+        for (int i = 0; i < NumCollectionTransitions; i++) {
+            timer::delay(
+                delay * i,
+                [this, i] {
+                    renderInfo.sprite = CollectionAnimationSprites[NumCollectionTransitions - 1 - i];
+                }
+            );
+        }
     }
 
     void Worker::beginCollect() {
@@ -117,18 +148,17 @@ namespace worker {
         );
     }
 
-
     void Worker::collect() {
         _isLoaded = true;
         renderInfo.sprite = game::Assets->workerLoadedSprite;
-        _targetLocation = game::State->base.getDropOffLocation();
+        setTargetLocation(game::State->base.getDropOffLocation());
     }
 
     void Worker::playCollectionAnim() {
         float delay = CollectionTime / NumCollectionTransitions;
         for (int i = 0; i < NumCollectionTransitions; i++) {
             timer::delay(
-                delay * (i + 1),
+                delay * i,
                 [this, i] {
                     renderInfo.sprite = CollectionAnimationSprites[i];
                 }

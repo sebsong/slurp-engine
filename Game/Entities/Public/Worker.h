@@ -10,6 +10,7 @@ namespace worker {
 
     private:
         bool _isLoaded;
+        bool _isAtTargetLocation;
         slurp::Vec2<float> _targetLocation;
 
         void initialize() override;
@@ -25,9 +26,13 @@ namespace worker {
 
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
-        // void onCollisionExit(const collision::CollisionDetails& collisionDetails) override {};
+        void setTargetLocation(slurp::Vec2<float> newTargetLocation);
+
+        void beginDropOff();
 
         void dropOff();
+
+        void playDropOffAnim();
 
         void beginCollect();
 
