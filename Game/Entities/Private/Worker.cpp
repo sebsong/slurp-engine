@@ -7,8 +7,10 @@ namespace worker {
     static constexpr float BaseSpeed = 100;
     static constexpr float BaseAcceleration = BaseSpeed * 16;
     static const slurp::Vec2<float> StartPos = {50, 50};
-    static const float CollectionTime = 2.f;
-    static const float DropOffTime = .5f;
+    static constexpr float CollectionTime = 2.f;
+    static constexpr float DropOffTime = .5f;
+    static constexpr int NumCollectionTransitions = 4;
+    static const asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
 
     Worker::Worker()
         : Entity(
@@ -37,6 +39,10 @@ namespace worker {
 
     void Worker::initialize() {
         Entity::initialize();
+        CollectionAnimationSprites[0] = game::Assets->workerLoading0Sprite;
+        CollectionAnimationSprites[1] = game::Assets->workerLoading1Sprite;
+        CollectionAnimationSprites[2] = game::Assets->workerLoading2Sprite;
+        CollectionAnimationSprites[3] = game::Assets->workerLoadedSprite;
         dropOff();
     }
 
@@ -69,7 +75,7 @@ namespace worker {
 
     void Worker::update(float dt) {
         Entity::update(dt);
-        debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
+        // debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
         renderInfo.zOrder = physicsInfo.position.y;
 
         if (approxEqual(physicsInfo.position, _targetLocation)) {
@@ -86,10 +92,7 @@ namespace worker {
         Entity::onCollisionEnter(collisionDetails);
 
         if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
-            timer::delay(
-                CollectionTime,
-                [this] { mine(); }
-            );
+            beginCollect();
         }
 
         if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
@@ -106,9 +109,30 @@ namespace worker {
         _targetLocation = game::State->mineSite.getMiningLocation();
     }
 
-    void Worker::mine() {
+    void Worker::beginCollect() {
+        playCollectionAnim();
+        timer::delay(
+            CollectionTime,
+            [this] { collect(); }
+        );
+    }
+
+
+    void Worker::collect() {
         _isLoaded = true;
         renderInfo.sprite = game::Assets->workerLoadedSprite;
         _targetLocation = game::State->base.getDropOffLocation();
+    }
+
+    void Worker::playCollectionAnim() {
+        float delay = CollectionTime / NumCollectionTransitions;
+        for (int i = 0; i < NumCollectionTransitions; i++) {
+            timer::delay(
+                delay * (i + 1),
+                [this, i] {
+                    renderInfo.sprite = CollectionAnimationSprites[i];
+                }
+            );
+        }
     }
 }

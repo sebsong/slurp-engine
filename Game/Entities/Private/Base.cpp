@@ -27,7 +27,7 @@ namespace base {
 
     void Base::update(float dt) {
         Entity::update(dt);
-        debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
+        // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }
 
     void Base::handleMouseAndKeyboardInput(

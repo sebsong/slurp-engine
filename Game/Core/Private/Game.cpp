@@ -35,6 +35,9 @@ namespace game {
         Assets->baseSprite = asset::loadSprite("base.bmp");
         Assets->mineSiteSprite = asset::loadSprite("gold.bmp");
         Assets->workerSprite = asset::loadSprite("worker.bmp");
+        Assets->workerLoading0Sprite = asset::loadSprite("worker_loading_0.bmp");
+        Assets->workerLoading1Sprite = asset::loadSprite("worker_loading_1.bmp");
+        Assets->workerLoading2Sprite = asset::loadSprite("worker_loading_2.bmp");
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 

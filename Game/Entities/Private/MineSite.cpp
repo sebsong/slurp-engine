@@ -24,6 +24,6 @@ namespace mine_site {
 
     void MineSite::update(float dt) {
         Entity::update(dt);
-        debug::drawPoint(getMiningLocation());
+        // debug::drawPoint(getMiningLocation());
     }
 }

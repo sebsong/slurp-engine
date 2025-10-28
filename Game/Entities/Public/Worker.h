@@ -29,6 +29,10 @@ namespace worker {
 
         void dropOff();
 
-        void mine();
+        void beginCollect();
+
+        void collect();
+
+        void playCollectionAnim();
     };
 }
