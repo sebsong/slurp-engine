@@ -22,7 +22,7 @@ namespace worker {
               ),
               collision::CollisionInfo(
                   false,
-                  false,
+                  true,
                   WorkerShape,
                   true
               )
@@ -45,22 +45,33 @@ namespace worker {
         if (keyboardState.isDown(slurp::KeyboardCode::A)) { directionUpdate.x -= 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::S)) { directionUpdate.y -= 1; }
         if (keyboardState.isDown(slurp::KeyboardCode::D)) { directionUpdate.x += 1; }
-        if (!directionUpdate.isZero()) {
-            this->physicsInfo.direction = directionUpdate;
-            this->physicsInfo.acceleration = BaseAcceleration;
-        } else {
-            this->physicsInfo.acceleration = -BaseAcceleration;
-        }
-        this->physicsInfo.direction.normalize();
+        // if (!directionUpdate.isZero()) {
+        //     this->physicsInfo.direction = directionUpdate;
+        //     this->physicsInfo.acceleration = BaseAcceleration;
+        // } else {
+        //     this->physicsInfo.acceleration = -BaseAcceleration;
+        // }
+        // this->physicsInfo.direction.normalize();
     }
 
     void Worker::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
         Entity::handleGamepadInput(gamepadIndex, gamepadState);
     }
 
+    static bool approxEqual(slurp::Vec2<float> a, slurp::Vec2<float> b) {
+        return a.distanceSquaredTo(b) < 0.1f;
+    }
+
     void Worker::update(float dt) {
         Entity::update(dt);
         renderInfo.zOrder = physicsInfo.position.y;
+
+        if (approxEqual(physicsInfo.position, _targetLocation)) {
+            // physicsInfo.position = _targetLocation;
+            physicsInfo.acceleration = -BaseAcceleration;
+        } else {
+            physicsInfo.direction = (_targetLocation - physicsInfo.position).normalize();
+        }
     }
 
     void Worker::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
@@ -69,11 +80,13 @@ namespace worker {
         if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
             _isLoaded = true;
             renderInfo.sprite = game::Assets->workerLoadedSprite;
+            _targetLocation = game::State->base.physicsInfo.position;
         }
 
         if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
             _isLoaded = false;
             renderInfo.sprite = game::Assets->workerSprite;
+            _targetLocation = game::State->mineSite.getMiningLocation();
         }
     }
 }

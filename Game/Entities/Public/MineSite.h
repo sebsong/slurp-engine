@@ -9,5 +9,9 @@ namespace mine_site {
     class MineSite final : public entity::Entity {
     public:
         MineSite();
+
+        slurp::Vec2<float> getMiningLocation() const;
+    private:
+        void update(float dt) override;
     };
 }

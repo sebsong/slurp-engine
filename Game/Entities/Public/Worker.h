@@ -10,6 +10,7 @@ namespace worker {
 
     private:
         bool _isLoaded;
+        slurp::Vec2<float> _targetLocation;
 
         void initialize() override;
 

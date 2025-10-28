@@ -233,6 +233,26 @@ namespace open_gl {
         return vertexArrayId;
     }
 
+    static void setZOrderUniform(render::object_id shaderProgramId, int zOrder) {
+        int zOrderUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::Z_ORDER_UNIFORM_NAME
+        );
+        if (zOrderUniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform1f(zOrderUniformLoc, static_cast<float>(zOrder) / (Z_ORDER_MAX + 1));
+        }
+    }
+
+    static void setColorUniform(render::object_id shaderProgramId, const slurp::Vec4<float>& color) {
+        int colorUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::COLOR_UNIFORM_NAME
+        );
+        if (colorUniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform4fv(colorUniformLoc, 1, color.values);
+        }
+    }
+
     static void prepareDraw(
         render::object_id vertexArrayId,
         render::object_id textureId,
@@ -259,13 +279,7 @@ namespace open_gl {
             glUniform2fv(positionTransformUniformLoc, 1, position.values);
         }
 
-        int zOrderUniformLoc = glGetUniformLocation(
-            shaderProgramId,
-            render::Z_ORDER_UNIFORM_NAME
-        );
-        if (zOrderUniformLoc != render::INVALID_OBJECT_ID) {
-            glUniform1f(zOrderUniformLoc, static_cast<float>(zOrder) / (Z_ORDER_MAX + 1));
-        }
+        setZOrderUniform(shaderProgramId, zOrder);
     }
 
     RENDER_DRAW_VERTEX_ARRAY(drawVertexArray) {
@@ -281,13 +295,8 @@ namespace open_gl {
     RENDER_DRAW_POINT(drawPoint) {
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
-        int colorUniformLoc = glGetUniformLocation(
-            shaderProgramId,
-            render::COLOR_UNIFORM_NAME
-        );
-        if (colorUniformLoc != render::INVALID_OBJECT_ID) {
-            glUniform4fv(colorUniformLoc, 1, color.values);
-        }
+        setColorUniform(shaderProgramId, color);
+        setZOrderUniform(shaderProgramId, -Z_ORDER_MAX);
         glPointSize(size);
         glDrawArrays(GL_POINTS, 0, vertexCount);
     }
@@ -295,13 +304,8 @@ namespace open_gl {
     RENDER_DRAW_LINE(drawLine) {
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
-        int colorUniformLoc = glGetUniformLocation(
-            shaderProgramId,
-            render::COLOR_UNIFORM_NAME
-        );
-        if (colorUniformLoc != render::INVALID_OBJECT_ID) {
-            glUniform4fv(colorUniformLoc, 1, color.values);
-        }
+        setColorUniform(shaderProgramId, color);
+        setZOrderUniform(shaderProgramId, -Z_ORDER_MAX);
         glLineWidth(width);
         glDrawArrays(GL_LINES, 0, vertexCount);
     }
