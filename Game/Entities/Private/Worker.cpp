@@ -69,11 +69,12 @@ namespace worker {
 
     void Worker::update(float dt) {
         Entity::update(dt);
-        debug::drawPoint(physicsInfo.position);
+        debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
         renderInfo.zOrder = physicsInfo.position.y;
 
         if (approxEqual(physicsInfo.position, _targetLocation)) {
             physicsInfo.position = _targetLocation;
+            physicsInfo.speed = 0;
             physicsInfo.acceleration = 0;
         } else {
             physicsInfo.direction = (_targetLocation - physicsInfo.position).normalize();
