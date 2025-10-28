@@ -10,6 +10,8 @@ namespace base {
     public:
         Base();
 
+        slurp::Vec2<float> getDropOffLocation() const;
+
     private:
         void initialize() override;
 

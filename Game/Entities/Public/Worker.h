@@ -26,5 +26,9 @@ namespace worker {
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
         // void onCollisionExit(const collision::CollisionDetails& collisionDetails) override {};
+
+        void dropOff();
+
+        void mine();
     };
 }

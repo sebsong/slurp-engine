@@ -9,8 +9,8 @@ static constexpr uint32_t LineVertexCount = 2;
 namespace debug {
     void drawPoint(
         const slurp::Vec2<float>& point,
-        float size,
-        const slurp::Vec4<float>& color
+        float size = 4.f,
+        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
     ) {
         render::Vertex vertexArray[PointVertexCount] = {
             {point, {}},

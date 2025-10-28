@@ -1,10 +1,14 @@
 #include "Worker.h"
 
+#include "Game.h"
+
 namespace worker {
     static const geometry::Shape WorkerShape = {geometry::Rect, {5, 2}};
     static constexpr float BaseSpeed = 100;
     static constexpr float BaseAcceleration = BaseSpeed * 16;
     static const slurp::Vec2<float> StartPos = {50, 50};
+    static const float CollectionTime = 2.f;
+    static const float DropOffTime = .5f;
 
     Worker::Worker()
         : Entity(
@@ -33,6 +37,7 @@ namespace worker {
 
     void Worker::initialize() {
         Entity::initialize();
+        dropOff();
     }
 
     void Worker::handleMouseAndKeyboardInput(
@@ -59,18 +64,20 @@ namespace worker {
     }
 
     static bool approxEqual(slurp::Vec2<float> a, slurp::Vec2<float> b) {
-        return a.distanceSquaredTo(b) < 0.1f;
+        return a.distanceSquaredTo(b) < 5.f;
     }
 
     void Worker::update(float dt) {
         Entity::update(dt);
+        debug::drawPoint(physicsInfo.position);
         renderInfo.zOrder = physicsInfo.position.y;
 
         if (approxEqual(physicsInfo.position, _targetLocation)) {
-            // physicsInfo.position = _targetLocation;
-            physicsInfo.acceleration = -BaseAcceleration;
+            physicsInfo.position = _targetLocation;
+            physicsInfo.acceleration = 0;
         } else {
             physicsInfo.direction = (_targetLocation - physicsInfo.position).normalize();
+            physicsInfo.acceleration = BaseAcceleration;
         }
     }
 
@@ -78,15 +85,29 @@ namespace worker {
         Entity::onCollisionEnter(collisionDetails);
 
         if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
-            _isLoaded = true;
-            renderInfo.sprite = game::Assets->workerLoadedSprite;
-            _targetLocation = game::State->base.physicsInfo.position;
+            timer::delay(
+                CollectionTime,
+                [this] { mine(); }
+            );
         }
 
         if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
-            _isLoaded = false;
-            renderInfo.sprite = game::Assets->workerSprite;
-            _targetLocation = game::State->mineSite.getMiningLocation();
+            timer::delay(
+                DropOffTime,
+                [this] { dropOff(); }
+            );
         }
+    }
+
+    void Worker::dropOff() {
+        _isLoaded = false;
+        renderInfo.sprite = game::Assets->workerSprite;
+        _targetLocation = game::State->mineSite.getMiningLocation();
+    }
+
+    void Worker::mine() {
+        _isLoaded = true;
+        renderInfo.sprite = game::Assets->workerLoadedSprite;
+        _targetLocation = game::State->base.getDropOffLocation();
     }
 }

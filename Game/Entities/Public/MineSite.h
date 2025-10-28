@@ -11,6 +11,7 @@ namespace mine_site {
         MineSite();
 
         slurp::Vec2<float> getMiningLocation() const;
+
     private:
         void update(float dt) override;
     };
