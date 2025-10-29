@@ -114,10 +114,18 @@ namespace worker {
         playDropOffAnim();
     }
 
+    static slurp::Vec2<float> getAvailableMiningLocation() {
+        mine_site::MineSite* mineSite = game::State->mineSites.getRandomEnabledInstance();
+        if (!mineSite) {
+            return slurp::Vec2<float>::Zero;
+        }
+        return mineSite->getMiningLocation();
+    }
+
     void Worker::dropOff() {
         _isLoaded = false;
         renderInfo.sprite = game::Assets->workerSprite;
-        setTargetLocation(game::State->mineSite.getMiningLocation());
+        setTargetLocation(getAvailableMiningLocation());
     }
 
     void Worker::playDropOffAnim() {

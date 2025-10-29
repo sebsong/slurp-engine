@@ -7,7 +7,8 @@
 #include "MouseCursor.h"
 #include "Worker.h"
 
-#define MAX_NUM_WORKERS 100
+#define MAX_NUM_WORKERS 1000
+#define MAX_NUM_MINE_SITES 100
 
 namespace game {
     struct GameAssets {
@@ -29,7 +30,6 @@ namespace game {
 
     struct GameState {
         uint32_t randomSeed;
-        bool isInitialized;
 
         global::GameGlobal global;
 
@@ -41,7 +41,7 @@ namespace game {
         obstacle::Obstacle wallRight;
 
         base::Base base;
-        mine_site::MineSite mineSite;
+        entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
 
         mouse_cursor::MouseCursor mouseCursor;

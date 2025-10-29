@@ -8,6 +8,10 @@ namespace random {
         srand(seed);
     }
 
+    inline uint32_t randomIndex(uint32_t maxIndex) {
+        return rand() % maxIndex;
+    }
+
     // Random float between [0, 1]
     inline float randomFloat() {
         return rand() / static_cast<float>(RAND_MAX);

@@ -37,9 +37,8 @@ namespace base {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
-            worker::Worker& newWorker = game::State->workers.getNext();
-            newWorker.physicsInfo.position = physicsInfo.position + WorkerSpawnOffset;
-            newWorker.enabled = true;
+            worker::Worker* newWorker = game::State->workers.newInstance();
+            newWorker->physicsInfo.position = physicsInfo.position + WorkerSpawnOffset;
         }
     }
 }

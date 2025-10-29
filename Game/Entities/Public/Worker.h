@@ -8,12 +8,12 @@ namespace worker {
 
         Worker(const Worker& other);
 
+        void initialize() override;
+
     private:
         bool _isLoaded;
         bool _isAtTargetLocation;
         slurp::Vec2<float> _targetLocation;
-
-        void initialize() override;
 
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
