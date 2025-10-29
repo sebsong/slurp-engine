@@ -17,7 +17,7 @@ inline void ASSERT(bool expression) {
 #endif
 }
 
-inline void ASSERT_LOG(bool expression, std::string message) {
+inline void ASSERT_LOG(bool expression, const std::string&& message) {
 #if DEBUG
     if (!expression) {
         logging::error(message);

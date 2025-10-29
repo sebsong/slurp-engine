@@ -8,7 +8,7 @@
 #include "MouseCursor.h"
 #include "Worker.h"
 
-#define MAX_NUM_WORKERS 1000
+#define MAX_NUM_WORKERS 100000
 #define MAX_NUM_MINE_SITES 100
 
 namespace game {

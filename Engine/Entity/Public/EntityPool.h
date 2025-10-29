@@ -15,22 +15,22 @@ namespace entity {
                 new(instancePtr) T(entity);
                 instancePtr->enabled = false;
                 disabledInstances.push_back(instancePtr);
-                entity::registerEntity(*instancePtr);
             }
         }
 
         T* newInstance() {
-            T* newInstance;
+            T* newInstancePtr;
             if (!disabledInstances.empty()) {
-                newInstance = disabledInstances.front();
+                newInstancePtr = disabledInstances.front();
                 disabledInstances.pop_front();
+                entity::registerEntity(*newInstancePtr);
             } else {
-                newInstance = enabledInstances.front();
+                newInstancePtr = enabledInstances.front();
                 enabledInstances.pop_front();
             }
-            newInstance->enable();
-            enabledInstances.push_back(newInstance);
-            return newInstance;
+            newInstancePtr->enable();
+            enabledInstances.push_back(newInstancePtr);
+            return newInstancePtr;
         }
 
         T* getRandomEnabledInstance() {
