@@ -75,8 +75,8 @@ namespace debug {
     void drawRectBorder(
         const slurp::Vec2<float>& startPoint,
         const slurp::Vec2<float>& endPoint,
-        float lineWidth,
-        const slurp::Vec4<float>& color
+        float lineWidth = 1.f,
+        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
     ) {
         drawLine(
             startPoint,

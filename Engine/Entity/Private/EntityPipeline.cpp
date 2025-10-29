@@ -15,7 +15,9 @@ namespace entity {
 
     void EntityPipeline::initializeEntities() const {
         for (Entity* entity: _pipeline) {
-            entity->initialize();
+            if (entity->enabled) {
+                entity->initialize();
+            }
         }
     }
 

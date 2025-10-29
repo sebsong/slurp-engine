@@ -8,6 +8,10 @@ namespace random {
         srand(seed);
     }
 
+    inline bool randomBool() {
+        return rand() % 2 == 0;
+    }
+
     inline uint32_t randomIndex(uint32_t maxIndex) {
         return rand() % maxIndex;
     }

@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "EntityPool.h"
 #include "MineSite.h"
+#include "MineSiteSpawner.h"
 #include "Obstacle.h"
 #include "MouseCursor.h"
 #include "Worker.h"
@@ -44,6 +45,7 @@ namespace game {
         obstacle::Obstacle wallRight;
 
         base::Base base;
+        mine_site::MineSiteSpawner mineSiteSpawner;
         entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
 
