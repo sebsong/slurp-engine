@@ -99,14 +99,6 @@ namespace worker {
 
     void Worker::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
         Entity::onCollisionEnter(collisionDetails);
-        //
-        // if (dynamic_cast<mine_site::MineSite*>(collisionDetails.entity)) {
-        //     beginCollect();
-        // }
-        //
-        // if (dynamic_cast<base::Base*>(collisionDetails.entity)) {
-        //     beginDropOff();
-        // }
     }
 
     void Worker::setTargetLocation(slurp::Vec2<float> newTargetLocation) {
