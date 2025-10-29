@@ -107,7 +107,13 @@ namespace worker {
     }
 
     void Worker::beginDropOff() {
-        timer::delay(DropOffTime, [this] { dropOff(); });
+        timer::delay(
+            DropOffTime,
+            [this] {
+                audio::play(game::Assets->resourceDropOff);
+                dropOff();
+            }
+        );
         playDropOffAnim();
     }
 
@@ -120,7 +126,6 @@ namespace worker {
     }
 
     void Worker::dropOff() {
-        audio::play(game::Assets->resourceDropOff);
         _isLoaded = false;
         renderInfo.sprite = game::Assets->workerSprite;
         setTargetLocation(getAvailableMiningLocation());
@@ -140,11 +145,16 @@ namespace worker {
 
     void Worker::beginCollect() {
         playCollectionAnim();
-        timer::delay(CollectionTime, [this] { collect(); });
+        timer::delay(
+            CollectionTime,
+            [this] {
+                audio::play(game::Assets->resourceCollectedLow);
+                collect();
+            }
+        );
     }
 
     void Worker::collect() {
-        audio::play(game::Assets->resourceCollectedLow);
         _isLoaded = true;
         renderInfo.sprite = game::Assets->workerLoadedSprite;
         setTargetLocation(game::State->base.getDropOffLocation());
