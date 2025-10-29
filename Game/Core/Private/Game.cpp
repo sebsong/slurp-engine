@@ -41,9 +41,11 @@ namespace game {
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
-        Assets->backgroundMusic = asset::loadSound(
-            global::BackgroundMusicSoundFileName
-        );
+        // NOTE: https://opengameart.org/content/since-2-am
+        Assets->backgroundMusic = asset::loadSound("since_2_am.wav");
+        Assets->resourceCollected = asset::loadSound("resource_collected.wav");
+        Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
+        Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
     }
 
     void initGame(bool isInitialized) {
@@ -130,14 +132,14 @@ namespace game {
             base::Base()
         );
 
-        new (&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
+        new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
         State->mineSites.newInstance();
         State->mineSites.newInstance()->physicsInfo.position = {200, 100};
         State->mineSites.newInstance()->physicsInfo.position = {-250, 120};
         State->mineSites.newInstance()->physicsInfo.position = {50, -120};
         State->mineSites.newInstance()->physicsInfo.position = {175, -50};
         State->mineSites.newInstance()->physicsInfo.position = {-75, 80};
-        new (&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
+        new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
 
         registerEntity(
             State->mouseCursor,

@@ -6,8 +6,6 @@ namespace global {
     // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
     // static constexpr const char* BackgroundMusicSoundFileName = "bgm.wav";
 
-    // NOTE: https://opengameart.org/content/since-2-am
-    static constexpr const char* BackgroundMusicSoundFileName = "since_2_am.wav";
 
     GameGlobal::GameGlobal(): Entity(
         "Global",
@@ -21,7 +19,7 @@ namespace global {
 
         audio::setGlobalVolume(GlobalVolume);
         if (!_bgmId) {
-            _bgmId = audio::play(game::Assets->backgroundMusic, 0.2, true);
+            _bgmId = audio::play(game::Assets->backgroundMusic, 0.5, true);
         }
     }
 

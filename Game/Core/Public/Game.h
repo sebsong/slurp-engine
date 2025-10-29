@@ -26,6 +26,9 @@ namespace game {
         asset::Sprite* mouseCursorSprite;
 
         asset::Sound* backgroundMusic;
+        asset::Sound* resourceCollected;
+        asset::Sound* resourceCollectedLow;
+        asset::Sound* resourceDropOff;
     };
 
     struct GameState {
