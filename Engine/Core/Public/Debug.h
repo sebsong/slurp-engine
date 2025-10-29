@@ -6,9 +6,9 @@
 #define VERBOSE_LOGGING 0
 
 #define DEBUG_DRAW_COLLISION 0
-#define DEBUG_RED_COLOR slurp::Vec4<float>(1.f, 0.f, 0.f, 1.f)
-#define DEBUG_GREEN_COLOR slurp::Vec4<float>(0.f, 1.f, 0.f, 1.f)
-#define DEBUG_BLUE_COLOR slurp::Vec4<float>(0.f, 0.f, 1.f, 1.f)
+#define DEBUG_RED_COLOR   slurp::Vec4<float>(1, 0, 0, 1)
+#define DEBUG_GREEN_COLOR slurp::Vec4<float>(0, 1, 0, 1)
+#define DEBUG_BLUE_COLOR  slurp::Vec4<float>(0, 0, 1, 1)
 #define DEBUG_DRAW_COLOR DEBUG_GREEN_COLOR
 
 inline void ASSERT(bool expression) {
