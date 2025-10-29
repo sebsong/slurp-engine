@@ -33,13 +33,16 @@ namespace game {
     static void loadAssets() {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
+
         Assets->baseSprite = asset::loadSprite("base.bmp");
         Assets->mineSiteSprite = asset::loadSprite("gold.bmp");
+
         Assets->workerSprite = asset::loadSprite("worker.bmp");
         Assets->workerLoading0Sprite = asset::loadSprite("worker_loading_0.bmp");
         Assets->workerLoading1Sprite = asset::loadSprite("worker_loading_1.bmp");
         Assets->workerLoading2Sprite = asset::loadSprite("worker_loading_2.bmp");
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
+
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         // NOTE: https://opengameart.org/content/since-2-am
@@ -47,6 +50,7 @@ namespace game {
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
         Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
+        Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
     }
 
     void initGame(bool isInitialized) {

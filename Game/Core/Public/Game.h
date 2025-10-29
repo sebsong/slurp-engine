@@ -18,6 +18,7 @@ namespace game {
 
         asset::Sprite* baseSprite;
         asset::Sprite* mineSiteSprite;
+
         asset::Sprite* workerSprite;
         asset::Sprite* workerLoading0Sprite;
         asset::Sprite* workerLoading1Sprite;
@@ -30,6 +31,7 @@ namespace game {
         asset::Sound* resourceCollected;
         asset::Sound* resourceCollectedLow;
         asset::Sound* resourceDropOff;
+        asset::Sound* spawnMineSite;
     };
 
     struct GameState {
