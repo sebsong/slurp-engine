@@ -133,9 +133,10 @@ namespace game {
         new (&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
         State->mineSites.newInstance();
         State->mineSites.newInstance()->physicsInfo.position = {200, 100};
-        State->mineSites.newInstance()->physicsInfo.position = {-250, 150};
+        State->mineSites.newInstance()->physicsInfo.position = {-250, 120};
         State->mineSites.newInstance()->physicsInfo.position = {50, -120};
-        State->mineSites.recycleInstance(State->mineSites.newInstance());
+        State->mineSites.newInstance()->physicsInfo.position = {175, -50};
+        State->mineSites.newInstance()->physicsInfo.position = {-75, 80};
         new (&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
 
         registerEntity(
