@@ -12,7 +12,11 @@ namespace base {
 
         slurp::Vec2<float> getDropOffLocation() const;
 
+        void dropOff();
+
     private:
+        uint32_t gold;
+
         void initialize() override;
 
         void update(float dt);

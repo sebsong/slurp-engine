@@ -127,6 +127,7 @@ namespace worker {
 
     void Worker::dropOff() {
         _isLoaded = false;
+        game::State->base.dropOff();
         renderInfo.sprite = game::Assets->workerSprite;
         setTargetLocation(getAvailableMiningLocation());
     }

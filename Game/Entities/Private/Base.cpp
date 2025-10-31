@@ -21,6 +21,10 @@ namespace base {
         return physicsInfo.position + WorkerSpawnOffset;
     }
 
+    void Base::dropOff() {
+        gold++;
+    }
+
     void Base::initialize() {
         Entity::initialize();
     }
