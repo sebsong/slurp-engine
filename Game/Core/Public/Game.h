@@ -24,12 +24,14 @@ namespace game {
         asset::Sprite* workerLoading1Sprite;
         asset::Sprite* workerLoading2Sprite;
         asset::Sprite* workerLoadedSprite;
+        asset::Sprite* workerInfectedSprite;
 
         asset::Sprite* mouseCursorSprite;
 
         asset::Sound* backgroundMusic;
         asset::Sound* resourceCollected;
         asset::Sound* resourceCollectedLow;
+        asset::Sound* errorCollect;
         asset::Sound* resourceDropOff;
         asset::Sound* spawnMineSite;
     };

@@ -12,6 +12,8 @@ namespace worker {
     static constexpr int NumCollectionTransitions = 5;
     static const asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
 
+    static const float InfectionChance = 0.1f;
+
     Worker::Worker()
         : Entity(
               "Worker",
@@ -33,7 +35,9 @@ namespace worker {
                   true
               )
           ),
-          _isLoaded(false) {}
+          _isLoaded(false),
+          _isAtTargetLocation(false),
+          _isInfected(false) {}
 
     Worker::Worker(const Worker& other): Entity(other) {}
 
@@ -45,6 +49,11 @@ namespace worker {
         CollectionAnimationSprites[3] = game::Assets->workerLoading2Sprite;
         CollectionAnimationSprites[4] = game::Assets->workerLoadedSprite;
         dropOff();
+    }
+
+    void Worker::infect() {
+        _isInfected = true;
+        renderInfo.sprite = game::Assets->workerInfectedSprite;
     }
 
     void Worker::handleMouseAndKeyboardInput(
@@ -76,6 +85,11 @@ namespace worker {
 
     void Worker::update(float dt) {
         Entity::update(dt);
+        //TODO: hack
+        if (_isInfected) {
+            renderInfo.sprite = game::Assets->workerInfectedSprite;
+        }
+
         // debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
         renderInfo.zOrder = physicsInfo.position.y;
 
@@ -149,16 +163,33 @@ namespace worker {
         timer::delay(
             CollectionTime,
             [this] {
-                audio::play(game::Assets->resourceCollectedLow);
                 collect();
+                if (_isInfected) {
+                    audio::play(game::Assets->errorCollect);
+                } else {
+                    audio::play(game::Assets->resourceCollectedLow);
+                }
             }
         );
     }
 
+    static bool rollInfection() {
+        return random::randomFloat() < InfectionChance;
+    }
+
     void Worker::collect() {
-        _isLoaded = true;
+        if (!_isInfected) {
+            _isLoaded = true;
+        }
         renderInfo.sprite = game::Assets->workerLoadedSprite;
-        setTargetLocation(game::State->base.getDropOffLocation());
+        if (rollInfection()) {
+            infect();
+        }
+        if (_isInfected) {
+            setTargetLocation(getAvailableMiningLocation());
+        } else {
+            setTargetLocation(game::State->base.getDropOffLocation());
+        }
     }
 
     void Worker::playCollectionAnim() {

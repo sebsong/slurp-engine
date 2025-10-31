@@ -10,9 +10,12 @@ namespace worker {
 
         void initialize() override;
 
+        void infect();
+
     private:
         bool _isLoaded;
         bool _isAtTargetLocation;
+        bool _isInfected;
         slurp::Vec2<float> _targetLocation;
 
         void handleMouseAndKeyboardInput(

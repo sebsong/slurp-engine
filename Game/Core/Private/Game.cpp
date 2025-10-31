@@ -42,6 +42,7 @@ namespace game {
         Assets->workerLoading1Sprite = asset::loadSprite("worker_loading_1.bmp");
         Assets->workerLoading2Sprite = asset::loadSprite("worker_loading_2.bmp");
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
+        Assets->workerInfectedSprite = asset::loadSprite("worker_infected.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -49,6 +50,7 @@ namespace game {
         Assets->backgroundMusic = asset::loadSound("since_2_am.wav");
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
+        Assets->errorCollect = asset::loadSound("error.wav");
         Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
         Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
     }
