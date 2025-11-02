@@ -11,6 +11,7 @@
 #include "MineSite.cpp"
 #include "MineSiteSpawner.cpp"
 #include "Worker.cpp"
+#include "Antibody.cpp"
 #include "MouseCursor.cpp"
 
 namespace game {
@@ -43,6 +44,8 @@ namespace game {
         Assets->workerLoading2Sprite = asset::loadSprite("worker_loading_2.bmp");
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
         Assets->workerInfectedSprite = asset::loadSprite("worker_infected.bmp");
+
+        Assets->antibodySprite = asset::loadSprite("antibody.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -147,6 +150,8 @@ namespace game {
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
+
+        new(&State->antibodies) entity::EntityPool<antibody::Antibody, MAX_NUM_ANTIBODIES>(antibody::Antibody());
 
         registerEntity(
             State->mouseCursor,

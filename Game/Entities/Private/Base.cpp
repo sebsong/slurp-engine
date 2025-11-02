@@ -3,7 +3,7 @@
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {32, 10}};
     static const slurp::Vec2<float> RenderOffset = {0, 3};
-    static slurp::Vec2<float> WorkerSpawnOffset = {0, -5};
+    static slurp::Vec2<float> SpawnOffset = {0, -5};
 
     Base::Base(): Entity(
         "Base",
@@ -18,7 +18,7 @@ namespace base {
     ) {}
 
     slurp::Vec2<float> Base::getDropOffLocation() const {
-        return physicsInfo.position + WorkerSpawnOffset;
+        return physicsInfo.position + SpawnOffset;
     }
 
     void Base::dropOff() {
@@ -42,7 +42,12 @@ namespace base {
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
             worker::Worker* newWorker = game::State->workers.newInstance();
-            newWorker->physicsInfo.position = physicsInfo.position + WorkerSpawnOffset;
+            newWorker->physicsInfo.position = physicsInfo.position + SpawnOffset;
+        }
+
+        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_2)) {
+            antibody::Antibody* newAntibody = game::State->antibodies.newInstance();
+            newAntibody->physicsInfo.position = physicsInfo.position + SpawnOffset;
         }
     }
 }

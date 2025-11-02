@@ -7,9 +7,15 @@
 #include "Obstacle.h"
 #include "MouseCursor.h"
 #include "Worker.h"
+#include "Antibody.h"
 
 #define MAX_NUM_WORKERS 100000
+#define MAX_NUM_ANTIBODIES 100000
 #define MAX_NUM_MINE_SITES 100
+
+namespace antibody {
+    class Antibody;
+}
 
 namespace game {
     struct GameAssets {
@@ -25,6 +31,7 @@ namespace game {
         asset::Sprite* workerLoading2Sprite;
         asset::Sprite* workerLoadedSprite;
         asset::Sprite* workerInfectedSprite;
+        asset::Sprite* antibodySprite;
 
         asset::Sprite* mouseCursorSprite;
 
@@ -52,6 +59,7 @@ namespace game {
         mine_site::MineSiteSpawner mineSiteSpawner;
         entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
+        entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
 
         mouse_cursor::MouseCursor mouseCursor;
     };

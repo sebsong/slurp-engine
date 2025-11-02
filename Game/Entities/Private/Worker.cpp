@@ -52,6 +52,7 @@ namespace worker {
     }
 
     void Worker::infect() {
+        // TODO: maybe this should create a new infected worker entity and destroy this one to track them separately
         _isInfected = true;
         renderInfo.sprite = game::Assets->workerInfectedSprite;
     }
