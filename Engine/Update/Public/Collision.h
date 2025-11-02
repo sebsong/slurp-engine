@@ -11,6 +11,10 @@ namespace collision {
     struct CollisionShape {
         geometry::Shape shape;
         slurp::Vec2<float> offset;
+
+        bool hitTest(const slurp::Vec2<float>& location) const {
+            return shape.hitTest(location - offset);
+        };
     };
 
     // TODO: distinguish between enter and exit collision

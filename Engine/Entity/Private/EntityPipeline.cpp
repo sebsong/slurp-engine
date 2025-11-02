@@ -1,6 +1,5 @@
 #include "EntityPipeline.h"
 
-#include "Global.h"
 #include "Entity.h"
 #include "Input.h"
 #include "Update.h"
@@ -11,6 +10,19 @@ namespace entity {
     void EntityPipeline::registerEntity(Entity& entity) {
         _pipeline.emplace_back(&entity);
         entity.id = _nextEntityId++;
+    }
+
+    Entity* EntityPipeline::hitTest(const slurp::Vec2<float>& location) const {
+        for (Entity* entity: _pipeline) {
+            if (
+                entity->collisionInfo.collisionEnabled &&
+                entity->collisionInfo.shape.hitTest(location - entity->physicsInfo.position)
+            ) {
+                return entity;
+            }
+        }
+
+        return nullptr;
     }
 
     void EntityPipeline::initializeEntities() const {
@@ -58,25 +70,5 @@ namespace entity {
 #endif
             }
         }
-    }
-
-    void registerEntity(Entity& entity) {
-        slurp::Globals->EntityPipeline->registerEntity(entity);
-    }
-
-    void initializeEntities() {
-        slurp::Globals->EntityPipeline->initializeEntities();
-    }
-
-    void handleInput(
-        const slurp::MouseState& mouseState,
-        const slurp::KeyboardState& keyboardState,
-        const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
-    ) {
-        slurp::Globals->EntityPipeline->handleInput(mouseState, keyboardState, gamepadStates);
-    }
-
-    void updateAndRender(float dt) {
-        slurp::Globals->EntityPipeline->updateAndRender(dt);
     }
 }

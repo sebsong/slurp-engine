@@ -1,5 +1,6 @@
 #include "MouseCursor.h"
 
+#include "EntityPipeline.h"
 #include "Game.h"
 
 namespace mouse_cursor {
@@ -8,7 +9,7 @@ namespace mouse_cursor {
         render::RenderInfo(
             game::Assets->mouseCursorSprite,
             true,
-           game::MOUSE_Z
+            game::MOUSE_Z
         ),
         physics::PhysicsInfo(slurp::Vec2<float>::Zero),
         collision::CollisionInfo()
@@ -20,5 +21,19 @@ namespace mouse_cursor {
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
         this->physicsInfo.position = mouseState.position;
+
+        if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
+            Entity* entity = entity::hitTest(mouseState.position);
+            if (entity) {
+                logging::debug(
+                    std::format(
+                        "HIT: {}",
+                        entity->name
+                    )
+                );
+            } else {
+                logging::debug("HIT: None");
+            }
+        }
     }
 }

@@ -10,8 +10,6 @@ namespace mouse_cursor {
     public:
         MouseCursor();
 
-        enemy::Enemy* getClosestEnemy() const;
-
     private:
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,

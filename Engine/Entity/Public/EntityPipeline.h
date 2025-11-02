@@ -16,6 +16,8 @@ namespace entity {
 
         void registerEntity(Entity& entity);
 
+        Entity* hitTest(const slurp::Vec2<float>& location) const;
+
         void initializeEntities() const;
 
         void handleInput(
@@ -31,15 +33,27 @@ namespace entity {
         types::deque_arena<Entity*> _pipeline;
     };
 
-    static void registerEntity(Entity& entity);
+    inline Entity* hitTest(const slurp::Vec2<float>& location) {
+        return slurp::Globals->EntityPipeline->hitTest(location);
+    };
 
-    static void initializeEntities();
+    inline void registerEntity(Entity& entity) {
+        slurp::Globals->EntityPipeline->registerEntity(entity);
+    }
 
-    static void handleInput(
+    inline void initializeEntities() {
+        slurp::Globals->EntityPipeline->initializeEntities();
+    }
+
+    inline void handleInput(
         const slurp::MouseState& mouseState,
         const slurp::KeyboardState& keyboardState,
         const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
-    );
+    ) {
+        slurp::Globals->EntityPipeline->handleInput(mouseState, keyboardState, gamepadStates);
+    }
 
-    static void updateAndRender(float dt);
+    inline void updateAndRender(float dt) {
+        slurp::Globals->EntityPipeline->updateAndRender(dt);
+    }
 }
