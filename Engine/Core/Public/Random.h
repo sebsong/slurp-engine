@@ -24,4 +24,13 @@ namespace random {
     inline float randomFloat(float min, float max) {
         return (randomFloat()) * (max - min) + min;
     }
+
+    template <typename T>
+    T* pickRandom(types::deque_arena<T*> collection) {
+        if (collection.empty()) {
+            return nullptr;
+        }
+
+        return collection.at(randomIndex(collection.size()));
+    }
 }

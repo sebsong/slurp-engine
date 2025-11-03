@@ -34,12 +34,15 @@ namespace entity {
         }
 
         T* getRandomEnabledInstance() {
-            uint32_t numEnabledInstances = enabledInstances.size();
-            if (numEnabledInstances == 0) {
-                return nullptr;
-            }
-            uint32_t randomIndex = random::randomIndex(numEnabledInstances);
-            return enabledInstances.at(randomIndex);
+            return random::pickRandom(enabledInstances);
+        }
+
+        typename types::deque_arena<T*>::iterator enabledBegin() {
+            return enabledInstances.begin();
+        }
+
+        typename types::deque_arena<T*>::iterator enabledEnd() {
+            return enabledInstances.end();
         }
 
         void recycleInstance(T* instancePtr) {

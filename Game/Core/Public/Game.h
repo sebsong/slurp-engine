@@ -30,7 +30,7 @@ namespace game {
         asset::Sprite* workerLoading1Sprite;
         asset::Sprite* workerLoading2Sprite;
         asset::Sprite* workerLoadedSprite;
-        asset::Sprite* workerInfectedSprite;
+        asset::Sprite* workerCorruptedSprite;
         asset::Sprite* antibodySprite;
 
         asset::Sprite* mouseCursorSprite;
@@ -59,6 +59,7 @@ namespace game {
         mine_site::MineSiteSpawner mineSiteSpawner;
         entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
+        types::deque_arena<worker::Worker*> activeCorruptedWorkers;
         entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
 
         mouse_cursor::MouseCursor mouseCursor;

@@ -8,7 +8,7 @@ namespace antibody {
 
     private:
         Entity* _target;
-        bool _isAtTarget;
+        bool  _isAtTarget;
 
         void initialize() override;
 

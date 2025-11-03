@@ -12,7 +12,7 @@ namespace worker {
     static constexpr int NumCollectionTransitions = 5;
     static const asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
 
-    static const float InfectionChance = 0.1f;
+    static const float CorruptionChance = 0.1f;
 
     Worker::Worker()
         : Entity(
@@ -37,7 +37,7 @@ namespace worker {
           ),
           _isLoaded(false),
           _isAtTargetLocation(false),
-          _isInfected(false) {}
+          _isCorrupted(false) {}
 
     Worker::Worker(const Worker& other): Entity(other) {}
 
@@ -51,10 +51,14 @@ namespace worker {
         dropOff();
     }
 
-    void Worker::infect() {
-        // TODO: maybe this should create a new infected worker entity and destroy this one to track them separately
-        _isInfected = true;
-        renderInfo.sprite = game::Assets->workerInfectedSprite;
+    void Worker::corrupt() {
+        game::State->activeCorruptedWorkers.push_back(this);
+        _isCorrupted = true;
+        renderInfo.sprite = game::Assets->workerCorruptedSprite;
+    }
+
+    bool Worker::isCorrupted() const {
+        return _isCorrupted;
     }
 
     void Worker::handleMouseAndKeyboardInput(
@@ -80,21 +84,21 @@ namespace worker {
         Entity::handleGamepadInput(gamepadIndex, gamepadState);
     }
 
-    static bool approxEqual(slurp::Vec2<float> a, slurp::Vec2<float> b) {
-        return a.distanceSquaredTo(b) < 5.f;
+    static bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
+        return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;
     }
 
     void Worker::update(float dt) {
         Entity::update(dt);
         //TODO: hack
-        if (_isInfected) {
-            renderInfo.sprite = game::Assets->workerInfectedSprite;
+        if (_isCorrupted) {
+            renderInfo.sprite = game::Assets->workerCorruptedSprite;
         }
 
         // debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
         renderInfo.zOrder = physicsInfo.position.y;
 
-        if (approxEqual(physicsInfo.position, _targetLocation)) {
+        if (almostAtTarget(this, _targetLocation)) {
             physicsInfo.position = _targetLocation;
             physicsInfo.speed = 0;
             physicsInfo.acceleration = 0;
@@ -165,7 +169,7 @@ namespace worker {
             CollectionTime,
             [this] {
                 collect();
-                if (_isInfected) {
+                if (_isCorrupted) {
                     audio::play(game::Assets->errorCollect);
                 } else {
                     audio::play(game::Assets->resourceCollectedLow);
@@ -174,19 +178,19 @@ namespace worker {
         );
     }
 
-    static bool rollInfection() {
-        return random::randomFloat() < InfectionChance;
+    static bool rollCorruption() {
+        return random::randomFloat() < CorruptionChance;
     }
 
     void Worker::collect() {
-        if (!_isInfected) {
+        if (!_isCorrupted) {
             _isLoaded = true;
         }
         renderInfo.sprite = game::Assets->workerLoadedSprite;
-        if (rollInfection()) {
-            infect();
+        if (rollCorruption()) {
+            corrupt();
         }
-        if (_isInfected) {
+        if (_isCorrupted) {
             setTargetLocation(getAvailableMiningLocation());
         } else {
             setTargetLocation(game::State->base.getDropOffLocation());

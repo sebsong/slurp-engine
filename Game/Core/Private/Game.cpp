@@ -43,7 +43,7 @@ namespace game {
         Assets->workerLoading1Sprite = asset::loadSprite("worker_loading_1.bmp");
         Assets->workerLoading2Sprite = asset::loadSprite("worker_loading_2.bmp");
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
-        Assets->workerInfectedSprite = asset::loadSprite("worker_infected.bmp");
+        Assets->workerCorruptedSprite = asset::loadSprite("worker_corrupted.bmp");
 
         Assets->antibodySprite = asset::loadSprite("antibody.bmp");
 
@@ -150,6 +150,7 @@ namespace game {
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
+        new(&State->activeCorruptedWorkers) types::deque_arena<worker::Worker*>();
 
         new(&State->antibodies) entity::EntityPool<antibody::Antibody, MAX_NUM_ANTIBODIES>(antibody::Antibody());
 
