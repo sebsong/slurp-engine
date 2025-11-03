@@ -6,8 +6,12 @@ namespace antibody {
     public:
         Antibody();
 
+        bool hasTarget() const;
+
+        void findTarget();
+
     private:
-        Entity* _target;
+        worker::Worker* _target;
         bool  _isAtTarget;
 
         void initialize() override;
@@ -15,7 +19,5 @@ namespace antibody {
         void update(float dt) override;
 
         void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override {};
-
-        void findTarget();
     };
 }

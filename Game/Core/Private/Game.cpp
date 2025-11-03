@@ -150,7 +150,7 @@ namespace game {
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
-        new(&State->activeCorruptedWorkers) types::deque_arena<worker::Worker*>();
+        new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
 
         new(&State->antibodies) entity::EntityPool<antibody::Antibody, MAX_NUM_ANTIBODIES>(antibody::Antibody());
 
@@ -159,4 +159,9 @@ namespace game {
             mouse_cursor::MouseCursor()
         );
     }
+
+    bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
+        return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;
+    }
+
 }

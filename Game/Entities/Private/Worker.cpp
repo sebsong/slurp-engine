@@ -14,6 +14,8 @@ namespace worker {
 
     static const float CorruptionChance = 0.1f;
 
+    static const uint32_t MaxNumAntibodies = 3;
+
     Worker::Worker()
         : Entity(
               "Worker",
@@ -52,13 +54,34 @@ namespace worker {
     }
 
     void Worker::corrupt() {
-        game::State->activeCorruptedWorkers.push_back(this);
+        game::State->targetableCorruptedWorkers.push_back(this);
         _isCorrupted = true;
         renderInfo.sprite = game::Assets->workerCorruptedSprite;
+        for (auto& antibody: game::State->antibodies) {
+            if (!antibody->hasTarget()) {
+                antibody->findTarget();
+            }
+        }
     }
 
     bool Worker::isCorrupted() const {
         return _isCorrupted;
+    }
+
+    void Worker::incrementAntibodies() {
+        numAntibodies++;
+        if (numAntibodies >= MaxNumAntibodies) {
+            for (
+                auto it = game::State->targetableCorruptedWorkers.begin();
+                it != game::State->targetableCorruptedWorkers.end();
+                it++
+            ) {
+                if (*it == this) {
+                    game::State->targetableCorruptedWorkers.erase(it);
+                    break;
+                }
+            }
+        }
     }
 
     void Worker::handleMouseAndKeyboardInput(
@@ -84,10 +107,6 @@ namespace worker {
         Entity::handleGamepadInput(gamepadIndex, gamepadState);
     }
 
-    static bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
-        return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;
-    }
-
     void Worker::update(float dt) {
         Entity::update(dt);
         //TODO: hack
@@ -98,7 +117,7 @@ namespace worker {
         // debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
         renderInfo.zOrder = physicsInfo.position.y;
 
-        if (almostAtTarget(this, _targetLocation)) {
+        if (game::almostAtTarget(this, _targetLocation)) {
             physicsInfo.position = _targetLocation;
             physicsInfo.speed = 0;
             physicsInfo.acceleration = 0;

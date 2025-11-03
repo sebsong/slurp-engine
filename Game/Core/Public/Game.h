@@ -59,7 +59,7 @@ namespace game {
         mine_site::MineSiteSpawner mineSiteSpawner;
         entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
-        types::deque_arena<worker::Worker*> activeCorruptedWorkers;
+        types::deque_arena<worker::Worker*> targetableCorruptedWorkers;
         entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
 
         mouse_cursor::MouseCursor mouseCursor;
@@ -80,4 +80,6 @@ namespace game {
     static GameState* State;
 
     void initGame(bool isInitialized);
+
+    bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target);
 }

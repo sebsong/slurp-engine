@@ -37,11 +37,11 @@ namespace entity {
             return random::pickRandom(enabledInstances);
         }
 
-        typename types::deque_arena<T*>::iterator enabledBegin() {
+        typename types::deque_arena<T*>::iterator begin() {
             return enabledInstances.begin();
         }
 
-        typename types::deque_arena<T*>::iterator enabledEnd() {
+        typename types::deque_arena<T*>::iterator end() {
             return enabledInstances.end();
         }
 

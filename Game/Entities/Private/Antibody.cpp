@@ -1,5 +1,6 @@
 #include "Antibody.h"
 
+#include "Game.h"
 #include "Random.h"
 
 namespace antibody {
@@ -29,6 +30,16 @@ namespace antibody {
         )
     ) {}
 
+    bool Antibody::hasTarget() const {
+        return _target != nullptr;
+    }
+
+    void Antibody::findTarget() {
+        if ((_target = random::pickRandom(game::State->targetableCorruptedWorkers))) {
+            _target->incrementAntibodies();
+        }
+    }
+
     void Antibody::initialize() {
         Entity::initialize();
         findTarget();
@@ -39,7 +50,7 @@ namespace antibody {
         if (_target) {
             renderInfo.zOrder = _target->renderInfo.zOrder - 1;
             slurp::Vec2<float> targetLocation = _target->physicsInfo.position;
-            if (worker::almostAtTarget(this, targetLocation)) {
+            if (game::almostAtTarget(this, targetLocation)) {
                 physicsInfo.position = targetLocation;
                 if (!_isAtTarget) {
                     physicsInfo.speed = 0;
@@ -54,9 +65,5 @@ namespace antibody {
         } else {
             renderInfo.zOrder = physicsInfo.position.y;
         }
-    }
-
-    void Antibody::findTarget() {
-        _target = random::pickRandom(game::State->activeCorruptedWorkers);
     }
 }

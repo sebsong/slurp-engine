@@ -4,6 +4,8 @@
 namespace worker {
     class Worker final : public entity::Entity {
     public:
+        uint32_t numAntibodies;
+
         Worker();
 
         Worker(const Worker& other);
@@ -13,6 +15,8 @@ namespace worker {
         void corrupt();
 
         bool isCorrupted() const;
+
+        void incrementAntibodies();
 
     private:
         bool _isLoaded;
