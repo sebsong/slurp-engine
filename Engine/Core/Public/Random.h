@@ -26,11 +26,16 @@ namespace random {
     }
 
     template <typename T>
-    T* pickRandom(types::deque_arena<T*> collection) {
+    T pickRandom(types::deque_arena<T> collection, T defaultValue) {
         if (collection.empty()) {
-            return nullptr;
+            return defaultValue;
         }
 
         return collection.at(randomIndex(collection.size()));
+    }
+
+    template <typename T>
+    T* pickRandom(types::deque_arena<T*> collection) {
+        return pickRandom<T*>(collection, nullptr);
     }
 }

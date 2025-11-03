@@ -18,18 +18,27 @@ namespace entity {
             }
         }
 
-        T* newInstance() {
-            T* newInstancePtr;
+        T* nextInstance() {
+            T* nextInstancePtr;
             if (!disabledInstances.empty()) {
-                newInstancePtr = disabledInstances.front();
+                nextInstancePtr = disabledInstances.front();
                 disabledInstances.pop_front();
-                entity::registerEntity(*newInstancePtr);
+                entity::registerEntity(*nextInstancePtr);
             } else {
-                newInstancePtr = enabledInstances.front();
+                nextInstancePtr = enabledInstances.front();
                 enabledInstances.pop_front();
             }
-            newInstancePtr->enable();
-            enabledInstances.push_back(newInstancePtr);
+            return nextInstancePtr;
+        }
+
+        void enableInstance(T* instancePtr) {
+            instancePtr->enable();
+            enabledInstances.push_back(instancePtr);
+        }
+
+        T* newInstance() {
+            T* newInstancePtr = nextInstance();
+            enableInstance(newInstancePtr);
             return newInstancePtr;
         }
 
