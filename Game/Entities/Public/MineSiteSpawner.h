@@ -6,6 +6,8 @@ namespace mine_site {
     public:
         MineSiteSpawner();
 
+        void spawnMineSite();
+
     private:
         void initialize() override;
 

@@ -40,14 +40,21 @@ namespace base {
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
 
+        // TODO: add costs and build times
+
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
             worker::Worker* newWorker = game::State->workers.newInstance();
             newWorker->physicsInfo.position = physicsInfo.position + SpawnOffset;
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_2)) {
+            game::State->mineSiteSpawner.spawnMineSite();
+        }
+
+        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {
             antibody::Antibody* newAntibody = game::State->antibodies.newInstance();
             newAntibody->physicsInfo.position = physicsInfo.position + SpawnOffset;
         }
+
     }
 }
