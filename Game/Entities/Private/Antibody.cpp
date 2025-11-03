@@ -36,7 +36,7 @@ namespace antibody {
 
     void Antibody::findTarget() {
         if ((_target = random::pickRandom(game::State->targetableCorruptedWorkers))) {
-            _target->incrementAntibodies();
+            _target->registerAntibody(this);
         }
     }
 
@@ -56,7 +56,7 @@ namespace antibody {
                     physicsInfo.speed = 0;
                     physicsInfo.acceleration = 0;
                     _isAtTarget = true;
-                    _target->physicsInfo.maxSpeed *= SpeedPenaltyMultiplier;
+                    _target->applyAntibodyEffects(SpeedPenaltyMultiplier);
                 }
             } else {
                 physicsInfo.direction = (targetLocation - physicsInfo.position).normalize();

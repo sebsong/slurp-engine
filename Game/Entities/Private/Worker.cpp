@@ -15,6 +15,8 @@ namespace worker {
     static const float CorruptionChance = 0.1f;
 
     static const uint32_t MaxNumAntibodies = 3;
+    static const float PurifyDeceleration = -10;
+    static const float PurifyDelay = 3;
 
     Worker::Worker()
         : Entity(
@@ -39,7 +41,8 @@ namespace worker {
           ),
           _isLoaded(false),
           _isAtTargetLocation(false),
-          _isCorrupted(false) {}
+          _isCorrupted(false),
+          _attachedAntibodies(types::set_arena<antibody::Antibody*>()) {}
 
     Worker::Worker(const Worker& other): Entity(other) {}
 
@@ -64,13 +67,25 @@ namespace worker {
         }
     }
 
+
     bool Worker::isCorrupted() const {
         return _isCorrupted;
     }
 
-    void Worker::incrementAntibodies() {
-        numAntibodies++;
-        if (numAntibodies >= MaxNumAntibodies) {
+    void Worker::purify() {
+        _isCorrupted = false;
+        for (auto antibody: _attachedAntibodies) {
+            game::State->antibodies.recycleInstance(antibody);
+        }
+        _attachedAntibodies.clear();
+        physicsInfo.maxSpeed = BaseSpeed;
+        renderInfo.sprite = game::Assets->workerSprite;
+    }
+
+    void Worker::registerAntibody(antibody::Antibody* antibody) {
+        _attachedAntibodies.insert(antibody);
+
+        if (_attachedAntibodies.size() >= MaxNumAntibodies) {
             for (
                 auto it = game::State->targetableCorruptedWorkers.begin();
                 it != game::State->targetableCorruptedWorkers.end();
@@ -81,6 +96,21 @@ namespace worker {
                     break;
                 }
             }
+        }
+    }
+
+    void Worker::applyAntibodyEffects(float maxSpeedMultiplier) {
+        physicsInfo.maxSpeed *= maxSpeedMultiplier;
+        if (_attachedAntibodies.size() >= MaxNumAntibodies) {
+            _isPurifying = true;
+            physicsInfo.acceleration = PurifyDeceleration;
+            timer::delay(
+                PurifyDelay,
+                [this] {
+                    purify();
+                    _isPurifying = false;
+                }
+            );
         }
     }
 
@@ -131,7 +161,9 @@ namespace worker {
             }
         } else {
             physicsInfo.direction = (_targetLocation - physicsInfo.position).normalize();
-            physicsInfo.acceleration = BaseAcceleration;
+            if (!_isPurifying) {
+                physicsInfo.acceleration = BaseAcceleration;
+            }
         }
     }
 
@@ -202,17 +234,15 @@ namespace worker {
     }
 
     void Worker::collect() {
-        if (!_isCorrupted) {
-            _isLoaded = true;
-        }
-        renderInfo.sprite = game::Assets->workerLoadedSprite;
         if (rollCorruption()) {
             corrupt();
         }
         if (_isCorrupted) {
             setTargetLocation(getAvailableMiningLocation());
         } else {
+            _isLoaded = true;
             setTargetLocation(game::State->base.getDropOffLocation());
+            renderInfo.sprite = game::Assets->workerLoadedSprite;
         }
     }
 

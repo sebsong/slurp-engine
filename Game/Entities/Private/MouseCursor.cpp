@@ -21,19 +21,5 @@ namespace mouse_cursor {
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
         this->physicsInfo.position = mouseState.position;
-
-        if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
-            Entity* entity = entity::hitTest(mouseState.position);
-            if (entity) {
-                logging::debug(
-                    std::format(
-                        "HIT: {}",
-                        entity->name
-                    )
-                );
-            } else {
-                logging::debug("HIT: None");
-            }
-        }
     }
 }

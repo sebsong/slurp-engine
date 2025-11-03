@@ -1,10 +1,14 @@
 #pragma once
 #include "Entity.h"
+#include "Game.h"
+
+namespace antibody {
+    class Antibody;
+}
 
 namespace worker {
     class Worker final : public entity::Entity {
     public:
-        uint32_t numAntibodies;
 
         Worker();
 
@@ -16,13 +20,19 @@ namespace worker {
 
         bool isCorrupted() const;
 
-        void incrementAntibodies();
+        void purify();
+
+        void registerAntibody(antibody::Antibody* antibody);
+
+        void applyAntibodyEffects(float maxSpeedMultiplier);
 
     private:
         bool _isLoaded;
         bool _isAtTargetLocation;
         bool _isCorrupted;
+        bool _isPurifying;
         slurp::Vec2<float> _targetLocation;
+        types::set_arena<antibody::Antibody*> _attachedAntibodies;
 
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
