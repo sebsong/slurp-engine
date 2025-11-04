@@ -47,6 +47,9 @@ namespace game {
 
         Assets->antibodySprite = asset::loadSprite("antibody.bmp");
 
+        Assets->progressBarEmpty = asset::loadSprite("progress_bar_empty.bmp");
+        Assets->progressBarFull = asset::loadSprite("progress_bar_full.bmp");
+
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         // NOTE: https://opengameart.org/content/since-2-am
@@ -140,6 +143,26 @@ namespace game {
         registerEntity(
             State->base,
             base::Base()
+        );
+
+        registerEntity(
+            State->progressBarEmpty,
+            entity::Entity(
+                "Progress Bar Empty",
+                render::RenderInfo(slurp::Globals->GameAssets->progressBarEmpty, true, BORDER_Z),
+                physics::PhysicsInfo({25, 20}),
+                collision::CollisionInfo()
+            )
+        );
+
+        registerEntity(
+            State->progressBarFull,
+            entity::Entity(
+                "Progress Bar Full",
+                render::RenderInfo(slurp::Globals->GameAssets->progressBarFull, true, BORDER_Z),
+                physics::PhysicsInfo({25, 20}),
+                collision::CollisionInfo()
+            )
         );
 
         registerEntity(

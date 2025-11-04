@@ -33,6 +33,9 @@ namespace game {
         asset::Sprite* workerCorruptedSprite;
         asset::Sprite* antibodySprite;
 
+        asset::Sprite* progressBarEmpty;
+        asset::Sprite* progressBarFull;
+
         asset::Sprite* mouseCursorSprite;
 
         asset::Sound* backgroundMusic;
@@ -64,6 +67,9 @@ namespace game {
         types::deque_arena<worker::Worker*> targetableCorruptedWorkers;
 
         entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
+
+        entity::Entity progressBarEmpty;
+        entity::Entity progressBarFull;
 
         mouse_cursor::MouseCursor mouseCursor;
     };
