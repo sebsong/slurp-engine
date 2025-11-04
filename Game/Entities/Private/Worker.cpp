@@ -55,7 +55,7 @@ namespace worker {
         CollectionAnimationSprites[2] = game::Assets->workerLoading1Sprite;
         CollectionAnimationSprites[3] = game::Assets->workerLoading2Sprite;
         CollectionAnimationSprites[4] = game::Assets->workerLoadedSprite;
-        dropOff();
+        findNewMiningLocation();
     }
 
     void Worker::corrupt() {

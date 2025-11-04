@@ -33,8 +33,8 @@ namespace game {
         asset::Sprite* workerCorruptedSprite;
         asset::Sprite* antibodySprite;
 
-        asset::Sprite* progressBarEmpty;
-        asset::Sprite* progressBarFull;
+        asset::Sprite* storageSilo;
+        asset::Sprite* storageSiloFill;
 
         asset::Sprite* mouseCursorSprite;
 
@@ -68,8 +68,8 @@ namespace game {
 
         entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
 
-        entity::Entity progressBarEmpty;
-        entity::Entity progressBarFull;
+        entity::Entity storageSilo;
+        entity::Entity storageSiloFill;
 
         mouse_cursor::MouseCursor mouseCursor;
     };

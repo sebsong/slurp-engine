@@ -47,8 +47,12 @@ namespace game {
 
         Assets->antibodySprite = asset::loadSprite("antibody.bmp");
 
-        Assets->progressBarEmpty = asset::loadSprite("progress_bar_empty.bmp");
-        Assets->progressBarFull = asset::loadSprite("progress_bar_full.bmp");
+        Assets->storageSilo = asset::loadSprite("storage_silo.bmp");
+        Assets->storageSiloFill = asset::loadSprite(
+            "storage_silo_fill.bmp",
+            "sprite.glsl",
+            "progress_bar.glsl"
+        );
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -146,21 +150,21 @@ namespace game {
         );
 
         registerEntity(
-            State->progressBarEmpty,
+            State->storageSilo,
             entity::Entity(
-                "Progress Bar Empty",
-                render::RenderInfo(slurp::Globals->GameAssets->progressBarEmpty, true, BORDER_Z),
-                physics::PhysicsInfo({25, 20}),
+                "Storage Silo",
+                render::RenderInfo(slurp::Globals->GameAssets->storageSilo, true, 0),
+                physics::PhysicsInfo({0, 28}),
                 collision::CollisionInfo()
             )
         );
 
         registerEntity(
-            State->progressBarFull,
+            State->storageSiloFill,
             entity::Entity(
-                "Progress Bar Full",
-                render::RenderInfo(slurp::Globals->GameAssets->progressBarFull, true, BORDER_Z),
-                physics::PhysicsInfo({25, 20}),
+                "Storage Silo Fill",
+                render::RenderInfo(slurp::Globals->GameAssets->storageSiloFill, true, 0),
+                physics::PhysicsInfo(State->storageSilo.physicsInfo.position),
                 collision::CollisionInfo()
             )
         );
@@ -171,7 +175,7 @@ namespace game {
         );
 
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
-        new(&State->mineSpots) types::deque_arena<slurp::Vec2<float>>();
+        new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
         new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
@@ -187,5 +191,4 @@ namespace game {
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;
     }
-
 }

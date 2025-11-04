@@ -17,6 +17,14 @@ namespace asset {
         );
     }
 
+    void Sprite::bindShaderUniform(const char* uniformName, float value) const {
+        slurp::Globals->RenderApi->bindShaderUniformFloat(material.shaderProgramId, uniformName, value);
+    }
+
+    void Sprite::bindShaderUniform(const char* uniformName, bool value) const {
+        slurp::Globals->RenderApi->bindShaderUniformBool(material.shaderProgramId, uniformName, value);
+    }
+
     void loadSpriteData(
         Sprite* sprite,
         const Bitmap* bitmap,

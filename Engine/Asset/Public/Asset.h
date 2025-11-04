@@ -7,6 +7,7 @@
 #include "CollectionTypes.h"
 
 namespace asset {
+    struct Sprite;
     struct Bitmap;
 
     typedef uint32_t asset_id;
@@ -20,14 +21,6 @@ namespace asset {
         uint32_t id;
         bool isLoaded;
         // TODO: ref count
-    };
-
-    struct Sprite : Asset {
-        slurp::Vec2<int> dimensions;
-        Mesh mesh;
-        Material material;
-
-        void draw(const slurp::Vec2<float>& startPoint, int zOrder) const;
     };
 
     struct Sound : Asset {

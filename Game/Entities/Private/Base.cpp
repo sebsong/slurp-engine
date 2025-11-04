@@ -2,8 +2,11 @@
 
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {32, 10}};
-    static const slurp::Vec2<float> RenderOffset = {0, 3};
+    static const slurp::Vec2<float> RenderOffset = {0, 8};
     static slurp::Vec2<float> SpawnOffset = {0, -5};
+
+    static constexpr uint32_t GoldGoal = 100;
+    static const char* ProgressUniformName = "progress";
 
     Base::Base(): Entity(
         "Base",
@@ -31,6 +34,9 @@ namespace base {
 
     void Base::update(float dt) {
         Entity::update(dt);
+
+        game::Assets->storageSiloFill->bindShaderUniform(ProgressUniformName, static_cast<float>(gold) / GoldGoal);
+
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }
 
@@ -55,6 +61,5 @@ namespace base {
             antibody::Antibody* newAntibody = game::State->antibodies.newInstance();
             newAntibody->physicsInfo.position = physicsInfo.position + SpawnOffset;
         }
-
     }
 }

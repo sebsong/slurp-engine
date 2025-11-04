@@ -912,6 +912,8 @@ static render::RenderApi loadRenderApi() {
     renderApi.setBackgroundColor = open_gl::setBackgroundColor;
     renderApi.createTexture = open_gl::createTexture;
     renderApi.createShaderProgram = open_gl::createShaderProgram;
+    renderApi.bindShaderUniformFloat = open_gl::bindShaderUniformFloat;
+    renderApi.bindShaderUniformBool = open_gl::bindShaderUniformBool;
     renderApi.genVertexArrayBuffer = open_gl::genVertexArrayBuffer;
     renderApi.genElementArrayBuffer = open_gl::genElementArrayBuffer;
     renderApi.drawVertexArray = open_gl::drawVertexArray;

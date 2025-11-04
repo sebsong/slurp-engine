@@ -31,6 +31,8 @@ namespace render {
 #define RENDER_SET_BACKGROUND_COLOR(fnName) void fnName(float red, float green, float blue)
 #define RENDER_CREATE_TEXTURE(fnName) render::object_id fnName(const asset::Bitmap* bitmap)
 #define RENDER_CREATE_SHADER_PROGRAM(fnName) render::object_id fnName(const char* vertexShaderSource, const char* fragmentShaderSource)
+#define RENDER_BIND_SHADER_UNIFORM_FLOAT(fnName) void fnName(render::object_id shaderProgramId, const char* uniformName, float value)
+#define RENDER_BIND_SHADER_UNIFORM_BOOL(fnName) void fnName(render::object_id shaderProgramId, const char* uniformName, bool value)
 #define RENDER_GEN_VERTEX_ARRAY_BUFFER(fnName) render::object_id fnName(render::Vertex vertexArray[], int vertexCount)
 #define RENDER_GEN_ELEMENT_ARRAY_BUFFER(fnName) \
     render::object_id fnName( \
@@ -91,6 +93,10 @@ namespace render {
 
     SLURP_DECLARE_DYNAMIC_RETURN(RENDER_CREATE_SHADER_PROGRAM, createShaderProgram, render::INVALID_OBJECT_ID)
 
+    SLURP_DECLARE_DYNAMIC_VOID(RENDER_BIND_SHADER_UNIFORM_FLOAT, bindShaderUniformFloat)
+
+    SLURP_DECLARE_DYNAMIC_VOID(RENDER_BIND_SHADER_UNIFORM_BOOL, bindShaderUniformBool)
+
     SLURP_DECLARE_DYNAMIC_RETURN(RENDER_GEN_VERTEX_ARRAY_BUFFER, genVertexArrayBuffer, render::INVALID_OBJECT_ID)
 
     SLURP_DECLARE_DYNAMIC_RETURN(RENDER_GEN_ELEMENT_ARRAY_BUFFER, genElementArrayBuffer, render::INVALID_OBJECT_ID)
@@ -109,6 +115,8 @@ namespace render {
         dyn_setBackgroundColor* setBackgroundColor = stub_setBackgroundColor;
         dyn_createTexture* createTexture = stub_createTexture;
         dyn_createShaderProgram* createShaderProgram = stub_createShaderProgram;
+        dyn_bindShaderUniformFloat* bindShaderUniformFloat = stub_bindShaderUniformFloat;
+        dyn_bindShaderUniformBool* bindShaderUniformBool = stub_bindShaderUniformBool;
         dyn_genVertexArrayBuffer* genVertexArrayBuffer = stub_genVertexArrayBuffer;
         dyn_genElementArrayBuffer* genElementArrayBuffer = stub_genElementArrayBuffer;
         dyn_drawVertexArray* drawVertexArray = stub_drawVertexArray;

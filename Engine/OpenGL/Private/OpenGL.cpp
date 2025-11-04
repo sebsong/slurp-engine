@@ -180,6 +180,22 @@ namespace open_gl {
         return shaderProgramId;
     }
 
+    RENDER_BIND_SHADER_UNIFORM_FLOAT(bindShaderUniformFloat) {
+        glUseProgram(shaderProgramId);
+        int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
+        if (uniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform1f(uniformLoc, value);
+        }
+    }
+
+    RENDER_BIND_SHADER_UNIFORM_BOOL(bindShaderUniformBool) {
+        glUseProgram(shaderProgramId);
+        int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
+        if (uniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform1i(uniformLoc, value);
+        }
+    }
+
     RENDER_GEN_VERTEX_ARRAY_BUFFER(genVertexArrayBuffer) {
         render::object_id vertexArrayId;
         glGenVertexArrays(1, &vertexArrayId);
@@ -274,8 +290,8 @@ namespace open_gl {
             render::POSITION_TRANSFORM_UNIFORM_NAME
         );
         if (positionTransformUniformLoc != render::INVALID_OBJECT_ID) {
-            const slurp::Vec2<float>& position = positionTransform * WorldToOpenGLClipSpaceMatrix;
             // TODO: is it better to perform this in the shader?
+            const slurp::Vec2<float>& position = positionTransform * WorldToOpenGLClipSpaceMatrix;
             glUniform2fv(positionTransformUniformLoc, 1, position.values);
         }
 
