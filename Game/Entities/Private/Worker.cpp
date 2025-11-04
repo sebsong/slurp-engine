@@ -11,12 +11,14 @@ namespace worker {
     static constexpr float DropOffTime = .5f;
     static constexpr int NumCollectionTransitions = 5;
     static const asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
+    static const float MaxMineSpotWaitTime = .5f;
 
-    static const float CorruptionChance = 0.1f;
+    static const float CorruptionChance = 0.05f;
 
     static const uint32_t MaxNumAntibodies = 3;
     static const float PurifyDeceleration = -10;
     static const float PurifyDelay = 3;
+
 
     Worker::Worker()
         : Entity(
@@ -66,7 +68,6 @@ namespace worker {
             }
         }
     }
-
 
     bool Worker::isCorrupted() const {
         return _isCorrupted;
@@ -147,6 +148,13 @@ namespace worker {
         // debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
         renderInfo.zOrder = physicsInfo.position.y;
 
+        if (_isIdle) {
+            physicsInfo.speed = 0;
+            physicsInfo.acceleration = 0;
+            findNewMiningLocation();
+            return;
+        }
+
         if (game::almostAtTarget(this, _targetLocation)) {
             physicsInfo.position = _targetLocation;
             physicsInfo.speed = 0;
@@ -174,6 +182,42 @@ namespace worker {
     void Worker::setTargetLocation(slurp::Vec2<float> newTargetLocation) {
         _targetLocation = newTargetLocation;
         _isAtTargetLocation = false;
+        _isIdle = false;
+
+        if (_targetLocation.isZero()) {
+            idle();
+            return;
+        }
+
+        if (_targetLocation != game::State->base.getDropOffLocation()) {
+            occupyMiningLocation(_targetLocation);
+        }
+    }
+
+    void Worker::occupyMiningLocation(slurp::Vec2<float> location) {
+        for (auto it = game::State->mineSpots.begin(); it != game::State->mineSpots.end(); it++) {
+            if (*it == location) {
+                game::State->mineSpots.erase(it);
+                break;
+            }
+        }
+    }
+
+    void Worker::leaveMiningLocation() {
+        if (!_targetLocation.isZero() && _targetLocation != game::State->base.getDropOffLocation()) {
+            game::State->mineSpots.push_back(_targetLocation);
+            _targetLocation = slurp::Vec2<float>::Zero;
+        }
+    }
+
+    static slurp::Vec2<float> getAvailableMiningLocation() {
+        return random::pickRandom(game::State->mineSpots, slurp::Vec2<float>::Zero);
+    }
+
+
+    void Worker::findNewMiningLocation() {
+        leaveMiningLocation();
+        setTargetLocation(getAvailableMiningLocation());
     }
 
     void Worker::beginDropOff() {
@@ -187,19 +231,11 @@ namespace worker {
         playDropOffAnim();
     }
 
-    static slurp::Vec2<float> getAvailableMiningLocation() {
-        mine_site::MineSite* mineSite = game::State->mineSites.getRandomEnabledInstance();
-        if (!mineSite) {
-            return slurp::Vec2<float>::Zero;
-        }
-        return mineSite->getMiningLocation();
-    }
-
     void Worker::dropOff() {
         _isLoaded = false;
         game::State->base.dropOff();
         renderInfo.sprite = game::Assets->workerSprite;
-        setTargetLocation(getAvailableMiningLocation());
+        findNewMiningLocation();
     }
 
     void Worker::playDropOffAnim() {
@@ -238,9 +274,10 @@ namespace worker {
             corrupt();
         }
         if (_isCorrupted) {
-            setTargetLocation(getAvailableMiningLocation());
+            findNewMiningLocation();
         } else {
             _isLoaded = true;
+            leaveMiningLocation();
             setTargetLocation(game::State->base.getDropOffLocation());
             renderInfo.sprite = game::Assets->workerLoadedSprite;
         }
@@ -256,5 +293,9 @@ namespace worker {
                 }
             );
         }
+    }
+
+    void Worker::idle() {
+        _isIdle = true;
     }
 }

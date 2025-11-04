@@ -148,6 +148,7 @@ namespace game {
         );
 
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
+        new(&State->mineSpots) types::deque_arena<slurp::Vec2<float>>();
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
         new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();

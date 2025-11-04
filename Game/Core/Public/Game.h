@@ -58,8 +58,11 @@ namespace game {
         base::Base base;
         mine_site::MineSiteSpawner mineSiteSpawner;
         entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
+        types::deque_arena<slurp::Vec2<float>> mineSpots;
+
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
         types::deque_arena<worker::Worker*> targetableCorruptedWorkers;
+
         entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
 
         mouse_cursor::MouseCursor mouseCursor;

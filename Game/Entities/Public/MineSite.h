@@ -10,9 +10,10 @@ namespace mine_site {
     public:
         MineSite();
 
-        slurp::Vec2<float> getMiningLocation() const;
 
     private:
+        void initialize() override;
+
         void update(float dt) override;
     };
 }

@@ -31,6 +31,7 @@ namespace worker {
         bool _isAtTargetLocation;
         bool _isCorrupted;
         bool _isPurifying;
+        bool _isIdle;
         slurp::Vec2<float> _targetLocation;
         types::set_arena<antibody::Antibody*> _attachedAntibodies;
 
@@ -47,6 +48,12 @@ namespace worker {
 
         void setTargetLocation(slurp::Vec2<float> newTargetLocation);
 
+        void occupyMiningLocation(slurp::Vec2<float> location);
+
+        void leaveMiningLocation();
+
+        void findNewMiningLocation();
+
         void beginDropOff();
 
         void dropOff();
@@ -58,5 +65,7 @@ namespace worker {
         void collect();
 
         void playCollectionAnim();
+
+        void idle();
     };
 }

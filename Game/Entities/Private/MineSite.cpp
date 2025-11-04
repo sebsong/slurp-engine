@@ -6,7 +6,7 @@ namespace mine_site {
     static const slurp::Vec2<float> StartPos = {-150, -75};
 
     static constexpr uint32_t NumMiningLocations = 7;
-    static const slurp::Vec2<float> MiningLocationOffsets[NumMiningLocations] = {
+    static const slurp::Vec2<float> MineSpotOffsets[NumMiningLocations] = {
         {13, 0},
         {10, -4},
         {5, -7},
@@ -28,8 +28,11 @@ namespace mine_site {
         )
     ) {}
 
-    slurp::Vec2<float> MineSite::getMiningLocation() const {
-        return physicsInfo.position + MiningLocationOffsets[random::randomIndex(NumMiningLocations)];
+    void MineSite::initialize() {
+        Entity::initialize();
+        for (slurp::Vec2 offset: MineSpotOffsets) {
+            game::State->mineSpots.push_back(physicsInfo.position + offset);
+        }
     }
 
     void MineSite::update(float dt) {
