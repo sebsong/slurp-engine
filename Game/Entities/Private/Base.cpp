@@ -3,7 +3,7 @@
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {32, 10}};
     static const slurp::Vec2<float> RenderOffset = {0, 8};
-    static slurp::Vec2<float> SpawnOffset = {0, -5};
+    static slurp::Vec2<float> SpawnOffset = {-15, -7};
 
     static constexpr uint32_t GoldGoal = 100;
     static const char* ProgressUniformName = "progress";

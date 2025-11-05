@@ -2,6 +2,7 @@
 
 #define Z_ORDER_MAX 1000
 #include "Sprite.h"
+#include "SpriteAnimation.h"
 
 namespace asset {
     struct Sprite;

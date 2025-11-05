@@ -39,5 +39,12 @@ namespace asset {
         render::Pixel* map;
     };
 
+    struct BitmapSheet {
+        uint8_t numBitmaps;
+        Bitmap* bitmaps;
+    };
+
     void loadBitmapData(Bitmap* bitmap, const types::byte* bitmapFileBytes);
+
+    BitmapSheet sliceBitmap(const Bitmap* bitmap, uint8_t numSlices);
 }

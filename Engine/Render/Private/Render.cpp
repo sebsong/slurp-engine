@@ -25,7 +25,7 @@ namespace render {
             asset::Mesh& mesh = sprite->mesh;
             asset::Material& material = sprite->material;
             object_id textureId = animation.isPlaying
-                                      ? animation.textureId[animation.currentFrameIndex]
+                                      ? animation.textureIds[animation.currentFrameIndex]
                                       : material.textureId;
             slurp::Globals->RenderApi->drawElementArray(
                 mesh.vertexArrayId,

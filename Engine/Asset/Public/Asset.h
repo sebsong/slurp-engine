@@ -8,6 +8,7 @@
 
 namespace asset {
     struct Sprite;
+    struct SpriteAnimation;
     struct Bitmap;
 
     typedef uint32_t asset_id;
@@ -38,15 +39,15 @@ namespace asset {
 
         Bitmap* loadBitmap(const std::string& bitmapFileName);
 
-        Sprite* loadSprite(
-            const std::string& bitmapFileName
-        );
+        Sprite* loadSprite(const std::string& bitmapFileName);
 
         Sprite* loadSprite(
             const std::string& bitmapFileName,
             const std::string& vertexShaderFileName,
             const std::string& fragmentShaderFileName
         );
+
+        SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames);
 
         Sound* loadSound(const std::string& waveFileName);
 

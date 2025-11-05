@@ -103,6 +103,24 @@ namespace asset {
         return sprite;
     }
 
+    SpriteAnimation* AssetLoader::loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames) {
+        std::string filePath = SpritesDirectory + bitmapFileName;
+        asset_id assetId = _getAssetId(filePath);
+
+        // if (Asset* existingSpriteAnimation = _getAsset(assetId)) {
+        //     return reinterpret_cast<SpriteAnimation*>(existingSprite);
+        // }
+
+        SpriteAnimation* animation = memory::Permanent->allocate<SpriteAnimation>();
+        _registerAsset(assetId, animation);
+
+        Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
+
+        loadSpriteAnimationData(animation, bitmap, numFrames);
+
+        return animation;
+    }
+
     // TODO: pre-process wave files into the engine sample size
     // TODO: stream the file in async
     Sound* AssetLoader::loadSound(const std::string& waveFileName) {
@@ -176,6 +194,10 @@ namespace asset {
 
     Sprite* loadSprite(const std::string& bitmapFileName) {
         return slurp::Globals->AssetLoader->loadSprite(bitmapFileName);
+    }
+
+    SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames) {
+        return slurp::Globals->AssetLoader->loadSpriteAnimation(bitmapFileName, numFrames);
     }
 
     Sprite* loadSprite(

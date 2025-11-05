@@ -14,6 +14,7 @@
 #include "Antibody.cpp"
 #include "MouseCursor.cpp"
 
+
 namespace game {
     template<typename T>
     static void registerEntity(
@@ -39,9 +40,7 @@ namespace game {
         Assets->mineSiteSprite = asset::loadSprite("gold.bmp");
 
         Assets->workerSprite = asset::loadSprite("worker.bmp");
-        Assets->workerLoading0Sprite = asset::loadSprite("worker_loading_0.bmp");
-        Assets->workerLoading1Sprite = asset::loadSprite("worker_loading_1.bmp");
-        Assets->workerLoading2Sprite = asset::loadSprite("worker_loading_2.bmp");
+        Assets->workerLoadingAnim = asset::loadSpriteAnimation("worker_loading.bmp", 6);
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
         Assets->workerCorruptedSprite = asset::loadSprite("worker_corrupted.bmp");
 

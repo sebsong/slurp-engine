@@ -10,7 +10,7 @@ namespace worker {
     static constexpr float CollectionTime = 2.f;
     static constexpr float DropOffTime = .5f;
     static constexpr int NumCollectionTransitions = 5;
-    static asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
+    // static asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
     static const float MaxMineSpotWaitTime = .5f;
 
     static const float CorruptionChance = 0.05f;
@@ -50,11 +50,6 @@ namespace worker {
 
     void Worker::initialize() {
         Entity::initialize();
-        CollectionAnimationSprites[0] = game::Assets->workerSprite;
-        CollectionAnimationSprites[1] = game::Assets->workerLoading0Sprite;
-        CollectionAnimationSprites[2] = game::Assets->workerLoading1Sprite;
-        CollectionAnimationSprites[3] = game::Assets->workerLoading2Sprite;
-        CollectionAnimationSprites[4] = game::Assets->workerLoadedSprite;
         findNewMiningLocation();
     }
 
@@ -221,6 +216,8 @@ namespace worker {
     }
 
     void Worker::beginDropOff() {
+        renderInfo.animation = *game::Assets->workerLoadingAnim;
+        renderInfo.animation.play(false, DropOffTime);
         timer::delay(
             DropOffTime,
             [this] {
@@ -228,7 +225,6 @@ namespace worker {
                 dropOff();
             }
         );
-        playDropOffAnim();
     }
 
     void Worker::dropOff() {
@@ -238,20 +234,9 @@ namespace worker {
         findNewMiningLocation();
     }
 
-    void Worker::playDropOffAnim() {
-        float delay = DropOffTime / NumCollectionTransitions;
-        for (int i = 0; i < NumCollectionTransitions; i++) {
-            timer::delay(
-                delay * i,
-                [this, i] {
-                    renderInfo.sprite = CollectionAnimationSprites[NumCollectionTransitions - 1 - i];
-                }
-            );
-        }
-    }
-
     void Worker::beginCollect() {
-        playCollectionAnim();
+        renderInfo.animation = *game::Assets->workerLoadingAnim;
+        renderInfo.animation.play(false, CollectionTime);
         timer::delay(
             CollectionTime,
             [this] {
@@ -280,18 +265,6 @@ namespace worker {
             leaveMiningLocation();
             setTargetLocation(game::State->base.getDropOffLocation());
             renderInfo.sprite = game::Assets->workerLoadedSprite;
-        }
-    }
-
-    void Worker::playCollectionAnim() {
-        float delay = CollectionTime / NumCollectionTransitions;
-        for (int i = 0; i < NumCollectionTransitions; i++) {
-            timer::delay(
-                delay * i,
-                [this, i] {
-                    renderInfo.sprite = CollectionAnimationSprites[i];
-                }
-            );
         }
     }
 

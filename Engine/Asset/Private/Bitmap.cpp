@@ -99,7 +99,6 @@ namespace asset {
         }
     }
 
-
     void loadBitmapData(Bitmap* bitmap, types::byte* bitmapFileBytes) {
         BitmapHeader* header = reinterpret_cast<BitmapHeader*>(bitmapFileBytes);
 
@@ -134,5 +133,26 @@ namespace asset {
         bitmap->dimensions = {width, height};
         bitmap->map = map;
         bitmap->isLoaded = true;
+    }
+
+    BitmapSheet sliceBitmap(const Bitmap* bitmap, uint8_t numSlices) {
+        Bitmap* bitmaps = memory::AssetLoader->allocate<Bitmap>(numSlices);
+        slurp::Vec2 sliceDimensions = {bitmap->dimensions.width / numSlices, bitmap->dimensions.height};
+        for (uint8_t sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
+            Bitmap& bitmapSlice = bitmaps[sliceIdx];
+            bitmapSlice.dimensions = sliceDimensions;
+            bitmapSlice.map = memory::AssetLoader->allocate<render::Pixel>(
+                sliceDimensions.width * sliceDimensions.height
+            );
+            int xOffset = sliceDimensions.width * sliceIdx;
+            for (int y = 0; y < sliceDimensions.height; y++) {
+                for (int x = 0; x < sliceDimensions.width; x++) {
+                    bitmapSlice.map[x + (y * sliceDimensions.width)] =
+                            bitmap->map[x + xOffset + (y * bitmap->dimensions.width)];
+                }
+            }
+        }
+
+        return BitmapSheet{numSlices, bitmaps};
     }
 }

@@ -58,13 +58,9 @@ namespace worker {
 
         void dropOff();
 
-        void playDropOffAnim();
-
         void beginCollect();
 
         void collect();
-
-        void playCollectionAnim();
 
         void idle();
     };

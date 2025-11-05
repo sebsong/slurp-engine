@@ -26,9 +26,7 @@ namespace game {
         asset::Sprite* mineSiteSprite;
 
         asset::Sprite* workerSprite;
-        asset::Sprite* workerLoading0Sprite;
-        asset::Sprite* workerLoading1Sprite;
-        asset::Sprite* workerLoading2Sprite;
+        asset::SpriteAnimation* workerLoadingAnim;
         asset::Sprite* workerLoadedSprite;
         asset::Sprite* workerCorruptedSprite;
         asset::Sprite* antibodySprite;
