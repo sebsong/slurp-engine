@@ -10,7 +10,6 @@ namespace worker {
     static constexpr float CollectionTime = 2.f;
     static constexpr float DropOffTime = .5f;
     static constexpr int NumCollectionTransitions = 5;
-    // static asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
     static const float MaxMineSpotWaitTime = .5f;
 
     static const float CorruptionChance = 0.05f;
@@ -217,7 +216,7 @@ namespace worker {
 
     void Worker::beginDropOff() {
         renderInfo.animation = *game::Assets->workerLoadingAnim;
-        renderInfo.animation.play(false, DropOffTime);
+        renderInfo.animation.play(false, DropOffTime, true);
         timer::delay(
             DropOffTime,
             [this] {

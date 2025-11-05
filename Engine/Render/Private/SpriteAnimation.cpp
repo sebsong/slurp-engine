@@ -1,22 +1,36 @@
 #include "SpriteAnimation.h"
 
 namespace asset {
-    void SpriteAnimation::play(bool shouldLoop, float totalDuration) {
+    void SpriteAnimation::play(bool shouldLoop, float totalDuration, bool playReversed) {
         stop();
         frameDuration = totalDuration / numFrames;
         this->shouldLoop = shouldLoop;
+        this->playReversed = playReversed;
         isPlaying = true;
     }
 
     void SpriteAnimation::update(float dt) {
         if (currentFrameDuration >= frameDuration) {
             currentFrameDuration = 0;
-            currentFrameIndex++;
-            if (currentFrameIndex >= numFrames) {
-                if (shouldLoop) {
-                    currentFrameIndex = 0;
+            if (!playReversed) {
+                if (currentFrameIndex == numFrames - 1) {
+                    if (shouldLoop) {
+                        currentFrameIndex = 0;
+                    } else {
+                        stop();
+                    }
                 } else {
-                    stop();
+                    currentFrameIndex++;
+                }
+            } else {
+                if (currentFrameIndex == 0) {
+                    if (shouldLoop) {
+                        currentFrameIndex = numFrames - 1;
+                    } else {
+                        stop();
+                    }
+                } else {
+                    currentFrameIndex--;
                 }
             }
         }
