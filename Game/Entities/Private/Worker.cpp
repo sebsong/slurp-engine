@@ -234,8 +234,10 @@ namespace worker {
     }
 
     void Worker::beginCollect() {
-        renderInfo.animation = *game::Assets->workerLoadingAnim;
-        renderInfo.animation.play(false, CollectionTime);
+        if (!_isCorrupted) {
+            renderInfo.animation = *game::Assets->workerLoadingAnim;
+            renderInfo.animation.play(false, CollectionTime);
+        }
         timer::delay(
             CollectionTime,
             [this] {

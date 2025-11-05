@@ -32,10 +32,12 @@ namespace mine_site {
     }
 
     void MineSiteSpawner::spawnMineSite() {
-        audio::play(game::Assets->spawnMineSite);
         MineSite* newMineSite = game::State->mineSites.nextInstance();
         newMineSite->physicsInfo.position = getRandomSpawnLocation();
         game::State->mineSites.enableInstance(newMineSite);
+        newMineSite->renderInfo.animation = *game::Assets->mineSiteSpawnAnim;
+        newMineSite->renderInfo.animation.play(false, 2.5f);
+        audio::play(game::Assets->spawnMineSite);
     }
 
     void MineSiteSpawner::initialize() {

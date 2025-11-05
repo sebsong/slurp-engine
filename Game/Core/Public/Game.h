@@ -24,6 +24,7 @@ namespace game {
 
         asset::Sprite* baseSprite;
         asset::Sprite* mineSiteSprite;
+        asset::SpriteAnimation* mineSiteSpawnAnim;
 
         asset::Sprite* workerSprite;
         asset::SpriteAnimation* workerLoadingAnim;
