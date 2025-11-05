@@ -10,7 +10,7 @@ namespace worker {
     static constexpr float CollectionTime = 2.f;
     static constexpr float DropOffTime = .5f;
     static constexpr int NumCollectionTransitions = 5;
-    static const asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
+    static asset::Sprite* CollectionAnimationSprites[NumCollectionTransitions];
     static const float MaxMineSpotWaitTime = .5f;
 
     static const float CorruptionChance = 0.05f;

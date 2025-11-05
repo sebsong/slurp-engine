@@ -11,37 +11,30 @@ namespace render {
     RenderInfo::RenderInfo()
         : renderingEnabled(false),
           sprite(nullptr),
+          animation({}),
           zOrder(0),
           renderOffset({}) {}
 
     RenderInfo::RenderInfo(
-        const asset::Sprite* sprite,
+        asset::Sprite* sprite,
         bool isCentered,
         int zOrder
     )
         : renderingEnabled(true),
           sprite(sprite),
+          animation({}),
           zOrder(zOrder),
           renderOffset(getRenderOffset(sprite->dimensions, isCentered)) {}
 
     RenderInfo::RenderInfo(
-        const asset::Sprite* sprite,
+        asset::Sprite* sprite,
         bool isCentered,
         int zOrder,
         const slurp::Vec2<float>& renderOffset
     )
         : renderingEnabled(true),
           sprite(sprite),
+          animation({}),
           zOrder(zOrder),
           renderOffset(getRenderOffset(sprite->dimensions, isCentered) + renderOffset) {}
-
-    void draw(const RenderInfo& renderInfo, const slurp::Vec2<float>& position) {
-        if (!renderInfo.renderingEnabled) { return; }
-
-        slurp::Vec2<float> startPoint = position + renderInfo.renderOffset;
-        const asset::Sprite* sprite = renderInfo.sprite;
-        if (sprite && !sprite->dimensions.isZero()) {
-            sprite->draw(startPoint, renderInfo.zOrder);
-        }
-    }
 }

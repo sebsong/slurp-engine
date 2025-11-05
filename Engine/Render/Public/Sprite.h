@@ -17,6 +17,22 @@ namespace asset {
         void bindShaderUniform(const char* uniformName, bool value) const;
     };
 
+    struct SpriteAnimation {
+        bool isPlaying;
+        bool shouldLoop;
+        float frameDuration;
+        float currentFrameDuration;
+        uint8_t numFrames;
+        uint8_t currentFrameIndex;
+        render::object_id* textureId;
+
+        void start();
+
+        void update(float dt);
+
+        void stop();
+    };
+
     void loadSpriteData(
         Sprite* sprite,
         const Bitmap* bitmap,

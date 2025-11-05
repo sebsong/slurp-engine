@@ -6,15 +6,31 @@ namespace asset {
     static constexpr int SpriteMeshElementCount = 6;
     static constexpr uint32_t SpriteElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
 
-    void Sprite::draw(const slurp::Vec2<float>& startPoint, int zOrder) const {
-        slurp::Globals->RenderApi->drawElementArray(
-            mesh.vertexArrayId,
-            mesh.elementCount,
-            material.textureId,
-            material.shaderProgramId,
-            startPoint,
-            zOrder
-        );
+    void SpriteAnimation::start() {
+        stop();
+        isPlaying = true;
+    }
+
+    void SpriteAnimation::update(float dt) {
+        if (currentFrameDuration >= frameDuration) {
+            currentFrameDuration = 0;
+            currentFrameIndex++;
+            if (currentFrameIndex >= numFrames) {
+                if (shouldLoop) {
+                    currentFrameIndex = 0;
+                } else {
+                    stop();
+                }
+            }
+        }
+
+        currentFrameDuration += dt;
+    }
+
+    void SpriteAnimation::stop() {
+        isPlaying = false;
+        currentFrameIndex = 0;
+        currentFrameDuration = 0;
     }
 
     void Sprite::bindShaderUniform(const char* uniformName, float value) const {

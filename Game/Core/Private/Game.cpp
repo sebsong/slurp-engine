@@ -154,7 +154,7 @@ namespace game {
             entity::Entity(
                 "Storage Silo",
                 render::RenderInfo(slurp::Globals->GameAssets->storageSilo, true, 0),
-                physics::PhysicsInfo({0, 28}),
+                physics::PhysicsInfo({0, 50}),
                 collision::CollisionInfo()
             )
         );

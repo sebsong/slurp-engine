@@ -9,6 +9,7 @@ namespace entity {
 }
 
 namespace render {
+    struct RenderInfo;
     typedef uint32_t Pixel;
 
     constexpr Pixel AlphaMask = 0xFF000000;
@@ -19,4 +20,6 @@ namespace render {
     constexpr uint8_t GreenShift = 8;
     constexpr Pixel BlueMask = 0x000000FF;
     constexpr uint8_t BlueShift = 0;
+
+    void draw(RenderInfo& renderInfo, const slurp::Vec2<float>& position);
 }

@@ -24,6 +24,8 @@
 #include "Asset.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Render.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "RenderInfo.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
