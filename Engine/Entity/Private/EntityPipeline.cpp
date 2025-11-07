@@ -59,13 +59,16 @@ namespace entity {
                 render::draw(entity->renderInfo, entity->physicsInfo.position, dt);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
-                const slurp::Vec2<float>& offsetPosition = entity->physicsInfo.position + entity->collisionInfo.shape.offset;
-                debug::drawRectBorder(
-                    offsetPosition,
-                    offsetPosition + entity->collisionInfo.shape.shape.dimensions,
-                    1,
-                    DEBUG_DRAW_COLOR
-                );
+                if (entity->collisionInfo.collisionEnabled) {
+                    const slurp::Vec2<float>& offsetPosition =
+                            entity->physicsInfo.position + entity->collisionInfo.shape.offset;
+                    debug::drawRectBorder(
+                        offsetPosition,
+                        offsetPosition + entity->collisionInfo.shape.shape.dimensions,
+                        1,
+                        DEBUG_DRAW_COLOR
+                    );
+                }
 #endif
 #endif
             }

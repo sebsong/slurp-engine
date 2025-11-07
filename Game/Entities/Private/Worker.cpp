@@ -3,7 +3,7 @@
 #include "Game.h"
 
 namespace worker {
-    static const geometry::Shape WorkerShape = {geometry::Rect, {5, 2}};
+    static const geometry::Shape WorkerShape = {geometry::Rect, {5, 3}};
     static constexpr float BaseSpeed = 100;
     static constexpr float BaseAcceleration = BaseSpeed * 16;
     static const slurp::Vec2<float> StartPos = {50, 50};
@@ -12,7 +12,7 @@ namespace worker {
     static constexpr int NumCollectionTransitions = 5;
     static const float MaxMineSpotWaitTime = .5f;
 
-    static const float CorruptionChance = .05f;
+    static const float CorruptionChance = .5f;
     static const uint8_t StartingCorruption = 3;
 
     static const float PurifyDeceleration = -10;
@@ -26,7 +26,7 @@ namespace worker {
                   slurp::Globals->GameAssets->workerSprite,
                   true,
                   StartPos.y,
-                  {0, 2}
+                  {0, 3}
               ),
               physics::PhysicsInfo(
                   StartPos,

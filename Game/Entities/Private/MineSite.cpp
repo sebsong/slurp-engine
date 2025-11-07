@@ -20,12 +20,7 @@ namespace mine_site {
         "Mine Site",
         render::RenderInfo(slurp::Globals->GameAssets->mineSiteSprite, true, StartPos.y, RenderOffset),
         physics::PhysicsInfo(StartPos),
-        collision::CollisionInfo(
-            true,
-            true,
-            MineSiteShape,
-            true
-        )
+        collision::CollisionInfo()
     ) {}
 
     void MineSite::initialize() {

@@ -13,7 +13,12 @@ namespace turret {
             {0, 0}
         ),
         physics::PhysicsInfo(),
-        collision::CollisionInfo()
+        collision::CollisionInfo(
+            true,
+            true,
+            geometry::Shape{geometry::Rect, {2 * Range, 2 * Range}},
+            true
+        )
     ) {}
 
     void Turret::initialize() {
@@ -21,13 +26,17 @@ namespace turret {
         game::State->turretsRangeIndicators.newInstance()->physicsInfo.position = physicsInfo.position;
     }
 
-    worker::Worker* Turret::findCorruptedWorkerInRange(
-        types::deque_arena<worker::Worker*> corruptedWorkers,
+    worker::Worker* Turret::findClosestCorruptedWorkerInRange(
+        types::set_arena<worker::Worker*> workers,
         float range
     ) {
         worker::Worker* targetWorker = nullptr;
         float closestDistance = std::numeric_limits<float>::max();
-        for (worker::Worker* worker: corruptedWorkers) {
+        for (worker::Worker* worker: workers) {
+            if (!worker->isCorrupted()) {
+                continue;
+            }
+
             float distance = physicsInfo.position.distanceTo(worker->physicsInfo.position);
             if (distance <= range && (targetWorker == nullptr || distance < closestDistance)) {
                 targetWorker = worker;
@@ -49,7 +58,7 @@ namespace turret {
         Entity::update(dt);
         renderInfo.zOrder = physicsInfo.position.y;
 
-        _target = findCorruptedWorkerInRange(game::State->targetableCorruptedWorkers, Range);
+        _target = findClosestCorruptedWorkerInRange(_workersInCollider, Range);
 
         _currentShootCooldown -= dt;
         if (_target && _currentShootCooldown <= 0) {
@@ -60,5 +69,20 @@ namespace turret {
         //     physicsInfo.position + slurp::Vec2{-Range, -Range},
         //     physicsInfo.position + slurp::Vec2{Range, Range}
         // );
+    }
+
+    void Turret::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
+        Entity::onCollisionEnter(collisionDetails);
+
+        if (worker::Worker* worker = dynamic_cast<worker::Worker*>(collisionDetails.entity)) {
+            _workersInCollider.insert(worker);
+        }
+    }
+
+    void Turret::onCollisionExit(const collision::CollisionDetails& collisionDetails) {
+        Entity::onCollisionExit(collisionDetails);
+        if (worker::Worker* worker = dynamic_cast<worker::Worker*>(collisionDetails.entity)) {
+            _workersInCollider.erase(worker);
+        }
     }
 }

@@ -21,7 +21,6 @@ namespace update {
         if (!physicsInfo.physicsEnabled || collisionInfo.isStatic) { return; }
 
         slurp::Vec2<float> targetPositionUpdate = physicsInfo.getPositionUpdate(dt);
-        if (targetPositionUpdate == slurp::Vec2<float>::Zero) { return; }
         if (!collisionInfo.collisionEnabled) { physicsInfo.position += targetPositionUpdate; }
 
         slurp::Vec2<float> positionUpdate = targetPositionUpdate;

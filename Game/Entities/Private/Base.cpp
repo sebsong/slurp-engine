@@ -14,12 +14,7 @@ namespace base {
         "Base",
         render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, 0, RenderOffset),
         physics::PhysicsInfo(),
-        collision::CollisionInfo(
-            true,
-            true,
-            BaseShape,
-            true
-        )
+        collision::CollisionInfo()
     ) {}
 
     slurp::Vec2<float> Base::getDropOffLocation() const {
