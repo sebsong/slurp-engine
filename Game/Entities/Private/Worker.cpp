@@ -12,7 +12,7 @@ namespace worker {
     static constexpr int NumCollectionTransitions = 5;
     static const float MaxMineSpotWaitTime = .5f;
 
-    static const float CorruptionChance = .5f;
+    static const float CorruptionChance = .05f;
     static const uint8_t StartingCorruption = 3;
 
     static const float PurifyDeceleration = -10;

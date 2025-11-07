@@ -30,6 +30,7 @@ namespace game {
 
         asset::Sprite* turretSprite;
         asset::Sprite* turretRangeIndicatorSprite;
+        asset::SpriteAnimation* turretShootAnimation;
 
         asset::Sprite* storageSilo;
         asset::Sprite* storageSiloFill;

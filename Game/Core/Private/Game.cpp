@@ -32,6 +32,7 @@ namespace game {
         Assets->turretSprite = asset::loadSprite("turret.bmp");
         Assets->turretRangeIndicatorSprite = asset::loadSprite("turret_range_indicator.bmp");
         Assets->turretRangeIndicatorSprite->material.alpha = 0.3f;
+        Assets->turretShootAnimation = asset::loadSpriteAnimation("turret_shoot.bmp", 1);
 
         Assets->storageSilo = asset::loadSprite("storage_silo.bmp");
         Assets->storageSiloFill = asset::loadSprite(
