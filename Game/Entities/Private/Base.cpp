@@ -63,7 +63,7 @@ namespace base {
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {
             turret::Turret* turret = game::State->turrets.nextInstance();
             turret->physicsInfo.position = mouseState.position;
-            turret->enable();
+            game::State->turrets.enableInstance(turret);
         }
     }
 }
