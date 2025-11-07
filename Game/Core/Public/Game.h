@@ -29,6 +29,7 @@ namespace game {
         asset::Sprite* antibodySprite;
 
         asset::Sprite* turretSprite;
+        asset::Sprite* turretRangeIndicatorSprite;
 
         asset::Sprite* storageSilo;
         asset::Sprite* storageSiloFill;
@@ -64,6 +65,7 @@ namespace game {
         types::deque_arena<worker::Worker*> targetableCorruptedWorkers;
 
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
+        entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
 
         entity::Entity storageSilo;
         entity::Entity storageSiloFill;
@@ -84,6 +86,22 @@ namespace game {
 
     static GameAssets* Assets;
     static GameState* State;
+
+    template<typename T>
+    static void registerEntity(
+        T& entityLocation,
+        T&& entity
+    ) {
+        // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
+        if (entityLocation.id != entity::INVALID_ENTITY_ID) {
+            // Entity is already initialized, this is a hot reload
+            // re-instantiate to re-initialize vtable
+            new(&entityLocation) T(entityLocation);
+        } else {
+            new(&entityLocation) T(std::forward<T>(entity));
+            entity::registerEntity(entityLocation);
+        }
+    }
 
     void initGame(bool isInitialized);
 

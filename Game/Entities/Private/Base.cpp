@@ -42,10 +42,6 @@ namespace base {
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }
 
-    static void spawnTurret(const slurp::Vec2<float>& position) {
-        turret::Turret* turret = game::State->turrets.newInstance();
-        turret->physicsInfo.position = position;
-    }
 
     void Base::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
@@ -65,7 +61,9 @@ namespace base {
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {
-            spawnTurret(mouseState.position);
+            turret::Turret* turret = game::State->turrets.nextInstance();
+            turret->physicsInfo.position = mouseState.position;
+            turret->enable();
         }
     }
 }

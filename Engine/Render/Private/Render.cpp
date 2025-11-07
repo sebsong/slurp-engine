@@ -33,6 +33,7 @@ namespace render {
                 textureId,
                 material.shaderProgramId,
                 startPoint,
+                material.alpha,
                 renderInfo.zOrder
             );
         }

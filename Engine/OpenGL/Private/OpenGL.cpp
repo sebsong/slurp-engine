@@ -274,6 +274,7 @@ namespace open_gl {
         render::object_id textureId,
         render::object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        float alpha,
         int zOrder
     ) {
         glBindVertexArray(vertexArrayId);
@@ -295,16 +296,24 @@ namespace open_gl {
             glUniform2fv(positionTransformUniformLoc, 1, position.values);
         }
 
+        int alphaUniformLoc = glGetUniformLocation(
+            shaderProgramId,
+            render::ALPHA_COORD_UNIFORM_NAME
+        );
+        if (alphaUniformLoc != render::INVALID_OBJECT_ID) {
+            glUniform1f(alphaUniformLoc, alpha);
+        }
+
         setZOrderUniform(shaderProgramId, zOrder);
     }
 
     RENDER_DRAW_VERTEX_ARRAY(drawVertexArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, zOrder);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, alpha, zOrder);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
     RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, zOrder);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, alpha, zOrder);
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
     }
 

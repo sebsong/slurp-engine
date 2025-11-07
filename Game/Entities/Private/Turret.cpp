@@ -1,7 +1,7 @@
 #include "Turret.h"
 
 namespace turret {
-    static constexpr float Range = 30.f;
+    static constexpr float Range = 32.f;
     static constexpr float ShootCooldown = .5f;
 
     Turret::Turret(): Entity(
@@ -18,6 +18,7 @@ namespace turret {
 
     void Turret::initialize() {
         Entity::initialize();
+        game::State->turretsRangeIndicators.newInstance()->physicsInfo.position = physicsInfo.position;
     }
 
     worker::Worker* Turret::findCorruptedWorkerInRange(
@@ -38,6 +39,7 @@ namespace turret {
 
     void Turret::update(float dt) {
         Entity::update(dt);
+        renderInfo.zOrder = physicsInfo.position.y;
 
         _target = findCorruptedWorkerInRange(game::State->targetableCorruptedWorkers, Range);
 
@@ -50,9 +52,9 @@ namespace turret {
             _currentShootCooldown = ShootCooldown;
         }
 
-        debug::drawRectBorder(
-            physicsInfo.position + slurp::Vec2{-Range, -Range},
-            physicsInfo.position + slurp::Vec2{Range, Range}
-        );
+        // debug::drawRectBorder(
+        //     physicsInfo.position + slurp::Vec2{-Range, -Range},
+        //     physicsInfo.position + slurp::Vec2{Range, Range}
+        // );
     }
 }

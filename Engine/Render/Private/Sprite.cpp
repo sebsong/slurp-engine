@@ -56,7 +56,7 @@ namespace asset {
 
         sprite->dimensions = dimensions;
         sprite->mesh = Mesh{vertexArrayId, SpriteMeshElementCount};
-        sprite->material = Material{textureId, shaderProgramId};
+        sprite->material = Material{textureId, shaderProgramId, 1.f};
         sprite->isLoaded = true;
     }
 }

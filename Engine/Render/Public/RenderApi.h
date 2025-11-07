@@ -25,7 +25,7 @@ namespace render {
     static constexpr const char* TIME_UNIFORM_NAME = "time";
     static constexpr const char* POSITION_TRANSFORM_UNIFORM_NAME = "positionTransform";
     static constexpr const char* Z_ORDER_UNIFORM_NAME = "zOrder";
-    static constexpr const char* TEXTURE_COORD_UNIFORM_NAME = "textureCoord";
+    static constexpr const char* ALPHA_COORD_UNIFORM_NAME = "alpha";
     static constexpr const char* COLOR_UNIFORM_NAME = "color";
 
 #define RENDER_SET_BACKGROUND_COLOR(fnName) void fnName(float red, float green, float blue)
@@ -48,6 +48,7 @@ namespace render {
         render::object_id textureId, \
         render::object_id shaderProgramId, \
         const slurp::Vec2<float>& positionTransform, \
+        float alpha, \
         int zOrder \
     )
 #define RENDER_DRAW_ELEMENT_ARRAY(fnName) \
@@ -57,6 +58,7 @@ namespace render {
         render::object_id textureId, \
         render::object_id shaderProgramId, \
         const slurp::Vec2<float>& positionTransform, \
+        float alpha, \
         int zOrder \
     )
 

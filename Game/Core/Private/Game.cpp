@@ -16,22 +16,6 @@
 
 
 namespace game {
-    template<typename T>
-    static void registerEntity(
-        T& entityLocation,
-        T&& entity
-    ) {
-        // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
-        if (entityLocation.id != entity::INVALID_ENTITY_ID) {
-            // Entity is already initialized, this is a hot reload
-            // re-instantiate to re-initialize vtable
-            new(&entityLocation) T(entityLocation);
-        } else {
-            new(&entityLocation) T(std::forward<T>(entity));
-            entity::registerEntity(entityLocation);
-        }
-    }
-
     static void loadAssets() {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
@@ -46,6 +30,8 @@ namespace game {
         Assets->workerCorruptedSprite = asset::loadSprite("worker_corrupted.bmp");
 
         Assets->turretSprite = asset::loadSprite("turret.bmp");
+        Assets->turretRangeIndicatorSprite = asset::loadSprite("turret_range_indicator.bmp");
+        Assets->turretRangeIndicatorSprite->material.alpha = 0.3f;
 
         Assets->storageSilo = asset::loadSprite("storage_silo.bmp");
         Assets->storageSiloFill = asset::loadSprite(
@@ -181,6 +167,19 @@ namespace game {
         new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
 
         new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
+        new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(
+            entity::Entity(
+                "Turret Range Indicator",
+                render::RenderInfo(
+                    slurp::Globals->GameAssets->turretRangeIndicatorSprite,
+                    true,
+                    0,
+                    {0, 0}
+                ),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            )
+        );
 
         registerEntity(
             State->mouseCursor,

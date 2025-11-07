@@ -10,8 +10,6 @@ namespace asset {
         Mesh mesh;
         Material material;
 
-        void draw(const slurp::Vec2<float>& startPoint, int zOrder) const;
-
         void bindShaderUniform(const char* uniformName, float value) const;
 
         void bindShaderUniform(const char* uniformName, bool value) const;

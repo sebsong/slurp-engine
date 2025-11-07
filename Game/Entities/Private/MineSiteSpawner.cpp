@@ -52,13 +52,13 @@ namespace mine_site {
 
     void MineSiteSpawner::update(float dt) {
         Entity::update(dt);
-        debug::drawRectBorder(
-            OuterBounds.i,
-            OuterBounds.j
-        );
-        debug::drawRectBorder(
-            InnerBounds.i,
-            InnerBounds.j
-        );
+        // debug::drawRectBorder(
+        //     OuterBounds.i,
+        //     OuterBounds.j
+        // );
+        // debug::drawRectBorder(
+        //     InnerBounds.i,
+        //     InnerBounds.j
+        // );
     }
 }
