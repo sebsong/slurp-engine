@@ -1,5 +1,7 @@
 #include "Base.h"
 
+#include "Turret.h"
+
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {32, 10}};
     static const slurp::Vec2<float> RenderOffset = {0, 8};
@@ -40,6 +42,11 @@ namespace base {
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }
 
+    static void spawnTurret(const slurp::Vec2<float>& position) {
+        turret::Turret* turret = game::State->turrets.newInstance();
+        turret->physicsInfo.position = position;
+    }
+
     void Base::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
         const slurp::KeyboardState& keyboardState
@@ -58,8 +65,7 @@ namespace base {
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {
-            antibody::Antibody* newAntibody = game::State->antibodies.newInstance();
-            newAntibody->physicsInfo.position = physicsInfo.position + SpawnOffset;
+            spawnTurret(mouseState.position);
         }
     }
 }

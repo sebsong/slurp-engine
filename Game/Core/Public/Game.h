@@ -8,14 +8,12 @@
 #include "MouseCursor.h"
 #include "Worker.h"
 #include "Antibody.h"
+#include "Turret.h"
 
 #define MAX_NUM_WORKERS 100000
 #define MAX_NUM_ANTIBODIES 100000
+#define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
-
-namespace antibody {
-    class Antibody;
-}
 
 namespace game {
     struct GameAssets {
@@ -31,6 +29,8 @@ namespace game {
         asset::Sprite* workerLoadedSprite;
         asset::Sprite* workerCorruptedSprite;
         asset::Sprite* antibodySprite;
+
+        asset::Sprite* turretSprite;
 
         asset::Sprite* storageSilo;
         asset::Sprite* storageSiloFill;
@@ -66,6 +66,8 @@ namespace game {
         types::deque_arena<worker::Worker*> targetableCorruptedWorkers;
 
         entity::EntityPool<antibody::Antibody, MAX_NUM_WORKERS> antibodies;
+
+        entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
 
         entity::Entity storageSilo;
         entity::Entity storageSiloFill;
