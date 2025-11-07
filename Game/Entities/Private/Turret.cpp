@@ -37,6 +37,14 @@ namespace turret {
         return targetWorker;
     }
 
+    void Turret::shootAtTarget() {
+        logging::debug("FIRE AT:");
+        logging::debug(_target->physicsInfo.position);
+        audio::play(game::Assets->turretShoot);
+        _target->purify();
+        _currentShootCooldown = ShootCooldown;
+    }
+
     void Turret::update(float dt) {
         Entity::update(dt);
         renderInfo.zOrder = physicsInfo.position.y;
@@ -45,11 +53,7 @@ namespace turret {
 
         _currentShootCooldown -= dt;
         if (_target && _currentShootCooldown <= 0) {
-            // TODO: Shoot target
-            logging::debug("FIRE AT:");
-            logging::debug(_target->physicsInfo.position);
-            _target->purify();
-            _currentShootCooldown = ShootCooldown;
+            shootAtTarget();
         }
 
         // debug::drawRectBorder(

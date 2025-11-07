@@ -49,6 +49,7 @@ namespace game {
         Assets->errorCollect = asset::loadSound("error.wav");
         Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
         Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
+        Assets->turretShoot = asset::loadSound("turret_shoot.wav");
     }
 
     void initGame(bool isInitialized) {

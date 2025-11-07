@@ -14,6 +14,8 @@ namespace turret {
 
         worker::Worker* findCorruptedWorkerInRange(types::deque_arena<worker::Worker*> potentialTargets, float range);
 
+        void shootAtTarget();
+
         void update(float dt) override;
 
     };

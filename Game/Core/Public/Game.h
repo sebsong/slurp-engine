@@ -42,6 +42,7 @@ namespace game {
         asset::Sound* errorCollect;
         asset::Sound* resourceDropOff;
         asset::Sound* spawnMineSite;
+        asset::Sound* turretShoot;
     };
 
     struct GameState {
