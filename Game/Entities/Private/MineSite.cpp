@@ -38,8 +38,9 @@ namespace mine_site {
     void MineSite::update(float dt) {
         Entity::update(dt);
         renderInfo.zOrder = physicsInfo.position.y;
-        // for (auto offset: MiningLocationOffsets) {
+        // for (auto offset: MineSpotOffsets) {
         //     debug::drawPoint(physicsInfo.position + offset);
         // }
+        debug::drawPoint(physicsInfo.position);
     }
 }

@@ -5,7 +5,10 @@ namespace asset {
         stop();
         frameDuration = totalDuration / numFrames;
         this->shouldLoop = shouldLoop;
-        this->playReversed = playReversed;
+        if (playReversed) {
+            this->playReversed = true;
+            currentFrameIndex = numFrames - 1;
+        }
         isPlaying = true;
     }
 

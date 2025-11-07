@@ -4,10 +4,9 @@
 #include "Random.h"
 
 namespace mine_site {
-    static constexpr float SpawnTime = 5.f;
     static const slurp::Mat22<float> OuterBounds = {
-        {-CAMERA_WORLD_WIDTH_MAX + 15, CAMERA_WORLD_HEIGHT_MAX - 20},
-        {CAMERA_WORLD_WIDTH_MAX - 15, -CAMERA_WORLD_HEIGHT_MAX + 10}
+        {-CAMERA_WORLD_WIDTH_MAX + 20, CAMERA_WORLD_HEIGHT_MAX - 20},
+        {CAMERA_WORLD_WIDTH_MAX - 20, -CAMERA_WORLD_HEIGHT_MAX + 15}
     };
     static const slurp::Mat22<float> InnerBounds = {
         {-75, 40},
@@ -34,9 +33,10 @@ namespace mine_site {
     void MineSiteSpawner::spawnMineSite() {
         MineSite* newMineSite = game::State->mineSites.nextInstance();
         newMineSite->physicsInfo.position = getRandomSpawnLocation();
+        logging::debug(newMineSite->physicsInfo.position);
         game::State->mineSites.enableInstance(newMineSite);
         newMineSite->renderInfo.animation = *game::Assets->mineSiteSpawnAnim;
-        newMineSite->renderInfo.animation.play(false, 2.5f);
+        newMineSite->renderInfo.animation.play(false, 2.f);
         audio::play(game::Assets->spawnMineSite);
     }
 
@@ -52,13 +52,13 @@ namespace mine_site {
 
     void MineSiteSpawner::update(float dt) {
         Entity::update(dt);
-        // debug::drawRectBorder(
-        //     OuterBounds.i,
-        //     OuterBounds.j
-        // );
-        // debug::drawRectBorder(
-        //     InnerBounds.i,
-        //     InnerBounds.j
-        // );
+        debug::drawRectBorder(
+            OuterBounds.i,
+            OuterBounds.j
+        );
+        debug::drawRectBorder(
+            InnerBounds.i,
+            InnerBounds.j
+        );
     }
 }
