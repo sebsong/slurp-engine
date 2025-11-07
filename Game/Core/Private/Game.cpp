@@ -11,7 +11,6 @@
 #include "MineSite.cpp"
 #include "MineSiteSpawner.cpp"
 #include "Worker.cpp"
-#include "Antibody.cpp"
 #include "Turret.cpp"
 #include "MouseCursor.cpp"
 
@@ -45,8 +44,6 @@ namespace game {
         Assets->workerLoadingAnim = asset::loadSpriteAnimation("worker_loading.bmp", 6);
         Assets->workerLoadedSprite = asset::loadSprite("worker_loaded.bmp");
         Assets->workerCorruptedSprite = asset::loadSprite("worker_corrupted.bmp");
-
-        Assets->antibodySprite = asset::loadSprite("antibody.bmp");
 
         Assets->turretSprite = asset::loadSprite("turret.bmp");
 
@@ -182,8 +179,6 @@ namespace game {
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
         new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
-
-        new(&State->antibodies) entity::EntityPool<antibody::Antibody, MAX_NUM_ANTIBODIES>(antibody::Antibody());
 
         new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
 

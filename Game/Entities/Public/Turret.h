@@ -7,7 +7,12 @@ namespace turret {
         Turret();
 
     private:
+        worker::Worker* _target;
+        float _currentShootCooldown;
+
         void initialize() override;
+
+        worker::Worker* findCorruptedWorkerInRange(types::deque_arena<worker::Worker*> potentialTargets, float range);
 
         void update(float dt) override;
 

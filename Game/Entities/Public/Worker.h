@@ -2,10 +2,6 @@
 #include "Entity.h"
 #include "Game.h"
 
-namespace antibody {
-    class Antibody;
-}
-
 namespace worker {
     class Worker final : public entity::Entity {
     public:
@@ -22,10 +18,6 @@ namespace worker {
 
         void purify();
 
-        void registerAntibody(antibody::Antibody* antibody);
-
-        void applyAntibodyEffects(float maxSpeedMultiplier);
-
     private:
         bool _isLoaded;
         bool _isAtTargetLocation;
@@ -33,7 +25,7 @@ namespace worker {
         bool _isPurifying;
         bool _isIdle;
         slurp::Vec2<float> _targetLocation;
-        types::set_arena<antibody::Antibody*> _attachedAntibodies;
+        uint8_t _corruptionRemaining;
 
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,

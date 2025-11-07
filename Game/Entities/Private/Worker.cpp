@@ -12,9 +12,9 @@ namespace worker {
     static constexpr int NumCollectionTransitions = 5;
     static const float MaxMineSpotWaitTime = .5f;
 
-    static const float CorruptionChance = 0.05f;
+    static const float CorruptionChance = .05f;
+    static const uint8_t StartingCorruption = 3;
 
-    static const uint32_t MaxNumAntibodies = 3;
     static const float PurifyDeceleration = -10;
     static const float PurifyDelay = 3;
 
@@ -43,7 +43,7 @@ namespace worker {
           _isLoaded(false),
           _isAtTargetLocation(false),
           _isCorrupted(false),
-          _attachedAntibodies(types::set_arena<antibody::Antibody*>()) {}
+          _corruptionRemaining(StartingCorruption) {}
 
     Worker::Worker(const Worker& other): Entity(other) {}
 
@@ -55,12 +55,8 @@ namespace worker {
     void Worker::corrupt() {
         game::State->targetableCorruptedWorkers.push_back(this);
         _isCorrupted = true;
+        _corruptionRemaining = StartingCorruption;
         renderInfo.sprite = game::Assets->workerCorruptedSprite;
-        for (auto& antibody: game::State->antibodies) {
-            if (!antibody->hasTarget()) {
-                antibody->findTarget();
-            }
-        }
     }
 
     bool Worker::isCorrupted() const {
@@ -68,19 +64,9 @@ namespace worker {
     }
 
     void Worker::purify() {
-        _isCorrupted = false;
-        for (auto antibody: _attachedAntibodies) {
-            game::State->antibodies.recycleInstance(antibody);
-        }
-        _attachedAntibodies.clear();
-        physicsInfo.maxSpeed = BaseSpeed;
-        renderInfo.sprite = game::Assets->workerSprite;
-    }
-
-    void Worker::registerAntibody(antibody::Antibody* antibody) {
-        _attachedAntibodies.insert(antibody);
-
-        if (_attachedAntibodies.size() >= MaxNumAntibodies) {
+        _corruptionRemaining--;
+        if (_corruptionRemaining <= 0) {
+            _isCorrupted = false;
             for (
                 auto it = game::State->targetableCorruptedWorkers.begin();
                 it != game::State->targetableCorruptedWorkers.end();
@@ -92,22 +78,10 @@ namespace worker {
                 }
             }
         }
+        physicsInfo.maxSpeed = BaseSpeed;
+        renderInfo.sprite = game::Assets->workerSprite;
     }
 
-    void Worker::applyAntibodyEffects(float maxSpeedMultiplier) {
-        physicsInfo.maxSpeed *= maxSpeedMultiplier;
-        if (_attachedAntibodies.size() >= MaxNumAntibodies) {
-            _isPurifying = true;
-            physicsInfo.acceleration = PurifyDeceleration;
-            timer::delay(
-                PurifyDelay,
-                [this] {
-                    purify();
-                    _isPurifying = false;
-                }
-            );
-        }
-    }
 
     void Worker::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
