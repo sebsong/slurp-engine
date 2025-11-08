@@ -41,6 +41,12 @@ namespace game {
             "progress_bar.glsl"
         );
 
+        Assets->workerButton = asset::loadSprite("worker_button.bmp");
+        Assets->workerButtonPressed = asset::loadSpriteAnimation("worker_button_pressed.bmp", 1);
+
+        Assets->mineSiteButton = asset::loadSprite("mine_site_button.bmp");
+        Assets->mineSiteButtonPressed = asset::loadSpriteAnimation("mine_site_button_pressed.bmp", 1);
+
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         // NOTE: https://opengameart.org/content/since-2-am
@@ -173,7 +179,7 @@ namespace game {
             entity::Entity(
                 "Turret Range Indicator",
                 render::RenderInfo(
-                    slurp::Globals->GameAssets->turretRangeIndicatorSprite,
+                    Assets->turretRangeIndicatorSprite,
                     true,
                     0,
                     {0, 0}
@@ -182,6 +188,36 @@ namespace game {
                 collision::CollisionInfo()
             )
         );
+
+        registerEntity(
+            State->workerButton,
+            entity::Entity(
+                "Worker Button",
+                render::RenderInfo(
+                    Assets->workerButton,
+                    true,
+                    UI
+                ),
+                physics::PhysicsInfo({-50, 165}),
+                collision::CollisionInfo()
+            )
+        );
+        State->workerButton.renderInfo.animation = *Assets->workerButtonPressed;
+
+        registerEntity(
+            State->mineSiteButton,
+            entity::Entity(
+                "Mine Site Button",
+                render::RenderInfo(
+                    Assets->mineSiteButton,
+                    true,
+                    UI
+                ),
+                physics::PhysicsInfo({0, 165}),
+                collision::CollisionInfo()
+            )
+        );
+        State->mineSiteButton.renderInfo.animation = *Assets->mineSiteButtonPressed;
 
         registerEntity(
             State->mouseCursor,

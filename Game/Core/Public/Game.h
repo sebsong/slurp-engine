@@ -35,6 +35,12 @@ namespace game {
         asset::Sprite* storageSilo;
         asset::Sprite* storageSiloFill;
 
+        asset::Sprite* workerButton;
+        asset::SpriteAnimation* workerButtonPressed;
+
+        asset::Sprite* mineSiteButton;
+        asset::SpriteAnimation* mineSiteButtonPressed;
+
         asset::Sprite* mouseCursorSprite;
 
         asset::Sound* backgroundMusic;
@@ -72,12 +78,16 @@ namespace game {
         entity::Entity storageSilo;
         entity::Entity storageSiloFill;
 
+        entity::Entity workerButton;
+        entity::Entity mineSiteButton;
+
         mouse_cursor::MouseCursor mouseCursor;
     };
 
     enum ZOrder {
         BACKGROUND_Z = Z_ORDER_MAX,
         BORDER_Z = Z_ORDER_MAX - 1,
+        UI = -(Z_ORDER_MAX - 1),
         MOUSE_Z = -Z_ORDER_MAX,
     };
 

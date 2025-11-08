@@ -2,7 +2,7 @@
 
 namespace mine_site {
     static const geometry::Shape MineSiteShape = {geometry::Rect, {24, 12}};
-    static const slurp::Vec2<float> RenderOffset = {0, 7};
+    static const slurp::Vec2<float> RenderOffset = {0, 9};
     static const slurp::Vec2<float> StartPos = {-150, -75};
 
     static constexpr uint32_t NumMiningLocations = 7;

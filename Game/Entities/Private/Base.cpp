@@ -49,10 +49,12 @@ namespace base {
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
             worker::Worker* newWorker = game::State->workers.newInstance();
             newWorker->physicsInfo.position = physicsInfo.position + SpawnOffset;
+            game::State->workerButton.renderInfo.animation.play(false, 0.1f);
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_2)) {
             game::State->mineSiteSpawner.spawnMineSite();
+            game::State->mineSiteButton.renderInfo.animation.play(false, 0.1f);
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {

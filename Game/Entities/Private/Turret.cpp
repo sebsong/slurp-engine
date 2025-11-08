@@ -2,7 +2,7 @@
 
 namespace turret {
     static constexpr float Range = 32.f;
-    static constexpr float ShootCooldown = .5f;
+    static constexpr float ShootCooldown = .75f;
 
     Turret::Turret(): Entity(
         "Turret",
