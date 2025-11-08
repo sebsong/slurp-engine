@@ -189,6 +189,8 @@ namespace game {
             )
         );
 
+        geometry::Shape buttonShape = {geometry::Rect, {25, 16}};
+        slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
         registerEntity(
             State->workerButton,
             entity::Entity(
@@ -196,10 +198,16 @@ namespace game {
                 render::RenderInfo(
                     Assets->workerButton,
                     true,
-                    UI
+                    UI,
+                    buttonRenderOffset
                 ),
                 physics::PhysicsInfo({-50, 165}),
-                collision::CollisionInfo()
+                collision::CollisionInfo(
+                    true,
+                    true,
+                    buttonShape,
+                    true
+                )
             )
         );
         State->workerButton.renderInfo.animation = *Assets->workerButtonPressed;
@@ -211,10 +219,16 @@ namespace game {
                 render::RenderInfo(
                     Assets->mineSiteButton,
                     true,
-                    UI
+                    UI,
+                    buttonRenderOffset
                 ),
                 physics::PhysicsInfo({0, 165}),
-                collision::CollisionInfo()
+                collision::CollisionInfo(
+                    true,
+                    true,
+                    buttonShape,
+                    true
+                )
             )
         );
         State->mineSiteButton.renderInfo.animation = *Assets->mineSiteButtonPressed;
