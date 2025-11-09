@@ -47,11 +47,11 @@ namespace game {
         Assets->workerButtonPress = asset::loadSprite("worker_button_pressed.bmp");
 
         Assets->mineSiteButton = asset::loadSprite("mine_site_button.bmp");
-        Assets->mineSiteButtonHover = asset::loadSprite("mine_site_button.bmp");
+        Assets->mineSiteButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->mineSiteButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
         Assets->turretButton = asset::loadSprite("mine_site_button.bmp");
-        Assets->turretButtonHover = asset::loadSprite("mine_site_button.bmp");
+        Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");

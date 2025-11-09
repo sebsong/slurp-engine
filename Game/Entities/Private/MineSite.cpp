@@ -36,6 +36,6 @@ namespace mine_site {
         // for (auto offset: MineSpotOffsets) {
         //     debug::drawPoint(physicsInfo.position + offset);
         // }
-        debug::drawPoint(physicsInfo.position);
+        // debug::drawPoint(physicsInfo.position);
     }
 }
