@@ -9,12 +9,11 @@
 #include "Worker.h"
 #include "Turret.h"
 #include "UIButton.h"
+#include "NumberDisplay.h"
 
 #define MAX_NUM_WORKERS 100000
 #define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
-
-#define MAX_NUM_DIGITS 9
 
 namespace ui_button {
     class UIButton;
@@ -93,15 +92,11 @@ namespace game {
         entity::Entity storageSilo;
         entity::Entity storageSiloFill;
 
-        ui_button::UIButton workerButton;
-        ui_button::UIButton mineSiteButton;
-        ui_button::UIButton turretButton;
+        ui::UIButton workerButton;
+        ui::UIButton mineSiteButton;
+        ui::UIButton turretButton;
 
-        entity::EntityPool<entity::Entity, MAX_NUM_DIGITS> testNum;
-        entity::EntityPool<entity::Entity, MAX_NUM_DIGITS> resourcesCollectedDisplay;
-        entity::Entity zero;
-        entity::Entity one;
-        entity::Entity two;
+        ui::NumberDisplay resourcesCollectedDisplay;
 
         mouse_cursor::MouseCursor mouseCursor;
     };

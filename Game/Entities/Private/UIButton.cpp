@@ -1,6 +1,6 @@
 #include "UIButton.h"
 
-namespace ui_button {
+namespace ui {
     static const geometry::Shape buttonShape = {geometry::Rect, {25, 16}};
     static const slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
 

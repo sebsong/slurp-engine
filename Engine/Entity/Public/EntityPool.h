@@ -10,11 +10,17 @@ namespace entity {
     class EntityPool {
     public:
         EntityPool(const T& entity) {
-            for (uint32_t i = 0; i < N; i++) {
-                T* instancePtr = &instances[i];
-                new(instancePtr) T(entity);
-                instancePtr->enabled = false;
-                disabledInstances.push_back(instancePtr);
+            for (T& instance : instances) {
+                new(&instance) T(entity);
+                instance.enabled = false;
+            }
+        }
+
+        void initialize() {
+            // TODO: need a better way to ensure instance pointers are resilient to copying
+            // TODO: maybe use indexes instead of pointers?
+            for (T& instance : instances) {
+                disabledInstances.push_back(&instance);
             }
         }
 
@@ -34,6 +40,7 @@ namespace entity {
         void enableInstance(T* instancePtr) {
             instancePtr->enable();
             enabledInstances.push_back(instancePtr);
+            // TODO: make sure to remove from disabledInstances
         }
 
         T* newInstance(const slurp::Vec2<float>& position) {

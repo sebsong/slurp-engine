@@ -14,6 +14,7 @@
 #include "Turret.cpp"
 #include "UIButton.cpp"
 #include "MouseCursor.cpp"
+#include "NumberDisplay.cpp"
 
 
 namespace game {
@@ -55,7 +56,6 @@ namespace game {
         Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
         for (int i = 0; i < 10; i++) {
-            logging::debug(std::format("{}.bmp", i));
             Assets->digitSprites[i] = asset::loadSprite(std::format("{}.bmp", i));
         }
 
@@ -156,6 +156,79 @@ namespace game {
         );
 
         registerEntity(
+            State->mineSiteSpawner,
+            mine_site::MineSiteSpawner()
+        );
+
+        new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
+        State->mineSites.initialize();
+
+        new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
+
+        new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
+        State->workers.initialize();
+
+        new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
+
+        new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
+        State->turrets.initialize();
+        new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(
+            entity::Entity(
+                "Turret Range Indicator",
+                render::RenderInfo(
+                    Assets->turretRangeIndicatorSprite,
+                    true,
+                    0,
+                    {0, 0}
+                ),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            )
+        );
+        State->turretsRangeIndicators.initialize();
+
+        // TODO: add costs and build times
+        registerEntity(
+            State->workerButton,
+            ui::UIButton(
+                Assets->workerButton,
+                Assets->workerButtonHover,
+                Assets->workerButtonPress,
+                {-30, 165},
+                slurp::KeyboardCode::NUM_1,
+                [] {
+                    State->base.spawnWorker();
+                }
+            )
+        );
+
+        registerEntity(
+            State->mineSiteButton,
+            ui::UIButton(
+                Assets->mineSiteButton,
+                Assets->mineSiteButtonHover,
+                Assets->mineSiteButtonPress,
+                {0, 165},
+                slurp::KeyboardCode::NUM_2,
+                [] {
+                    State->mineSiteSpawner.spawnMineSite();
+                }
+            )
+        );
+
+        registerEntity(
+            State->turretButton,
+            ui::UIButton(
+                Assets->turretButton,
+                Assets->turretButtonHover,
+                Assets->turretButtonPress,
+                {30, 165},
+                slurp::KeyboardCode::NUM_3,
+                [] {}
+            )
+        );
+
+        registerEntity(
             State->storageSilo,
             entity::Entity(
                 "Storage Silo",
@@ -176,113 +249,12 @@ namespace game {
         );
 
         registerEntity(
-            State->mineSiteSpawner,
-            mine_site::MineSiteSpawner()
-        );
-
-        new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
-        new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
-
-        new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
-        new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
-
-        new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
-        new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(
-            entity::Entity(
-                "Turret Range Indicator",
-                render::RenderInfo(
-                    Assets->turretRangeIndicatorSprite,
-                    true,
-                    0,
-                    {0, 0}
-                ),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
-        );
-
-        // TODO: add costs and build times
-
-        registerEntity(
-            State->workerButton,
-            ui_button::UIButton(
-                Assets->workerButton,
-                Assets->workerButtonHover,
-                Assets->workerButtonPress,
-                {-30, 165},
-                slurp::KeyboardCode::NUM_1,
-                [] {
-                    State->base.spawnWorker();
-                }
-            )
-        );
-
-        registerEntity(
-            State->mineSiteButton,
-            ui_button::UIButton(
-                Assets->mineSiteButton,
-                Assets->mineSiteButtonHover,
-                Assets->mineSiteButtonPress,
-                {0, 165},
-                slurp::KeyboardCode::NUM_2,
-                [] {
-                    State->mineSiteSpawner.spawnMineSite();
-                }
-            )
-        );
-
-        registerEntity(
-            State->turretButton,
-            ui_button::UIButton(
-                Assets->turretButton,
-                Assets->turretButtonHover,
-                Assets->turretButtonPress,
-                {30, 165},
-                slurp::KeyboardCode::NUM_3,
-                [] {}
-            )
-        );
-
-        new(&State->testNum) entity::EntityPool<entity::Entity, MAX_NUM_DIGITS>(
-            entity::Entity(
-                "Test Num",
-                render::RenderInfo(Assets->digitSprites[0], true, UI_Z),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
-        );
-        slurp::Vec2<float> testNumPosition = {-100, -25};
-        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
-            slurp::Vec2<float> position = testNumPosition;
-            position.x -= i * 10;
-            State->testNum.newInstance(position)->renderInfo.sprite = nullptr;
-        }
-
-        registerEntity(
-            State->zero,
-            entity::Entity(
-                "Zero",
-                render::RenderInfo(Assets->digitSprites[0], true, UI_Z),
-                physics::PhysicsInfo({90, 0}),
-                collision::CollisionInfo()
-            )
-        );
-        registerEntity(
-            State->one,
-            entity::Entity(
-                "One",
-                render::RenderInfo(Assets->digitSprites[1], true, UI_Z),
-                physics::PhysicsInfo({100, 0}),
-                collision::CollisionInfo()
-            )
-        );
-        registerEntity(
-            State->two,
-            entity::Entity(
-                "Two",
-                render::RenderInfo(Assets->digitSprites[2], true, UI_Z),
-                physics::PhysicsInfo({110, 0}),
-                collision::CollisionInfo()
+            State->resourcesCollectedDisplay,
+            ui::NumberDisplay(
+                {285, 115},
+                0,
+                MAX_NUM_DIGITS,
+                false
             )
         );
 
@@ -292,41 +264,11 @@ namespace game {
         );
     }
 
-    // 123
-    // i = 2: 123/(10^0) % 10 = 3
-    // i = 1: 123/(10^1) % 10 = 2
-    // i = 0: 123/(10^2) % 10 = 1
-
-    // i = 2: 23/(10^0) % 10 = 3
-    // i = 1: 23/(10^1) % 10 = 2
-    // i = 0: 23/(10^2) % 10 = 0
-
-    static void displayInt(int num, uint8_t numDigits, bool showLeadingZeroes, entity::EntityPool<entity::Entity, MAX_NUM_DIGITS>& displayEntity) {
-        for (int i = 0; i < numDigits; i++) {
-            uint32_t shiftedNum = num / std::pow(10, i);
-            if (!showLeadingZeroes && shiftedNum == 0 && i != 0) {
-                return;
-            }
-            uint8_t digit = shiftedNum % 10;
-            displayEntity[i]->renderInfo.sprite = Assets->digitSprites[digit];
-        }
-    }
-
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
-    void update(float dt) {
-        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
-            debug::drawPoint(
-                State->testNum[i]->physicsInfo.position,
-                i + 1
-            );
-        }
-        static float test = 0;
-        test += dt;
-        displayInt(test, 2, false, State->testNum);
-    }
+    void update(float dt) {}
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;

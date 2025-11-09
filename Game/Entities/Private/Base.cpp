@@ -37,6 +37,7 @@ namespace base {
         Entity::update(dt);
 
         game::Assets->storageSiloFill->bindShaderUniform(ProgressUniformName, static_cast<float>(gold) / GoldGoal);
+        game::State->resourcesCollectedDisplay.number = gold;
 
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }

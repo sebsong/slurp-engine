@@ -1,7 +1,7 @@
 #pragma once
 #include "Entity.h"
 
-namespace ui_button {
+namespace ui {
     class UIButton final : public entity::Entity {
     public:
         UIButton(
