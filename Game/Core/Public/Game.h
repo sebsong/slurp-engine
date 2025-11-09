@@ -98,6 +98,7 @@ namespace game {
         ui_button::UIButton turretButton;
 
         entity::EntityPool<entity::Entity, MAX_NUM_DIGITS> testNum;
+        entity::EntityPool<entity::Entity, MAX_NUM_DIGITS> resourcesCollectedDisplay;
         entity::Entity zero;
         entity::Entity one;
         entity::Entity two;

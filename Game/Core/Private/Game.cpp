@@ -255,7 +255,7 @@ namespace game {
         for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
             slurp::Vec2<float> position = testNumPosition;
             position.x -= i * 10;
-            State->testNum.newInstance(position);
+            State->testNum.newInstance(position)->renderInfo.sprite = nullptr;
         }
 
         registerEntity(
@@ -301,12 +301,13 @@ namespace game {
     // i = 1: 23/(10^1) % 10 = 2
     // i = 0: 23/(10^2) % 10 = 0
 
-    static void displayInt(int num, entity::EntityPool<entity::Entity, MAX_NUM_DIGITS>& displayEntity) {
-        for (int i = 0; i < MAX_NUM_DIGITS; i--) {
-            uint8_t digit = static_cast<uint32_t>(num / std::pow(10, i)) % 10;
-            if (digit == 0) {
+    static void displayInt(int num, uint8_t numDigits, bool showLeadingZeroes, entity::EntityPool<entity::Entity, MAX_NUM_DIGITS>& displayEntity) {
+        for (int i = 0; i < numDigits; i++) {
+            uint32_t shiftedNum = num / std::pow(10, i);
+            if (!showLeadingZeroes && shiftedNum == 0 && i != 0) {
                 return;
             }
+            uint8_t digit = shiftedNum % 10;
             displayEntity[i]->renderInfo.sprite = Assets->digitSprites[digit];
         }
     }
@@ -319,12 +320,12 @@ namespace game {
         for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
             debug::drawPoint(
                 State->testNum[i]->physicsInfo.position,
-                i+1
+                i + 1
             );
         }
         static float test = 0;
-        test+=dt;
-        displayInt(test, State->testNum);
+        test += dt;
+        displayInt(test, 2, false, State->testNum);
     }
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
