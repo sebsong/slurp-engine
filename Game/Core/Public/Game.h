@@ -52,8 +52,7 @@ namespace game {
         asset::Sprite* turretButtonHover;
         asset::Sprite* turretButtonPress;
 
-        asset::Sprite* oneSprite;
-        asset::Sprite* twoSprite;
+        asset::Sprite* digitSprites[10];
 
         asset::Sprite* mouseCursorSprite;
 
@@ -96,6 +95,8 @@ namespace game {
         ui_button::UIButton mineSiteButton;
         ui_button::UIButton turretButton;
 
+        entity::EntityPool<entity::Entity, 3> testNum;
+        entity::Entity zero;
         entity::Entity one;
         entity::Entity two;
 

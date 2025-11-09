@@ -3,6 +3,7 @@
 
 namespace asset {
     struct SpriteAnimation : Asset {
+        std::string sourceFileName;
         bool isPlaying;
         bool shouldLoop;
         bool playReversed;

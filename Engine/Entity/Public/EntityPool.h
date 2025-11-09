@@ -66,6 +66,10 @@ namespace entity {
             disabledInstances.push_back(instancePtr);
         }
 
+        T* operator[](int index) {
+            return &instances[index];
+        }
+
     private:
         T instances[N];
         types::deque_arena<T*> enabledInstances;

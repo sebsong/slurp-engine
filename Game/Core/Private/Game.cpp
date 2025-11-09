@@ -54,8 +54,10 @@ namespace game {
         Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
-        Assets->oneSprite = asset::loadSprite("1.bmp");
-        Assets->twoSprite = asset::loadSprite("2.bmp");
+        Assets->digitSprites[0] = asset::loadSprite("0.bmp");
+        Assets->digitSprites[1] = asset::loadSprite("1.bmp");
+        Assets->digitSprites[2] = asset::loadSprite("2.bmp");
+        Assets->digitSprites[3] = asset::loadSprite("3.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -241,11 +243,35 @@ namespace game {
             )
         );
 
+        new(&State->testNum) entity::EntityPool<entity::Entity, 3>(
+            entity::Entity(
+                "Test Num",
+                render::RenderInfo(Assets->digitSprites[0], true, UI_Z),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            )
+        );
+        slurp::Vec2<float> testNumPosition = {-100, -25};
+        for (int i = 0; i < 3; ++i) {
+            slurp::Vec2<float> position = testNumPosition;
+            position.x += i * 10;
+            State->testNum.newInstance(position);
+        }
+
+        registerEntity(
+            State->zero,
+            entity::Entity(
+                "Zero",
+                render::RenderInfo(Assets->digitSprites[0], true, UI_Z),
+                physics::PhysicsInfo({90, 0}),
+                collision::CollisionInfo()
+            )
+        );
         registerEntity(
             State->one,
             entity::Entity(
                 "One",
-                render::RenderInfo(Assets->oneSprite, true, UI_Z),
+                render::RenderInfo(Assets->digitSprites[1], true, UI_Z),
                 physics::PhysicsInfo({100, 0}),
                 collision::CollisionInfo()
             )
@@ -254,7 +280,7 @@ namespace game {
             State->two,
             entity::Entity(
                 "Two",
-                render::RenderInfo(Assets->twoSprite, true, UI_Z),
+                render::RenderInfo(Assets->digitSprites[2], true, UI_Z),
                 physics::PhysicsInfo({110, 0}),
                 collision::CollisionInfo()
             )
@@ -266,11 +292,35 @@ namespace game {
         );
     }
 
+    // 123
+    // i = 2: 123/(10^0) % 10 = 3
+    // i = 1: 123/(10^1) % 10 = 2
+    // i = 0: 123/(10^2) % 10 = 1
+
+    // i = 2: 23/(10^0) % 10 = 3
+    // i = 1: 23/(10^1) % 10 = 2
+    // i = 0: 23/(10^2) % 10 = 0
+
+    static void displayFloat(int num) {
+        for (int i = 2; i >= 0; i--) {
+            uint8_t digit = static_cast<uint32_t>(num / std::pow(10, 2 - i)) % 10;
+            State->testNum[i]->renderInfo.sprite = Assets->digitSprites[digit];
+        }
+    }
+
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
-    void update(float dt) {}
+    void update(float dt) {
+        for (int i = 0; i < 3; ++i) {
+            debug::drawPoint(
+                State->testNum[i]->physicsInfo.position,
+                i+1
+            );
+        }
+        displayFloat(231);
+    }
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;

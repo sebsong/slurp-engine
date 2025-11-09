@@ -92,6 +92,7 @@ namespace asset {
         // }
 
         Sprite* sprite = memory::Permanent->allocate<Sprite>();
+        sprite->sourceFileName = bitmapFileName;
         _registerAsset(assetId, sprite);
 
         Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
@@ -112,6 +113,7 @@ namespace asset {
         // }
 
         SpriteAnimation* animation = memory::Permanent->allocate<SpriteAnimation>();
+        animation->sourceFileName = bitmapFileName;
         _registerAsset(assetId, animation);
 
         Bitmap* bitmap = asset::loadBitmap(bitmapFileName);

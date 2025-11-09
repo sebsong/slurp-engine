@@ -6,6 +6,7 @@
 
 namespace asset {
     struct Sprite : Asset {
+        std::string sourceFileName;
         slurp::Vec2<int> dimensions;
         Mesh mesh;
         Material material;
