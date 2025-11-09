@@ -14,6 +14,8 @@
 #define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
 
+#define MAX_NUM_DIGITS 9
+
 namespace ui_button {
     class UIButton;
 }
@@ -95,7 +97,7 @@ namespace game {
         ui_button::UIButton mineSiteButton;
         ui_button::UIButton turretButton;
 
-        entity::EntityPool<entity::Entity, 3> testNum;
+        entity::EntityPool<entity::Entity, MAX_NUM_DIGITS> testNum;
         entity::Entity zero;
         entity::Entity one;
         entity::Entity two;

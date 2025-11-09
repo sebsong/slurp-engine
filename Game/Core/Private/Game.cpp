@@ -243,7 +243,7 @@ namespace game {
             )
         );
 
-        new(&State->testNum) entity::EntityPool<entity::Entity, 3>(
+        new(&State->testNum) entity::EntityPool<entity::Entity, MAX_NUM_DIGITS>(
             entity::Entity(
                 "Test Num",
                 render::RenderInfo(Assets->digitSprites[0], true, UI_Z),
@@ -252,9 +252,9 @@ namespace game {
             )
         );
         slurp::Vec2<float> testNumPosition = {-100, -25};
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
             slurp::Vec2<float> position = testNumPosition;
-            position.x += i * 10;
+            position.x -= i * 10;
             State->testNum.newInstance(position);
         }
 
@@ -301,10 +301,13 @@ namespace game {
     // i = 1: 23/(10^1) % 10 = 2
     // i = 0: 23/(10^2) % 10 = 0
 
-    static void displayFloat(int num) {
-        for (int i = 2; i >= 0; i--) {
-            uint8_t digit = static_cast<uint32_t>(num / std::pow(10, 2 - i)) % 10;
-            State->testNum[i]->renderInfo.sprite = Assets->digitSprites[digit];
+    static void displayInt(int num, entity::EntityPool<entity::Entity, MAX_NUM_DIGITS>& displayEntity) {
+        for (int i = 0; i < MAX_NUM_DIGITS; i--) {
+            uint8_t digit = static_cast<uint32_t>(num / std::pow(10, i)) % 10;
+            if (digit == 0) {
+                return;
+            }
+            displayEntity[i]->renderInfo.sprite = Assets->digitSprites[digit];
         }
     }
 
@@ -313,13 +316,15 @@ namespace game {
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
     void update(float dt) {
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
             debug::drawPoint(
                 State->testNum[i]->physicsInfo.position,
                 i+1
             );
         }
-        displayFloat(231);
+        static float test = 0;
+        test+=dt;
+        displayInt(test, State->testNum);
     }
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
