@@ -52,6 +52,9 @@ namespace game {
         asset::Sprite* turretButtonHover;
         asset::Sprite* turretButtonPress;
 
+        asset::Sprite* oneSprite;
+        asset::Sprite* twoSprite;
+
         asset::Sprite* mouseCursorSprite;
 
         asset::Sound* backgroundMusic;
@@ -93,6 +96,9 @@ namespace game {
         ui_button::UIButton mineSiteButton;
         ui_button::UIButton turretButton;
 
+        entity::Entity one;
+        entity::Entity two;
+
         mouse_cursor::MouseCursor mouseCursor;
     };
 
@@ -127,7 +133,16 @@ namespace game {
         }
     }
 
-    void initGame(bool isInitialized);
+    void initialize(bool isInitialized);
+
+    void handleMouseAndKeyboardInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState
+    );
+
+    void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState);
+
+    void update(float dt);
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target);
 }

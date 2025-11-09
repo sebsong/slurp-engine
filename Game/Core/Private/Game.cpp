@@ -54,6 +54,9 @@ namespace game {
         Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
+        Assets->oneSprite = asset::loadSprite("1.bmp");
+        Assets->twoSprite = asset::loadSprite("2.bmp");
+
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         // NOTE: https://opengameart.org/content/since-2-am
@@ -66,7 +69,7 @@ namespace game {
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
     }
 
-    void initGame(bool isInitialized) {
+    void initialize(bool isInitialized) {
         if (isInitialized) {
             Assets = slurp::Globals->GameAssets;
             State = slurp::Globals->GameState;
@@ -239,10 +242,35 @@ namespace game {
         );
 
         registerEntity(
+            State->one,
+            entity::Entity(
+                "One",
+                render::RenderInfo(Assets->oneSprite, true, UI_Z),
+                physics::PhysicsInfo({100, 0}),
+                collision::CollisionInfo()
+            )
+        );
+        registerEntity(
+            State->two,
+            entity::Entity(
+                "Two",
+                render::RenderInfo(Assets->twoSprite, true, UI_Z),
+                physics::PhysicsInfo({110, 0}),
+                collision::CollisionInfo()
+            )
+        );
+
+        registerEntity(
             State->mouseCursor,
             mouse_cursor::MouseCursor()
         );
     }
+
+    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
+
+    void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
+
+    void update(float dt) {}
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;

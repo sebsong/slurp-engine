@@ -87,13 +87,18 @@ namespace slurp {
 #endif
 
         /** Game **/
-        game::initGame(isInitialized);
+        game::initialize(isInitialized);
         entity::initializeEntities();
     }
 
     SLURP_FRAME_START(frameStart) {}
 
     SLURP_HANDLE_INPUT(handleInput) {
+        game::handleMouseAndKeyboardInput(mouseState, keyboardState);
+        for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
+            if (!gamepadStates[gamepadIndex].isConnected) { continue; }
+            game::handleGamepadInput(gamepadIndex, gamepadStates[gamepadIndex]);
+        }
         entity::handleInput(mouseState, keyboardState, gamepadStates);
 
 #if DEBUG
@@ -122,6 +127,7 @@ namespace slurp {
     SLURP_UPDATE_AND_RENDER(updateAndRender) {
         timer::tick(dt);
 
+        game::update(dt);
         entity::updateAndRender(dt);
 
 #if DEBUG
