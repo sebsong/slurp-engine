@@ -2,6 +2,7 @@
 in vec2 textureCoord;
 
 uniform sampler2D inTexture;
+uniform float alpha;
 uniform float progress;
 
 out vec4 color;

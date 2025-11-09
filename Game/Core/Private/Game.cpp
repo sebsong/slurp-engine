@@ -12,6 +12,7 @@
 #include "MineSiteSpawner.cpp"
 #include "Worker.cpp"
 #include "Turret.cpp"
+#include "UIButton.cpp"
 #include "MouseCursor.cpp"
 
 
@@ -42,10 +43,16 @@ namespace game {
         );
 
         Assets->workerButton = asset::loadSprite("worker_button.bmp");
-        Assets->workerButtonPressed = asset::loadSpriteAnimation("worker_button_pressed.bmp", 1);
+        Assets->workerButtonHover = asset::loadSprite("worker_button_hover.bmp");
+        Assets->workerButtonPress = asset::loadSprite("worker_button_pressed.bmp");
 
         Assets->mineSiteButton = asset::loadSprite("mine_site_button.bmp");
-        Assets->mineSiteButtonPressed = asset::loadSpriteAnimation("mine_site_button_pressed.bmp", 1);
+        Assets->mineSiteButtonHover = asset::loadSprite("mine_site_button.bmp");
+        Assets->mineSiteButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
+
+        Assets->turretButton = asset::loadSprite("mine_site_button.bmp");
+        Assets->turretButtonHover = asset::loadSprite("mine_site_button.bmp");
+        Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -189,49 +196,47 @@ namespace game {
             )
         );
 
-        geometry::Shape buttonShape = {geometry::Rect, {25, 16}};
-        slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
+        // TODO: add costs and build times
+
         registerEntity(
             State->workerButton,
-            entity::Entity(
-                "Worker Button",
-                render::RenderInfo(
-                    Assets->workerButton,
-                    true,
-                    UI,
-                    buttonRenderOffset
-                ),
-                physics::PhysicsInfo({-50, 165}),
-                collision::CollisionInfo(
-                    true,
-                    true,
-                    buttonShape,
-                    true
-                )
+            ui_button::UIButton(
+                Assets->workerButton,
+                Assets->workerButtonHover,
+                Assets->workerButtonPress,
+                {-30, 165},
+                slurp::KeyboardCode::NUM_1,
+                [] {
+                    State->base.spawnWorker();
+                }
             )
         );
-        State->workerButton.renderInfo.animation = *Assets->workerButtonPressed;
 
         registerEntity(
             State->mineSiteButton,
-            entity::Entity(
-                "Mine Site Button",
-                render::RenderInfo(
-                    Assets->mineSiteButton,
-                    true,
-                    UI,
-                    buttonRenderOffset
-                ),
-                physics::PhysicsInfo({0, 165}),
-                collision::CollisionInfo(
-                    true,
-                    true,
-                    buttonShape,
-                    true
-                )
+            ui_button::UIButton(
+                Assets->mineSiteButton,
+                Assets->mineSiteButtonHover,
+                Assets->mineSiteButtonPress,
+                {0, 165},
+                slurp::KeyboardCode::NUM_2,
+                [] {
+                    State->mineSiteSpawner.spawnMineSite();
+                }
             )
         );
-        State->mineSiteButton.renderInfo.animation = *Assets->mineSiteButtonPressed;
+
+        registerEntity(
+            State->turretButton,
+            ui_button::UIButton(
+                Assets->turretButton,
+                Assets->turretButtonHover,
+                Assets->turretButtonPress,
+                {30, 165},
+                slurp::KeyboardCode::NUM_3,
+                [] {}
+            )
+        );
 
         registerEntity(
             State->mouseCursor,

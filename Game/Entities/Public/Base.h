@@ -10,6 +10,8 @@ namespace base {
     public:
         Base();
 
+        void spawnWorker() const;
+
         slurp::Vec2<float> getDropOffLocation() const;
 
         void dropOff();

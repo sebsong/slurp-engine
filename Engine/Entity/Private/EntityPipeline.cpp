@@ -12,19 +12,6 @@ namespace entity {
         entity.id = _nextEntityId++;
     }
 
-    Entity* EntityPipeline::hitTest(const slurp::Vec2<float>& location) const {
-        for (Entity* entity: _pipeline) {
-            if (
-                entity->collisionInfo.collisionEnabled &&
-                entity->collisionInfo.shape.hitTest(location - entity->physicsInfo.position)
-            ) {
-                return entity;
-            }
-        }
-
-        return nullptr;
-    }
-
     void EntityPipeline::initializeEntities() const {
         for (Entity* entity: _pipeline) {
             if (entity->enabled) {

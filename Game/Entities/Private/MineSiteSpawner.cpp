@@ -33,7 +33,6 @@ namespace mine_site {
     void MineSiteSpawner::spawnMineSite() {
         MineSite* newMineSite = game::State->mineSites.nextInstance();
         newMineSite->physicsInfo.position = getRandomSpawnLocation();
-        logging::debug(newMineSite->physicsInfo.position);
         game::State->mineSites.enableInstance(newMineSite);
         newMineSite->renderInfo.animation = *game::Assets->mineSiteSpawnAnim;
         newMineSite->renderInfo.animation.play(false, 2.f);
@@ -43,11 +42,6 @@ namespace mine_site {
     void MineSiteSpawner::initialize() {
         Entity::initialize();
         spawnMineSite();
-        // timer::start(
-        //     SpawnTime,
-        //     true,
-        //     [this] { SpawnMineSite(); }
-        // );
     }
 
     void MineSiteSpawner::update(float dt) {

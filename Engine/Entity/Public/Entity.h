@@ -53,6 +53,8 @@ namespace entity {
 
         virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {};
 
+        bool hitTest(const slurp::Vec2<float>& location) const;
+
         virtual ~Entity() = default;
 
         bool operator==(const Entity& other) const { return id == other.id; }

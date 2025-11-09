@@ -16,8 +16,6 @@ namespace entity {
 
         void registerEntity(Entity& entity);
 
-        Entity* hitTest(const slurp::Vec2<float>& location) const;
-
         void initializeEntities() const;
 
         void handleInput(
@@ -31,10 +29,6 @@ namespace entity {
     private:
         entity_id _nextEntityId;
         types::deque_arena<Entity*> _pipeline;
-    };
-
-    inline Entity* hitTest(const slurp::Vec2<float>& location) {
-        return slurp::Globals->EntityPipeline->hitTest(location);
     };
 
     inline void registerEntity(Entity& entity) {

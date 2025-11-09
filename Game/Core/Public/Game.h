@@ -8,10 +8,15 @@
 #include "MouseCursor.h"
 #include "Worker.h"
 #include "Turret.h"
+#include "UIButton.h"
 
 #define MAX_NUM_WORKERS 100000
 #define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
+
+namespace ui_button {
+    class UIButton;
+}
 
 namespace game {
     struct GameAssets {
@@ -36,10 +41,16 @@ namespace game {
         asset::Sprite* storageSiloFill;
 
         asset::Sprite* workerButton;
-        asset::SpriteAnimation* workerButtonPressed;
+        asset::Sprite* workerButtonHover;
+        asset::Sprite* workerButtonPress;
 
         asset::Sprite* mineSiteButton;
-        asset::SpriteAnimation* mineSiteButtonPressed;
+        asset::Sprite* mineSiteButtonHover;
+        asset::Sprite* mineSiteButtonPress;
+
+        asset::Sprite* turretButton;
+        asset::Sprite* turretButtonHover;
+        asset::Sprite* turretButtonPress;
 
         asset::Sprite* mouseCursorSprite;
 
@@ -78,8 +89,9 @@ namespace game {
         entity::Entity storageSilo;
         entity::Entity storageSiloFill;
 
-        entity::Entity workerButton;
-        entity::Entity mineSiteButton;
+        ui_button::UIButton workerButton;
+        ui_button::UIButton mineSiteButton;
+        ui_button::UIButton turretButton;
 
         mouse_cursor::MouseCursor mouseCursor;
     };
@@ -87,7 +99,7 @@ namespace game {
     enum ZOrder {
         BACKGROUND_Z = Z_ORDER_MAX,
         BORDER_Z = Z_ORDER_MAX - 1,
-        UI = -(Z_ORDER_MAX - 1),
+        UI_Z = -(Z_ORDER_MAX - 1),
         MOUSE_Z = -Z_ORDER_MAX,
     };
 

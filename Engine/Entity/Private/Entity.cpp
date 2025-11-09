@@ -43,4 +43,8 @@ namespace entity {
     void Entity::updatePhysics(float dt) {
         physicsInfo.updatePhysics(dt);
     }
+
+    bool Entity::hitTest(const slurp::Vec2<float>& location) const {
+        return collisionInfo.shape.hitTest(location - physicsInfo.position);
+    }
 }

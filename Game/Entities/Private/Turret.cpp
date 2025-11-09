@@ -23,7 +23,7 @@ namespace turret {
 
     void Turret::initialize() {
         Entity::initialize();
-        game::State->turretsRangeIndicators.newInstance()->physicsInfo.position = physicsInfo.position;
+        game::State->turretsRangeIndicators.newInstance(physicsInfo.position);
     }
 
     worker::Worker* Turret::findClosestCorruptedWorkerInRange(
@@ -47,8 +47,6 @@ namespace turret {
     }
 
     void Turret::shootAtTarget() {
-        logging::debug("FIRE AT:");
-        logging::debug(_target->physicsInfo.position);
         audio::play(game::Assets->turretShoot);
         _target->purify();
         _currentShootCooldown = ShootCooldown;

@@ -17,6 +17,10 @@ namespace base {
         collision::CollisionInfo()
     ) {}
 
+    void Base::spawnWorker() const {
+        game::State->workers.newInstance(physicsInfo.position + SpawnOffset);
+    }
+
     slurp::Vec2<float> Base::getDropOffLocation() const {
         return physicsInfo.position + SpawnOffset;
     }
@@ -43,19 +47,6 @@ namespace base {
         const slurp::KeyboardState& keyboardState
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
-
-        // TODO: add costs and build times
-
-        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
-            worker::Worker* newWorker = game::State->workers.newInstance();
-            newWorker->physicsInfo.position = physicsInfo.position + SpawnOffset;
-            game::State->workerButton.renderInfo.animation.play(false, 0.1f);
-        }
-
-        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_2)) {
-            game::State->mineSiteSpawner.spawnMineSite();
-            game::State->mineSiteButton.renderInfo.animation.play(false, 0.1f);
-        }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {
             turret::Turret* turret = game::State->turrets.nextInstance();

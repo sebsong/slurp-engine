@@ -5,7 +5,7 @@
 
 #define VERBOSE_LOGGING 0
 
-#define DEBUG_DRAW_COLLISION 1
+#define DEBUG_DRAW_COLLISION 0
 #define DEBUG_RED_COLOR   slurp::Vec4<float>(1, 0, 0, 1)
 #define DEBUG_GREEN_COLOR slurp::Vec4<float>(0, 1, 0, 1)
 #define DEBUG_BLUE_COLOR  slurp::Vec4<float>(0, 0, 1, 1)

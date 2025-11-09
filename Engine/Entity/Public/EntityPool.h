@@ -36,8 +36,9 @@ namespace entity {
             enabledInstances.push_back(instancePtr);
         }
 
-        T* newInstance() {
+        T* newInstance(const slurp::Vec2<float>& position) {
             T* newInstancePtr = nextInstance();
+            newInstancePtr->physicsInfo.position = position;
             enableInstance(newInstancePtr);
             return newInstancePtr;
         }
