@@ -54,10 +54,10 @@ namespace game {
         Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
-        Assets->digitSprites[0] = asset::loadSprite("0.bmp");
-        Assets->digitSprites[1] = asset::loadSprite("1.bmp");
-        Assets->digitSprites[2] = asset::loadSprite("2.bmp");
-        Assets->digitSprites[3] = asset::loadSprite("3.bmp");
+        for (int i = 0; i < 10; i++) {
+            logging::debug(std::format("{}.bmp", i));
+            Assets->digitSprites[i] = asset::loadSprite(std::format("{}.bmp", i));
+        }
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
