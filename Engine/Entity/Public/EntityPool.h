@@ -11,10 +11,9 @@ namespace entity {
     public:
         EntityPool(const T& entity) {
             for (T& instance : instances) {
-                new(&instance) T(entity);
+                // TODO: figure out if we can avoid registering all these upfront
+                instance = entity;
                 instance.enabled = false;
-                // TODO: need a way to ensure instance pointers are resilient to copying
-                // TODO: maybe use indexes instead of pointers?
                 disabledInstances.push_back(&instance);
             }
         }
@@ -24,7 +23,6 @@ namespace entity {
             if (!disabledInstances.empty()) {
                 nextInstancePtr = disabledInstances.front();
                 disabledInstances.pop_front();
-                entity::registerEntity(*nextInstancePtr);
             } else {
                 nextInstancePtr = enabledInstances.front();
                 enabledInstances.pop_front();

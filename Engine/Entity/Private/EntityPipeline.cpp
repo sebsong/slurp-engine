@@ -5,11 +5,25 @@
 #include "Update.h"
 
 namespace entity {
-    EntityPipeline::EntityPipeline() : _nextEntityId(1), _pipeline(types::deque_arena<Entity*>()) {}
+    EntityPipeline::EntityPipeline() : _nextEntityId(1), _pipeline(types::vector_arena<Entity*>()) {}
 
-    void EntityPipeline::registerEntity(Entity& entity) {
-        _pipeline.emplace_back(&entity);
-        entity.id = _nextEntityId++;
+    void EntityPipeline::registerEntity(Entity* entity) {
+        if (entity->id == INVALID_ENTITY_ID) {
+            _pipeline.emplace_back(entity);
+            entity->id = _nextEntityId++;
+        } else {
+            // NOTE: Ensure that ids are in sorted order
+            _pipeline.insert(
+                std::upper_bound(
+                    _pipeline.begin(),
+                    _pipeline.end(),
+                    entity,
+                    [](const Entity* a, const Entity* b) { return a->id < b->id; }
+                    // TODO: move this out to a comparator
+                ),
+                entity
+            );
+        }
     }
 
     void EntityPipeline::initializeEntities() const {
@@ -60,5 +74,16 @@ namespace entity {
 #endif
             }
         }
+    }
+
+    void EntityPipeline::removeEntity(const Entity* entity) {
+        types::vector_arena<Entity*>::iterator searchBegin = std::lower_bound(
+            _pipeline.begin(),
+            _pipeline.end(),
+            entity,
+            [](const Entity* a, const Entity* b) { return a->id < b->id; }
+        );
+        types::vector_arena<Entity*>::iterator position = std::find(searchBegin, _pipeline.end(), entity);
+        _pipeline.erase(position);
     }
 }

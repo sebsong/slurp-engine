@@ -45,8 +45,6 @@ namespace worker {
           _isCorrupted(false),
           _corruptionRemaining(StartingCorruption) {}
 
-    Worker::Worker(const Worker& other): Entity(other) {}
-
     void Worker::initialize() {
         Entity::initialize();
         findNewMiningLocation();

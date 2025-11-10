@@ -7,6 +7,9 @@
 
 namespace types {
     template<typename T>
+    using vector_arena = std::vector<T, memory::PermanentArenaAllocator<T> >;
+
+    template<typename T>
     using set_arena = std::set<T, std::less<T>, memory::PermanentArenaAllocator<T> >;
 
     template<typename T>

@@ -1,6 +1,5 @@
 #pragma once
 #include "Entity.h"
-#include "EntityPool.h"
 
 #define MAX_NUM_DIGITS 9
 

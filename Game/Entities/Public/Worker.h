@@ -1,14 +1,11 @@
 #pragma once
 #include "Entity.h"
-#include "Game.h"
 
 namespace worker {
     class Worker final : public entity::Entity {
     public:
 
         Worker();
-
-        Worker(const Worker& other);
 
         void initialize() override;
 

@@ -35,12 +35,7 @@ namespace ui {
                   3,
                   true
               )
-          ) {
-        entity::registerEntity(_hoursDisplay);
-        entity::registerEntity(_minutesDisplay);
-        entity::registerEntity(_secondsDisplay);
-        entity::registerEntity(_millisDisplay);
-    }
+          ) {}
 
     void StopwatchDisplay::start() {
         _isStopped = false;

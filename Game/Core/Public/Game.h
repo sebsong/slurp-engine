@@ -129,8 +129,9 @@ namespace game {
             // re-instantiate to re-initialize vtable
             new(&entityLocation) T(entityLocation);
         } else {
+            // TODO: clean this up now that we don't need to explicitly register
             new(&entityLocation) T(std::forward<T>(entity));
-            entity::registerEntity(entityLocation);
+            // entity::registerEntity(&entityLocation);
         }
     }
 

@@ -29,6 +29,16 @@ namespace entity {
             const collision::CollisionInfo& collisionInfo
         );
 
+        Entity(
+            uint32_t id,
+            std::string&& name,
+            bool enabled,
+            const render::RenderInfo& renderInfo,
+            const physics::PhysicsInfo& physicsInfo,
+            const collision::CollisionInfo& collisionInfo,
+            bool shouldDestroy
+        );
+
         // TODO: make these pure virtual or signal that they aren't implemented
         // TODO: any way to get around the overhead of virtual functions?
         virtual void initialize() {};
@@ -41,22 +51,26 @@ namespace entity {
         virtual void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
             const slurp::KeyboardState& keyboardState
-        ) {};
+        ) {}
 
-        virtual void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {};
+        virtual void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
         void updatePhysics(float dt);
 
-        virtual void update(float dt) {};
+        virtual void update(float dt) {}
 
-        virtual void onCollisionEnter(const collision::CollisionDetails& collisionDetails) {};
+        virtual void onCollisionEnter(const collision::CollisionDetails& collisionDetails) {}
 
-        virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {};
+        virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {}
 
         bool mouseHitTest(const slurp::Vec2<float>& location) const;
 
-        virtual ~Entity() = default;
+        Entity& operator=(const Entity& other);
+
+        Entity& operator=(const Entity&& other);
 
         bool operator==(const Entity& other) const { return id == other.id; }
+
+        virtual ~Entity();
     };
 }

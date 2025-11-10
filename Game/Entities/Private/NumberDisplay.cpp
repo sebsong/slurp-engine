@@ -18,21 +18,20 @@ namespace ui {
           number(initialNumber),
           _numDigits(numDigits),
           _showLeadingZeroes(showLeadingZeroes),
-          _digitDisplays({}) {}
-
-    void NumberDisplay::initialize() {
-        Entity::initialize();
+          _digitDisplays({}) {
         for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
-            Entity& digitDisplay = _digitDisplays[i];
-            new(&digitDisplay) Entity(
+            _digitDisplays[i] = Entity(
                 std::format("Digit {}", i),
                 render::RenderInfo(game::Assets->digitSprites[0], true, game::UI_Z),
                 physics::PhysicsInfo({physicsInfo.position.x - i * 10, physicsInfo.position.y}),
                 collision::CollisionInfo()
             );
-            digitDisplay.renderInfo.sprite = nullptr;
-            entity::registerEntity(digitDisplay);
+            _digitDisplays[i].renderInfo.sprite = nullptr;
         }
+    }
+
+    void NumberDisplay::initialize() {
+        Entity::initialize();
     }
 
     void NumberDisplay::update(float dt) {

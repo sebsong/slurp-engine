@@ -14,7 +14,7 @@ namespace entity {
     public:
         explicit EntityPipeline();
 
-        void registerEntity(Entity& entity);
+        void registerEntity(Entity* entity);
 
         void initializeEntities() const;
 
@@ -26,12 +26,14 @@ namespace entity {
 
         void updateAndRender(float dt);
 
+        void removeEntity(const Entity* entity);
+
     private:
         entity_id _nextEntityId;
-        types::deque_arena<Entity*> _pipeline;
+        types::vector_arena<Entity*> _pipeline;
     };
 
-    inline void registerEntity(Entity& entity) {
+    inline void registerEntity(Entity* entity) {
         slurp::Globals->EntityPipeline->registerEntity(entity);
     }
 
@@ -49,5 +51,9 @@ namespace entity {
 
     inline void updateAndRender(float dt) {
         slurp::Globals->EntityPipeline->updateAndRender(dt);
+    }
+
+    inline void removeEntity(const Entity* entity) {
+        slurp::Globals->EntityPipeline->removeEntity(entity);
     }
 }
