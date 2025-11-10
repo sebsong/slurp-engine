@@ -13,13 +13,8 @@ namespace entity {
             for (T& instance : instances) {
                 new(&instance) T(entity);
                 instance.enabled = false;
-            }
-        }
-
-        void initialize() {
-            // TODO: need a better way to ensure instance pointers are resilient to copying
-            // TODO: maybe use indexes instead of pointers?
-            for (T& instance : instances) {
+                // TODO: need a way to ensure instance pointers are resilient to copying
+                // TODO: maybe use indexes instead of pointers?
                 disabledInstances.push_back(&instance);
             }
         }

@@ -15,6 +15,7 @@
 #include "UIButton.cpp"
 #include "MouseCursor.cpp"
 #include "NumberDisplay.cpp"
+#include "StopwatchDisplay.cpp"
 
 
 namespace game {
@@ -161,17 +162,12 @@ namespace game {
         );
 
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
-        State->mineSites.initialize();
-
         new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
-        State->workers.initialize();
-
         new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
 
         new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
-        State->turrets.initialize();
         new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(
             entity::Entity(
                 "Turret Range Indicator",
@@ -185,7 +181,6 @@ namespace game {
                 collision::CollisionInfo()
             )
         );
-        State->turretsRangeIndicators.initialize();
 
         // TODO: add costs and build times
         registerEntity(
@@ -258,13 +253,22 @@ namespace game {
             )
         );
 
+        // registerEntity(
+        //     State->stopwatchDisplay,
+        //     ui::StopwatchDisplay({-285, 150})
+        // );
+
         registerEntity(
             State->mouseCursor,
             mouse_cursor::MouseCursor()
         );
     }
 
-    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
+    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
+        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
+            State->stopwatchDisplay.start();
+        }
+    }
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 

@@ -19,7 +19,7 @@ namespace ui {
     private:
         uint8_t _numDigits;
         bool _showLeadingZeroes;
-        entity::EntityPool<Entity, MAX_NUM_DIGITS> _display;
+        Entity _digitDisplays[MAX_NUM_DIGITS];
 
         void initialize() override;
 

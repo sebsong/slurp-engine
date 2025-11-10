@@ -10,6 +10,7 @@
 #include "Turret.h"
 #include "UIButton.h"
 #include "NumberDisplay.h"
+#include "StopwatchDisplay.h"
 
 #define MAX_NUM_WORKERS 100000
 #define MAX_NUM_TURRETS 100
@@ -97,6 +98,7 @@ namespace game {
         ui::UIButton turretButton;
 
         ui::NumberDisplay resourcesCollectedDisplay;
+        ui::StopwatchDisplay stopwatchDisplay;
 
         mouse_cursor::MouseCursor mouseCursor;
     };
