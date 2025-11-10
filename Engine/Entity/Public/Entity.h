@@ -53,7 +53,7 @@ namespace entity {
 
         virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {};
 
-        bool hitTest(const slurp::Vec2<float>& location) const;
+        bool mouseHitTest(const slurp::Vec2<float>& location) const;
 
         virtual ~Entity() = default;
 

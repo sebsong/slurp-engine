@@ -44,7 +44,7 @@ namespace entity {
         physicsInfo.updatePhysics(dt);
     }
 
-    bool Entity::hitTest(const slurp::Vec2<float>& location) const {
+    bool Entity::mouseHitTest(const slurp::Vec2<float>& location) const {
         return collisionInfo.shape.hitTest(location - physicsInfo.position);
     }
 }

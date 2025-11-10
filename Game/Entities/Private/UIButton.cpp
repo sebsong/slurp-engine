@@ -45,7 +45,7 @@ namespace ui {
             return;
         }
 
-        if (hitTest(mouseState.position)) {
+        if (mouseHitTest(mouseState.position)) {
             if (mouseState.isDown(slurp::MouseCode::LeftClick)) {
                 press();
             } else {
