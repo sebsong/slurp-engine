@@ -12,7 +12,7 @@
 #include "NumberDisplay.h"
 #include "StopwatchDisplay.h"
 
-#define MAX_NUM_WORKERS 100000
+#define MAX_NUM_WORKERS 10000
 #define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
 
@@ -55,6 +55,7 @@ namespace game {
         asset::Sprite* turretButtonPress;
 
         asset::Sprite* digitSprites[10];
+        asset::Sprite* stopwatchPunctuationSprite;
 
         asset::Sprite* mouseCursorSprite;
 

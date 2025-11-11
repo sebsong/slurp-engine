@@ -1,7 +1,15 @@
 #include "Entity.h"
 
 namespace entity {
-    Entity::Entity() noexcept: id(INVALID_ENTITY_ID), enabled(false), shouldDestroy(false) {}
+    Entity::Entity() noexcept: Entity(
+        INVALID_ENTITY_ID,
+        "",
+        false,
+        {},
+        {},
+        {},
+        false
+    ) {}
 
     Entity::Entity(const Entity& other) noexcept
         : Entity(
@@ -68,6 +76,14 @@ namespace entity {
        collisionInfo(collisionInfo),
        shouldDestroy(shouldDestroy) {
         registerEntity(this);
+    }
+
+    void Entity::enable() {
+        if (id == INVALID_ENTITY_ID) {
+            registerEntity(this);
+        }
+        enabled = true;
+        initialize();
     }
 
     void Entity::updatePhysics(float dt) {

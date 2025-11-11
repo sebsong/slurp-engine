@@ -20,7 +20,8 @@ namespace ui {
         NumberDisplay _hoursDisplay;
         NumberDisplay _minutesDisplay;
         NumberDisplay _secondsDisplay;
-        NumberDisplay _millisDisplay;
+        NumberDisplay _deciSecondsDisplay;
+        Entity _punctuationDisplay;
 
         void initialize() override;
 

@@ -6,7 +6,7 @@ namespace ui {
           _isStopped(true),
           _hoursDisplay(
               NumberDisplay(
-                  {position.x - 60, position.y},
+                  {position.x - 44, position.y},
                   0,
                   2,
                   true
@@ -14,7 +14,7 @@ namespace ui {
           ),
           _minutesDisplay(
               NumberDisplay(
-                  {position.x - 30, position.y},
+                  {position.x - 22, position.y},
                   0,
                   2,
                   true
@@ -28,12 +28,20 @@ namespace ui {
                   true
               )
           ),
-          _millisDisplay(
+          _deciSecondsDisplay(
               NumberDisplay(
-                  {position.x + 40, position.y},
+                  {position.x + 12, position.y},
                   0,
-                  3,
+                  1,
                   true
+              )
+          ),
+          _punctuationDisplay(
+              Entity(
+                  "Stopwatch Punctuation",
+                  render::RenderInfo(game::Assets->stopwatchPunctuationSprite, true, game::UI_Z),
+                  physics::PhysicsInfo({position.x - 16, position.y}),
+                  {}
               )
           ) {}
 
@@ -60,10 +68,10 @@ namespace ui {
         uint32_t hours = secondsElapsed / (60 * 60);
         uint32_t minutes = static_cast<uint32_t>(secondsElapsed / 60) % 60;
         uint32_t seconds = static_cast<uint32_t>(secondsElapsed) % 60;
-        uint32_t millis = (secondsElapsed - static_cast<uint32_t>(secondsElapsed)) * 1000;
+        uint32_t deciSeconds = (secondsElapsed - static_cast<uint32_t>(secondsElapsed)) * 10;
         _hoursDisplay.number = hours;
         _minutesDisplay.number = minutes;
         _secondsDisplay.number = seconds;
-        _millisDisplay.number = millis;
+        _deciSecondsDisplay.number = deciSeconds;
     }
 }

@@ -59,6 +59,7 @@ namespace game {
         for (int i = 0; i < 10; i++) {
             Assets->digitSprites[i] = asset::loadSprite(std::format("{}.bmp", i));
         }
+        Assets->stopwatchPunctuationSprite = asset::loadSprite("stopwatch.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -253,10 +254,10 @@ namespace game {
             )
         );
 
-        // registerEntity(
-        //     State->stopwatchDisplay,
-        //     ui::StopwatchDisplay({-285, 150})
-        // );
+        registerEntity(
+            State->stopwatchDisplay,
+            ui::StopwatchDisplay({-250, 150})
+        );
 
         registerEntity(
             State->mouseCursor,

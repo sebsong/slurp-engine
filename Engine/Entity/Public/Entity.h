@@ -43,10 +43,7 @@ namespace entity {
         // TODO: any way to get around the overhead of virtual functions?
         virtual void initialize() {};
 
-        void enable() {
-            enabled = true;
-            initialize();
-        }
+        void enable();
 
         virtual void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
