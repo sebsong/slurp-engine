@@ -7,7 +7,7 @@ namespace base {
     static const slurp::Vec2<float> RenderOffset = {0, 8};
     static slurp::Vec2<float> SpawnOffset = {-15, -7};
 
-    static constexpr uint32_t GoldGoal = 100;
+    static constexpr uint32_t GoldGoal = 1000;
     static const char* ProgressUniformName = "progress";
 
     Base::Base(): Entity(

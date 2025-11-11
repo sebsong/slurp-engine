@@ -51,6 +51,49 @@ namespace asset {
         return stream.str();
     }
 
+    ShaderSource* AssetLoader::_loadShaderSource(const std::string& shaderFilePath) {
+        asset_id assetId = _getAssetId(shaderFilePath);
+
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<ShaderSource*>(existingAsset);
+        }
+
+        ShaderSource* shaderSource = memory::AssetLoader->allocate<ShaderSource>();
+        _registerAsset(assetId, shaderSource);
+
+        std::string source = readTextFile(shaderFilePath);
+        shaderSource->isLoaded = true;
+        shaderSource->source = source;
+
+        return shaderSource;
+    }
+
+    ShaderProgram* AssetLoader::loadShaderProgram(
+        const std::string& vertexShaderFileName,
+        const std::string& fragmentShaderFileName
+    ) {
+        std::string vertexFilePath = VertexShadersDirectory + vertexShaderFileName;
+        std::string fragmentFilePath = FragmentShadersDirectory + fragmentShaderFileName;
+        asset_id assetId = _getAssetId(vertexFilePath + fragmentFilePath);
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<ShaderProgram*>(existingAsset);
+        }
+
+        ShaderProgram* shaderProgram = memory::AssetLoader->allocate<ShaderProgram>();
+        _registerAsset(assetId, shaderProgram);
+
+        std::string vertexShaderSource = _loadShaderSource(vertexFilePath)->source;
+        std::string fragmentShaderSource = _loadShaderSource(fragmentFilePath)->source;
+
+        shaderProgram->isLoaded = true;
+        shaderProgram->programId = slurp::Globals->RenderApi->createShaderProgram(
+            vertexShaderSource.c_str(),
+            fragmentShaderSource.c_str()
+        );
+
+        return shaderProgram;
+    }
+
     Bitmap* AssetLoader::loadBitmap(const std::string& bitmapFileName) {
         std::string filePath = SpritesDirectory + bitmapFileName;
         asset_id assetId = _getAssetId(filePath);
@@ -96,10 +139,9 @@ namespace asset {
         _registerAsset(assetId, sprite);
 
         Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
-        std::string vertexShaderSource = asset::loadVertexShaderSource(vertexShaderFileName)->source;
-        std::string fragmentShaderSource = asset::loadFragmentShaderSource(fragmentShaderFileName)->source;
 
-        loadSpriteData(sprite, bitmap, vertexShaderSource, fragmentShaderSource);
+        render::object_id shaderProgramId = loadShaderProgram(vertexShaderFileName, fragmentShaderFileName)->programId;
+        loadSpriteData(sprite, bitmap, shaderProgramId);
 
         return sprite;
     }
@@ -150,33 +192,6 @@ namespace asset {
         return sound;
     }
 
-    ShaderSource* AssetLoader::_loadShaderSource(const std::string& shaderFilePath) {
-        asset_id assetId = _getAssetId(shaderFilePath);
-
-        if (Asset* existingAsset = _getAsset(assetId)) {
-            return reinterpret_cast<ShaderSource*>(existingAsset);
-        }
-
-        ShaderSource* shaderSource = memory::AssetLoader->allocate<ShaderSource>();
-        _registerAsset(assetId, shaderSource);
-
-        std::string source = readTextFile(shaderFilePath);
-        shaderSource->isLoaded = true;
-        shaderSource->source = source;
-
-        return shaderSource;
-    }
-
-    ShaderSource* AssetLoader::loadVertexShaderSource(const std::string& shaderSourceFileName) {
-        std::string filePath = VertexShadersDirectory + shaderSourceFileName;
-        return _loadShaderSource(filePath);
-    }
-
-    ShaderSource* AssetLoader::loadFragmentShaderSource(const std::string& shaderSourceFileName) {
-        std::string filePath = FragmentShadersDirectory + shaderSourceFileName;
-        return _loadShaderSource(filePath);
-    }
-
     asset_id AssetLoader::_getAssetId(const std::string& assetFilePath) const {
         return _stringHasher(assetFilePath);
     }
@@ -188,41 +203,5 @@ namespace asset {
     void AssetLoader::_registerAsset(asset_id assetId, Asset* asset) {
         asset->id = assetId;
         _assets[assetId] = asset;
-    }
-
-    Bitmap* loadBitmap(const std::string& bitmapFileName) {
-        return slurp::Globals->AssetLoader->loadBitmap(bitmapFileName);
-    }
-
-    Sprite* loadSprite(const std::string& bitmapFileName) {
-        return slurp::Globals->AssetLoader->loadSprite(bitmapFileName);
-    }
-
-    SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames) {
-        return slurp::Globals->AssetLoader->loadSpriteAnimation(bitmapFileName, numFrames);
-    }
-
-    Sprite* loadSprite(
-        const std::string& bitmapFileName,
-        const std::string& vertexShaderFileName,
-        const std::string& fragmentShaderFileName
-    ) {
-        return slurp::Globals->AssetLoader->loadSprite(
-            bitmapFileName,
-            vertexShaderFileName,
-            fragmentShaderFileName
-        );
-    }
-
-    Sound* loadSound(const std::string& waveFileName) {
-        return slurp::Globals->AssetLoader->loadSound(waveFileName);
-    }
-
-    ShaderSource* loadVertexShaderSource(const std::string& shaderSourceFileName) {
-        return slurp::Globals->AssetLoader->loadVertexShaderSource(shaderSourceFileName);
-    }
-
-    ShaderSource* loadFragmentShaderSource(const std::string& shaderSourceFileName) {
-        return slurp::Globals->AssetLoader->loadFragmentShaderSource(shaderSourceFileName);
     }
 }

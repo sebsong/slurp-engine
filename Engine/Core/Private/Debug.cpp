@@ -1,5 +1,6 @@
 #include "Debug.h"
 
+#include "Asset.h"
 #include "Global.h"
 #include "RenderApi.h"
 #if DEBUG
@@ -17,12 +18,7 @@ namespace debug {
         };
         render::object_id vertexArrayId = slurp::Globals->RenderApi->
                 genVertexArrayBuffer(vertexArray, PointVertexCount);
-        asset::ShaderSource* vertexShaderSource = asset::loadVertexShaderSource("basic.glsl");
-        asset::ShaderSource* fragmentShaderSource = asset::loadFragmentShaderSource("basic.glsl");
-        render::object_id shaderProgramId = slurp::Globals->RenderApi->createShaderProgram(
-            vertexShaderSource->source.c_str(),
-            fragmentShaderSource->source.c_str()
-        );
+        render::object_id shaderProgramId = asset::loadShaderProgram("basic.glsl", "basic.glsl")->programId;
         slurp::Globals->RenderApi->drawPoint(
             vertexArrayId,
             PointVertexCount,
@@ -50,12 +46,7 @@ namespace debug {
             {end, {}}
         };
         render::object_id vertexArrayId = slurp::Globals->RenderApi->genVertexArrayBuffer(vertexArray, LineVertexCount);
-        asset::ShaderSource* vertexShaderSource = asset::loadVertexShaderSource("basic.glsl");
-        asset::ShaderSource* fragmentShaderSource = asset::loadFragmentShaderSource("basic.glsl");
-        render::object_id shaderProgramId = slurp::Globals->RenderApi->createShaderProgram(
-            vertexShaderSource->source.c_str(),
-            fragmentShaderSource->source.c_str()
-        );
+        render::object_id shaderProgramId = asset::loadShaderProgram("basic.glsl", "basic.glsl")->programId;
         slurp::Globals->RenderApi->drawLine(
             vertexArrayId,
             LineVertexCount,

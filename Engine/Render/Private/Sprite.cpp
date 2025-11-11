@@ -17,8 +17,7 @@ namespace asset {
     void loadSpriteData(
         Sprite* sprite,
         const Bitmap* bitmap,
-        const std::string& vertexShaderSource,
-        const std::string& fragmentShaderSource
+        render::object_id shaderProgramId
     ) {
         // TODO: specify scale factor on entity that also applies to collision shapes
         float scale = 1.f;
@@ -49,10 +48,6 @@ namespace asset {
             SpriteMeshElementCount
         );
         render::object_id textureId = slurp::Globals->RenderApi->createTexture(bitmap);
-        render::object_id shaderProgramId = slurp::Globals->RenderApi->createShaderProgram(
-            vertexShaderSource.c_str(),
-            fragmentShaderSource.c_str()
-        );
 
         sprite->dimensions = dimensions;
         sprite->mesh = Mesh{vertexArrayId, SpriteMeshElementCount};
