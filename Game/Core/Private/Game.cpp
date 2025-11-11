@@ -16,6 +16,7 @@
 #include "MouseCursor.cpp"
 #include "NumberDisplay.cpp"
 #include "StopwatchDisplay.cpp"
+#include "ProgressBar.cpp"
 
 
 namespace game {
@@ -38,11 +39,7 @@ namespace game {
         Assets->turretShootAnimation = asset::loadSpriteAnimation("turret_shoot.bmp", 1);
 
         Assets->storageSilo = asset::loadSprite("storage_silo.bmp");
-        Assets->storageSiloFill = asset::loadSprite(
-            "storage_silo_fill.bmp",
-            "sprite.glsl",
-            "progress_bar.glsl"
-        );
+        Assets->storageSiloFill = asset::loadSprite("storage_silo_fill.bmp");
 
         Assets->workerButton = asset::loadSprite("worker_button.bmp");
         Assets->workerButtonHover = asset::loadSprite("worker_button_hover.bmp");
@@ -225,22 +222,12 @@ namespace game {
         );
 
         registerEntity(
-            State->storageSilo,
-            entity::Entity(
-                "Storage Silo",
-                render::RenderInfo(slurp::Globals->GameAssets->storageSilo, true, 0),
-                physics::PhysicsInfo({275, 150}),
-                collision::CollisionInfo()
-            )
-        );
-
-        registerEntity(
-            State->storageSiloFill,
-            entity::Entity(
-                "Storage Silo Fill",
-                render::RenderInfo(slurp::Globals->GameAssets->storageSiloFill, true, 0),
-                physics::PhysicsInfo(State->storageSilo.physicsInfo.position),
-                collision::CollisionInfo()
+            State->goldProgressBar,
+            ui::ProgressBar(
+                {275, 150},
+                0,
+                Assets->storageSilo,
+                Assets->storageSiloFill
             )
         );
 
@@ -273,7 +260,9 @@ namespace game {
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
-    void update(float dt) {}
+    void update(float dt) {
+        State->goldProgressBar.progress = State->base.getProgress();
+    }
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;

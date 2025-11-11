@@ -8,6 +8,7 @@
 namespace base {
     class Base final : public entity::Entity {
     public:
+
         Base();
 
         void spawnWorker() const;
@@ -16,8 +17,10 @@ namespace base {
 
         void dropOff();
 
+        float getProgress() const;
+
     private:
-        uint32_t gold;
+        uint32_t _gold;
 
         void initialize() override;
 

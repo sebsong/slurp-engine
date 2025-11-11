@@ -26,7 +26,11 @@ namespace base {
     }
 
     void Base::dropOff() {
-        gold++;
+        _gold++;
+    }
+
+    float Base::getProgress() const {
+        return static_cast<float>(_gold) / GoldGoal;
     }
 
     void Base::initialize() {
@@ -36,8 +40,7 @@ namespace base {
     void Base::update(float dt) {
         Entity::update(dt);
 
-        game::Assets->storageSiloFill->bindShaderUniform(ProgressUniformName, static_cast<float>(gold) / GoldGoal);
-        game::State->resourcesCollectedDisplay.number = gold;
+        game::State->resourcesCollectedDisplay.number = _gold;
 
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }

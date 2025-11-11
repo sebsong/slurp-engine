@@ -10,6 +10,7 @@
 #include "Turret.h"
 #include "UIButton.h"
 #include "NumberDisplay.h"
+#include "ProgressBar.h"
 #include "StopwatchDisplay.h"
 
 #define MAX_NUM_WORKERS 10000
@@ -91,8 +92,7 @@ namespace game {
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
         entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
 
-        entity::Entity storageSilo;
-        entity::Entity storageSiloFill;
+        ui::ProgressBar goldProgressBar;
 
         ui::UIButton workerButton;
         ui::UIButton mineSiteButton;
