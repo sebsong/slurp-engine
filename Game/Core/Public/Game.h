@@ -11,6 +11,7 @@
 #include "UIButton.h"
 #include "NumberDisplay.h"
 #include "ProgressBar.h"
+#include "SpawnControls.h"
 #include "StopwatchDisplay.h"
 
 #define MAX_NUM_WORKERS 10000
@@ -92,11 +93,8 @@ namespace game {
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
         entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
 
+        ui::SpawnControls spawnControls;
         ui::ProgressBar goldProgressBar;
-
-        ui::UIButton workerButton;
-        ui::UIButton mineSiteButton;
-        ui::UIButton turretButton;
 
         ui::NumberDisplay resourcesCollectedDisplay;
         ui::StopwatchDisplay stopwatchDisplay;
@@ -119,23 +117,6 @@ namespace game {
 
     static GameAssets* Assets;
     static GameState* State;
-
-    template<typename T>
-    static void registerEntity(
-        T& entityLocation,
-        T&& entity
-    ) {
-        // TODO: this pattern is a little weird, also need to know to include new properties in the move constructor
-        if (entityLocation.id != entity::INVALID_ENTITY_ID) {
-            // Entity is already initialized, this is a hot reload
-            // re-instantiate to re-initialize vtable
-            new(&entityLocation) T(entityLocation);
-        } else {
-            // TODO: clean this up now that we don't need to explicitly register
-            new(&entityLocation) T(std::forward<T>(entity));
-            // entity::registerEntity(&entityLocation);
-        }
-    }
 
     void initialize(bool isInitialized);
 

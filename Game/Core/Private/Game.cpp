@@ -17,7 +17,7 @@
 #include "NumberDisplay.cpp"
 #include "StopwatchDisplay.cpp"
 #include "ProgressBar.cpp"
-
+#include "SpawnControls.cpp"
 
 namespace game {
     static void loadAssets() {
@@ -86,78 +86,53 @@ namespace game {
 
         slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
-        registerEntity(
-            State->global,
-            global::GameGlobal()
+        new(&State->global) global::GameGlobal();
+
+        new(&State->background) entity::Entity(
+            "Background",
+            render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true, BACKGROUND_Z),
+            physics::PhysicsInfo(),
+            collision::CollisionInfo()
         );
 
-        registerEntity(
-            State->background,
-            entity::Entity(
-                "Background",
-                render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true, BACKGROUND_Z),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
-        );
-
-        registerEntity(
-            State->border,
-            entity::Entity(
-                "Border",
-                render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true, BORDER_Z),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
+        new(&State->border) entity::Entity(
+            "Border",
+            render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true, BORDER_Z),
+            physics::PhysicsInfo(),
+            collision::CollisionInfo()
         );
 
         float wallThickness = 10;
         geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, wallThickness}};
-        registerEntity(
-            State->wallUp,
-            obstacle::Obstacle(
-                "WallUp",
-                wallUpShape,
-                {0, CAMERA_WORLD_HEIGHT_MAX}
-            )
-        );
         geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, wallThickness}};
-        registerEntity(
-            State->wallDown,
-            obstacle::Obstacle(
-                "WallDown",
-                wallDownShape,
-                {0, -CAMERA_WORLD_HEIGHT_MAX}
-            )
-        );
         geometry::Shape wallLeftShape = {geometry::Rect, {wallThickness, CAMERA_WORLD_HEIGHT}};
-        registerEntity(
-            State->wallLeft,
-            obstacle::Obstacle(
-                "WallLeft",
-                wallLeftShape,
-                {-CAMERA_WORLD_WIDTH_MAX, 0}
-            )
-        );
         geometry::Shape wallRightShape = {geometry::Rect, {wallThickness, CAMERA_WORLD_HEIGHT}};
-        registerEntity(
-            State->wallRight,
-            obstacle::Obstacle(
-                "WallRight",
-                wallRightShape,
-                {CAMERA_WORLD_WIDTH_MAX, 0}
-            )
+
+        new(&State->wallUp) obstacle::Obstacle(
+            "WallUp",
+            wallUpShape,
+            {0, CAMERA_WORLD_HEIGHT_MAX}
+        );
+        new(&State->wallDown) obstacle::Obstacle(
+            "WallDown",
+            wallDownShape,
+            {0, -CAMERA_WORLD_HEIGHT_MAX}
+        );
+        new(&State->wallLeft) obstacle::Obstacle(
+            "WallLeft",
+            wallLeftShape,
+            {-CAMERA_WORLD_WIDTH_MAX, 0}
+        );
+        new(&State->wallRight) obstacle::Obstacle(
+            "WallRight",
+            wallRightShape,
+            {CAMERA_WORLD_WIDTH_MAX, 0}
         );
 
-        registerEntity(
-            State->base,
-            base::Base()
-        );
+        new(&State->base) base::Base();
 
-        registerEntity(
-            State->mineSiteSpawner,
-            mine_site::MineSiteSpawner()
-        );
+
+        new(&State->mineSiteSpawner) mine_site::MineSiteSpawner();
 
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
         new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
@@ -180,95 +155,30 @@ namespace game {
             )
         );
 
-        static const float WorkerBuildTime = 1.f;
-        static timer::timer_handle WorkerBuildTimerHandle = timer::reserveHandle();
-        // TODO: add costs and build times
-        registerEntity(
-            State->workerButton,
-            ui::UIButton(
-                Assets->workerButton,
-                Assets->workerButtonHover,
-                Assets->workerButtonPress,
-                {-30, 167},
-                slurp::KeyboardCode::NUM_1,
-                [] {
-                    State->workerButton.renderInfo.animation = *Assets->workerButtonPressAnim;
-                    State->workerButton.renderInfo.animation.play(true, WorkerBuildTime);
-                    timer::start(
-                        WorkerBuildTimerHandle,
-                        WorkerBuildTime,
-                        true,
-                        [] {
-                            State->base.spawnWorker();
-                        }
-                    );
-                },
-                [] {
-                    State->workerButton.renderInfo.animation.stop();
-                    timer::cancel(WorkerBuildTimerHandle);
-                }
-            )
-        );
+        new(&State->spawnControls) ui::SpawnControls({0, -167});
 
-        registerEntity(
-            State->mineSiteButton,
-            ui::UIButton(
-                Assets->mineSiteButton,
-                Assets->mineSiteButtonHover,
-                Assets->mineSiteButtonPress,
-                {0, 167},
-                slurp::KeyboardCode::NUM_2,
-                [] {
-                    State->mineSiteSpawner.spawnMineSite();
-                },
-                [] {}
-            )
-        );
 
-        registerEntity(
-            State->turretButton,
-            ui::UIButton(
-                Assets->turretButton,
-                Assets->turretButtonHover,
-                Assets->turretButtonPress,
-                {30, 167},
-                slurp::KeyboardCode::NUM_3,
-                [] {},
-                [] {}
-            )
-        );
+        new(&State->goldProgressBar)
+                ui::ProgressBar(
+                    {0, 166},
+                    0,
+                    false,
+                    nullptr,
+                    Assets->resourcesCollectedFill,
+                    PROGRESS_BAR_Z
+                );
 
-        registerEntity(
-            State->goldProgressBar,
-            ui::ProgressBar(
-                {0, 166},
-                0,
-                false,
-                nullptr,
-                Assets->resourcesCollectedFill,
-                PROGRESS_BAR_Z
-            )
-        );
+        new(&State->resourcesCollectedDisplay)
+                ui::NumberDisplay(
+                    {-280, 166},
+                    0,
+                    MAX_NUM_DIGITS,
+                    false
+                );
 
-        registerEntity(
-            State->resourcesCollectedDisplay,
-            ui::NumberDisplay(
-                {-280, 166},
-                0,
-                MAX_NUM_DIGITS,
-                false
-            )
-        );
+        new(&State->stopwatchDisplay) ui::StopwatchDisplay({280, 166});
 
-        registerEntity(
-            State->stopwatchDisplay,
-            ui::StopwatchDisplay({280, 166})
-        );
-
-        registerEntity(
-            State->mouseCursor,
-            mouse_cursor::MouseCursor()
-        );
+        new(&State->mouseCursor) mouse_cursor::MouseCursor();
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
@@ -276,7 +186,6 @@ namespace game {
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
     void update(float dt) {
-
         State->goldProgressBar.progress = State->base.getProgress();
     }
 
