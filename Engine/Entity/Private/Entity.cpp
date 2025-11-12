@@ -125,8 +125,7 @@ namespace entity {
 
     Entity& Entity::operator=(const Entity& other) {
         if (this != &other) {
-            // TODO: re-order this in the pipeline
-            id = other.id;
+            // NOTE: don't update the id to maintain entity pipeline ordering
             name = other.name;
             enabled = other.enabled;
             renderInfo = other.renderInfo;
@@ -139,8 +138,7 @@ namespace entity {
 
     Entity& Entity::operator=(const Entity&& other) {
         if (this != &other) {
-            // TODO: re-order this in the pipeline
-            id = std::move(other.id);
+            // NOTE: don't update the id to maintain entity pipeline ordering
             name = std::move(other.name);
             enabled = std::move(other.enabled);
             renderInfo = std::move(other.renderInfo);

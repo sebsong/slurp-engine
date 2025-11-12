@@ -84,6 +84,10 @@ namespace entity {
             [](const Entity* a, const Entity* b) { return a->id < b->id; }
         );
         types::vector_arena<Entity*>::iterator position = std::find(searchBegin, _pipeline.end(), entity);
+        ASSERT_LOG(
+            position != _pipeline.end(),
+            std::format("Could not find entity to remove from pipeline: {}", entity->name)
+        );
         _pipeline.erase(position);
     }
 }
