@@ -10,6 +10,8 @@ namespace ui {
     public:
         SpawnControls(const slurp::Vec2<float>& position);
 
+        void refresh();
+
     private:
         UIButton _spawnWorkerButton;
         UIButton _spawnMineSiteButton;

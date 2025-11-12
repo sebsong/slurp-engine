@@ -1,5 +1,4 @@
 #pragma once
-#include "GameGlobal.h"
 #include "Base.h"
 #include "EntityPool.h"
 #include "MineSite.h"
@@ -72,8 +71,7 @@ namespace game {
 
     struct GameState {
         uint32_t randomSeed;
-
-        global::GameGlobal global;
+        audio::sound_id bgmId;
 
         entity::Entity background;
         entity::Entity border;

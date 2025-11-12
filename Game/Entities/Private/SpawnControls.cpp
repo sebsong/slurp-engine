@@ -24,7 +24,7 @@ namespace ui {
                           WorkerBuildTime,
                           true,
                           [] {
-                              game::State->base.gold -= WorkerBuildCost;
+                              game::State->base.spend(WorkerBuildCost);
                               game::State->base.spawnWorker();
                           }
                       );
@@ -43,7 +43,7 @@ namespace ui {
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
                   [] {
-                      game::State->base.gold -= MineSiteBuildCost;
+                      game::State->base.spend(MineSiteBuildCost);
                       game::State->mineSiteSpawner.spawnMineSite();
                   },
                   [] {}
@@ -57,11 +57,23 @@ namespace ui {
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
                   [] {
-                      game::State->base.gold -= TurretBuildCost;
+                      game::State->base.spend(TurretBuildCost);
                   },
                   [] {}
               )
           ) {}
+
+    void SpawnControls::refresh() {
+        game::State->base.canSpend(WorkerBuildCost)
+            ? _spawnWorkerButton.enableButton()
+            : _spawnWorkerButton.disableButton();
+        game::State->base.canSpend(MineSiteBuildCost)
+            ? _spawnMineSiteButton.enableButton()
+            : _spawnMineSiteButton.disableButton();
+        game::State->base.canSpend(TurretBuildCost)
+            ? _spawnTurretButton.enableButton()
+            : _spawnTurretButton.disableButton();
+    }
 
     void SpawnControls::update(float dt) {
         Entity::update(dt);

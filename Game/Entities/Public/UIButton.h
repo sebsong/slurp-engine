@@ -4,6 +4,7 @@
 namespace ui {
     class UIButton final : public entity::Entity {
     public:
+
         UIButton(
             asset::Sprite* buttonSprite,
             asset::Sprite* buttonHoverSprite,
@@ -14,8 +15,13 @@ namespace ui {
             std::function<void()>&& onReleaseFn
         );
 
+        void enableButton();
+
+        void disableButton();
+
     private:
         bool _isPressed;
+        bool _buttonDisabled;
         std::function<void()> _onPressFn;
         std::function<void()> _onReleaseFn;
         slurp::KeyboardCode _keyCode;

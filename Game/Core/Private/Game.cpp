@@ -5,7 +5,6 @@
 #include "EntityPipeline.h"
 #include "Settings.h"
 
-#include "GameGlobal.cpp"
 #include "Obstacle.cpp"
 #include "Base.cpp"
 #include "MineSite.cpp"
@@ -20,6 +19,10 @@
 #include "SpawnControls.cpp"
 
 namespace game {
+    static const float GlobalVolume = 0.3f;
+    // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
+    // static constexpr const char* BackgroundMusicSoundFileName = "bgm.wav";
+
     static void loadAssets() {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
@@ -84,9 +87,11 @@ namespace game {
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         random::setRandomSeed(State->randomSeed);
 
+        audio::setGlobalVolume(GlobalVolume);
+        if (!State->bgmId) {
+            State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
+        }
         slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
-
-        new(&State->global) global::GameGlobal();
 
         new(&State->background) entity::Entity(
             "Background",
@@ -179,9 +184,20 @@ namespace game {
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
     }
 
-    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
+    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
+        if (
+            (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) ||
+            keyboardState.isDown(slurp::KeyboardCode::ESC)
+        ) {
+            slurp::Globals->PlatformDll->shutdown();
+        }
+    }
 
-    void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
+    void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
+        if (gamepadState.isDown(slurp::GamepadCode::START) || gamepadState.isDown(slurp::GamepadCode::B)) {
+            slurp::Globals->PlatformDll->shutdown();
+        }
+    }
 
     void update(float dt) {
         State->goldProgressBar.progress = State->base.getProgress();

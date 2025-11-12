@@ -8,7 +8,6 @@
 namespace base {
     class Base final : public entity::Entity {
     public:
-        uint32_t gold;
 
         Base();
 
@@ -20,7 +19,13 @@ namespace base {
 
         float getProgress() const;
 
+        bool canSpend(uint32_t amount) const;
+
+        void spend(uint32_t amount);
+
     private:
+        uint32_t _gold;
+
         void initialize() override;
 
         void update(float dt);

@@ -17,7 +17,7 @@ namespace base {
                       physics::PhysicsInfo(),
                       collision::CollisionInfo()
                   ),
-                  gold(InitialGold) {}
+                  _gold(InitialGold) {}
 
     void Base::spawnWorker() const {
         game::State->workers.newInstance(physicsInfo.position + SpawnOffset);
@@ -28,11 +28,23 @@ namespace base {
     }
 
     void Base::dropOff() {
-        gold++;
+        _gold++;
+        game::State->spawnControls.refresh();
     }
 
     float Base::getProgress() const {
-        return static_cast<float>(gold) / GoldGoal;
+        return static_cast<float>(_gold) / GoldGoal;
+    }
+
+    bool Base::canSpend(uint32_t amount) const {
+        return _gold >= amount;
+    }
+
+    void Base::spend(uint32_t amount) {
+        if (canSpend(amount)) {
+            _gold -= amount;
+            game::State->spawnControls.refresh();
+        }
     }
 
     void Base::initialize() {
@@ -42,7 +54,7 @@ namespace base {
     void Base::update(float dt) {
         Entity::update(dt);
 
-        game::State->resourcesCollectedDisplay.number = gold;
+        game::State->resourcesCollectedDisplay.number = _gold;
 
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }

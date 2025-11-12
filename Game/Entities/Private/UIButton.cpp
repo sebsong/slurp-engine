@@ -36,11 +36,26 @@ namespace ui {
         _buttonHoverSprite(buttonHoverSprite),
         _buttonPressedSprite(buttonPressedSprite) {}
 
+    void UIButton::enableButton() {
+        renderInfo.sprite->material.alpha = 1.f;
+        _buttonDisabled = false;
+    }
+
+    void UIButton::disableButton() {
+        release();
+        renderInfo.sprite->material.alpha = 0.5f;
+        _buttonDisabled = true;
+    }
+
     void UIButton::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
         const slurp::KeyboardState& keyboardState
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
+
+        if (_buttonDisabled) {
+            return;
+        }
 
         if (keyboardState.isDown(_keyCode)) {
             press();
@@ -68,14 +83,17 @@ namespace ui {
         if (_isPressed) {
             return;
         }
+        renderInfo.sprite = _buttonPressedSprite;
         _isPressed = true;
         _onPressFn();
-        renderInfo.sprite = _buttonPressedSprite;
     }
 
     void UIButton::release() {
+        if (!_isPressed) {
+            return;
+        }
+        renderInfo.sprite = _buttonSprite;
         _isPressed = false;
         _onReleaseFn();
-        renderInfo.sprite = _buttonSprite;
     }
 }
