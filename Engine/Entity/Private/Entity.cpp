@@ -83,12 +83,31 @@ namespace entity {
             registerEntity(this);
         }
         enabled = true;
-        initialize();
+        if (!initialized) {
+            initialize();
+        }
     }
+
+    void Entity::initialize() {
+        initialized = true;
+    }
+
+    void Entity::handleMouseAndKeyboardInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState
+    ) {}
+
+    void Entity::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
     void Entity::updatePhysics(float dt) {
         physicsInfo.updatePhysics(dt);
     }
+
+    void Entity::update(float dt) {}
+
+    void Entity::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {}
+
+    void Entity::onCollisionExit(const collision::CollisionDetails& collisionDetails) {}
 
     bool Entity::mouseHitTest(const slurp::Vec2<float>& location) const {
         return collisionInfo.shape.hitTest(location - physicsInfo.position);

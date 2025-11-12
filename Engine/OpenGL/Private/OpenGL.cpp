@@ -232,7 +232,7 @@ namespace open_gl {
         }
         // TODO: allow usage control
         uint32_t vertexSize = sizeof(render::Vertex);
-        glBufferData(GL_ARRAY_BUFFER, vertexSize * vertexCount, vertexArray, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertexSize * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
         return vertexArrayId;
     }
 
@@ -244,7 +244,7 @@ namespace open_gl {
         glGenBuffers(1, &elementBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferId);
         // TODO: allow usage control
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * elementCount, elementArray, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * elementCount, elementArray, GL_DYNAMIC_DRAW);
 
         return vertexArrayId;
     }
@@ -321,7 +321,7 @@ namespace open_gl {
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         setColorUniform(shaderProgramId, color);
-        setZOrderUniform(shaderProgramId, -Z_ORDER_MAX);
+        setZOrderUniform(shaderProgramId, -Z_ORDER_MAX - 1);
         glPointSize(size);
         glDrawArrays(GL_POINTS, 0, vertexCount);
     }
@@ -330,7 +330,7 @@ namespace open_gl {
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         setColorUniform(shaderProgramId, color);
-        setZOrderUniform(shaderProgramId, -Z_ORDER_MAX);
+        setZOrderUniform(shaderProgramId, -Z_ORDER_MAX - 1);
         glLineWidth(width);
         glDrawArrays(GL_LINES, 0, vertexCount);
     }

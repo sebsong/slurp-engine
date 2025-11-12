@@ -108,33 +108,6 @@ namespace game {
             collision::CollisionInfo()
         );
 
-        float wallThickness = 10;
-        geometry::Shape wallUpShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, wallThickness}};
-        geometry::Shape wallDownShape = {geometry::Rect, {CAMERA_WORLD_WIDTH, wallThickness}};
-        geometry::Shape wallLeftShape = {geometry::Rect, {wallThickness, CAMERA_WORLD_HEIGHT}};
-        geometry::Shape wallRightShape = {geometry::Rect, {wallThickness, CAMERA_WORLD_HEIGHT}};
-
-        new(&State->wallUp) obstacle::Obstacle(
-            "WallUp",
-            wallUpShape,
-            {0, CAMERA_WORLD_HEIGHT_MAX}
-        );
-        new(&State->wallDown) obstacle::Obstacle(
-            "WallDown",
-            wallDownShape,
-            {0, -CAMERA_WORLD_HEIGHT_MAX}
-        );
-        new(&State->wallLeft) obstacle::Obstacle(
-            "WallLeft",
-            wallLeftShape,
-            {-CAMERA_WORLD_WIDTH_MAX, 0}
-        );
-        new(&State->wallRight) obstacle::Obstacle(
-            "WallRight",
-            wallRightShape,
-            {CAMERA_WORLD_WIDTH_MAX, 0}
-        );
-
         new(&State->base) base::Base();
 
         new(&State->mineSiteSpawner) mine_site::MineSiteSpawner();

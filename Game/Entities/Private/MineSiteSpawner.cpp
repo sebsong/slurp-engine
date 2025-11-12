@@ -5,7 +5,7 @@
 
 namespace mine_site {
     static const slurp::Mat22<float> OuterBounds = {
-        {-CAMERA_WORLD_WIDTH_MAX + 20, CAMERA_WORLD_HEIGHT_MAX - 20},
+        {-CAMERA_WORLD_WIDTH_MAX + 20, CAMERA_WORLD_HEIGHT_MAX - 55},
         {CAMERA_WORLD_WIDTH_MAX - 20, -CAMERA_WORLD_HEIGHT_MAX + 15}
     };
     static const slurp::Mat22<float> InnerBounds = {
@@ -45,13 +45,13 @@ namespace mine_site {
 
     void MineSiteSpawner::update(float dt) {
         Entity::update(dt);
-        // debug::drawRectBorder(
-        //     OuterBounds.i,
-        //     OuterBounds.j
-        // );
-        // debug::drawRectBorder(
-        //     InnerBounds.i,
-        //     InnerBounds.j
-        // );
+        debug::drawRectBorder(
+            OuterBounds.i,
+            OuterBounds.j
+        );
+        debug::drawRectBorder(
+            InnerBounds.i,
+            InnerBounds.j
+        );
     }
 }

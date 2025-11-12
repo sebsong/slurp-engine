@@ -9,6 +9,7 @@ namespace entity {
         uint32_t id;
         std::string name;
         bool enabled;
+        bool initialized;
         render::RenderInfo renderInfo;
         physics::PhysicsInfo physicsInfo;
         collision::CollisionInfo collisionInfo;
@@ -39,26 +40,26 @@ namespace entity {
             bool shouldDestroy
         );
 
+        void enable();
+
         // TODO: make these pure virtual or signal that they aren't implemented
         // TODO: any way to get around the overhead of virtual functions?
-        virtual void initialize() {};
-
-        void enable();
+        virtual void initialize();
 
         virtual void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
             const slurp::KeyboardState& keyboardState
-        ) {}
+        );
 
-        virtual void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
+        virtual void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState);
 
         void updatePhysics(float dt);
 
-        virtual void update(float dt) {}
+        virtual void update(float dt);
 
-        virtual void onCollisionEnter(const collision::CollisionDetails& collisionDetails) {}
+        virtual void onCollisionEnter(const collision::CollisionDetails& collisionDetails);
 
-        virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails) {}
+        virtual void onCollisionExit(const collision::CollisionDetails& collisionDetails);
 
         bool mouseHitTest(const slurp::Vec2<float>& location) const;
 
