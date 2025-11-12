@@ -133,7 +133,7 @@ namespace game {
             )
         );
 
-        new(&State->spawnControls) ui::SpawnControls({0, -165});
+        new(&State->spawnControls) ui::SpawnControls({0, -160});
 
         new(&State->goldProgressBar)
                 ui::ProgressBar(

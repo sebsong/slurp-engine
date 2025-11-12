@@ -19,7 +19,7 @@ namespace ui {
           _numDigits(numDigits),
           _showLeadingZeroes(showLeadingZeroes),
           _digitDisplays({}) {
-        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
+        for (int i = 0; i < numDigits; ++i) {
             _digitDisplays[i] = Entity(
                 std::format("Digit {}", i),
                 render::RenderInfo(game::Assets->digitSprites[0], true, game::UI_Z),
