@@ -80,19 +80,19 @@ namespace ui {
     }
 
     void UIButton::press() {
+        renderInfo.sprite = _buttonPressedSprite;
         if (_isPressed) {
             return;
         }
-        renderInfo.sprite = _buttonPressedSprite;
         _isPressed = true;
         _onPressFn();
     }
 
     void UIButton::release() {
+        renderInfo.sprite = _buttonSprite;
         if (!_isPressed) {
             return;
         }
-        renderInfo.sprite = _buttonSprite;
         _isPressed = false;
         _onReleaseFn();
     }

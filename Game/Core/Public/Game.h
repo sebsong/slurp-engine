@@ -34,7 +34,6 @@ namespace game {
         asset::SpriteAnimation* workerLoadingAnim;
         asset::Sprite* workerLoadedSprite;
         asset::Sprite* workerCorruptedSprite;
-        asset::Sprite* antibodySprite;
 
         asset::Sprite* turretSprite;
         asset::Sprite* turretRangeIndicatorSprite;
@@ -50,6 +49,7 @@ namespace game {
         asset::Sprite* mineSiteButton;
         asset::Sprite* mineSiteButtonHover;
         asset::Sprite* mineSiteButtonPress;
+        asset::SpriteAnimation* mineSiteButtonPressAnim;
 
         asset::Sprite* turretButton;
         asset::Sprite* turretButtonHover;

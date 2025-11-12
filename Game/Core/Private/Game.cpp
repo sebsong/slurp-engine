@@ -51,6 +51,7 @@ namespace game {
         Assets->mineSiteButton = asset::loadSprite("mine_site_button.bmp");
         Assets->mineSiteButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->mineSiteButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
+        Assets->mineSiteButtonPressAnim = asset::loadSpriteAnimation("mine_site_button_pressed_anim.bmp", 15);
 
         Assets->turretButton = asset::loadSprite("mine_site_button.bmp");
         Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");

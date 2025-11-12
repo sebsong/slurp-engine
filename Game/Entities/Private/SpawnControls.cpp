@@ -42,11 +42,26 @@ namespace ui {
                   game::Assets->mineSiteButtonPress,
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
-                  [] {
-                      game::State->base.spend(MineSiteBuildCost);
-                      game::State->mineSiteSpawner.spawnMineSite();
+                  [this] {
+                      _spawnMineSiteButton.playAnimation(
+                          game::Assets->mineSiteButtonPressAnim,
+                          MineSiteBuildTime,
+                          true
+                      );
+                      timer::start(
+                          _spawnMineSiteTimerHandle,
+                          MineSiteBuildTime,
+                          true,
+                          [] {
+                              game::State->base.spend(MineSiteBuildCost);
+                              game::State->mineSiteSpawner.spawnMineSite();
+                          }
+                      );
                   },
-                  [] {}
+                  [this] {
+                      _spawnMineSiteButton.renderInfo.animation.stop();
+                      timer::cancel(_spawnMineSiteTimerHandle);
+                  }
               )
           ),
           _spawnTurretButton(
@@ -61,7 +76,10 @@ namespace ui {
                   },
                   [] {}
               )
-          ) {}
+          ) {
+        _spawnWorkerTimerHandle = timer::reserveHandle();
+        _spawnMineSiteTimerHandle = timer::reserveHandle();
+    }
 
     void SpawnControls::refresh() {
         game::State->base.canSpend(WorkerBuildCost)
