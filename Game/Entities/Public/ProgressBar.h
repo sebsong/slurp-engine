@@ -9,8 +9,10 @@ namespace ui {
         ProgressBar(
             slurp::Vec2<float> position,
             float initialProgress,
+            bool isVertical,
             asset::Sprite* barSprite,
-            asset::Sprite* fillSprite
+            asset::Sprite* fillSprite,
+            int zOrder
         );
 
     private:

@@ -1,11 +1,11 @@
 #include "RenderInfo.h"
 
 namespace render {
-    static slurp::Vec2<float> getRenderOffset(const slurp::Vec2<float>& dimensions, bool isCentered) {
-        if (!isCentered) {
+    static slurp::Vec2<float> getRenderOffset(const asset::Sprite* sprite, bool isCentered) {
+        if (!isCentered || !sprite) {
             return slurp::Vec2<float>::Zero;
         }
-        return -dimensions / 2;
+        return -sprite->dimensions / 2;
     }
 
     RenderInfo::RenderInfo()
@@ -24,7 +24,7 @@ namespace render {
           sprite(sprite),
           animation({}),
           zOrder(zOrder),
-          renderOffset(getRenderOffset(sprite->dimensions, isCentered)) {}
+          renderOffset(getRenderOffset(sprite, isCentered)) {}
 
     RenderInfo::RenderInfo(
         asset::Sprite* sprite,
@@ -36,5 +36,5 @@ namespace render {
           sprite(sprite),
           animation({}),
           zOrder(zOrder),
-          renderOffset(getRenderOffset(sprite->dimensions, isCentered) + renderOffset) {}
+          renderOffset(getRenderOffset(sprite, isCentered) + renderOffset) {}
 }

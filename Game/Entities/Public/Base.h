@@ -20,7 +20,7 @@ namespace base {
         float getProgress() const;
 
     private:
-        uint32_t _gold;
+        uint32_t _gold = 40;
 
         void initialize() override;
 

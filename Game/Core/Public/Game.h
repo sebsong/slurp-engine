@@ -40,8 +40,7 @@ namespace game {
         asset::Sprite* turretRangeIndicatorSprite;
         asset::SpriteAnimation* turretShootAnimation;
 
-        asset::Sprite* storageSilo;
-        asset::Sprite* storageSiloFill;
+        asset::Sprite* resourcesCollectedFill;
 
         asset::Sprite* workerButton;
         asset::Sprite* workerButtonHover;
@@ -107,6 +106,7 @@ namespace game {
     enum ZOrder {
         BACKGROUND_Z = Z_ORDER_MAX,
         BORDER_Z = Z_ORDER_MAX - 1,
+        PROGRESS_BAR_Z = -(Z_ORDER_MAX - 2),
         UI_Z = -(Z_ORDER_MAX - 1),
         MOUSE_Z = -Z_ORDER_MAX,
     };

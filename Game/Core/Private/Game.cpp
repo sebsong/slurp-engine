@@ -38,8 +38,7 @@ namespace game {
         Assets->turretRangeIndicatorSprite->material.alpha = 0.3f;
         Assets->turretShootAnimation = asset::loadSpriteAnimation("turret_shoot.bmp", 1);
 
-        Assets->storageSilo = asset::loadSprite("storage_silo.bmp");
-        Assets->storageSiloFill = asset::loadSprite("storage_silo_fill.bmp");
+        Assets->resourcesCollectedFill = asset::loadSprite("resources_collected_bar_fill.bmp");
 
         Assets->workerButton = asset::loadSprite("worker_button.bmp");
         Assets->workerButtonHover = asset::loadSprite("worker_button_hover.bmp");
@@ -187,7 +186,7 @@ namespace game {
                 Assets->workerButton,
                 Assets->workerButtonHover,
                 Assets->workerButtonPress,
-                {-30, 165},
+                {-30, 167},
                 slurp::KeyboardCode::NUM_1,
                 [] {
                     State->base.spawnWorker();
@@ -201,7 +200,7 @@ namespace game {
                 Assets->mineSiteButton,
                 Assets->mineSiteButtonHover,
                 Assets->mineSiteButtonPress,
-                {0, 165},
+                {0, 167},
                 slurp::KeyboardCode::NUM_2,
                 [] {
                     State->mineSiteSpawner.spawnMineSite();
@@ -215,7 +214,7 @@ namespace game {
                 Assets->turretButton,
                 Assets->turretButtonHover,
                 Assets->turretButtonPress,
-                {30, 165},
+                {30, 167},
                 slurp::KeyboardCode::NUM_3,
                 [] {}
             )
@@ -224,17 +223,19 @@ namespace game {
         registerEntity(
             State->goldProgressBar,
             ui::ProgressBar(
-                {275, 150},
+                {0, 166},
                 0,
-                Assets->storageSilo,
-                Assets->storageSiloFill
+                false,
+                nullptr,
+                Assets->resourcesCollectedFill,
+                PROGRESS_BAR_Z
             )
         );
 
         registerEntity(
             State->resourcesCollectedDisplay,
             ui::NumberDisplay(
-                {285, 115},
+                {-280, 166},
                 0,
                 MAX_NUM_DIGITS,
                 false
@@ -243,7 +244,7 @@ namespace game {
 
         registerEntity(
             State->stopwatchDisplay,
-            ui::StopwatchDisplay({-250, 150})
+            ui::StopwatchDisplay({280, 166})
         );
 
         registerEntity(

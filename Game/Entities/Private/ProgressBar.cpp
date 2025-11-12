@@ -3,12 +3,15 @@
 namespace ui {
     // ProgressBar::ProgressBar(): Entity("ProgressBar") {}
     static const char* ProgressUniformName = "progress";
+    static const char* IsVerticalUniformName = "isVertical";
 
     ProgressBar::ProgressBar(
         slurp::Vec2<float> position,
         float initialProgress,
+        bool isVertical,
         asset::Sprite* barSprite,
-        asset::Sprite* fillSprite
+        asset::Sprite* fillSprite,
+        int zOrder
     ): Entity(
            "ProgressBar"
        ),
@@ -16,7 +19,7 @@ namespace ui {
        _bar(
            Entity(
                "Bar",
-               render::RenderInfo(barSprite, true, game::UI_Z),
+               render::RenderInfo(barSprite, true, zOrder),
                physics::PhysicsInfo(position),
                {}
            )
@@ -24,7 +27,7 @@ namespace ui {
        _fill(
            Entity(
                "Fill",
-               render::RenderInfo(fillSprite, true, game::UI_Z),
+               render::RenderInfo(fillSprite, true, zOrder),
                physics::PhysicsInfo(position),
                {}
            )
@@ -34,6 +37,7 @@ namespace ui {
             "progress_bar.glsl"
         )->programId;
         _fill.renderInfo.sprite->material.shaderProgramId = progressBarShaderId;
+        _fill.renderInfo.sprite->bindShaderUniform(IsVerticalUniformName, isVertical);
     }
 
 
