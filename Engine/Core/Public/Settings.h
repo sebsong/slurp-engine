@@ -1,15 +1,8 @@
 #pragma once
 
-#if DEBUG
 #define DISPLAY_WIDTH 640
 #define DISPLAY_HEIGHT 360
-// #define DISPLAY_WIDTH 640
-// #define DISPLAY_HEIGHT 360
-#else
-#define DISPLAY_WIDTH 1280
-#define DISPLAY_HEIGHT 720
-#endif
-#define FULLSCREEN false
+#define FULLSCREEN true
 
 #define CAMERA_WORLD_WIDTH DISPLAY_WIDTH
 #define CAMERA_WORLD_HEIGHT DISPLAY_HEIGHT

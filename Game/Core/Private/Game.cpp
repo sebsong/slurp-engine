@@ -160,7 +160,7 @@ namespace game {
             )
         );
 
-        new(&State->spawnControls) ui::SpawnControls({0, -167});
+        new(&State->spawnControls) ui::SpawnControls({0, -165});
 
         new(&State->goldProgressBar)
                 ui::ProgressBar(
@@ -172,6 +172,9 @@ namespace game {
                     PROGRESS_BAR_Z
                 );
 
+
+        new(&State->stopwatchDisplay) ui::StopwatchDisplay({280, 166});
+
         new(&State->resourcesCollectedDisplay)
                 ui::NumberDisplay(
                     {-280, 166},
@@ -179,8 +182,6 @@ namespace game {
                     MAX_NUM_DIGITS,
                     false
                 );
-
-        new(&State->stopwatchDisplay) ui::StopwatchDisplay({280, 166});
 
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
     }
