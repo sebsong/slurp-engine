@@ -38,8 +38,8 @@ namespace debug {
     void drawLine(
         const slurp::Vec2<float>& start,
         const slurp::Vec2<float>& end,
-        float lineWidth,
-        const slurp::Vec4<float>& color
+        float lineWidth = 1.f,
+        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
     ) {
         render::Vertex vertexArray[LineVertexCount] = {
             {start, {}},
