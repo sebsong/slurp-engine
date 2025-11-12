@@ -30,7 +30,7 @@ namespace debug {
             vertexArrayId,
             render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID,
-            shaderProgramId,
+            render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID
         );
     }
@@ -58,7 +58,7 @@ namespace debug {
             vertexArrayId,
             render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID,
-            shaderProgramId,
+            render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID
         );
     }

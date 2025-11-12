@@ -4,7 +4,7 @@ in vec2 textureCoord;
 uniform sampler2D inTexture;
 uniform float alpha;
 
-out vec4 color;
+out vec4 outColor;
 
 void main() {
     vec4 texColor = texture(inTexture, textureCoord);
@@ -12,5 +12,5 @@ void main() {
     if (texColor.a == 0) {
         discard;
     }
-    color = texColor.bgra;
+    outColor = texColor.bgra;
 }
