@@ -1,7 +1,7 @@
 #include "SpriteAnimation.h"
 
 namespace asset {
-    void SpriteAnimation::play(bool shouldLoop, float totalDuration, bool playReversed) {
+    void SpriteAnimation::play(float totalDuration, bool shouldLoop, bool playReversed) {
         stop();
         frameDuration = totalDuration / numFrames;
         this->shouldLoop = shouldLoop;

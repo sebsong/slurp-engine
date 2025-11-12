@@ -50,8 +50,7 @@ namespace turret {
         audio::play(game::Assets->turretShoot);
         _target->purify();
         _currentShootCooldown = ShootCooldown;
-        renderInfo.animation = *game::Assets->turretShootAnimation;
-        renderInfo.animation.play(false, 0.1f);
+        playAnimation(game::Assets->turretShootAnimation, 0.1f);
     }
 
     void Turret::update(float dt) {

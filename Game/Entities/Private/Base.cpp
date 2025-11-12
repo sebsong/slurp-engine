@@ -7,15 +7,17 @@ namespace base {
     static const slurp::Vec2<float> RenderOffset = {0, 8};
     static slurp::Vec2<float> SpawnOffset = {-15, -7};
 
+    static constexpr uint32_t InitialGold = 100;
     static constexpr uint32_t GoldGoal = 1000;
     static const char* ProgressUniformName = "progress";
 
     Base::Base(): Entity(
-        "Base",
-        render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, 0, RenderOffset),
-        physics::PhysicsInfo(),
-        collision::CollisionInfo()
-    ) {}
+                      "Base",
+                      render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, 0, RenderOffset),
+                      physics::PhysicsInfo(),
+                      collision::CollisionInfo()
+                  ),
+                  gold(InitialGold) {}
 
     void Base::spawnWorker() const {
         game::State->workers.newInstance(physicsInfo.position + SpawnOffset);
@@ -26,11 +28,11 @@ namespace base {
     }
 
     void Base::dropOff() {
-        _gold++;
+        gold++;
     }
 
     float Base::getProgress() const {
-        return static_cast<float>(_gold) / GoldGoal;
+        return static_cast<float>(gold) / GoldGoal;
     }
 
     void Base::initialize() {
@@ -40,7 +42,7 @@ namespace base {
     void Base::update(float dt) {
         Entity::update(dt);
 
-        game::State->resourcesCollectedDisplay.number = _gold;
+        game::State->resourcesCollectedDisplay.number = gold;
 
         // debug::drawPoint(getDropOffLocation(), 4, DEBUG_GREEN_COLOR);
     }

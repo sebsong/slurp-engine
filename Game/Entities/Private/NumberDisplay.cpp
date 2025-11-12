@@ -39,6 +39,7 @@ namespace ui {
         for (int i = 0; i < _numDigits; i++) {
             uint32_t shiftedNum = number / std::pow(10, i);
             if (!_showLeadingZeroes && shiftedNum == 0 && i != 0) {
+                _digitDisplays[i].renderInfo.sprite = nullptr;
                 return;
             }
             uint8_t digit = shiftedNum % 10;

@@ -1,6 +1,10 @@
 #include "SpawnControls.h"
 
 namespace ui {
+    static constexpr uint32_t WorkerBuildCost = 5;
+    static constexpr uint32_t MineSiteBuildCost = 20;
+    static constexpr uint32_t TurretBuildCost = 20;
+
     static constexpr float WorkerBuildTime = 1.f;
     static constexpr float MineSiteBuildTime = 2.f;
 
@@ -14,13 +18,15 @@ namespace ui {
                   {position.x - 30, position.y},
                   slurp::KeyboardCode::NUM_1,
                   [this] {
-                      _spawnWorkerButton.renderInfo.animation = *game::Assets->workerButtonPressAnim;
-                      _spawnWorkerButton.renderInfo.animation.play(true, WorkerBuildTime);
+                      _spawnWorkerButton.playAnimation(game::Assets->workerButtonPressAnim, WorkerBuildTime, true);
                       timer::start(
                           _spawnWorkerTimerHandle,
                           WorkerBuildTime,
                           true,
-                          [] { game::State->base.spawnWorker(); }
+                          [] {
+                              game::State->base.gold -= WorkerBuildCost;
+                              game::State->base.spawnWorker();
+                          }
                       );
                   },
                   [this] {
@@ -37,6 +43,7 @@ namespace ui {
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
                   [] {
+                      game::State->base.gold -= MineSiteBuildCost;
                       game::State->mineSiteSpawner.spawnMineSite();
                   },
                   [] {}
@@ -49,7 +56,9 @@ namespace ui {
                   game::Assets->turretButtonPress,
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
-                  [] {},
+                  [] {
+                      game::State->base.gold -= TurretBuildCost;
+                  },
                   [] {}
               )
           ) {}

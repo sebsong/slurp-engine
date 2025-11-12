@@ -13,7 +13,7 @@ namespace asset {
         uint8_t currentFrameIndex;
         render::object_id* textureIds;
 
-        void play(bool shouldLoop, float totalDuration, bool playReversed = false);
+        void play(float totalDuration, bool shouldLoop = false, bool playReversed = false);
 
         void update(float dt);
 

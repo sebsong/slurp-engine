@@ -62,6 +62,13 @@ namespace entity {
 
         bool mouseHitTest(const slurp::Vec2<float>& location) const;
 
+        void playAnimation(
+            const asset::SpriteAnimation* animation,
+            float totalDuration,
+            bool shouldLoop = false,
+            bool playReversed = false
+        );
+
         Entity& operator=(const Entity& other);
 
         Entity& operator=(const Entity&& other);

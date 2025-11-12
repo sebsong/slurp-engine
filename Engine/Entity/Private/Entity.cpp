@@ -94,6 +94,16 @@ namespace entity {
         return collisionInfo.shape.hitTest(location - physicsInfo.position);
     }
 
+    void Entity::playAnimation(
+        const asset::SpriteAnimation* animation,
+        float totalDuration,
+        bool shouldLoop,
+        bool playReversed
+    ) {
+        renderInfo.animation = *animation;
+        renderInfo.animation.play(totalDuration, shouldLoop, playReversed);
+    }
+
     Entity& Entity::operator=(const Entity& other) {
         if (this != &other) {
             // TODO: re-order this in the pipeline

@@ -131,7 +131,6 @@ namespace game {
 
         new(&State->base) base::Base();
 
-
         new(&State->mineSiteSpawner) mine_site::MineSiteSpawner();
 
         new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
@@ -156,7 +155,6 @@ namespace game {
         );
 
         new(&State->spawnControls) ui::SpawnControls({0, -167});
-
 
         new(&State->goldProgressBar)
                 ui::ProgressBar(

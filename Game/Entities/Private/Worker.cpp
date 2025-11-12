@@ -187,8 +187,7 @@ namespace worker {
     }
 
     void Worker::beginDropOff() {
-        renderInfo.animation = *game::Assets->workerLoadingAnim;
-        renderInfo.animation.play(false, DropOffTime, true);
+        playAnimation(game::Assets->workerLoadingAnim, DropOffTime, false, true);
         timer::delay(
             DropOffTime,
             [this] {
@@ -207,8 +206,7 @@ namespace worker {
 
     void Worker::beginCollect() {
         if (!_isCorrupted) {
-            renderInfo.animation = *game::Assets->workerLoadingAnim;
-            renderInfo.animation.play(false, CollectionTime);
+            playAnimation(game::Assets->workerLoadingAnim, CollectionTime);
         }
         timer::delay(
             CollectionTime,

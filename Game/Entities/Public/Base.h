@@ -8,6 +8,7 @@
 namespace base {
     class Base final : public entity::Entity {
     public:
+        uint32_t gold;
 
         Base();
 
@@ -20,8 +21,6 @@ namespace base {
         float getProgress() const;
 
     private:
-        uint32_t _gold = 40;
-
         void initialize() override;
 
         void update(float dt);
