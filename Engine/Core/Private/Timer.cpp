@@ -4,8 +4,16 @@ namespace timer {
     Timer::Timer(): _nextTimerHandle(0),
                     _timers(types::unordered_map_arena<timer_handle, TimerInfo>()) {}
 
-    timer_handle Timer::getNewHandle() {
+    timer_handle Timer::reserveHandle() {
         return _nextTimerHandle++;
+    }
+
+    TimerInfo* Timer::getTimerInfo(timer_handle handle) {
+        if (!_timers.contains(handle)) {
+            return nullptr;
+        }
+
+        return &_timers[handle];
     }
 
     void Timer::start(timer_handle handle, float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
@@ -21,7 +29,7 @@ namespace timer {
     }
 
     timer_handle Timer::start(float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {
-        timer_handle handle = getNewHandle();
+        timer_handle handle = reserveHandle();
         start(handle, durationSeconds, shouldLoop, std::move(callback));
         return handle;
     }

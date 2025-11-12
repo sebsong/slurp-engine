@@ -10,12 +10,14 @@ namespace ui {
             asset::Sprite* buttonPressedSprite,
             slurp::Vec2<float>&& position,
             slurp::KeyboardCode keyCode,
-            std::function<void()>&& onClickFn
+            std::function<void()>&& onPressFn,
+            std::function<void()>&& onReleaseFn
         );
 
     private:
         bool _isPressed;
-        std::function<void()> _onClickFn;
+        std::function<void()> _onPressFn;
+        std::function<void()> _onReleaseFn;
         slurp::KeyboardCode _keyCode;
         asset::Sprite* _buttonSprite;
         asset::Sprite* _buttonHoverSprite;

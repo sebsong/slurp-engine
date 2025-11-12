@@ -43,6 +43,7 @@ namespace game {
         Assets->workerButton = asset::loadSprite("worker_button.bmp");
         Assets->workerButtonHover = asset::loadSprite("worker_button_hover.bmp");
         Assets->workerButtonPress = asset::loadSprite("worker_button_pressed.bmp");
+        Assets->workerButtonPressAnim = asset::loadSpriteAnimation("worker_button_pressed_anim.bmp", 15);
 
         Assets->mineSiteButton = asset::loadSprite("mine_site_button.bmp");
         Assets->mineSiteButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
@@ -179,6 +180,8 @@ namespace game {
             )
         );
 
+        static const float WorkerBuildTime = 1.f;
+        static timer::timer_handle WorkerBuildTimerHandle = timer::reserveHandle();
         // TODO: add costs and build times
         registerEntity(
             State->workerButton,
@@ -189,7 +192,20 @@ namespace game {
                 {-30, 167},
                 slurp::KeyboardCode::NUM_1,
                 [] {
-                    State->base.spawnWorker();
+                    State->workerButton.renderInfo.animation = *Assets->workerButtonPressAnim;
+                    State->workerButton.renderInfo.animation.play(true, WorkerBuildTime);
+                    timer::start(
+                        WorkerBuildTimerHandle,
+                        WorkerBuildTime,
+                        true,
+                        [] {
+                            State->base.spawnWorker();
+                        }
+                    );
+                },
+                [] {
+                    State->workerButton.renderInfo.animation.stop();
+                    timer::cancel(WorkerBuildTimerHandle);
                 }
             )
         );
@@ -204,7 +220,8 @@ namespace game {
                 slurp::KeyboardCode::NUM_2,
                 [] {
                     State->mineSiteSpawner.spawnMineSite();
-                }
+                },
+                [] {}
             )
         );
 
@@ -216,6 +233,7 @@ namespace game {
                 Assets->turretButtonPress,
                 {30, 167},
                 slurp::KeyboardCode::NUM_3,
+                [] {},
                 [] {}
             )
         );
@@ -253,15 +271,12 @@ namespace game {
         );
     }
 
-    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
-        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_1)) {
-            State->stopwatchDisplay.start();
-        }
-    }
+    void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {}
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {}
 
     void update(float dt) {
+
         State->goldProgressBar.progress = State->base.getProgress();
     }
 

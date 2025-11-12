@@ -20,7 +20,9 @@ namespace timer {
     public:
         Timer();
 
-        timer_handle getNewHandle();
+        timer_handle reserveHandle();
+
+        TimerInfo* getTimerInfo(timer_handle handle);
 
         void start(timer_handle handle, float durationSeconds, bool shouldLoop, std::function<void()>&& callback);
 
@@ -43,8 +45,12 @@ namespace timer {
 
     /** Global Methods **/
 
-    inline timer_handle getNewHandle() {
-        return slurp::Globals->Timer->getNewHandle();
+    inline timer_handle reserveHandle() {
+        return slurp::Globals->Timer->reserveHandle();
+    }
+
+    inline TimerInfo* getTimerInfo(timer_handle handle) {
+        return slurp::Globals->Timer->getTimerInfo(handle);
     }
 
     inline void start(timer_handle handle, float durationSeconds, bool shouldLoop, std::function<void()>&& callback) {

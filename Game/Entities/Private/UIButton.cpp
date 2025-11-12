@@ -10,7 +10,8 @@ namespace ui {
         asset::Sprite* buttonPressedSprite,
         slurp::Vec2<float>&& position,
         slurp::KeyboardCode keyCode,
-        std::function<void()>&& onClickFn
+        std::function<void()>&& onPressFn,
+        std::function<void()>&& onReleaseFn
     ) : Entity(
             "UI Button",
             render::RenderInfo(
@@ -28,7 +29,8 @@ namespace ui {
             )
         ),
         _isPressed(false),
-        _onClickFn(std::move(onClickFn)),
+        _onPressFn(std::move(onPressFn)),
+        _onReleaseFn(std::move(onReleaseFn)),
         _keyCode(keyCode),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
@@ -58,7 +60,7 @@ namespace ui {
     }
 
     void UIButton::hover() {
-        _isPressed = false;
+        release();
         renderInfo.sprite = _buttonHoverSprite;
     }
 
@@ -67,12 +69,13 @@ namespace ui {
             return;
         }
         _isPressed = true;
-        _onClickFn();
+        _onPressFn();
         renderInfo.sprite = _buttonPressedSprite;
     }
 
     void UIButton::release() {
         _isPressed = false;
+        _onReleaseFn();
         renderInfo.sprite = _buttonSprite;
     }
 }

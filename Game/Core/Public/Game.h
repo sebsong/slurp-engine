@@ -45,6 +45,7 @@ namespace game {
         asset::Sprite* workerButton;
         asset::Sprite* workerButtonHover;
         asset::Sprite* workerButtonPress;
+        asset::SpriteAnimation* workerButtonPressAnim;
 
         asset::Sprite* mineSiteButton;
         asset::Sprite* mineSiteButtonHover;
