@@ -25,8 +25,8 @@ namespace random {
         return (randomFloat()) * (max - min) + min;
     }
 
-    template <typename T>
-    T pickRandom(types::deque_arena<T> collection, T defaultValue) {
+    template <typename C, typename T>
+    T pickRandom(C collection, T defaultValue) {
         if (collection.empty()) {
             return defaultValue;
         }
@@ -34,8 +34,8 @@ namespace random {
         return collection.at(randomIndex(collection.size()));
     }
 
-    template <typename T>
-    T* pickRandom(types::deque_arena<T*> collection) {
-        return pickRandom<T*>(collection, nullptr);
+    template <typename C, typename T>
+    T* pickRandom(C collection) {
+        return pickRandom<C, T*>(collection, nullptr);
     }
 }

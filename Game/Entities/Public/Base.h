@@ -13,7 +13,9 @@ namespace base {
 
         void spawnWorker() const;
 
-        slurp::Vec2<float> getDropOffLocation() const;
+        bool isSpawnLocation(const slurp::Vec2<float>& location) const;
+
+        slurp::Vec2<float> getRandomSpawnLocation() const;
 
         void dropOff();
 

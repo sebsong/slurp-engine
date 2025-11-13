@@ -152,7 +152,7 @@ namespace worker {
             return;
         }
 
-        if (_targetLocation != game::State->base.getDropOffLocation()) {
+        if (!game::State->base.isSpawnLocation(_targetLocation)) {
             occupyMiningLocation(_targetLocation);
         }
     }
@@ -167,7 +167,7 @@ namespace worker {
     }
 
     void Worker::leaveMiningLocation() {
-        if (!_targetLocation.isZero() && _targetLocation != game::State->base.getDropOffLocation()) {
+        if (!_targetLocation.isZero() && !game::State->base.isSpawnLocation(_targetLocation)) {
             game::State->mineSpots.push_back(_targetLocation);
             _targetLocation = slurp::Vec2<float>::Zero;
         }
@@ -231,7 +231,7 @@ namespace worker {
         } else {
             _isLoaded = true;
             leaveMiningLocation();
-            setTargetLocation(game::State->base.getDropOffLocation());
+            setTargetLocation(game::State->base.getRandomSpawnLocation());
             renderInfo.sprite = game::Assets->workerLoadedSprite;
         }
     }

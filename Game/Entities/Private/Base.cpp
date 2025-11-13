@@ -1,11 +1,10 @@
 #include "Base.h"
 
-#include "Turret.h"
-
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {32, 10}};
     static const slurp::Vec2<float> RenderOffset = {0, 8};
-    static slurp::Vec2<float> SpawnOffset = {-15, -7};
+    static constexpr int NumSpawnLocations = 2;
+    static slurp::Vec2<float> SpawnOffsets[NumSpawnLocations] = {{-15, -8}, {16, -8}};
 
     static constexpr uint32_t InitialGold = 100;
     static constexpr uint32_t GoldGoal = 1000;
@@ -20,11 +19,20 @@ namespace base {
                   _gold(InitialGold) {}
 
     void Base::spawnWorker() const {
-        game::State->workers.newInstance(physicsInfo.position + SpawnOffset);
+        game::State->workers.newInstance(getRandomSpawnLocation());
     }
 
-    slurp::Vec2<float> Base::getDropOffLocation() const {
-        return physicsInfo.position + SpawnOffset;
+    bool Base::isSpawnLocation(const slurp::Vec2<float>& location) const {
+        for (slurp::Vec2 spawnOffset: SpawnOffsets) {
+            if (location == (physicsInfo.position + spawnOffset)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    slurp::Vec2<float> Base::getRandomSpawnLocation() const {
+        return physicsInfo.position + SpawnOffsets[random::randomIndex(NumSpawnLocations)];
     }
 
     void Base::dropOff() {
