@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <random>
 
 namespace random {
     inline void setRandomSeed(uint32_t seed) {
@@ -26,7 +27,7 @@ namespace random {
     }
 
     template <typename C, typename T>
-    T pickRandom(C collection, T defaultValue) {
+    T pickRandom(const C& collection, T defaultValue) {
         if (collection.empty()) {
             return defaultValue;
         }
@@ -35,7 +36,12 @@ namespace random {
     }
 
     template <typename C, typename T>
-    T* pickRandom(C collection) {
+    T* pickRandom(const C& collection) {
         return pickRandom<C, T*>(collection, nullptr);
+    }
+
+    template <typename C>
+    void shuffle(C& collection) {
+        std::random_shuffle(collection.begin(), collection.end());
     }
 }

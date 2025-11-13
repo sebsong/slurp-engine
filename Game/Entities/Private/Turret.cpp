@@ -28,19 +28,19 @@ namespace turret {
     }
 
     worker::Worker* Turret::findClosestCorruptedWorkerInRange(
-        types::set_arena<worker::Worker*> workers,
+        types::set_arena<Entity*> potentialTargets,
         float range
     ) {
         worker::Worker* targetWorker = nullptr;
         float closestDistance = std::numeric_limits<float>::max();
-        for (worker::Worker* worker: workers) {
-            if (!worker->isCorrupted()) {
-                continue;
-            }
-
-            float distance = physicsInfo.position.distanceTo(worker->physicsInfo.position);
-            if (distance <= range && (targetWorker == nullptr || distance < closestDistance)) {
-                targetWorker = worker;
+        for (Entity* entity: potentialTargets) {
+            if (worker::Worker* worker = dynamic_cast<worker::Worker*>(entity)) {
+                if (worker->isCorrupted()) {
+                    float distance = physicsInfo.position.distanceTo(worker->physicsInfo.position);
+                    if (distance <= range && (targetWorker == nullptr || distance < closestDistance)) {
+                        targetWorker = worker;
+                    }
+                }
             }
         }
 
@@ -49,14 +49,14 @@ namespace turret {
 
     void Turret::shootAtTarget() {
         audio::play(game::Assets->turretShoot);
-        _target->purify();
+        _target->decrementCorruption();
         _currentShootCooldown = ShootCooldown;
         playAnimation(game::Assets->turretShootAnimation, 0.1f);
     }
 
     void Turret::update(float dt) {
         Entity::update(dt);
-        _target = findClosestCorruptedWorkerInRange(_workersInCollider, Range);
+        _target = findClosestCorruptedWorkerInRange(collisionInfo.collidingWith, Range);
 
         _currentShootCooldown -= dt;
         if (_target && _currentShootCooldown <= 0) {
@@ -67,20 +67,5 @@ namespace turret {
         //     physicsInfo.position + slurp::Vec2{-Range, -Range},
         //     physicsInfo.position + slurp::Vec2{Range, Range}
         // );
-    }
-
-    void Turret::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
-        Entity::onCollisionEnter(collisionDetails);
-
-        if (worker::Worker* worker = dynamic_cast<worker::Worker*>(collisionDetails.entity)) {
-            _workersInCollider.insert(worker);
-        }
-    }
-
-    void Turret::onCollisionExit(const collision::CollisionDetails& collisionDetails) {
-        Entity::onCollisionExit(collisionDetails);
-        if (worker::Worker* worker = dynamic_cast<worker::Worker*>(collisionDetails.entity)) {
-            _workersInCollider.erase(worker);
-        }
     }
 }

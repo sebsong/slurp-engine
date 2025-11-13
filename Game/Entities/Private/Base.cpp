@@ -10,13 +10,14 @@ namespace base {
     static constexpr uint32_t GoldGoal = 1000;
     static const char* ProgressUniformName = "progress";
 
-    Base::Base(): Entity(
-                      "Base",
-                      render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, true, RenderOffset),
-                      physics::PhysicsInfo(),
-                      collision::CollisionInfo()
-                  ),
-                  _gold(InitialGold) {}
+    Base::Base()
+        : Entity(
+              "Base",
+              render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, true, RenderOffset),
+              physics::PhysicsInfo(),
+              collision::CollisionInfo()
+          ),
+          _gold(InitialGold) {}
 
     void Base::spawnWorker() const {
         game::State->workers.newInstance(getRandomSpawnLocation());

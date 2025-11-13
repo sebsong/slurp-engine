@@ -2,6 +2,8 @@
 
 #include "Game.h"
 
+#include <ranges>
+
 namespace worker {
     static const geometry::Shape WorkerShape = {geometry::Rect, {5, 3}};
     static constexpr float BaseSpeed = 100;
@@ -10,10 +12,11 @@ namespace worker {
     static constexpr float CollectionTime = 2.f;
     static constexpr float DropOffTime = .5f;
     static constexpr int NumCollectionTransitions = 5;
-    static const float MaxMineSpotWaitTime = .5f;
 
     static const float CorruptionChance = .05f;
-    static const uint8_t StartingCorruption = 3;
+    static const uint8_t StartingCorruption = 2;
+    static const uint8_t MaxCorruption = 5;
+    static constexpr int NumEruptionTargets = 2;
 
     static const float PurifyDeceleration = -10;
     static const float PurifyDelay = 3;
@@ -47,11 +50,14 @@ namespace worker {
 
     void Worker::initialize() {
         Entity::initialize();
+        game::State->corruptibleWorkers.push_back(this);
         findNewMiningLocation();
     }
 
     void Worker::corrupt() {
-        game::State->targetableCorruptedWorkers.push_back(this);
+        game::State->corruptibleWorkers.erase(
+            std::ranges::find(game::State->corruptibleWorkers, this)
+        );
         _isCorrupted = true;
         _corruptionRemaining = StartingCorruption;
         renderInfo.sprite = game::Assets->workerCorruptedSprite;
@@ -61,48 +67,13 @@ namespace worker {
         return _isCorrupted;
     }
 
-    void Worker::purify() {
+    void Worker::decrementCorruption() {
         _corruptionRemaining--;
-        if (_corruptionRemaining <= 0) {
-            _isCorrupted = false;
-            for (
-                auto it = game::State->targetableCorruptedWorkers.begin();
-                it != game::State->targetableCorruptedWorkers.end();
-                it++
-            ) {
-                if (*it == this) {
-                    game::State->targetableCorruptedWorkers.erase(it);
-                    break;
-                }
-            }
+        if (_corruptionRemaining < 0) {
+            purify();
         }
-        physicsInfo.maxSpeed = BaseSpeed;
-        renderInfo.sprite = game::Assets->workerSprite;
     }
 
-
-    void Worker::handleMouseAndKeyboardInput(
-        const slurp::MouseState& mouseState,
-        const slurp::KeyboardState& keyboardState
-    ) {
-        Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
-        slurp::Vec2<float> directionUpdate{};
-        if (keyboardState.isDown(slurp::KeyboardCode::W)) { directionUpdate.y += 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::A)) { directionUpdate.x -= 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::S)) { directionUpdate.y -= 1; }
-        if (keyboardState.isDown(slurp::KeyboardCode::D)) { directionUpdate.x += 1; }
-        // if (!directionUpdate.isZero()) {
-        //     this->physicsInfo.direction = directionUpdate;
-        //     this->physicsInfo.acceleration = BaseAcceleration;
-        // } else {
-        //     this->physicsInfo.acceleration = -BaseAcceleration;
-        // }
-        // this->physicsInfo.direction.normalize();
-    }
-
-    void Worker::handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
-        Entity::handleGamepadInput(gamepadIndex, gamepadState);
-    }
 
     void Worker::update(float dt) {
         Entity::update(dt);
@@ -136,10 +107,6 @@ namespace worker {
                 physicsInfo.acceleration = BaseAcceleration;
             }
         }
-    }
-
-    void Worker::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
-        Entity::onCollisionEnter(collisionDetails);
     }
 
     void Worker::setTargetLocation(slurp::Vec2<float> newTargetLocation) {
@@ -176,7 +143,6 @@ namespace worker {
     static slurp::Vec2<float> getAvailableMiningLocation() {
         return random::pickRandom(game::State->mineSpots, slurp::Vec2<float>::Zero);
     }
-
 
     void Worker::findNewMiningLocation() {
         leaveMiningLocation();
@@ -227,6 +193,10 @@ namespace worker {
             corrupt();
         }
         if (_isCorrupted) {
+            _corruptionRemaining++;
+            if (_corruptionRemaining > MaxCorruption) {
+                erupt();
+            }
             findNewMiningLocation();
         } else {
             _isLoaded = true;
@@ -238,5 +208,19 @@ namespace worker {
 
     void Worker::idle() {
         _isIdle = true;
+    }
+
+    void Worker::purify() {
+        _isCorrupted = false;
+        renderInfo.sprite = game::Assets->workerSprite;
+        game::State->corruptibleWorkers.push_back(this);
+    }
+
+    void Worker::erupt() {
+        random::shuffle(game::State->corruptibleWorkers);
+        for (Worker* target: std::views::take(game::State->corruptibleWorkers, NumEruptionTargets)) {
+            target->corrupt();
+        }
+        purify();
     }
 }

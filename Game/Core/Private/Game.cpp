@@ -116,7 +116,7 @@ namespace game {
         new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
-        new(&State->targetableCorruptedWorkers) types::deque_arena<worker::Worker*>();
+        new(&State->corruptibleWorkers) types::vector_arena<worker::Worker*>();
 
         new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
         new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(

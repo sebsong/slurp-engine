@@ -13,7 +13,7 @@ namespace worker {
 
         bool isCorrupted() const;
 
-        void purify();
+        void decrementCorruption();
 
     private:
         bool _isLoaded;
@@ -22,18 +22,9 @@ namespace worker {
         bool _isPurifying;
         bool _isIdle;
         slurp::Vec2<float> _targetLocation;
-        uint8_t _corruptionRemaining;
-
-        void handleMouseAndKeyboardInput(
-            const slurp::MouseState& mouseState,
-            const slurp::KeyboardState& keyboardState
-        ) override;
-
-        void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) override;
+        int _corruptionRemaining;
 
         void update(float dt) override;
-
-        void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
 
         void setTargetLocation(slurp::Vec2<float> newTargetLocation);
 
@@ -52,5 +43,9 @@ namespace worker {
         void collect();
 
         void idle();
+
+        void purify();
+
+        void erupt();
     };
 }

@@ -86,7 +86,7 @@ namespace game {
         types::deque_arena<slurp::Vec2<float>> mineSpots;
 
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
-        types::deque_arena<worker::Worker*> targetableCorruptedWorkers;
+        types::vector_arena<worker::Worker*> corruptibleWorkers;
 
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
         entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
