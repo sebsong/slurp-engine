@@ -3,14 +3,15 @@
 namespace turret {
     static constexpr float Range = 32.f;
     static constexpr float ShootCooldown = .75f;
+    static const slurp::Vec2<float> RenderOffset = {0, 5};
 
     Turret::Turret(): Entity(
         "Turret",
         render::RenderInfo(
             slurp::Globals->GameAssets->turretSprite,
             true,
-            0,
-            {0, 0}
+            true,
+            RenderOffset
         ),
         physics::PhysicsInfo(),
         collision::CollisionInfo(
@@ -55,8 +56,6 @@ namespace turret {
 
     void Turret::update(float dt) {
         Entity::update(dt);
-        renderInfo.zOrder = physicsInfo.position.y;
-
         _target = findClosestCorruptedWorkerInRange(_workersInCollider, Range);
 
         _currentShootCooldown -= dt;

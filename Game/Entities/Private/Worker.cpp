@@ -25,7 +25,7 @@ namespace worker {
               render::RenderInfo(
                   slurp::Globals->GameAssets->workerSprite,
                   true,
-                  StartPos.y,
+                  true,
                   {0, 3}
               ),
               physics::PhysicsInfo(
@@ -110,9 +110,6 @@ namespace worker {
         if (_isCorrupted) {
             renderInfo.sprite = game::Assets->workerCorruptedSprite;
         }
-
-        // debug::drawPoint(physicsInfo.position, 4, DEBUG_RED_COLOR);
-        renderInfo.zOrder = physicsInfo.position.y;
 
         if (_isIdle) {
             physicsInfo.speed = 0;

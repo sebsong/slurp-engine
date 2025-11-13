@@ -5,8 +5,8 @@
 
 namespace mine_site {
     static const slurp::Mat22<float> OuterBounds = {
-        {-CAMERA_WORLD_WIDTH_MAX + 20, CAMERA_WORLD_HEIGHT_MAX - 55},
-        {CAMERA_WORLD_WIDTH_MAX - 20, -CAMERA_WORLD_HEIGHT_MAX + 15}
+        {-WORLD_WIDTH_MAX + 20, WORLD_HEIGHT_MAX - 55},
+        {WORLD_WIDTH_MAX - 20, -WORLD_HEIGHT_MAX + 15}
     };
     static const slurp::Mat22<float> InnerBounds = {
         {-75, 40},

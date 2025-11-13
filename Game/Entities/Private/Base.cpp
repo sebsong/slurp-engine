@@ -13,7 +13,7 @@ namespace base {
 
     Base::Base(): Entity(
                       "Base",
-                      render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, 0, RenderOffset),
+                      render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, true, RenderOffset),
                       physics::PhysicsInfo(),
                       collision::CollisionInfo()
                   ),
@@ -65,11 +65,5 @@ namespace base {
         const slurp::KeyboardState& keyboardState
     ) {
         Entity::handleMouseAndKeyboardInput(mouseState, keyboardState);
-
-        if (keyboardState.justPressed(slurp::KeyboardCode::NUM_3)) {
-            turret::Turret* turret = game::State->turrets.nextInstance();
-            turret->physicsInfo.position = mouseState.position;
-            game::State->turrets.enableInstance(turret);
-        }
     }
 }

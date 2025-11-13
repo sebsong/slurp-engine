@@ -18,7 +18,7 @@ namespace mine_site {
 
     MineSite::MineSite(): Entity(
         "Mine Site",
-        render::RenderInfo(slurp::Globals->GameAssets->mineSiteSprite, true, StartPos.y, RenderOffset),
+        render::RenderInfo(slurp::Globals->GameAssets->mineSiteSprite, true, true, RenderOffset),
         physics::PhysicsInfo(StartPos),
         collision::CollisionInfo()
     ) {}
@@ -32,7 +32,6 @@ namespace mine_site {
 
     void MineSite::update(float dt) {
         Entity::update(dt);
-        renderInfo.zOrder = physicsInfo.position.y;
         // for (auto offset: MineSpotOffsets) {
         //     debug::drawPoint(physicsInfo.position + offset);
         // }

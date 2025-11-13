@@ -125,8 +125,8 @@ namespace game {
                 render::RenderInfo(
                     Assets->turretRangeIndicatorSprite,
                     true,
-                    0,
-                    {0, 0}
+                    BACKGROUND_ENTITY_Z,
+                    turret::RenderOffset
                 ),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()

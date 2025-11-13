@@ -19,6 +19,18 @@ namespace ui {
         timer::timer_handle _spawnWorkerTimerHandle;
         timer::timer_handle _spawnMineSiteTimerHandle;
 
+        bool _isPlacingTurret;
+        asset::Sprite _turretPlacementSprite;
+        Entity _turretPlacementGuide;
+        asset::Sprite _turretRangeIndicatorPlacementSprite;
+        Entity _turretRangeIndicatorPlacementGuide;
+
+        void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) override;
+
         void update(float dt) override;
+
+        void startTurretPlacement();
+
+        void stopTurretPlacement();
     };
 }

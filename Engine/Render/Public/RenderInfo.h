@@ -14,12 +14,17 @@ namespace render {
         bool renderingEnabled;
         asset::Sprite* sprite;
         asset::SpriteAnimation animation;
+        bool syncZOrderToY;
         int zOrder;
         slurp::Vec2<float> renderOffset;
 
         RenderInfo();
 
+        RenderInfo(asset::Sprite* sprite, bool isCentered);
+
         RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder);
+
+        RenderInfo(asset::Sprite* sprite, bool isCentered, bool syncZOrderToY, const slurp::Vec2<float>& renderOffset);
 
         RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder, const slurp::Vec2<float>& renderOffset);
     };

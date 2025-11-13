@@ -15,8 +15,8 @@ namespace open_gl {
     // e.g. [0, 0]                                -> [0, 0]
     // e.g. [WORLD_WIDTH / 2, WORLD_HEIGHT / 2]   -> [1, 1]
     static const slurp::Mat22<float> WorldToOpenGLClipSpaceMatrix = {
-        {2.f / CAMERA_WORLD_WIDTH, 0.f},
-        {0.f, 2.f / CAMERA_WORLD_HEIGHT}
+        {2.f / WORLD_WIDTH, 0.f},
+        {0.f, 2.f / WORLD_HEIGHT}
     };
 
     OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title, bool isFullscreen)

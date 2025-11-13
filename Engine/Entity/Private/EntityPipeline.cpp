@@ -57,6 +57,10 @@ namespace entity {
                 entity->update(dt);
                 entity->updatePhysics(dt); // TODO: move to a separate physics update
                 update::updatePosition(entity, _pipeline, dt);
+                if (entity->renderInfo.syncZOrderToY) {
+                    entity->renderInfo.zOrder = static_cast<int>(
+                        (entity->physicsInfo.position.y / WORLD_HEIGHT_MAX) * Z_ORDER_MAX);
+                }
                 render::draw(entity->renderInfo, entity->physicsInfo.position, dt);
 #if DEBUG
 #if DEBUG_DRAW_COLLISION

@@ -103,6 +103,7 @@ namespace game {
     enum ZOrder {
         BACKGROUND_Z = Z_ORDER_MAX,
         BORDER_Z = Z_ORDER_MAX - 1,
+        BACKGROUND_ENTITY_Z = Z_ORDER_MAX - 2,
         PROGRESS_BAR_Z = -(Z_ORDER_MAX - 2),
         UI_Z = -(Z_ORDER_MAX - 1),
         MOUSE_Z = -Z_ORDER_MAX,
