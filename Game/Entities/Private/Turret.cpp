@@ -6,7 +6,7 @@ namespace turret {
     static const slurp::Vec2<float> RenderOffset = {0, 5};
 
     static constexpr float TurretSpawnTime = 1.f;
-    static constexpr float TurretIdleAnimDuration = 2.f;
+    static constexpr float TurretIdleAnimDuration = 4.f;
 
     Turret::Turret(): Entity(
         "Turret",
