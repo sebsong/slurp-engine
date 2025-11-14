@@ -5,6 +5,9 @@ namespace turret {
     static constexpr float ShootCooldown = .75f;
     static const slurp::Vec2<float> RenderOffset = {0, 5};
 
+    static constexpr float TurretSpawnTime = 1.f;
+    static constexpr float TurretIdleAnimDuration = 2.f;
+
     Turret::Turret(): Entity(
         "Turret",
         render::RenderInfo(
@@ -25,6 +28,13 @@ namespace turret {
     void Turret::initialize() {
         Entity::initialize();
         game::State->turretsRangeIndicators.newInstance(physicsInfo.position);
+        playAnimation(game::Assets->turretSpawnAnim, TurretSpawnTime);
+        timer::delay(
+            TurretSpawnTime,
+            [this] {
+                playAnimation(game::Assets->turretIdleAnim, TurretIdleAnimDuration, true);
+            }
+        );
     }
 
     worker::Worker* Turret::findClosestCorruptedWorkerInRange(
@@ -51,7 +61,6 @@ namespace turret {
         audio::play(game::Assets->turretShoot);
         _target->decrementCorruption();
         _currentShootCooldown = ShootCooldown;
-        playAnimation(game::Assets->turretShootAnimation, 0.1f);
     }
 
     void Turret::update(float dt) {

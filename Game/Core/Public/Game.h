@@ -37,7 +37,9 @@ namespace game {
 
         asset::Sprite* turretSprite;
         asset::Sprite* turretRangeIndicatorSprite;
-        asset::SpriteAnimation* turretShootAnimation;
+        asset::SpriteAnimation* turretSpawnAnim;
+        asset::SpriteAnimation* turretIdleAnim;
+        asset::SpriteAnimation* turretShootAnim;
 
         asset::Sprite* resourcesCollectedFill;
 
