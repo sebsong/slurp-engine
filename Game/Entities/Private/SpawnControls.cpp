@@ -19,6 +19,7 @@ namespace ui {
         : Entity("SpawnControls"),
           _spawnWorkerButton(
               UIButton(
+                  game::Assets->workerSprite,
                   game::Assets->workerButton,
                   game::Assets->workerButtonHover,
                   game::Assets->workerButtonPress,
@@ -44,6 +45,7 @@ namespace ui {
           ),
           _spawnMineSiteButton(
               UIButton(
+                  game::Assets->mineSiteSprite,
                   game::Assets->mineSiteButton,
                   game::Assets->mineSiteButtonHover,
                   game::Assets->mineSiteButtonPress,
@@ -73,6 +75,7 @@ namespace ui {
           ),
           _spawnTurretButton(
               UIButton(
+                  game::Assets->turretSprite,
                   game::Assets->turretButton,
                   game::Assets->turretButtonHover,
                   game::Assets->turretButtonPress,
@@ -94,7 +97,6 @@ namespace ui {
                   "Turret Placement Guide",
                   render::RenderInfo(
                       &_turretPlacementSprite,
-                      true,
                       true,
                       turret::RenderOffset
                   ),

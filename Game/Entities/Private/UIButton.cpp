@@ -5,9 +5,10 @@ namespace ui {
     static const slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
 
     UIButton::UIButton(
+        asset::Sprite* buttonIconSprite,
         asset::Sprite* buttonSprite,
         asset::Sprite* buttonHoverSprite,
-        asset::Sprite* buttonPressedSprite,
+        asset::Sprite* buttonPressSprite,
         slurp::Vec2<float>&& position,
         slurp::KeyboardCode keyCode,
         std::function<void()>&& onPressFn,
@@ -32,18 +33,21 @@ namespace ui {
         _onPressFn(std::move(onPressFn)),
         _onReleaseFn(std::move(onReleaseFn)),
         _keyCode(keyCode),
+        _buttonIconSprite(buttonIconSprite),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
-        _buttonPressedSprite(buttonPressedSprite) {}
+        _buttonPressedSprite(buttonPressSprite) {
+        renderInfo.numSprites = 2;
+    }
 
     void UIButton::enableButton() {
-        renderInfo.sprite->material.alpha = 1.f;
+        renderInfo.sprites->material.alpha = 1.f;
         _buttonDisabled = false;
     }
 
     void UIButton::disableButton() {
         release();
-        renderInfo.sprite->material.alpha = 0.5f;
+        renderInfo.sprites->material.alpha = 0.5f;
         _buttonDisabled = true;
     }
 
@@ -76,11 +80,11 @@ namespace ui {
 
     void UIButton::hover() {
         release();
-        renderInfo.sprite = _buttonHoverSprite;
+        renderInfo.sprites = _buttonHoverSprite;
     }
 
     void UIButton::press() {
-        renderInfo.sprite = _buttonPressedSprite;
+        renderInfo.sprites = _buttonPressedSprite;
         if (_isPressed) {
             return;
         }
@@ -89,7 +93,7 @@ namespace ui {
     }
 
     void UIButton::release() {
-        renderInfo.sprite = _buttonSprite;
+        renderInfo.sprites = _buttonSprite;
         if (!_isPressed) {
             return;
         }

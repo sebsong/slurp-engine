@@ -57,7 +57,7 @@ namespace worker {
         game::removeCorruptibleWorker(this);
         _isCorrupted = true;
         _corruptionRemaining = StartingCorruption;
-        renderInfo.sprite = game::Assets->workerCorruptedSprite;
+        renderInfo.sprites = game::Assets->workerCorruptedSprite;
     }
 
     bool Worker::isCorrupted() const {
@@ -76,7 +76,7 @@ namespace worker {
         Entity::update(dt);
         //TODO: hack
         if (_isCorrupted) {
-            renderInfo.sprite = game::Assets->workerCorruptedSprite;
+            renderInfo.sprites = game::Assets->workerCorruptedSprite;
         }
 
         if (_isIdle) {
@@ -160,7 +160,7 @@ namespace worker {
     void Worker::dropOff() {
         _isLoaded = false;
         game::State->base.dropOff();
-        renderInfo.sprite = game::Assets->workerSprite;
+        renderInfo.sprites = game::Assets->workerSprite;
         findNewMiningLocation();
     }
 
@@ -203,7 +203,7 @@ namespace worker {
             _isLoaded = true;
             leaveMiningLocation();
             setTargetLocation(game::State->base.getRandomSpawnLocation());
-            renderInfo.sprite = game::Assets->workerLoadedSprite;
+            renderInfo.sprites = game::Assets->workerLoadedSprite;
         }
     }
 
@@ -213,7 +213,7 @@ namespace worker {
 
     void Worker::purify() {
         _isCorrupted = false;
-        renderInfo.sprite = game::Assets->workerSprite;
+        renderInfo.sprites = game::Assets->workerSprite;
         game::State->corruptibleWorkers.push_back(this);
     }
 

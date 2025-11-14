@@ -12,8 +12,9 @@ namespace asset {
 namespace render {
     struct RenderInfo {
         bool renderingEnabled;
-        asset::Sprite* sprite;
-        asset::SpriteAnimation animation;
+        uint8_t numSprites;
+        asset::Sprite* sprites;
+        asset::SpriteAnimation animation; // TODO: maybe need array of these to match sprites or put inside of sprite
         bool syncZOrderToY;
         int zOrder;
         slurp::Vec2<float> renderOffset;
@@ -24,7 +25,7 @@ namespace render {
 
         RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder);
 
-        RenderInfo(asset::Sprite* sprite, bool isCentered, bool syncZOrderToY, const slurp::Vec2<float>& renderOffset);
+        RenderInfo(asset::Sprite* sprite, bool isCentered, const slurp::Vec2<float>& renderOffset);
 
         RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder, const slurp::Vec2<float>& renderOffset);
     };

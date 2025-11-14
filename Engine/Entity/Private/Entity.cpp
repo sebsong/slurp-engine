@@ -113,6 +113,15 @@ namespace entity {
         return collisionInfo.shape.hitTest(location - physicsInfo.position);
     }
 
+    void Entity::setSprite(asset::Sprite* sprite) {
+        renderInfo.sprites[0] = sprite;
+    }
+
+    void Entity::setSprites(uint8_t numSprites, asset::Sprite* sprites[]) {
+        renderInfo.numSprites = numSprites;
+        renderInfo.sprites = sprites;
+    }
+
     void Entity::playAnimation(
         const asset::SpriteAnimation* animation,
         float totalDuration,
