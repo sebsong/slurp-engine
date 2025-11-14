@@ -23,6 +23,9 @@ namespace game {
     // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
     // static constexpr const char* BackgroundMusicSoundFileName = "bgm.wav";
 
+    static constexpr float EnableCorruptionDelay = 45.f;
+    static constexpr int NumInitialCorruptedWorkers = 1;
+
     static void loadAssets() {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
@@ -117,6 +120,14 @@ namespace game {
 
         new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
         new(&State->corruptibleWorkers) types::vector_arena<worker::Worker*>();
+        State->corruptionEnabled = false;
+        timer::delay(
+            EnableCorruptionDelay,
+            [] {
+                State->corruptionEnabled = true;
+                corruptWorkers(NumInitialCorruptedWorkers);
+            }
+        );
 
         new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
         new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(
@@ -180,5 +191,23 @@ namespace game {
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;
+    }
+
+    void corruptWorkers(int numWorkers) {
+        random::shuffle(State->corruptibleWorkers);
+        std::vector targetWorkers = std::vector(
+            State->corruptibleWorkers.begin(),
+            State->corruptibleWorkers.begin() + numWorkers
+        );
+        for (worker::Worker* target: targetWorkers) {
+            target->corrupt();
+        }
+    }
+
+    void removeCorruptibleWorker(worker::Worker* worker) {
+        auto position = std::ranges::find(State->corruptibleWorkers, worker);
+        if (position != State->corruptibleWorkers.end()) {
+            game::State->corruptibleWorkers.erase(position);
+        }
     }
 }

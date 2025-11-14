@@ -87,6 +87,7 @@ namespace game {
 
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
         types::vector_arena<worker::Worker*> corruptibleWorkers;
+        bool corruptionEnabled;
 
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
         entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
@@ -129,4 +130,8 @@ namespace game {
     void update(float dt);
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target);
+
+    void corruptWorkers(int numWorkers);
+
+    void removeCorruptibleWorker(worker::Worker* worker);
 }

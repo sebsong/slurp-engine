@@ -21,7 +21,6 @@ namespace worker {
     static const float PurifyDeceleration = -10;
     static const float PurifyDelay = 3;
 
-
     Worker::Worker()
         : Entity(
               "Worker",
@@ -55,9 +54,7 @@ namespace worker {
     }
 
     void Worker::corrupt() {
-        game::State->corruptibleWorkers.erase(
-            std::ranges::find(game::State->corruptibleWorkers, this)
-        );
+        game::removeCorruptibleWorker(this);
         _isCorrupted = true;
         _corruptionRemaining = StartingCorruption;
         renderInfo.sprite = game::Assets->workerCorruptedSprite;
@@ -185,6 +182,10 @@ namespace worker {
     }
 
     static bool rollCorruption() {
+        if (!game::State->corruptionEnabled) {
+            return false;
+        }
+
         return random::randomFloat() < CorruptionChance;
     }
 
@@ -217,10 +218,7 @@ namespace worker {
     }
 
     void Worker::erupt() {
-        random::shuffle(game::State->corruptibleWorkers);
-        for (Worker* target: std::views::take(game::State->corruptibleWorkers, NumEruptionTargets)) {
-            target->corrupt();
-        }
+        game::corruptWorkers(NumEruptionTargets);
         purify();
     }
 }
