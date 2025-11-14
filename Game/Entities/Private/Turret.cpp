@@ -13,7 +13,6 @@ namespace turret {
         render::RenderInfo(
             slurp::Globals->GameAssets->turretSprite,
             true,
-            true,
             RenderOffset
         ),
         physics::PhysicsInfo(),

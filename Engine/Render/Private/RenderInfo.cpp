@@ -10,7 +10,8 @@ namespace render {
 
     RenderInfo::RenderInfo()
         : renderingEnabled(false),
-          sprite(nullptr),
+          numSprites(1),
+          sprites(nullptr),
           animation({}),
           syncZOrderToY(false),
           zOrder(0),
@@ -18,7 +19,8 @@ namespace render {
 
     RenderInfo::RenderInfo(asset::Sprite* sprite, bool isCentered)
         : renderingEnabled(true),
-          sprite(sprite),
+          numSprites(1),
+          sprites(&sprite),
           animation({}),
           syncZOrderToY(true),
           zOrder(0),
@@ -30,7 +32,8 @@ namespace render {
         int zOrder
     )
         : renderingEnabled(true),
-          sprite(sprite),
+          numSprites(1),
+          sprites(&sprite),
           animation({}),
           syncZOrderToY(false),
           zOrder(zOrder),
@@ -39,13 +42,13 @@ namespace render {
     RenderInfo::RenderInfo(
         asset::Sprite* sprite,
         bool isCentered,
-        bool syncZOrderToY,
         const slurp::Vec2<float>& renderOffset
     )
         : renderingEnabled(true),
-          sprite(sprite),
+          numSprites(1),
+          sprites(&sprite),
           animation({}),
-          syncZOrderToY(syncZOrderToY),
+          syncZOrderToY(true),
           zOrder(0),
           renderOffset(getRenderOffset(sprite, isCentered) + renderOffset) {}
 
@@ -56,7 +59,8 @@ namespace render {
         const slurp::Vec2<float>& renderOffset
     )
         : renderingEnabled(true),
-          sprite(sprite),
+          numSprites(1),
+          sprites(&sprite),
           animation({}),
           syncZOrderToY(false),
           zOrder(zOrder),

@@ -36,13 +36,13 @@ namespace ui {
             DEFAULT_SPRITE_VERTEX_SHADER_FILE_NAME,
             "progress_bar.glsl"
         )->programId;
-        _fill.renderInfo.sprite->material.shaderProgramId = progressBarShaderId;
-        _fill.renderInfo.sprite->bindShaderUniform(IsVerticalUniformName, isVertical);
+        _fill.renderInfo.sprites->material.shaderProgramId = progressBarShaderId;
+        _fill.renderInfo.sprites->bindShaderUniform(IsVerticalUniformName, isVertical);
     }
 
 
     void ProgressBar::update(float dt) {
         Entity::update(dt);
-        _fill.renderInfo.sprite->bindShaderUniform(ProgressUniformName, progress);
+        _fill.renderInfo.sprites->bindShaderUniform(ProgressUniformName, progress);
     }
 }

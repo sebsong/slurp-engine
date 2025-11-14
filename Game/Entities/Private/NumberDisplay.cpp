@@ -26,7 +26,7 @@ namespace ui {
                 physics::PhysicsInfo({physicsInfo.position.x - i * 10, physicsInfo.position.y}),
                 collision::CollisionInfo()
             );
-            _digitDisplays[i].renderInfo.sprite = nullptr;
+            _digitDisplays[i].renderInfo.sprites = nullptr;
         }
     }
 
@@ -39,11 +39,11 @@ namespace ui {
         for (int i = 0; i < _numDigits; i++) {
             uint32_t shiftedNum = number / std::pow(10, i);
             if (!_showLeadingZeroes && shiftedNum == 0 && i != 0) {
-                _digitDisplays[i].renderInfo.sprite = nullptr;
+                _digitDisplays[i].renderInfo.sprites = nullptr;
                 return;
             }
             uint8_t digit = shiftedNum % 10;
-            _digitDisplays[i].renderInfo.sprite = game::Assets->digitSprites[digit];
+            _digitDisplays[i].renderInfo.sprites = game::Assets->digitSprites[digit];
         }
     }
 }

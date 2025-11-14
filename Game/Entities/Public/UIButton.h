@@ -6,9 +6,10 @@ namespace ui {
     public:
 
         UIButton(
+            asset::Sprite* buttonIconSprite,
             asset::Sprite* buttonSprite,
             asset::Sprite* buttonHoverSprite,
-            asset::Sprite* buttonPressedSprite,
+            asset::Sprite* buttonPressSprite,
             slurp::Vec2<float>&& position,
             slurp::KeyboardCode keyCode,
             std::function<void()>&& onPressFn,
@@ -25,6 +26,7 @@ namespace ui {
         std::function<void()> _onPressFn;
         std::function<void()> _onReleaseFn;
         slurp::KeyboardCode _keyCode;
+        asset::Sprite* _buttonIconSprite;
         asset::Sprite* _buttonSprite;
         asset::Sprite* _buttonHoverSprite;
         asset::Sprite* _buttonPressedSprite;

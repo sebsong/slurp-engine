@@ -50,6 +50,11 @@ namespace game {
 
         Assets->resourcesCollectedFill = asset::loadSprite("resources_collected_bar_fill.bmp");
 
+        Assets->button = asset::loadSprite("button.bmp");
+        Assets->buttonHover = asset::loadSprite("button_hover.bmp");
+        Assets->buttonPress = asset::loadSprite("button_press.bmp");
+        Assets->buttonPressAnim = asset::loadSpriteAnimation("button_press_anim.bmp", 15);
+
         Assets->workerButton = asset::loadSprite("worker_button.bmp");
         Assets->workerButtonHover = asset::loadSprite("worker_button_hover.bmp");
         Assets->workerButtonPress = asset::loadSprite("worker_button_pressed.bmp");
@@ -60,7 +65,7 @@ namespace game {
         Assets->mineSiteButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
         Assets->mineSiteButtonPressAnim = asset::loadSpriteAnimation("mine_site_button_pressed_anim.bmp", 15);
 
-        Assets->turretButton = asset::loadSprite("mine_site_button.bmp");
+        Assets->turretButton = asset::loadSprite("turret_button.bmp");
         Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
         Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
 
