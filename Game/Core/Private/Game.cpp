@@ -31,6 +31,8 @@ namespace game {
         Assets->borderSprite = asset::loadSprite("border.bmp");
 
         Assets->baseSprite = asset::loadSprite("base.bmp");
+        Assets->baseIdleAnim = asset::loadSpriteAnimation("base_idle_anim.bmp", 5);
+
         Assets->mineSiteSprite = asset::loadSprite("gold.bmp");
         Assets->mineSiteSpawnAnim = asset::loadSpriteAnimation("gold_spawn.bmp", 9);
 
