@@ -38,7 +38,7 @@ namespace ui {
                       );
                   },
                   [this] {
-                      _spawnWorkerButton.renderInfo.animation.stop();
+                      _spawnWorkerButton.stopAnimation();
                       timer::cancel(_spawnWorkerTimerHandle);
                   }
               )
@@ -68,7 +68,7 @@ namespace ui {
                       );
                   },
                   [this] {
-                      _spawnMineSiteButton.renderInfo.animation.stop();
+                      _spawnMineSiteButton.stopAnimation();
                       timer::cancel(_spawnMineSiteTimerHandle);
                   }
               )

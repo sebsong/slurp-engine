@@ -114,12 +114,11 @@ namespace entity {
     }
 
     void Entity::setSprite(asset::Sprite* sprite) {
-        renderInfo.sprites[0] = sprite;
+        setSprite(0, sprite);
     }
 
-    void Entity::setSprites(uint8_t numSprites, asset::Sprite* sprites[]) {
-        renderInfo.numSprites = numSprites;
-        renderInfo.sprites = sprites;
+    void Entity::setSprite(uint8_t spriteIndex, asset::Sprite* sprite) {
+        renderInfo.sprites[spriteIndex] = *sprite;
     }
 
     void Entity::playAnimation(
@@ -128,8 +127,27 @@ namespace entity {
         bool shouldLoop,
         bool playReversed
     ) {
-        renderInfo.animation = *animation;
-        renderInfo.animation.play(totalDuration, shouldLoop, playReversed);
+        playAnimation(0, animation, totalDuration, shouldLoop, playReversed);
+    }
+
+    void Entity::playAnimation(
+        uint8_t spriteIndex,
+        const asset::SpriteAnimation* animation,
+        float totalDuration,
+        bool shouldLoop,
+        bool playReversed
+    ) {
+        ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
+        renderInfo.sprites[spriteIndex].animation = *animation;
+        renderInfo.sprites[spriteIndex].animation.play(totalDuration, shouldLoop, playReversed);
+    }
+
+    void Entity::stopAnimation() {
+        stopAnimation(0);
+    }
+
+    void Entity::stopAnimation(uint8_t spriteIndex) {
+        renderInfo.sprites[spriteIndex].animation.stop();
     }
 
     Entity& Entity::operator=(const Entity& other) {

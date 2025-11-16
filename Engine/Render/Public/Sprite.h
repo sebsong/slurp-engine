@@ -1,5 +1,6 @@
 #pragma once
 #include "Asset.h"
+#include "SpriteAnimation.h"
 
 #define DEFAULT_SPRITE_VERTEX_SHADER_FILE_NAME "sprite.glsl"
 #define DEFAULT_SPRITE_FRAGMENT_SHADER_FILE_NAME "sprite.glsl"
@@ -10,6 +11,7 @@ namespace asset {
         slurp::Vec2<int> dimensions;
         Mesh mesh;
         Material material;
+        SpriteAnimation animation;
 
         void bindShaderUniform(const char* uniformName, float value) const;
 

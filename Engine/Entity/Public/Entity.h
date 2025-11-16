@@ -65,7 +65,7 @@ namespace entity {
 
         void Entity::setSprite(asset::Sprite* sprite);
 
-        void Entity::setSprites(uint8_t numSprites, asset::Sprite* sprites[]);
+        void Entity::setSprite(uint8_t spriteIndex, asset::Sprite* sprite);
 
         void playAnimation(
             const asset::SpriteAnimation* animation,
@@ -73,6 +73,18 @@ namespace entity {
             bool shouldLoop = false,
             bool playReversed = false
         );
+
+        void playAnimation(
+            uint8_t spriteIndex,
+            const asset::SpriteAnimation* animation,
+            float totalDuration,
+            bool shouldLoop = false,
+            bool playReversed = false
+        );
+
+        void stopAnimation();
+
+        void stopAnimation(uint8_t spriteIndex);
 
         Entity& operator=(const Entity& other);
 

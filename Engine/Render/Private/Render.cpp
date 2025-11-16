@@ -10,22 +10,22 @@ namespace asset {
 
 namespace render {
     void draw(RenderInfo& renderInfo, const slurp::Vec2<float>& position, float dt) {
-        if (!renderInfo.renderingEnabled) {
+        if (!renderInfo.renderingEnabled || !renderInfo.sprites) {
             return;
         }
 
         slurp::Vec2<float> startPoint = position + renderInfo.renderOffset;
 
         for (int i = 0; i < renderInfo.numSprites; i++) {
-            asset::Sprite* sprite = renderInfo.sprites[i];
-            asset::SpriteAnimation& animation = renderInfo.animation;
+            asset::Sprite& sprite = renderInfo.sprites[i];
+            asset::SpriteAnimation& animation = sprite.animation;
             if (animation.isPlaying) {
                 animation.update(dt);
             }
 
-            if (sprite && !sprite->dimensions.isZero()) {
-                asset::Mesh& mesh = sprite->mesh;
-                asset::Material& material = sprite->material;
+            if (!sprite.dimensions.isZero()) {
+                asset::Mesh& mesh = sprite.mesh;
+                asset::Material& material = sprite.material;
                 object_id textureId = animation.isPlaying
                                           ? animation.textureIds[animation.currentFrameIndex]
                                           : material.textureId;
