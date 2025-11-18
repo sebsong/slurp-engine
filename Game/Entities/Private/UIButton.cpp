@@ -79,11 +79,11 @@ namespace ui {
 
     void UIButton::hover() {
         release();
-        renderInfo.sprites = _buttonHoverSprite;
+        setTexture(_buttonHoverSprite);
     }
 
     void UIButton::press() {
-        renderInfo.sprites = _buttonPressedSprite;
+        setTexture(_buttonPressedSprite);
         if (_isPressed) {
             return;
         }
@@ -92,7 +92,7 @@ namespace ui {
     }
 
     void UIButton::release() {
-        renderInfo.sprites = _buttonSprite;
+        setTexture(_buttonSprite);
         if (!_isPressed) {
             return;
         }

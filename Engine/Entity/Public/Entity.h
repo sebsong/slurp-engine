@@ -63,9 +63,17 @@ namespace entity {
 
         bool mouseHitTest(const slurp::Vec2<float>& location) const;
 
-        void setSprite(asset::Sprite* sprite);
+        void setTexture(const asset::Sprite* sprite);
 
-        void setSprite(uint8_t spriteIndex, asset::Sprite* sprite);
+        void setTexture(uint8_t spriteIndex, const asset::Sprite* sprite);
+
+        void setAlpha(float alpha);
+
+        void setAlpha(uint8_t spriteIndex, float alpha);
+
+        void applyAlpha(float alpha);
+
+        void applyAlpha(uint8_t spriteIndex, float alpha);
 
         void playAnimation(
             const asset::SpriteAnimation* animation,

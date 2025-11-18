@@ -91,12 +91,11 @@ namespace ui {
                   [] {}
               )
           ),
-          _turretPlacementSprite(*game::Assets->turretSprite),
           _turretPlacementGuide(
               Entity(
                   "Turret Placement Guide",
                   render::RenderInfo(
-                      &_turretPlacementSprite,
+                      game::Assets->turretSprite,
                       true,
                       turret::RenderOffset
                   ),
@@ -104,12 +103,11 @@ namespace ui {
                   collision::CollisionInfo()
               )
           ),
-          _turretRangeIndicatorPlacementSprite(*game::Assets->turretRangeIndicatorSprite),
           _turretRangeIndicatorPlacementGuide(
               Entity(
                   "Turret Range Indicator Guide",
                   render::RenderInfo(
-                      &_turretRangeIndicatorPlacementSprite,
+                      game::Assets->turretRangeIndicatorSprite,
                       true,
                       game::BACKGROUND_ENTITY_Z,
                       turret::RenderOffset
@@ -122,9 +120,9 @@ namespace ui {
         _spawnMineSiteTimerHandle = timer::reserveHandle();
 
         _turretPlacementGuide.enabled = false;
-        _turretPlacementSprite.material.alpha *= 0.5f;
         _turretRangeIndicatorPlacementGuide.enabled = false;
-        _turretRangeIndicatorPlacementSprite.material.alpha *= 0.5f;
+        _turretPlacementGuide.applyAlpha(0.5f);
+        _turretRangeIndicatorPlacementGuide.applyAlpha(0.5f);
     }
 
     void SpawnControls::refresh() {
