@@ -19,12 +19,29 @@ namespace render {
 
         RenderInfo();
 
-        RenderInfo(asset::Sprite* sprite, bool isCentered);
+        RenderInfo(const RenderInfo& other);
+
+        RenderInfo(const RenderInfo&& other);
 
         RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder);
 
         RenderInfo(asset::Sprite* sprite, bool isCentered, const slurp::Vec2<float>& renderOffset);
 
         RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder, const slurp::Vec2<float>& renderOffset);
+
+        RenderInfo(
+            bool renderingEnabled,
+            uint8_t numSprites,
+            asset::Sprite* sprites,
+            bool syncZOrderToY,
+            int zOrder,
+            slurp::Vec2<float> renderOffset
+        );
+
+        RenderInfo& operator=(const RenderInfo& other);
+
+        RenderInfo& operator=(const RenderInfo&& other);
+
+        ~RenderInfo();
     };
 }

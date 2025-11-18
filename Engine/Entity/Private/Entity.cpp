@@ -118,7 +118,7 @@ namespace entity {
     }
 
     void Entity::setSprite(uint8_t spriteIndex, asset::Sprite* sprite) {
-        renderInfo.sprites[spriteIndex] = *sprite;
+        new (&renderInfo.sprites[spriteIndex]) asset::Sprite(*sprite);
     }
 
     void Entity::playAnimation(
@@ -138,7 +138,7 @@ namespace entity {
         bool playReversed
     ) {
         ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
-        renderInfo.sprites[spriteIndex].animation = *animation;
+        new (&renderInfo.sprites[spriteIndex].animation) asset::SpriteAnimation(*animation);
         renderInfo.sprites[spriteIndex].animation.play(totalDuration, shouldLoop, playReversed);
     }
 

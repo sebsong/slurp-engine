@@ -37,7 +37,6 @@ namespace ui {
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
         _buttonPressedSprite(buttonPressSprite) {
-        renderInfo.numSprites = 2;
     }
 
     void UIButton::enableButton() {

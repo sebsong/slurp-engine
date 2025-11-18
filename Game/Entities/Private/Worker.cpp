@@ -27,7 +27,6 @@ namespace worker {
               render::RenderInfo(
                   slurp::Globals->GameAssets->workerSprite,
                   true,
-                  true,
                   {0, 3}
               ),
               physics::PhysicsInfo(
