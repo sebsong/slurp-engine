@@ -21,7 +21,6 @@ namespace ui {
 
         bool _isPlacingTurret;
         Entity _turretPlacementGuide;
-        Entity _turretRangeIndicatorPlacementGuide;
 
         void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) override;
 

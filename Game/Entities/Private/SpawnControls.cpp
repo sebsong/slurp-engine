@@ -95,24 +95,18 @@ namespace ui {
               Entity(
                   "Turret Placement Guide",
                   render::RenderInfo(
-                      asset::SpriteInstance(
-                          game::Assets->turretSprite,
-                          turret::RenderOffset
-                      )
-                  ),
-                  physics::PhysicsInfo(),
-                  collision::CollisionInfo()
-              )
-          ),
-          _turretRangeIndicatorPlacementGuide(
-              Entity(
-                  "Turret Range Indicator Guide",
-                  render::RenderInfo(
-                      asset::SpriteInstance(
-                          game::Assets->turretRangeIndicatorSprite,
-                          game::BACKGROUND_ENTITY_Z,
-                          turret::RenderOffset
-                      )
+                      (asset::SpriteInstance[2]){
+                          asset::SpriteInstance(
+                              game::Assets->turretSprite,
+                              turret::RenderOffset
+                          ),
+
+                          asset::SpriteInstance(
+                              game::Assets->turretRangeIndicatorSprite,
+                              game::BACKGROUND_ENTITY_Z,
+                              turret::RenderOffset
+                          )
+                      }
                   ),
                   physics::PhysicsInfo(),
                   collision::CollisionInfo()
@@ -122,9 +116,7 @@ namespace ui {
         _spawnMineSiteTimerHandle = timer::reserveHandle();
 
         _turretPlacementGuide.enabled = false;
-        _turretRangeIndicatorPlacementGuide.enabled = false;
         _turretPlacementGuide.applyAlpha(0.5f);
-        _turretRangeIndicatorPlacementGuide.applyAlpha(0.5f);
     }
 
     void SpawnControls::refresh() {
@@ -160,8 +152,6 @@ namespace ui {
             );
             _turretPlacementGuide.physicsInfo.position = turretPlacementPosition;
             _turretPlacementGuide.enable();
-            _turretRangeIndicatorPlacementGuide.physicsInfo.position = turretPlacementPosition;
-            _turretRangeIndicatorPlacementGuide.enable();
             if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
                 stopTurretPlacement();
                 game::State->base.spend(TurretBuildCost);
@@ -183,6 +173,5 @@ namespace ui {
     void SpawnControls::stopTurretPlacement() {
         _isPlacingTurret = false;
         _turretPlacementGuide.enabled = false;
-        _turretRangeIndicatorPlacementGuide.enabled = false;
     }
 }

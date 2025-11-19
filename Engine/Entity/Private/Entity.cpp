@@ -123,7 +123,9 @@ namespace entity {
     }
 
     void Entity::setAlpha(float alpha) {
-        setAlpha(0, alpha);
+        for (uint8_t i = 0; i < renderInfo.numSprites; i++) {
+            setAlpha(i, alpha);
+        }
     }
 
     void Entity::setAlpha(uint8_t spriteIndex, float alpha) {
@@ -132,7 +134,9 @@ namespace entity {
     }
 
     void Entity::applyAlpha(float alpha) {
-        applyAlpha(0, alpha);
+        for (uint8_t i = 0; i < renderInfo.numSprites; i++) {
+            applyAlpha(i, alpha);
+        }
     }
 
     void Entity::applyAlpha(uint8_t spriteIndex, float alpha) {
