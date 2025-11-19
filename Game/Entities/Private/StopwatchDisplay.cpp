@@ -2,7 +2,18 @@
 
 namespace ui {
     StopwatchDisplay::StopwatchDisplay(const slurp::Vec2<float>& position)
-        : Entity("TimeDisplay"),
+        : Entity(
+              "TimeDisplay",
+              render::RenderInfo(
+                  asset::SpriteInstance(
+                      game::Assets->stopwatchPunctuationSprite,
+                      game::UI_Z,
+                      {-16, 0}
+                  )
+              ),
+              physics::PhysicsInfo(position),
+              collision::CollisionInfo()
+          ),
           _isStopped(true),
           _hoursDisplay(
               NumberDisplay(
@@ -34,14 +45,6 @@ namespace ui {
                   0,
                   1,
                   true
-              )
-          ),
-          _punctuationDisplay(
-              Entity(
-                  "Stopwatch Punctuation",
-                  render::RenderInfo(asset::SpriteInstance(game::Assets->stopwatchPunctuationSprite, game::UI_Z)),
-                  physics::PhysicsInfo({position.x - 16, position.y}),
-                  {}
               )
           ) {}
 

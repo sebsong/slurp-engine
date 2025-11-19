@@ -21,7 +21,6 @@ namespace ui {
         NumberDisplay _minutesDisplay;
         NumberDisplay _secondsDisplay;
         NumberDisplay _deciSecondsDisplay;
-        Entity _punctuationDisplay;
 
         void initialize() override;
 
