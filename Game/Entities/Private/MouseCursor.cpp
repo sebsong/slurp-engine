@@ -7,9 +7,10 @@ namespace mouse_cursor {
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
         render::RenderInfo(
-            game::Assets->mouseCursorSprite,
-            true,
-            game::MOUSE_Z
+            asset::SpriteInstance(
+                game::Assets->mouseCursorSprite,
+                game::MOUSE_Z
+            )
         ),
         physics::PhysicsInfo(slurp::Vec2<float>::Zero),
         collision::CollisionInfo()

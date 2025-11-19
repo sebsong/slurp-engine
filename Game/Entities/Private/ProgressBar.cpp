@@ -19,7 +19,7 @@ namespace ui {
        _bar(
            Entity(
                "Bar",
-               render::RenderInfo(barSprite, true, zOrder),
+               render::RenderInfo(asset::SpriteInstance(barSprite, zOrder)),
                physics::PhysicsInfo(position),
                {}
            )
@@ -27,7 +27,7 @@ namespace ui {
        _fill(
            Entity(
                "Fill",
-               render::RenderInfo(fillSprite, true, zOrder),
+               render::RenderInfo(asset::SpriteInstance(fillSprite, zOrder)),
                physics::PhysicsInfo(position),
                {}
            )

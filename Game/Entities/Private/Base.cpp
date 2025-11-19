@@ -13,7 +13,7 @@ namespace base {
     Base::Base()
         : Entity(
               "Base",
-              render::RenderInfo(slurp::Globals->GameAssets->baseSprite, true, RenderOffset),
+              render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->baseSprite, RenderOffset)),
               physics::PhysicsInfo(),
               collision::CollisionInfo()
           ),

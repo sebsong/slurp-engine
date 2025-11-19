@@ -108,14 +108,14 @@ namespace game {
 
         new(&State->background) entity::Entity(
             "Background",
-            render::RenderInfo(slurp::Globals->GameAssets->backgroundSprite, true, BACKGROUND_Z),
+            render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
 
         new(&State->border) entity::Entity(
             "Border",
-            render::RenderInfo(slurp::Globals->GameAssets->borderSprite, true, BORDER_Z),
+            render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->borderSprite, BORDER_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
@@ -143,10 +143,11 @@ namespace game {
             entity::Entity(
                 "Turret Range Indicator",
                 render::RenderInfo(
-                    Assets->turretRangeIndicatorSprite,
-                    true,
-                    BACKGROUND_ENTITY_Z,
-                    turret::RenderOffset
+                    asset::SpriteInstance(
+                        Assets->turretRangeIndicatorSprite,
+                        BACKGROUND_ENTITY_Z,
+                        turret::RenderOffset
+                    )
                 ),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()

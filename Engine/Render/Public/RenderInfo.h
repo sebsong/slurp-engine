@@ -10,33 +10,21 @@ namespace asset {
 
 namespace render {
     struct RenderInfo {
-        bool renderingEnabled;
         uint8_t numSprites;
-        asset::Sprite* sprites;
-        bool syncZOrderToY;
-        int zOrder;
-        slurp::Vec2<float> renderOffset;
+        asset::SpriteInstance* sprites;
 
         RenderInfo();
+
+        RenderInfo(const asset::SpriteInstance& sprite);
+
+        RenderInfo(uint8_t numSprites, const asset::SpriteInstance* sprites);
+
+        template<size_t N>
+        RenderInfo(const asset::SpriteInstance (&sprites)[N]): RenderInfo(N, sprites) {}
 
         RenderInfo(const RenderInfo& other);
 
         RenderInfo(const RenderInfo&& other);
-
-        RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder);
-
-        RenderInfo(asset::Sprite* sprite, bool isCentered, const slurp::Vec2<float>& renderOffset);
-
-        RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder, const slurp::Vec2<float>& renderOffset);
-
-        RenderInfo(
-            bool renderingEnabled,
-            uint8_t numSprites,
-            asset::Sprite* sprites,
-            bool syncZOrderToY,
-            int zOrder,
-            slurp::Vec2<float> renderOffset
-        );
 
         RenderInfo& operator=(const RenderInfo& other);
 

@@ -16,10 +16,11 @@ namespace ui {
     ) : Entity(
             "UI Button",
             render::RenderInfo(
-                buttonSprite,
-                true,
-                game::UI_Z,
-                buttonRenderOffset
+                asset::SpriteInstance(
+                    buttonSprite,
+                    game::UI_Z,
+                    buttonRenderOffset
+                )
             ),
             physics::PhysicsInfo(std::move(position)),
             collision::CollisionInfo(
@@ -36,17 +37,16 @@ namespace ui {
         _buttonIconSprite(buttonIconSprite),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
-        _buttonPressedSprite(buttonPressSprite) {
-    }
+        _buttonPressedSprite(buttonPressSprite) {}
 
     void UIButton::enableButton() {
-        renderInfo.sprites->material.alpha = 1.f;
+        setAlpha(1.f);
         _buttonDisabled = false;
     }
 
     void UIButton::disableButton() {
         release();
-        renderInfo.sprites->material.alpha = 0.5f;
+        setAlpha(0.5f);
         _buttonDisabled = true;
     }
 

@@ -25,9 +25,10 @@ namespace worker {
         : Entity(
               "Worker",
               render::RenderInfo(
-                  slurp::Globals->GameAssets->workerSprite,
-                  true,
-                  {0, 3}
+                  asset::SpriteInstance(
+                      slurp::Globals->GameAssets->workerSprite,
+                      {0, 3}
+                  )
               ),
               physics::PhysicsInfo(
                   StartPos,
@@ -159,7 +160,7 @@ namespace worker {
     void Worker::dropOff() {
         _isLoaded = false;
         game::State->base.dropOff();
-        renderInfo.sprites = game::Assets->workerSprite;
+        setTexture(game::Assets->workerSprite);
         findNewMiningLocation();
     }
 

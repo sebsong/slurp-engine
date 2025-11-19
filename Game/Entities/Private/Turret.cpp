@@ -11,9 +11,10 @@ namespace turret {
     Turret::Turret(): Entity(
         "Turret",
         render::RenderInfo(
-            slurp::Globals->GameAssets->turretSprite,
-            true,
-            RenderOffset
+            (asset::SpriteInstance[2]){
+                asset::SpriteInstance(slurp::Globals->GameAssets->turretSprite, RenderOffset),
+                asset::SpriteInstance(slurp::Globals->GameAssets->turretRangeIndicatorSprite, RenderOffset)
+            }
         ),
         physics::PhysicsInfo(),
         collision::CollisionInfo(

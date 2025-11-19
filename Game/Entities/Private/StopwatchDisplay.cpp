@@ -39,7 +39,7 @@ namespace ui {
           _punctuationDisplay(
               Entity(
                   "Stopwatch Punctuation",
-                  render::RenderInfo(game::Assets->stopwatchPunctuationSprite, true, game::UI_Z),
+                  render::RenderInfo(asset::SpriteInstance(game::Assets->stopwatchPunctuationSprite, game::UI_Z)),
                   physics::PhysicsInfo({position.x - 16, position.y}),
                   {}
               )

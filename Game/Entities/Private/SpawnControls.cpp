@@ -95,9 +95,10 @@ namespace ui {
               Entity(
                   "Turret Placement Guide",
                   render::RenderInfo(
-                      game::Assets->turretSprite,
-                      true,
-                      turret::RenderOffset
+                      asset::SpriteInstance(
+                          game::Assets->turretSprite,
+                          turret::RenderOffset
+                      )
                   ),
                   physics::PhysicsInfo(),
                   collision::CollisionInfo()
@@ -107,10 +108,11 @@ namespace ui {
               Entity(
                   "Turret Range Indicator Guide",
                   render::RenderInfo(
-                      game::Assets->turretRangeIndicatorSprite,
-                      true,
-                      game::BACKGROUND_ENTITY_Z,
-                      turret::RenderOffset
+                      asset::SpriteInstance(
+                          game::Assets->turretRangeIndicatorSprite,
+                          game::BACKGROUND_ENTITY_Z,
+                          turret::RenderOffset
+                      )
                   ),
                   physics::PhysicsInfo(),
                   collision::CollisionInfo()

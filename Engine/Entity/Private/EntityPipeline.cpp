@@ -55,13 +55,29 @@ namespace entity {
             //TODO: handle destruction
             if (entity->enabled) {
                 entity->update(dt);
-                entity->updatePhysics(dt); // TODO: move to a separate physics update
+                entity->updatePhysics(dt);
+                // TODO: move to a separate physics update that potentially runs more frequently
                 update::updatePosition(entity, _pipeline, dt);
-                if (entity->renderInfo.syncZOrderToY) {
-                    entity->renderInfo.zOrder = static_cast<int>(
-                        (entity->physicsInfo.position.y / WORLD_HEIGHT_MAX) * Z_ORDER_MAX);
+
+                const render::RenderInfo& renderInfo = entity->renderInfo;
+                if (renderInfo.numSprites == 0 || !renderInfo.sprites) {
+                    continue;
                 }
-                render::draw(entity->renderInfo, entity->physicsInfo.position, dt);
+
+                for (int i = 0; i < renderInfo.numSprites; i++) {
+                    asset::SpriteInstance& sprite = renderInfo.sprites[i];
+                    if (sprite.syncZOrderToY) {
+                        sprite.zOrder = static_cast<int>(
+                            (entity->physicsInfo.position.y / WORLD_HEIGHT_MAX) * Z_ORDER_MAX
+                        );
+                    }
+                    asset::SpriteAnimation& animation = sprite.animation;
+                    if (animation.isPlaying) {
+                        animation.update(dt);
+                    }
+
+                    render::draw(entity->physicsInfo.position, sprite, animation);
+                }
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
                 if (entity->collisionInfo.collisionEnabled) {
