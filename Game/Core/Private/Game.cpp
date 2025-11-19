@@ -55,19 +55,9 @@ namespace game {
         Assets->buttonPress = asset::loadSprite("button_press.bmp");
         Assets->buttonPressAnim = asset::loadSpriteAnimation("button_press_anim.bmp", 15);
 
-        Assets->workerButton = asset::loadSprite("worker_button.bmp");
-        Assets->workerButtonHover = asset::loadSprite("worker_button_hover.bmp");
-        Assets->workerButtonPress = asset::loadSprite("worker_button_pressed.bmp");
-        Assets->workerButtonPressAnim = asset::loadSpriteAnimation("worker_button_pressed_anim.bmp", 15);
-
-        Assets->mineSiteButton = asset::loadSprite("mine_site_button.bmp");
-        Assets->mineSiteButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
-        Assets->mineSiteButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
-        Assets->mineSiteButtonPressAnim = asset::loadSpriteAnimation("mine_site_button_pressed_anim.bmp", 15);
-
-        Assets->turretButton = asset::loadSprite("turret_button.bmp");
-        Assets->turretButtonHover = asset::loadSprite("mine_site_button_hover.bmp");
-        Assets->turretButtonPress = asset::loadSprite("mine_site_button_pressed.bmp");
+        Assets->workerButtonIcon = asset::loadSprite("worker_button_icon.bmp");
+        Assets->mineSiteButtonIcon = asset::loadSprite("mine_site_button_icon.bmp");
+        Assets->turretButtonIcon = asset::loadSprite("turret_button_icon.bmp");
 
         for (int i = 0; i < 10; i++) {
             Assets->digitSprites[i] = asset::loadSprite(std::format("{}.bmp", i));

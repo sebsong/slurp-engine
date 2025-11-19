@@ -11,16 +11,23 @@ namespace ui {
         asset::Sprite* buttonPressSprite,
         slurp::Vec2<float>&& position,
         slurp::KeyboardCode keyCode,
-        std::function<void()>&& onPressFn,
-        std::function<void()>&& onReleaseFn
+        std::function<void(UIButton* button)>&& onPressFn,
+        std::function<void(UIButton* button)>&& onReleaseFn
     ) : Entity(
             "UI Button",
             render::RenderInfo(
-                asset::SpriteInstance(
-                    buttonSprite,
-                    game::UI_Z,
-                    buttonRenderOffset
-                )
+                (asset::SpriteInstance[2]){
+                    asset::SpriteInstance(
+                        buttonSprite,
+                        game::UI_Z,
+                        buttonRenderOffset
+                    ),
+                    asset::SpriteInstance(
+                        buttonIconSprite,
+                        game::UI_Z - 1,
+                        buttonRenderOffset
+                    )
+                }
             ),
             physics::PhysicsInfo(std::move(position)),
             collision::CollisionInfo(
@@ -31,6 +38,7 @@ namespace ui {
             )
         ),
         _isPressed(false),
+        _buttonDisabled(false),
         _onPressFn(std::move(onPressFn)),
         _onReleaseFn(std::move(onReleaseFn)),
         _keyCode(keyCode),
@@ -88,7 +96,7 @@ namespace ui {
             return;
         }
         _isPressed = true;
-        _onPressFn();
+        _onPressFn(this);
     }
 
     void UIButton::release() {
@@ -97,6 +105,6 @@ namespace ui {
             return;
         }
         _isPressed = false;
-        _onReleaseFn();
+        _onReleaseFn(this);
     }
 }

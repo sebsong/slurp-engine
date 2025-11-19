@@ -13,7 +13,7 @@ namespace turret {
         render::RenderInfo(
             (asset::SpriteInstance[2]){
                 asset::SpriteInstance(slurp::Globals->GameAssets->turretSprite, RenderOffset),
-                asset::SpriteInstance(slurp::Globals->GameAssets->turretRangeIndicatorSprite, RenderOffset)
+                asset::SpriteInstance(slurp::Globals->GameAssets->turretRangeIndicatorSprite, game::BACKGROUND_ENTITY_Z, RenderOffset)
             }
         ),
         physics::PhysicsInfo(),

@@ -20,13 +20,14 @@ namespace ui {
           _spawnWorkerButton(
               UIButton(
                   game::Assets->workerSprite,
-                  game::Assets->workerButton,
-                  game::Assets->workerButtonHover,
-                  game::Assets->workerButtonPress,
+                  game::Assets->button,
+                  game::Assets->buttonHover,
+                  game::Assets->buttonPress,
                   {position.x - 30, position.y},
                   slurp::KeyboardCode::NUM_1,
-                  [this] {
-                      _spawnWorkerButton.playAnimation(game::Assets->workerButtonPressAnim, WorkerBuildTime, true);
+                  [this](UIButton* button) {
+                      button->physicsInfo.position.y -= 1;
+                      button->playAnimation(game::Assets->buttonPressAnim, WorkerBuildTime, true);
                       timer::start(
                           _spawnWorkerTimerHandle,
                           WorkerBuildTime,
@@ -37,26 +38,24 @@ namespace ui {
                           }
                       );
                   },
-                  [this] {
-                      _spawnWorkerButton.stopAnimation();
+                  [this](UIButton* button) {
+                      button->stopAnimation();
+                      button->physicsInfo.position.y += 1;
                       timer::cancel(_spawnWorkerTimerHandle);
                   }
               )
           ),
           _spawnMineSiteButton(
               UIButton(
-                  game::Assets->mineSiteSprite,
-                  game::Assets->mineSiteButton,
-                  game::Assets->mineSiteButtonHover,
-                  game::Assets->mineSiteButtonPress,
+                  game::Assets->mineSiteButtonIcon,
+                  game::Assets->button,
+                  game::Assets->buttonHover,
+                  game::Assets->buttonPress,
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
-                  [this] {
-                      _spawnMineSiteButton.playAnimation(
-                          game::Assets->mineSiteButtonPressAnim,
-                          MineSiteBuildTime,
-                          true
-                      );
+                  [this](UIButton* button) {
+                      button->physicsInfo.position.y -= 1;
+                      button->playAnimation(game::Assets->buttonPressAnim, WorkerBuildTime, true);
                       timer::start(
                           _spawnMineSiteTimerHandle,
                           MineSiteBuildTime,
@@ -67,28 +66,32 @@ namespace ui {
                           }
                       );
                   },
-                  [this] {
-                      _spawnMineSiteButton.stopAnimation();
+                  [this](UIButton* button) {
+                      button->stopAnimation();
+                      button->physicsInfo.position.y += 1;
                       timer::cancel(_spawnMineSiteTimerHandle);
                   }
               )
           ),
           _spawnTurretButton(
               UIButton(
-                  game::Assets->turretSprite,
-                  game::Assets->turretButton,
-                  game::Assets->turretButtonHover,
-                  game::Assets->turretButtonPress,
+                  game::Assets->turretButtonIcon,
+                  game::Assets->button,
+                  game::Assets->buttonHover,
+                  game::Assets->buttonPress,
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
-                  [this] {
+                  [this](UIButton* button) {
+                      button->physicsInfo.position.y -= 1;
                       if (!_isPlacingTurret) {
                           startTurretPlacement();
                       } else {
                           stopTurretPlacement();
                       }
                   },
-                  [] {}
+                  [this](UIButton* button) {
+                      button->physicsInfo.position.y += 1;
+                  }
               )
           ),
           _turretPlacementGuide(

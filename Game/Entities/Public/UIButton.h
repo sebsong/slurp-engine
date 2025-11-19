@@ -12,8 +12,8 @@ namespace ui {
             asset::Sprite* buttonPressSprite,
             slurp::Vec2<float>&& position,
             slurp::KeyboardCode keyCode,
-            std::function<void()>&& onPressFn,
-            std::function<void()>&& onReleaseFn
+            std::function<void(UIButton* button)>&& onPressFn,
+            std::function<void(UIButton* button)>&& onReleaseFn
         );
 
         void enableButton();
@@ -23,8 +23,8 @@ namespace ui {
     private:
         bool _isPressed;
         bool _buttonDisabled;
-        std::function<void()> _onPressFn;
-        std::function<void()> _onReleaseFn;
+        std::function<void(UIButton* button)> _onPressFn;
+        std::function<void(UIButton* button)> _onReleaseFn;
         slurp::KeyboardCode _keyCode;
         asset::Sprite* _buttonIconSprite;
         asset::Sprite* _buttonSprite;

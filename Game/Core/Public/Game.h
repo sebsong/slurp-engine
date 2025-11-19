@@ -50,19 +50,9 @@ namespace game {
         asset::Sprite* buttonPress;
         asset::SpriteAnimation* buttonPressAnim;
 
-        asset::Sprite* workerButton;
-        asset::Sprite* workerButtonHover;
-        asset::Sprite* workerButtonPress;
-        asset::SpriteAnimation* workerButtonPressAnim;
-
-        asset::Sprite* mineSiteButton;
-        asset::Sprite* mineSiteButtonHover;
-        asset::Sprite* mineSiteButtonPress;
-        asset::SpriteAnimation* mineSiteButtonPressAnim;
-
-        asset::Sprite* turretButton;
-        asset::Sprite* turretButtonHover;
-        asset::Sprite* turretButtonPress;
+        asset::Sprite* workerButtonIcon;
+        asset::Sprite* mineSiteButtonIcon;
+        asset::Sprite* turretButtonIcon;
 
         asset::Sprite* digitSprites[10];
         asset::Sprite* stopwatchPunctuationSprite;
