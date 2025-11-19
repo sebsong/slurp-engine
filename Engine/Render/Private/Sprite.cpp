@@ -6,11 +6,58 @@ namespace asset {
     static constexpr int SpriteMeshElementCount = 6;
     static constexpr uint32_t SpriteElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
 
-    void Sprite::bindShaderUniform(const char* uniformName, float value) const {
+    static slurp::Vec2<float> getRenderOffset(const Sprite* sprite, bool isCentered) {
+        if (!isCentered || !sprite) {
+            return slurp::Vec2<float>::Zero;
+        }
+        return -sprite->dimensions / 2;
+    }
+
+    SpriteInstance::SpriteInstance(
+        const Sprite* sprite,
+        const slurp::Vec2<float>& renderOffset,
+        bool isCentered
+    ): SpriteInstance(
+        true,
+        sprite,
+        true,
+        0,
+        (isCentered ? getRenderOffset(sprite, isCentered) : slurp::Vec2<float>::Zero) + renderOffset
+    ) {}
+
+    SpriteInstance::SpriteInstance(
+        const Sprite* sprite,
+        int zOrder,
+        const slurp::Vec2<float>& renderOffset,
+        bool isCentered
+    ): SpriteInstance(
+        true,
+        sprite,
+        false,
+        zOrder,
+        (isCentered ? getRenderOffset(sprite, isCentered) : slurp::Vec2<float>::Zero) + renderOffset
+    ) {}
+
+    SpriteInstance::SpriteInstance(
+        bool renderingEnabled,
+        const Sprite* sprite,
+        bool syncZOrderToY,
+        int zOrder,
+        const slurp::Vec2<float>& renderOffset
+    ): renderingEnabled(renderingEnabled),
+       dimensions(sprite ? sprite->dimensions : slurp::Vec2<int>::Zero),
+       mesh(sprite ? sprite->mesh : Mesh{}),
+       material(sprite ? sprite->material : Material{}),
+       animation({}),
+       syncZOrderToY(syncZOrderToY),
+       zOrder(zOrder),
+       renderOffset(renderOffset) {}
+
+    void SpriteInstance::bindShaderUniform(const char* uniformName, float value) const {
         slurp::Globals->RenderApi->bindShaderUniformFloat(material.shaderProgramId, uniformName, value);
     }
 
-    void Sprite::bindShaderUniform(const char* uniformName, bool value) const {
+    void SpriteInstance::bindShaderUniform(const char* uniformName, bool value) const {
         slurp::Globals->RenderApi->bindShaderUniformBool(material.shaderProgramId, uniformName, value);
     }
 

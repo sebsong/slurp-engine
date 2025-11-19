@@ -21,6 +21,7 @@ namespace asset {
     struct Asset {
         uint32_t id;
         bool isLoaded;
+        std::string sourceFileName;
         // TODO: ref count
     };
 

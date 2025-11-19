@@ -1,40 +1,24 @@
 #include "Render.h"
 
-#include "RenderInfo.h"
 #include "Sprite.h"
 
-namespace asset {
-    struct SpriteAnimation;
-    struct Sprite;
-}
-
 namespace render {
-    void draw(RenderInfo& renderInfo, const slurp::Vec2<float>& position, float dt) {
-        if (!renderInfo.renderingEnabled) {
-            return;
-        }
-
-        slurp::Vec2<float> startPoint = position + renderInfo.renderOffset;
-        asset::Sprite* sprite = renderInfo.sprite;
-        asset::SpriteAnimation& animation = renderInfo.animation;
-        if (animation.isPlaying) {
-            animation.update(dt);
-        }
-
-        if (sprite && !sprite->dimensions.isZero()) {
-            asset::Mesh& mesh = sprite->mesh;
-            asset::Material& material = sprite->material;
+    void draw(const slurp::Vec2<float>& position, asset::SpriteInstance& sprite, asset::SpriteAnimation& animation) {
+        if (!sprite.dimensions.isZero()) {
+            asset::Mesh& mesh = sprite.mesh;
+            asset::Material& material = sprite.material;
             object_id textureId = animation.isPlaying
                                       ? animation.textureIds[animation.currentFrameIndex]
                                       : material.textureId;
+            slurp::Vec2<float> positionTransform = position + sprite.renderOffset;
             slurp::Globals->RenderApi->drawElementArray(
                 mesh.vertexArrayId,
                 mesh.elementCount,
                 textureId,
                 material.shaderProgramId,
-                startPoint,
+                positionTransform,
                 material.alpha,
-                renderInfo.zOrder
+                sprite.zOrder
             );
         }
     }

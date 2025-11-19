@@ -113,14 +113,60 @@ namespace entity {
         return collisionInfo.shape.hitTest(location - physicsInfo.position);
     }
 
+    void Entity::setTexture(const asset::Sprite* sprite) {
+        setTexture(0, sprite);
+    }
+
+    void Entity::setTexture(uint8_t spriteIndex, const asset::Sprite* sprite) {
+        ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
+        renderInfo.sprites[spriteIndex].material.textureId = sprite->material.textureId;
+    }
+
+    void Entity::setAlpha(float alpha) {
+        setAlpha(0, alpha);
+    }
+
+    void Entity::setAlpha(uint8_t spriteIndex, float alpha) {
+        ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
+        renderInfo.sprites[spriteIndex].material.alpha = alpha;
+    }
+
+    void Entity::applyAlpha(float alpha) {
+        applyAlpha(0, alpha);
+    }
+
+    void Entity::applyAlpha(uint8_t spriteIndex, float alpha) {
+        ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
+        renderInfo.sprites[spriteIndex].material.alpha *= alpha;
+    }
+
     void Entity::playAnimation(
         const asset::SpriteAnimation* animation,
         float totalDuration,
         bool shouldLoop,
         bool playReversed
     ) {
-        renderInfo.animation = *animation;
-        renderInfo.animation.play(totalDuration, shouldLoop, playReversed);
+        playAnimation(0, animation, totalDuration, shouldLoop, playReversed);
+    }
+
+    void Entity::playAnimation(
+        uint8_t spriteIndex,
+        const asset::SpriteAnimation* animation,
+        float totalDuration,
+        bool shouldLoop,
+        bool playReversed
+    ) {
+        ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
+        new(&renderInfo.sprites[spriteIndex].animation) asset::SpriteAnimation(*animation);
+        renderInfo.sprites[spriteIndex].animation.play(totalDuration, shouldLoop, playReversed);
+    }
+
+    void Entity::stopAnimation() {
+        stopAnimation(0);
+    }
+
+    void Entity::stopAnimation(uint8_t spriteIndex) {
+        renderInfo.sprites[spriteIndex].animation.stop();
     }
 
     Entity& Entity::operator=(const Entity& other) {

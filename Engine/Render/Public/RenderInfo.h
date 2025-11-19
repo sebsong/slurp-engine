@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Sprite.h"
-#include "SpriteAnimation.h"
 
 #define Z_ORDER_MAX 1000
 
@@ -11,21 +10,26 @@ namespace asset {
 
 namespace render {
     struct RenderInfo {
-        bool renderingEnabled;
-        asset::Sprite* sprite;
-        asset::SpriteAnimation animation;
-        bool syncZOrderToY;
-        int zOrder;
-        slurp::Vec2<float> renderOffset;
+        uint8_t numSprites;
+        asset::SpriteInstance* sprites;
 
         RenderInfo();
 
-        RenderInfo(asset::Sprite* sprite, bool isCentered);
+        RenderInfo(const asset::SpriteInstance& sprite);
 
-        RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder);
+        RenderInfo(uint8_t numSprites, const asset::SpriteInstance* sprites);
 
-        RenderInfo(asset::Sprite* sprite, bool isCentered, bool syncZOrderToY, const slurp::Vec2<float>& renderOffset);
+        template<size_t N>
+        RenderInfo(const asset::SpriteInstance (&sprites)[N]): RenderInfo(N, sprites) {}
 
-        RenderInfo(asset::Sprite* sprite, bool isCentered, int zOrder, const slurp::Vec2<float>& renderOffset);
+        RenderInfo(const RenderInfo& other);
+
+        RenderInfo(const RenderInfo&& other);
+
+        RenderInfo& operator=(const RenderInfo& other);
+
+        RenderInfo& operator=(const RenderInfo&& other);
+
+        ~RenderInfo();
     };
 }

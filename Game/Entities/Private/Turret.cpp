@@ -11,10 +11,10 @@ namespace turret {
     Turret::Turret(): Entity(
         "Turret",
         render::RenderInfo(
-            slurp::Globals->GameAssets->turretSprite,
-            true,
-            true,
-            RenderOffset
+            (asset::SpriteInstance[2]){
+                asset::SpriteInstance(slurp::Globals->GameAssets->turretSprite, RenderOffset),
+                asset::SpriteInstance(slurp::Globals->GameAssets->turretRangeIndicatorSprite, RenderOffset)
+            }
         ),
         physics::PhysicsInfo(),
         collision::CollisionInfo(
@@ -27,7 +27,6 @@ namespace turret {
 
     void Turret::initialize() {
         Entity::initialize();
-        game::State->turretsRangeIndicators.newInstance(physicsInfo.position);
         playAnimation(game::Assets->turretSpawnAnim, TurretSpawnTime);
         timer::delay(
             TurretSpawnTime,

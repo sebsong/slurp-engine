@@ -5,9 +5,10 @@ namespace ui {
     static const slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
 
     UIButton::UIButton(
+        asset::Sprite* buttonIconSprite,
         asset::Sprite* buttonSprite,
         asset::Sprite* buttonHoverSprite,
-        asset::Sprite* buttonPressedSprite,
+        asset::Sprite* buttonPressSprite,
         slurp::Vec2<float>&& position,
         slurp::KeyboardCode keyCode,
         std::function<void()>&& onPressFn,
@@ -15,10 +16,11 @@ namespace ui {
     ) : Entity(
             "UI Button",
             render::RenderInfo(
-                buttonSprite,
-                true,
-                game::UI_Z,
-                buttonRenderOffset
+                asset::SpriteInstance(
+                    buttonSprite,
+                    game::UI_Z,
+                    buttonRenderOffset
+                )
             ),
             physics::PhysicsInfo(std::move(position)),
             collision::CollisionInfo(
@@ -32,18 +34,19 @@ namespace ui {
         _onPressFn(std::move(onPressFn)),
         _onReleaseFn(std::move(onReleaseFn)),
         _keyCode(keyCode),
+        _buttonIconSprite(buttonIconSprite),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
-        _buttonPressedSprite(buttonPressedSprite) {}
+        _buttonPressedSprite(buttonPressSprite) {}
 
     void UIButton::enableButton() {
-        renderInfo.sprite->material.alpha = 1.f;
+        setAlpha(1.f);
         _buttonDisabled = false;
     }
 
     void UIButton::disableButton() {
         release();
-        renderInfo.sprite->material.alpha = 0.5f;
+        setAlpha(0.5f);
         _buttonDisabled = true;
     }
 
@@ -76,11 +79,11 @@ namespace ui {
 
     void UIButton::hover() {
         release();
-        renderInfo.sprite = _buttonHoverSprite;
+        setTexture(_buttonHoverSprite);
     }
 
     void UIButton::press() {
-        renderInfo.sprite = _buttonPressedSprite;
+        setTexture(_buttonPressedSprite);
         if (_isPressed) {
             return;
         }
@@ -89,7 +92,7 @@ namespace ui {
     }
 
     void UIButton::release() {
-        renderInfo.sprite = _buttonSprite;
+        setTexture(_buttonSprite);
         if (!_isPressed) {
             return;
         }

@@ -19,6 +19,7 @@ namespace ui {
         : Entity("SpawnControls"),
           _spawnWorkerButton(
               UIButton(
+                  game::Assets->workerSprite,
                   game::Assets->workerButton,
                   game::Assets->workerButtonHover,
                   game::Assets->workerButtonPress,
@@ -37,13 +38,14 @@ namespace ui {
                       );
                   },
                   [this] {
-                      _spawnWorkerButton.renderInfo.animation.stop();
+                      _spawnWorkerButton.stopAnimation();
                       timer::cancel(_spawnWorkerTimerHandle);
                   }
               )
           ),
           _spawnMineSiteButton(
               UIButton(
+                  game::Assets->mineSiteSprite,
                   game::Assets->mineSiteButton,
                   game::Assets->mineSiteButtonHover,
                   game::Assets->mineSiteButtonPress,
@@ -66,13 +68,14 @@ namespace ui {
                       );
                   },
                   [this] {
-                      _spawnMineSiteButton.renderInfo.animation.stop();
+                      _spawnMineSiteButton.stopAnimation();
                       timer::cancel(_spawnMineSiteTimerHandle);
                   }
               )
           ),
           _spawnTurretButton(
               UIButton(
+                  game::Assets->turretSprite,
                   game::Assets->turretButton,
                   game::Assets->turretButtonHover,
                   game::Assets->turretButtonPress,
@@ -88,29 +91,28 @@ namespace ui {
                   [] {}
               )
           ),
-          _turretPlacementSprite(*game::Assets->turretSprite),
           _turretPlacementGuide(
               Entity(
                   "Turret Placement Guide",
                   render::RenderInfo(
-                      &_turretPlacementSprite,
-                      true,
-                      true,
-                      turret::RenderOffset
+                      asset::SpriteInstance(
+                          game::Assets->turretSprite,
+                          turret::RenderOffset
+                      )
                   ),
                   physics::PhysicsInfo(),
                   collision::CollisionInfo()
               )
           ),
-          _turretRangeIndicatorPlacementSprite(*game::Assets->turretRangeIndicatorSprite),
           _turretRangeIndicatorPlacementGuide(
               Entity(
                   "Turret Range Indicator Guide",
                   render::RenderInfo(
-                      &_turretRangeIndicatorPlacementSprite,
-                      true,
-                      game::BACKGROUND_ENTITY_Z,
-                      turret::RenderOffset
+                      asset::SpriteInstance(
+                          game::Assets->turretRangeIndicatorSprite,
+                          game::BACKGROUND_ENTITY_Z,
+                          turret::RenderOffset
+                      )
                   ),
                   physics::PhysicsInfo(),
                   collision::CollisionInfo()
@@ -120,9 +122,9 @@ namespace ui {
         _spawnMineSiteTimerHandle = timer::reserveHandle();
 
         _turretPlacementGuide.enabled = false;
-        _turretPlacementSprite.material.alpha *= 0.5f;
         _turretRangeIndicatorPlacementGuide.enabled = false;
-        _turretRangeIndicatorPlacementSprite.material.alpha *= 0.5f;
+        _turretPlacementGuide.applyAlpha(0.5f);
+        _turretRangeIndicatorPlacementGuide.applyAlpha(0.5f);
     }
 
     void SpawnControls::refresh() {

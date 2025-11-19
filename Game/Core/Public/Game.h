@@ -45,6 +45,11 @@ namespace game {
 
         asset::Sprite* resourcesCollectedFill;
 
+        asset::Sprite* button;
+        asset::Sprite* buttonHover;
+        asset::Sprite* buttonPress;
+        asset::SpriteAnimation* buttonPressAnim;
+
         asset::Sprite* workerButton;
         asset::Sprite* workerButtonHover;
         asset::Sprite* workerButtonPress;
@@ -94,7 +99,6 @@ namespace game {
         bool corruptionEnabled;
 
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
-        entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
 
         ui::SpawnControls spawnControls;
         ui::ProgressBar goldProgressBar;

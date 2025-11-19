@@ -1,64 +1,63 @@
 #include "RenderInfo.h"
 
 namespace render {
-    static slurp::Vec2<float> getRenderOffset(const asset::Sprite* sprite, bool isCentered) {
-        if (!isCentered || !sprite) {
-            return slurp::Vec2<float>::Zero;
+    static void copySprites(uint8_t numSprites, const asset::SpriteInstance* src, asset::SpriteInstance* dest) {
+        if (src) {
+            for (uint8_t i = 0; i < numSprites; i++) {
+                new(&dest[i]) asset::SpriteInstance(src[i]);
+            }
         }
-        return -sprite->dimensions / 2;
     }
 
     RenderInfo::RenderInfo()
-        : renderingEnabled(false),
-          sprite(nullptr),
-          animation({}),
-          syncZOrderToY(false),
-          zOrder(0),
-          renderOffset({}) {}
+        : RenderInfo(
+            0,
+            nullptr
+        ) {}
 
-    RenderInfo::RenderInfo(asset::Sprite* sprite, bool isCentered)
-        : renderingEnabled(true),
-          sprite(sprite),
-          animation({}),
-          syncZOrderToY(true),
-          zOrder(0),
-          renderOffset(getRenderOffset(sprite, isCentered)) {}
+    RenderInfo::RenderInfo(const asset::SpriteInstance& sprite)
+        : RenderInfo(
+            1,
+            &sprite
+        ) {}
 
-    RenderInfo::RenderInfo(
-        asset::Sprite* sprite,
-        bool isCentered,
-        int zOrder
-    )
-        : renderingEnabled(true),
-          sprite(sprite),
-          animation({}),
-          syncZOrderToY(false),
-          zOrder(zOrder),
-          renderOffset(getRenderOffset(sprite, isCentered)) {}
+    RenderInfo::RenderInfo(uint8_t numSprites, const asset::SpriteInstance* sprites)
+        : numSprites(numSprites),
+          sprites(memory::Permanent->allocate<asset::SpriteInstance>(numSprites)) {
+        if (sprites) {
+            copySprites(numSprites, sprites, this->sprites);
+        }
+    }
 
-    RenderInfo::RenderInfo(
-        asset::Sprite* sprite,
-        bool isCentered,
-        bool syncZOrderToY,
-        const slurp::Vec2<float>& renderOffset
-    )
-        : renderingEnabled(true),
-          sprite(sprite),
-          animation({}),
-          syncZOrderToY(syncZOrderToY),
-          zOrder(0),
-          renderOffset(getRenderOffset(sprite, isCentered) + renderOffset) {}
+    RenderInfo::RenderInfo(const RenderInfo& other)
+        : RenderInfo(
+            other.numSprites,
+            other.sprites
+        ) {}
 
-    RenderInfo::RenderInfo(
-        asset::Sprite* sprite,
-        bool isCentered,
-        int zOrder,
-        const slurp::Vec2<float>& renderOffset
-    )
-        : renderingEnabled(true),
-          sprite(sprite),
-          animation({}),
-          syncZOrderToY(false),
-          zOrder(zOrder),
-          renderOffset(getRenderOffset(sprite, isCentered) + renderOffset) {}
+    RenderInfo::RenderInfo(const RenderInfo&& other)
+        : RenderInfo(
+            std::move(other.numSprites),
+            std::move(other.sprites)
+        ) {}
+
+    RenderInfo& RenderInfo::operator=(const RenderInfo& other) {
+        if (this != &other) {
+            numSprites = other.numSprites;
+            copySprites(numSprites, other.sprites, sprites);
+        }
+        return *this;
+    }
+
+    RenderInfo& RenderInfo::operator=(const RenderInfo&& other) {
+        if (this != &other) {
+            numSprites = std::move(other.numSprites);
+            copySprites(numSprites, std::move(other.sprites), sprites);
+        }
+        return *this;
+    }
+
+    RenderInfo::~RenderInfo() {
+        // NOTE: don't need to free here, should be managed at a higher level
+    }
 }

@@ -20,13 +20,13 @@ namespace ui {
           _showLeadingZeroes(showLeadingZeroes),
           _digitDisplays({}) {
         for (int i = 0; i < numDigits; ++i) {
-            _digitDisplays[i] = Entity(
+            new (&_digitDisplays[i]) Entity(
                 std::format("Digit {}", i),
-                render::RenderInfo(game::Assets->digitSprites[0], true, game::UI_Z),
+                render::RenderInfo(asset::SpriteInstance(game::Assets->digitSprites[0], game::UI_Z)),
                 physics::PhysicsInfo({physicsInfo.position.x - i * 10, physicsInfo.position.y}),
                 collision::CollisionInfo()
             );
-            _digitDisplays[i].renderInfo.sprite = nullptr;
+            _digitDisplays[i].enabled = false;
         }
     }
 
@@ -39,11 +39,12 @@ namespace ui {
         for (int i = 0; i < _numDigits; i++) {
             uint32_t shiftedNum = number / std::pow(10, i);
             if (!_showLeadingZeroes && shiftedNum == 0 && i != 0) {
-                _digitDisplays[i].renderInfo.sprite = nullptr;
+                _digitDisplays[i].enabled = false;
                 return;
             }
             uint8_t digit = shiftedNum % 10;
-            _digitDisplays[i].renderInfo.sprite = game::Assets->digitSprites[digit];
+            _digitDisplays[i].setTexture(game::Assets->digitSprites[digit]);
+            _digitDisplays[i].enabled = true;
         }
     }
 }
