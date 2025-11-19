@@ -38,6 +38,8 @@ namespace game {
         asset::Sprite* workerCorruptedSprite;
 
         asset::Sprite* turretSprite;
+        asset::Sprite* turretOrbSprite;
+        asset::Sprite* turretPitSprite;
         asset::Sprite* turretRangeIndicatorSprite;
         asset::SpriteAnimation* turretSpawnAnim;
         asset::SpriteAnimation* turretIdleAnim;

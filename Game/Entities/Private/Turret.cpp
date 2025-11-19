@@ -2,36 +2,65 @@
 
 namespace turret {
     static constexpr float Range = 32.f;
-    static constexpr float ShootCooldown = .75f;
+    static constexpr float ShootCooldown = 1.f;
     static const slurp::Vec2<float> RenderOffset = {0, 5};
 
-    static constexpr float TurretSpawnTime = 1.f;
-    static constexpr float TurretIdleAnimDuration = 4.f;
+    static constexpr float OrbMaxHeightOffset = 0.f;
+    static constexpr float OrbMinHeightOffset = -3.f;
 
-    Turret::Turret(): Entity(
-        "Turret",
-        render::RenderInfo(
-            (asset::SpriteInstance[2]){
-                asset::SpriteInstance(slurp::Globals->GameAssets->turretSprite, RenderOffset),
-                asset::SpriteInstance(slurp::Globals->GameAssets->turretRangeIndicatorSprite, game::BACKGROUND_ENTITY_Z, RenderOffset)
-            }
-        ),
-        physics::PhysicsInfo(),
-        collision::CollisionInfo(
-            true,
-            true,
-            geometry::Shape{geometry::Rect, {2 * Range, 2 * Range}},
-            true
-        )
-    ) {}
+    static constexpr float TurretSpawnTime = 1.f;
+    static constexpr float TurretIdleAnimDuration = 2.f;
+
+    enum Sprites: uint8_t {
+        TurretOrb = 0,
+        TurretPit = 1,
+        TurretRangeIndicator = 2
+    };
+
+    Turret::Turret()
+        : Entity(
+              "Turret",
+              render::RenderInfo(
+                  (asset::SpriteInstance[3]){
+                      asset::SpriteInstance(slurp::Globals->GameAssets->turretOrbSprite, RenderOffset),
+                      asset::SpriteInstance(slurp::Globals->GameAssets->turretPitSprite, RenderOffset),
+                      asset::SpriteInstance(
+                          slurp::Globals->GameAssets->turretRangeIndicatorSprite,
+                          game::BACKGROUND_ENTITY_Z,
+                          RenderOffset
+                      )
+                  }
+              ),
+              physics::PhysicsInfo(),
+              collision::CollisionInfo(
+                  true,
+                  true,
+                  geometry::Shape{geometry::Rect, {2 * Range, 2 * Range}},
+                  true
+              )
+          ),
+          _finishedSpawn(false),
+          _flipOrbPath(false),
+          _target(nullptr),
+          _currentShootCooldown(0),
+          _orbMaxHeight(0),
+          _orbMinHeight(0) {}
 
     void Turret::initialize() {
         Entity::initialize();
+        _orbMaxHeight = renderInfo.sprites[TurretOrb].renderOffset.y + OrbMaxHeightOffset;
+        _orbMinHeight = renderInfo.sprites[TurretOrb].renderOffset.y + OrbMinHeightOffset;
+        renderInfo.sprites[TurretPit].renderingEnabled = false;
+        renderInfo.sprites[TurretRangeIndicator].renderingEnabled = false;
         playAnimation(game::Assets->turretSpawnAnim, TurretSpawnTime);
+        // TODO: add an onFinish callback to animations
         timer::delay(
             TurretSpawnTime,
             [this] {
-                playAnimation(game::Assets->turretIdleAnim, TurretIdleAnimDuration, true);
+                // playAnimation(game::Assets->turretIdleAnim, TurretIdleAnimDuration, true);
+                _finishedSpawn = true;
+                renderInfo.sprites[TurretPit].renderingEnabled = true;
+                renderInfo.sprites[TurretRangeIndicator].renderingEnabled = true;
             }
         );
     }
@@ -58,12 +87,29 @@ namespace turret {
 
     void Turret::shootAtTarget() {
         audio::play(game::Assets->turretShoot);
+        playAnimation(game::Assets->turretShootAnim, ShootCooldown);
         _target->decrementCorruption();
         _currentShootCooldown = ShootCooldown;
     }
 
     void Turret::update(float dt) {
         Entity::update(dt);
+
+        if (!_finishedSpawn) {
+            return;
+        }
+
+        if (math::tween(
+            renderInfo.sprites[TurretOrb].renderOffset.y,
+            _orbMaxHeight,
+            _orbMinHeight,
+            TurretIdleAnimDuration,
+            dt,
+            _flipOrbPath
+        )) {
+            _flipOrbPath = !_flipOrbPath;
+        }
+
         _target = findClosestCorruptedWorkerInRange(collisionInfo.collidingWith, Range);
 
         _currentShootCooldown -= dt;

@@ -7,8 +7,13 @@ namespace turret {
         Turret();
 
     private:
+        bool _finishedSpawn;
+        bool _flipOrbPath;
         worker::Worker* _target;
         float _currentShootCooldown;
+
+        float _orbMaxHeight;
+        float _orbMinHeight;
 
         void initialize() override;
 

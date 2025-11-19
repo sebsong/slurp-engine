@@ -28,4 +28,22 @@ namespace math {
     inline double getHypotenuse(float a, float b) {
         return std::sqrt(std::pow(a, 2) + std::pow(b, 2));
     }
+
+    /** Returns true when val has reached `to` **/
+    inline bool tween(float& val, float from, float to, float t, float dt, bool flip = false) {
+        if (flip) {
+            std::swap(from, to);
+        }
+
+        float delta = (to - from) * (dt / t); // TODO: make this not linear
+        float newVal = val + delta;
+
+        if (to < from) {
+            val = std::max(newVal, to);
+        } else {
+            val = std::min(newVal, to);
+        }
+
+        return val == to;
+    }
 }
