@@ -27,7 +27,6 @@ namespace turret {
 
     void Turret::initialize() {
         Entity::initialize();
-        game::State->turretsRangeIndicators.newInstance(physicsInfo.position);
         playAnimation(game::Assets->turretSpawnAnim, TurretSpawnTime);
         timer::delay(
             TurretSpawnTime,

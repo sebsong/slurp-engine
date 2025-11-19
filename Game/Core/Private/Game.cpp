@@ -139,20 +139,6 @@ namespace game {
         );
 
         new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
-        new(&State->turretsRangeIndicators) entity::EntityPool<entity::Entity, MAX_NUM_TURRETS>(
-            entity::Entity(
-                "Turret Range Indicator",
-                render::RenderInfo(
-                    asset::SpriteInstance(
-                        Assets->turretRangeIndicatorSprite,
-                        BACKGROUND_ENTITY_Z,
-                        turret::RenderOffset
-                    )
-                ),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            )
-        );
 
         new(&State->spawnControls) ui::SpawnControls({0, -160});
 

@@ -99,7 +99,6 @@ namespace game {
         bool corruptionEnabled;
 
         entity::EntityPool<turret::Turret, MAX_NUM_TURRETS> turrets;
-        entity::EntityPool<entity::Entity, MAX_NUM_TURRETS> turretsRangeIndicators;
 
         ui::SpawnControls spawnControls;
         ui::ProgressBar goldProgressBar;
