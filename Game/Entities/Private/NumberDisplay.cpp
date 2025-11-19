@@ -10,23 +10,24 @@ namespace ui {
         bool showLeadingZeroes
     )
         : Entity(
-              "IntDisplay",
-              render::RenderInfo(),
+              "Number Display",
+              render::RenderInfo(
+                  MAX_NUM_DIGITS,
+                  nullptr
+              ),
               physics::PhysicsInfo(position),
               collision::CollisionInfo()
           ),
           number(initialNumber),
           _numDigits(numDigits),
-          _showLeadingZeroes(showLeadingZeroes),
-          _digitDisplays({}) {
-        for (int i = 0; i < numDigits; ++i) {
-            new (&_digitDisplays[i]) Entity(
-                std::format("Digit {}", i),
-                render::RenderInfo(asset::SpriteInstance(game::Assets->digitSprites[0], game::UI_Z)),
-                physics::PhysicsInfo({physicsInfo.position.x - i * 10, physicsInfo.position.y}),
-                collision::CollisionInfo()
+          _showLeadingZeroes(showLeadingZeroes) {
+        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
+            new(&renderInfo.sprites[i]) asset::SpriteInstance(
+                game::Assets->digitSprites[0],
+                game::UI_Z,
+                {-i * 10.f, 0.f}
             );
-            _digitDisplays[i].enabled = false;
+            renderInfo.sprites[i].renderingEnabled = false;
         }
     }
 
@@ -39,12 +40,12 @@ namespace ui {
         for (int i = 0; i < _numDigits; i++) {
             uint32_t shiftedNum = number / std::pow(10, i);
             if (!_showLeadingZeroes && shiftedNum == 0 && i != 0) {
-                _digitDisplays[i].enabled = false;
+                renderInfo.sprites[i].renderingEnabled = false;
                 return;
             }
             uint8_t digit = shiftedNum % 10;
-            _digitDisplays[i].setTexture(game::Assets->digitSprites[digit]);
-            _digitDisplays[i].enabled = true;
+            setTexture(i, game::Assets->digitSprites[digit]);
+            renderInfo.sprites[i].renderingEnabled = true;
         }
     }
 }

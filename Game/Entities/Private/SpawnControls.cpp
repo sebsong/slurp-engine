@@ -55,7 +55,7 @@ namespace ui {
                   slurp::KeyboardCode::NUM_2,
                   [this](UIButton* button) {
                       button->physicsInfo.position.y -= 1;
-                      button->playAnimation(game::Assets->buttonPressAnim, WorkerBuildTime, true);
+                      button->playAnimation(game::Assets->buttonPressAnim, MineSiteBuildTime, true);
                       timer::start(
                           _spawnMineSiteTimerHandle,
                           MineSiteBuildTime,

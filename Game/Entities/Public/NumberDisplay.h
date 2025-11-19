@@ -18,7 +18,6 @@ namespace ui {
     private:
         uint8_t _numDigits;
         bool _showLeadingZeroes;
-        Entity _digitDisplays[MAX_NUM_DIGITS];
 
         void initialize() override;
 

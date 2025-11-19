@@ -22,6 +22,8 @@ namespace render {
         template<size_t N>
         RenderInfo(const asset::SpriteInstance (&sprites)[N]): RenderInfo(N, sprites) {}
 
+        RenderInfo(uint8_t numSprites);
+
         RenderInfo(const RenderInfo& other);
 
         RenderInfo(const RenderInfo&& other);
