@@ -61,7 +61,7 @@ elseif (APPLE)
     set(debug_flags -O0 -g)
     set(release_flags -O2)
 
-    set(linker_flags -ffunction-sections -fdata-sections -Wl,--gc-sections)
+    set(linker_flags -ffunction-sections -fdata-sections -Wl)
 
     list(APPEND compiler_flags ${warning_flags})
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
