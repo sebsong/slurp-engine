@@ -138,7 +138,7 @@ namespace worker {
     }
 
     static slurp::Vec2<float> getAvailableMiningLocation() {
-        return random::pickRandom(game::State->mineSpots, slurp::Vec2<float>::Zero);
+        return rnd::pickRandom(game::State->mineSpots, slurp::Vec2<float>::Zero);
     }
 
     void Worker::findNewMiningLocation() {
@@ -186,7 +186,7 @@ namespace worker {
             return false;
         }
 
-        return random::randomFloat() < CorruptionChance;
+        return rnd::randomFloat() < CorruptionChance;
     }
 
     void Worker::collect() {

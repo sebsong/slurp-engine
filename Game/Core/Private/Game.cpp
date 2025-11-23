@@ -90,7 +90,7 @@ namespace game {
         }
 
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
-        random::setRandomSeed(State->randomSeed);
+        rnd::setRandomSeed(State->randomSeed);
 
         audio::setGlobalVolume(GlobalVolume);
         if (!State->bgmId) {
@@ -185,7 +185,7 @@ namespace game {
         if (State->corruptibleWorkers.empty()) {
             return;
         }
-        random::shuffle(State->corruptibleWorkers);
+        rnd::shuffle(State->corruptibleWorkers);
         std::vector targetWorkers = std::vector(
             State->corruptibleWorkers.begin(),
             State->corruptibleWorkers.begin() + numWorkers

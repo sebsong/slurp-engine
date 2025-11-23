@@ -1,7 +1,7 @@
 #pragma once
 #include "Vector.h"
 #include "Debug.h"
-#include "Math.h"
+#include "Mathematics.h"
 
 namespace geometry {
     enum ShapeType {

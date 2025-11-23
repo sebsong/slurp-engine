@@ -1,6 +1,11 @@
 #include "Wave.h"
 
+#if PLATFORM_WINDOWS
 #include <mmeapi.h>
+#elif PLATFORM_MAC
+// TODO: better way to get this?
+#define WAVE_FORMAT_PCM 1
+#endif
 
 namespace asset {
     static audio::channel_audio_sample_container_t getChannelSample(

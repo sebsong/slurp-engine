@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <random>
 
-namespace random {
+namespace rnd {
     inline void setRandomSeed(uint32_t seed) {
         srand(seed);
     }
@@ -42,6 +42,8 @@ namespace random {
 
     template <typename C>
     void shuffle(C& collection) {
-        std::random_shuffle(collection.begin(), collection.end());
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(collection.begin(), collection.end(), g);
     }
 }

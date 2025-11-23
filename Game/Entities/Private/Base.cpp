@@ -33,7 +33,7 @@ namespace base {
     }
 
     slurp::Vec2<float> Base::getRandomSpawnLocation() const {
-        return physicsInfo.position + SpawnOffsets[random::randomIndex(NumSpawnLocations)];
+        return physicsInfo.position + SpawnOffsets[rnd::randomIndex(NumSpawnLocations)];
     }
 
     void Base::dropOff() {

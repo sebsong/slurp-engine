@@ -30,7 +30,7 @@ namespace base {
 
         void initialize() override;
 
-        void update(float dt);
+        void update(float dt) override;
 
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,

@@ -44,7 +44,7 @@ namespace entity {
         }
 
         T* getRandomEnabledInstance() {
-            return random::pickRandom(enabledInstances);
+            return rnd::pickRandom(enabledInstances);
         }
 
         typename types::deque_arena<T*>::iterator begin() {
