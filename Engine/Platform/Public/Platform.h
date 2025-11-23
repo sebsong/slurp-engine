@@ -1,6 +1,6 @@
 #pragma once
 #include "DynamicDeclaration.h"
-#include "Memory.h"
+#include "MemoryConstructs.h"
 
 #include <functional>
 #include <cstdint>

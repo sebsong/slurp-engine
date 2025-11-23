@@ -56,6 +56,7 @@ elseif (APPLE)
     add_compile_definitions(PLATFORM_MAC)
 
     # COMPILER AND LINKER FLAGS
+    set(mac_libs SDL3::SDL3)
     set(compiler_flags -fexceptions -finline-functions -std=c++20)
     set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-cast-function-type)
     set(debug_flags -O0 -g)
@@ -87,7 +88,7 @@ elseif (APPLE)
     # MAC ENGINE EXE
     add_executable(mac_engine MacEngine.cpp)
     target_compile_options(mac_engine PRIVATE ${compiler_flags})
-    target_link_libraries(mac_engine PRIVATE ${win_libs})
+    target_link_libraries(mac_engine PRIVATE ${mac_libs})
     target_link_options(mac_engine PRIVATE ${linker_flags})
 elseif (UNIX)
     message("Linux not supported (yet?)")

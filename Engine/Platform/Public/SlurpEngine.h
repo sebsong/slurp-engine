@@ -18,7 +18,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SpinLock.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Memory.cpp"
+#include "MemoryConstructs.cpp"
 
 namespace slurp {
     struct EngineSystems {

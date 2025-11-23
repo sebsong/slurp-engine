@@ -31,4 +31,7 @@
 /dataSources/
 /dataSources.local.xml
 
+# MacOS
+*.DS_Store
+
 Engine/x64

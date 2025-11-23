@@ -27,6 +27,7 @@ include_engine_module(OpenGL)
 include_game_module(Core)
 include_game_module(Entities)
 
+add_subdirectory(ExternalLibs/SDL-release-3.2.26 EXCLUDE_FROM_ALL)
 include_directories(ExternalLibs/glfw-3.4.bin.WIN64/include)
 link_directories(ExternalLibs/glfw-3.4.bin.WIN64/lib-mingw-w64)
 include_directories(ExternalLibs/glad/include)
