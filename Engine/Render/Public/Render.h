@@ -8,6 +8,10 @@ namespace entity {
     struct Entity;
 }
 
+namespace asset {
+    struct SpriteInstance;
+}
+
 namespace render {
     struct RenderInfo;
     typedef uint32_t Pixel;

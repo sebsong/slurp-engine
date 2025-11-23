@@ -1,9 +1,12 @@
 #pragma once
 #include "RenderApi.h"
 
+#if PLATFORM_WINDOWS
 #include <windef.h>
+#endif
 
-struct GLFWwindow;
+
+struct SDL_Window;
 
 namespace open_gl {
 
@@ -11,7 +14,9 @@ namespace open_gl {
     public:
         OpenGLRenderWindow(int width, int height, const char* title, bool isFullscreen);
 
+#if PLATFORM_WINDOWS
         HWND getWin32Handle() const;
+#endif
 
         slurp::Vec2<int> getDimensions() const;
 
@@ -27,7 +32,7 @@ namespace open_gl {
         bool init(int width, int height, const char* title, bool isFullscreen);
 
         bool _isValid;
-        GLFWwindow* _window;
+        SDL_Window* _window;
     };
 
     struct OpenGLRenderInfo {

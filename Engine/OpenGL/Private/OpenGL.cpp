@@ -2,13 +2,19 @@
 
 #include "WinGlad.c"
 #include "GLFW/glfw3.h"
+#if PLATFORM_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
+#endif
 
+#include "Settings.h"
 #include "Logging.h"
 #include "Matrix.h"
 #include "RenderApi.h"
+#include "RenderInfo.h"
 #include "Bitmap.h"
+
+#include "SDL3/SDL.h"
 
 namespace open_gl {
     // e.g. [-WORLD_WIDTH / 2, -WORLD_HEIGHT / 2] -> [-1, -1]
@@ -27,9 +33,11 @@ namespace open_gl {
         }
     }
 
+#if PLATFORM_WINDOWS
     HWND OpenGLRenderWindow::getWin32Handle() const {
         return glfwGetWin32Window(_window);
     }
+#endif
 
     slurp::Vec2<int> OpenGLRenderWindow::getDimensions() const {
         int width, height;
@@ -43,7 +51,7 @@ namespace open_gl {
 
     bool OpenGLRenderWindow::init(int width, int height, const char* title, bool isFullscreen) {
         /** Window **/
-        if (glfwInit() == GLFW_FALSE) {
+        if (SDL_Init(SDL_INIT_VIDEO) == GLFW_FALSE) {
             logging::error("Failed to initialize GLFW");
             glfwTerminate();
             return false;

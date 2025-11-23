@@ -1,5 +1,6 @@
 #pragma once
 #include "Global.h"
+#include "MemoryConstructs.h"
 
 namespace memory {
     template<typename T>
