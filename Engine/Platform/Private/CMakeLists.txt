@@ -63,7 +63,7 @@ if (WIN32)
     target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
     target_link_options(slurp_engine PRIVATE ${linker_flags})
     add_custom_command(TARGET slurp_engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E touch ${SLURP_LIB_MARKER_FILE_NAME}
+            COMMAND ${CMAKE_COMMAND} -E touch ${SLURP_LIB_MARKER_FILE_NAME}
     )
 
     # WIN ENGINE EXE
@@ -93,6 +93,8 @@ elseif (APPLE)
     endif ()
 
     # SLURP ENGINE LIBRARY
+    set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/engine.app/Contents/MacOS/)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     add_library(slurp_engine SHARED SlurpEngine.cpp)
     set_target_properties(slurp_engine PROPERTIES
             OUTPUT_NAME ${APP_NAME}
@@ -103,7 +105,7 @@ elseif (APPLE)
     target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
     target_link_options(slurp_engine PRIVATE ${linker_flags})
     add_custom_command(TARGET slurp_engine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E touch ${SLURP_LIB_MARKER_FILE_NAME}
+            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${SLURP_LIB_MARKER_FILE_NAME}
     )
 
     # MAC ENGINE EXE

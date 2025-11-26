@@ -17,6 +17,7 @@ namespace platform {
     };
 #endif
 
+    std::string getLocalFilePath(const char* fileName);
     void loadSlurpLib(const char* libFilePath, slurp::SlurpDll& outSlurpLib);
 
 #define PLATFORM_VIBRATE_GAMEPAD(fnName) void fnName(int gamepadIndex, float leftMotorSpeed, float rightMotorSpeed)

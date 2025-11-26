@@ -8,6 +8,8 @@
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_main.h"
 
+#include "MacOS.cpp"
+
 static bool GlobalRunning;
 
 static platform::PlatformDll GlobalPlatformLib;
@@ -36,9 +38,9 @@ int main(int argc, char* argv[]) {
     }
     GlobalRunning = true;
 
-    std::string libFilePathStr = getLocalFilePath(SLURP_LIB_FILE_NAME);
+    std::string libFilePathStr = platform::getLocalFilePath(SLURP_LIB_FILE_NAME);
     const char* libFilePath = libFilePathStr.c_str();
-    std::string libLoadFilePathStr = getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
+    std::string libLoadFilePathStr = platform::getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
     const char* libLoadFilePath = libLoadFilePathStr.c_str();
 
     platform::loadSlurpLib(libFilePath, GlobalSlurpLib);
