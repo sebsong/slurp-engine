@@ -1,2 +1,32 @@
 #pragma once
+#include "Input.h"
+
+#include <unordered_map>
+#include <SDL3/SDL_keycode.h>
+
+static const std::unordered_map<SDL_Keycode, slurp::KeyboardCode> KeyboardSDLCodeToSlurpCode =
+{
+    {SDLK_W, slurp::KeyboardCode::W},
+    {SDLK_A, slurp::KeyboardCode::A},
+    {SDLK_S, slurp::KeyboardCode::S},
+    {SDLK_D, slurp::KeyboardCode::D},
+    {SDLK_E, slurp::KeyboardCode::E},
+    {SDLK_R, slurp::KeyboardCode::R},
+    {SDLK_T, slurp::KeyboardCode::T},
+    {SDLK_P, slurp::KeyboardCode::P},
+    {SDLK_0, slurp::KeyboardCode::NUM_0},
+    {SDLK_1, slurp::KeyboardCode::NUM_1},
+    {SDLK_2, slurp::KeyboardCode::NUM_2},
+    {SDLK_3, slurp::KeyboardCode::NUM_3},
+    {SDLK_4, slurp::KeyboardCode::NUM_4},
+    {SDLK_5, slurp::KeyboardCode::NUM_5},
+    {SDLK_6, slurp::KeyboardCode::NUM_6},
+    {SDLK_7, slurp::KeyboardCode::NUM_7},
+    {SDLK_8, slurp::KeyboardCode::NUM_8},
+    {SDLK_9, slurp::KeyboardCode::NUM_9},
+    {SDLK_SPACE, slurp::KeyboardCode::SPACE},
+    {SDLK_ESCAPE, slurp::KeyboardCode::ESC},
+    {SDL_KMOD_ALT, slurp::KeyboardCode::ALT},
+    {SDLK_F4, slurp::KeyboardCode::F4},
+};
 
