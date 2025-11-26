@@ -5,6 +5,10 @@
 #include <functional>
 #include <cstdint>
 
+namespace slurp {
+    struct SlurpDll;
+}
+
 namespace platform {
 #if DEBUG
     struct DEBUG_FileReadResult {
@@ -13,6 +17,7 @@ namespace platform {
     };
 #endif
 
+    void loadSlurpLib(const char* libFilePath, slurp::SlurpDll& outSlurpLib);
 
 #define PLATFORM_VIBRATE_GAMEPAD(fnName) void fnName(int gamepadIndex, float leftMotorSpeed, float rightMotorSpeed)
 #define PLATFORM_SHUTDOWN(fnName) void fnName()

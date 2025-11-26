@@ -10,11 +10,15 @@
 
 static bool GlobalRunning;
 
-static platform::PlatformDll GlobalPlatformDll;
+static platform::PlatformDll GlobalPlatformLib;
 static render::RenderApi GlobalRenderApi;
 static memory::MemoryArena GlobalPermanentMemory;
 static memory::MemoryArena GlobalTransientMemory;
-static slurp::SlurpDll GlobalSlurpDll;
+static slurp::SlurpDll GlobalSlurpLib;
+
+void tryReloadSlurpLib(const char * libFilePath, const char * libLoadFilePath, slurp::SlurpDll & outSlurpLib) {
+    
+}
 
 int main(int argc, char* argv[]) {
     if (!SDL_SetAppMetadata(APP_NAME, APP_VERSION, APP_IDENTIFIER)) {
@@ -31,6 +35,13 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     GlobalRunning = true;
+
+    std::string libFilePathStr = getLocalFilePath(SLURP_LIB_FILE_NAME);
+    const char* libFilePath = libFilePathStr.c_str();
+    std::string libLoadFilePathStr = getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
+    const char* libLoadFilePath = libLoadFilePathStr.c_str();
+
+    platform::loadSlurpLib(libFilePath, GlobalSlurpLib);
 
     while (GlobalRunning) {
         // Handle Input
