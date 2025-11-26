@@ -3,13 +3,9 @@
 #include "Logging.h"
 #include "Settings.h"
 #include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 
-static const char* WINDOW_TITLE = "Slurp's Up!";
-static const char* APP_NAME = "SlurpEngine";
-static const char* APP_VERSION = "1.0.0";
-static const char* APP_IDENTIFIER = "com.slurp.slurpengine";
-
-int main() {
+int main(int argc, char *argv[]) {
     if (!SDL_SetAppMetadata(APP_NAME, APP_VERSION, APP_IDENTIFIER)) {
         logging::error("Failed to set SDL app metadata.");
         return 1;
