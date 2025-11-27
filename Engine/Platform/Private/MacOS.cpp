@@ -2,16 +2,18 @@
 #include "SlurpEngine.h"
 
 #include <dlfcn.h>
+#include <filesystem>
 #include <mach-o/dyld.h>
 
 namespace platform {
     std::string getLocalFilePath(const char* fileName) {
-        char buf[PATH_MAX];
+        char filePath[PATH_MAX];
         uint32_t bufferSize = PATH_MAX;
-        if (_NSGetExecutablePath(buf, &bufferSize) == 0) {
-            logging::debug(std::string(buf) + "/" + fileName);
+        if (_NSGetExecutablePath(filePath, &bufferSize) == 0) {
+            return std::filesystem::path(filePath).replace_filename(fileName).string();
         }
-        return std::string(buf) + "/" + fileName;
+        ASSERT_LOG(false, "Failed to get local file path.");
+        return "";
     }
 
     template<typename T>
@@ -25,50 +27,58 @@ namespace platform {
         }
     }
 
-    void loadSlurpLib(const char* libFilePath, slurp::SlurpDll& outSlurpLib) {
+    slurp::SlurpDll loadSlurpLib(const char* libFilePath) {
+        slurp::SlurpDll slurpLib;
+
         void* libHandle = dlopen(libFilePath, RTLD_NOW);
         macLoadLibFn<slurp::dyn_init>(
-            outSlurpLib.init,
+            slurpLib.init,
             "init",
             slurp::stub_init,
             libHandle
         );
         macLoadLibFn<slurp::dyn_frameStart>(
-            outSlurpLib.frameStart,
+            slurpLib.frameStart,
             "frameStart",
             slurp::stub_frameStart,
             libHandle
         );
         macLoadLibFn<slurp::dyn_handleInput>(
-            outSlurpLib.handleInput,
+            slurpLib.handleInput,
             "handleInput",
             slurp::stub_handleInput,
             libHandle
         );
         macLoadLibFn<slurp::dyn_bufferAudio>(
-            outSlurpLib.bufferAudio,
+            slurpLib.bufferAudio,
             "bufferAudio",
             slurp::stub_bufferAudio,
             libHandle
         );
         macLoadLibFn<slurp::dyn_updateAndRender>(
-            outSlurpLib.updateAndRender,
+            slurpLib.updateAndRender,
             "updateAndRender",
             slurp::stub_updateAndRender,
             libHandle
         );
         macLoadLibFn<slurp::dyn_frameEnd>(
-            outSlurpLib.frameEnd,
+            slurpLib.frameEnd,
             "frameEnd",
             slurp::stub_frameEnd,
             libHandle
         );
         macLoadLibFn<slurp::dyn_shutdown>(
-            outSlurpLib.shutdown,
+            slurpLib.shutdown,
             "shutdown",
             slurp::stub_shutdown,
             libHandle
         );
         dlclose(libHandle);
+
+        return slurpLib;
+    }
+
+    types::byte* allocateMemory(size_t numBytes) {
+        return static_cast<types::byte*>(calloc(numBytes, sizeof(types::byte)));
     }
 }

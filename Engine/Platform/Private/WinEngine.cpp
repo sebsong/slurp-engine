@@ -891,7 +891,7 @@ PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
 
 PLATFORM_SHUTDOWN(platform::shutdown) { GlobalRunning = false; }
 
-static platform::PlatformDll loadPlatformDll() {
+static platform::PlatformDll loadPlatformLib() {
     platform::PlatformDll platformDll = {};
     platformDll.vibrateGamepad = platform::vibrateGamepad;
     platformDll.shutdown = platform::shutdown;
@@ -940,7 +940,7 @@ int WINAPI WinMain(
 
     // winLoadSlurpLib(dllFilePath, dllLoadFilePath);
 
-    GlobalPlatformDll = loadPlatformDll();
+    GlobalPlatformDll = loadPlatformLib();
     GlobalRenderApi = loadRenderApi();
     winAllocateGameMemory(GlobalPermanentMemory, GlobalTransientMemory);
     std::string dllFilePathStr = getLocalFilePath(SLURP_DLL_FILE_NAME);

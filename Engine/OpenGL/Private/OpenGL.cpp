@@ -1,7 +1,6 @@
 #include "OpenGL.h"
 
 #include "WinGlad.c"
-#include "GLFW/glfw3.h"
 #if PLATFORM_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
@@ -25,92 +24,72 @@ namespace open_gl {
         {0.f, 2.f / WORLD_HEIGHT}
     };
 
-    OpenGLRenderWindow::OpenGLRenderWindow(int width, int height, const char* title, bool isFullscreen)
-        : _isValid(true),
-          _window(nullptr) {
-        if (!init(width, height, title, isFullscreen)) {
-            this->_isValid = false;
-        }
-    }
-
-#if PLATFORM_WINDOWS
-    HWND OpenGLRenderWindow::getWin32Handle() const {
-        return glfwGetWin32Window(_window);
-    }
-#endif
-
-    slurp::Vec2<int> OpenGLRenderWindow::getDimensions() const {
-        int width, height;
-        glfwGetWindowSize(_window, &width, &height);
-        return {width, height};
-    }
-
     static void resizeViewport(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
     }
 
-    bool OpenGLRenderWindow::init(int width, int height, const char* title, bool isFullscreen) {
-        /** Window **/
-        if (SDL_Init(SDL_INIT_VIDEO) == GLFW_FALSE) {
-            logging::error("Failed to initialize GLFW");
-            glfwTerminate();
-            return false;
-        }
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // bool OpenGLRenderWindow::init(int width, int height, const char* title, bool isFullscreen) {
+    //     /** Window **/
+    //     if (SDL_Init(SDL_INIT_VIDEO) == GLFW_FALSE) {
+    //         logging::error("Failed to initialize GLFW");
+    //         glfwTerminate();
+    //         return false;
+    //     }
+    //     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //
+    //     GLFWwindow* window;
+    //     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    //     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    //     if (isFullscreen) {
+    //         window = glfwCreateWindow(mode->width, mode->height, title, monitor, nullptr);
+    //     } else {
+    //         window = glfwCreateWindow(mode->width, mode->height, title, nullptr, nullptr);
+    //     }
+    //
+    //     if (!window) {
+    //         logging::error("Failed to create GLFW window");
+    //         glfwTerminate();
+    //         return false;
+    //     }
+    //     _window = window;
+    //     glfwMakeContextCurrent(_window);
+    //
+    //     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+    //         logging::error("Failed to load glad GL loader");
+    //         return false;
+    //     }
+    //     glfwSetFramebufferSizeCallback(_window, resizeViewport);
+    //
+    //     if (HIDE_CURSOR) {
+    //         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    //     }
+    //
+    //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //     glEnable(GL_BLEND);
+    //     glEnable(GL_DEPTH_TEST);
+    //     glEnable(GL_PROGRAM_POINT_SIZE);
+    //
+    //     return true;
+    // }
 
-        GLFWwindow* window;
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        if (isFullscreen) {
-            window = glfwCreateWindow(mode->width, mode->height, title, monitor, nullptr);
-        } else {
-            window = glfwCreateWindow(mode->width, mode->height, title, nullptr, nullptr);
-        }
-
-        if (!window) {
-            logging::error("Failed to create GLFW window");
-            glfwTerminate();
-            return false;
-        }
-        _window = window;
-        glfwMakeContextCurrent(_window);
-
-        if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-            logging::error("Failed to load glad GL loader");
-            return false;
-        }
-        glfwSetFramebufferSizeCallback(_window, resizeViewport);
-
-        if (HIDE_CURSOR) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-        }
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_PROGRAM_POINT_SIZE);
-
-        return true;
-    }
-
-    bool OpenGLRenderWindow::isValid() const {
-        return _isValid;
-    }
-
-    void OpenGLRenderWindow::flip() const {
-        glfwSwapBuffers(_window);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    bool OpenGLRenderWindow::shouldTerminate() const {
-        return glfwWindowShouldClose(_window);
-    }
-
-    void OpenGLRenderWindow::terminate() {
-        glfwTerminate();
-    }
+    // bool OpenGLRenderWindow::isValid() const {
+    //     return _isValid;
+    // }
+    //
+    // void OpenGLRenderWindow::flip() const {
+    //     glfwSwapBuffers(_window);
+    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // }
+    //
+    // bool OpenGLRenderWindow::shouldTerminate() const {
+    //     return glfwWindowShouldClose(_window);
+    // }
+    //
+    // void OpenGLRenderWindow::terminate() {
+    //     glfwTerminate();
+    // }
 
     RENDER_SET_BACKGROUND_COLOR(setBackgroundColor) {
         glClearColor(red, green, blue, 1);
