@@ -103,13 +103,17 @@ static render::RenderApi loadRenderApi() {
 }
 
 int main(int argc, char* argv[]) {
+    SDL_Window* window;
     memory::MemoryArena permanentMemory;
     memory::MemoryArena transientMemory;
     platform::PlatformDll platformLib;
     render::RenderApi renderApi;
     slurp::SlurpDll slurpLib;
 
-    SDL_Window* window = initSDL();
+    if (!initSDL(window)) {
+        logging::error("Failed to initialize SDL.");
+        return 1;
+    }
 
     allocateMemoryArenas(permanentMemory, transientMemory);
     platformLib = loadPlatformLib();

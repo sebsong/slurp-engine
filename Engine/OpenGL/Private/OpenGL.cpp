@@ -24,9 +24,9 @@ namespace open_gl {
         {0.f, 2.f / WORLD_HEIGHT}
     };
 
-    static void resizeViewport(GLFWwindow* window, int width, int height) {
-        glViewport(0, 0, width, height);
-    }
+    // static void resizeViewport(GLFWwindow* window, int width, int height) {
+    //     glViewport(0, 0, width, height);
+    // }
 
     // bool OpenGLRenderWindow::init(int width, int height, const char* title, bool isFullscreen) {
     //     /** Window **/
@@ -270,7 +270,7 @@ namespace open_gl {
 
         int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
         if (timeUniformLoc != render::INVALID_OBJECT_ID) {
-            glUniform1f(timeUniformLoc, static_cast<GLfloat>(glfwGetTime()));
+            glUniform1f(timeUniformLoc, SDL_GetTicks() / 1000.f);
         }
 
         int positionTransformUniformLoc = glGetUniformLocation(

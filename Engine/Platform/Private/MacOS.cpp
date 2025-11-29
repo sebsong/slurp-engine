@@ -6,6 +6,8 @@
 #include <mach-o/dyld.h>
 
 namespace platform {
+    static void* slurpLibHandle;
+
     std::string getLocalFilePath(const char* fileName) {
         char filePath[PATH_MAX];
         uint32_t bufferSize = PATH_MAX;
@@ -30,51 +32,52 @@ namespace platform {
     slurp::SlurpDll loadSlurpLib(const char* libFilePath) {
         slurp::SlurpDll slurpLib;
 
-        void* libHandle = dlopen(libFilePath, RTLD_NOW);
-        macLoadLibFn<slurp::dyn_init>(
+        if (slurpLibHandle) {
+            dlclose(slurpLibHandle);
+        }
+        slurpLibHandle = dlopen(libFilePath, RTLD_NOW);
+        macLoadLibFn<slurp::dyn_slurp_init>(
             slurpLib.init,
-            "init",
-            slurp::stub_init,
-            libHandle
+            "slurp_init",
+            slurp::stub_slurp_init,
+            slurpLibHandle
         );
-        macLoadLibFn<slurp::dyn_frameStart>(
+        macLoadLibFn<slurp::dyn_slurp_frameStart>(
             slurpLib.frameStart,
-            "frameStart",
-            slurp::stub_frameStart,
-            libHandle
+            "slurp_frameStart",
+            slurp::stub_slurp_frameStart,
+            slurpLibHandle
         );
-        macLoadLibFn<slurp::dyn_handleInput>(
+        macLoadLibFn<slurp::dyn_slurp_handleInput>(
             slurpLib.handleInput,
-            "handleInput",
-            slurp::stub_handleInput,
-            libHandle
+            "slurp_handleInput",
+            slurp::stub_slurp_handleInput,
+            slurpLibHandle
         );
-        macLoadLibFn<slurp::dyn_bufferAudio>(
+        macLoadLibFn<slurp::dyn_slurp_bufferAudio>(
             slurpLib.bufferAudio,
-            "bufferAudio",
-            slurp::stub_bufferAudio,
-            libHandle
+            "slurp_bufferAudio",
+            slurp::stub_slurp_bufferAudio,
+            slurpLibHandle
         );
-        macLoadLibFn<slurp::dyn_updateAndRender>(
+        macLoadLibFn<slurp::dyn_slurp_updateAndRender>(
             slurpLib.updateAndRender,
-            "updateAndRender",
-            slurp::stub_updateAndRender,
-            libHandle
+            "slurp_updateAndRender",
+            slurp::stub_slurp_updateAndRender,
+            slurpLibHandle
         );
-        macLoadLibFn<slurp::dyn_frameEnd>(
+        macLoadLibFn<slurp::dyn_slurp_frameEnd>(
             slurpLib.frameEnd,
-            "frameEnd",
-            slurp::stub_frameEnd,
-            libHandle
+            "slurp_frameEnd",
+            slurp::stub_slurp_frameEnd,
+            slurpLibHandle
         );
-        macLoadLibFn<slurp::dyn_shutdown>(
+        macLoadLibFn<slurp::dyn_slurp_shutdown>(
             slurpLib.shutdown,
-            "shutdown",
-            slurp::stub_shutdown,
-            libHandle
+            "slurp_shutdown",
+            slurp::stub_slurp_shutdown,
+            slurpLibHandle
         );
-        dlclose(libHandle);
-
         return slurpLib;
     }
 

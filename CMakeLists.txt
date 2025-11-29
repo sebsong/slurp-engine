@@ -29,8 +29,6 @@ include_game_module(Entities)
 
 include_directories(ExternalLibs/SDL-release-3.2.26/include)
 add_subdirectory(ExternalLibs/SDL-release-3.2.26 EXCLUDE_FROM_ALL)
-include_directories(ExternalLibs/glfw-3.4.bin.WIN64/include)
-link_directories(ExternalLibs/glfw-3.4.bin.WIN64/lib-mingw-w64)
 include_directories(ExternalLibs/glad/include)
 
 add_subdirectory(Engine/Platform/Private)
