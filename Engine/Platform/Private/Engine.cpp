@@ -170,6 +170,9 @@ int main(int argc, char* argv[]) {
         slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
 
         slurpLib.updateAndRender(SDL_GetTicks() / 1000.f);
+#if RENDER_API == OPEN_GL
+        SDL_GL_SwapWindow(window);
+#endif
         // slurpLib.bufferAudio(buffer);
 
         slurpLib.frameEnd();
