@@ -46,18 +46,29 @@ static bool initSDL(SDL_Window*& outWindow) {
 #endif
 
 #if RENDER_API == OPEN_GL
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
-    SDL_GL_MakeCurrent(window, glContext);
+    if (!glContext) {
+        logging::error("Failed to create OpenGL context.");
+        return false;
+    }
+    if (!SDL_GL_MakeCurrent(window, glContext)) {
+        logging::error("Failed to make OpenGL context current.");
+        return false;
+    }
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress))) {
         logging::error("Failed to load glad GL loader");
         return false;
     }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_PROGRAM_POINT_SIZE);
 #endif
 
     return true;
 }
-
-static void initOpenGL(SDL_Window* window) {}
 
 static void allocateMemoryArenas(memory::MemoryArena& outPermanentMemory, memory::MemoryArena& outTransientMemory) {
     size_t permanentMemorySizeBytes = PERMANENT_ARENA_SIZE;
@@ -133,6 +144,8 @@ int main(int argc, char* argv[]) {
         slurp::MouseState mouseState{};
         slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
 
+        slurpLib.frameEnd();
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -155,6 +168,11 @@ int main(int argc, char* argv[]) {
             }
         }
         slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
+
+        slurpLib.updateAndRender(SDL_GetTicks() / 1000.f);
+        // slurpLib.bufferAudio(buffer);
+
+        slurpLib.frameEnd();
     }
     return 0;
 }
