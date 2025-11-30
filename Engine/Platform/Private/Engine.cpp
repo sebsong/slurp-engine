@@ -184,7 +184,14 @@ int main(int argc, char* argv[]) {
                     } else {
                         logging::error(std::format("Keyboard code not registered: {}", SDL_GetKeyName(sdlCode)));
                     }
+                    break;
                 }
+                case SDL_EVENT_WINDOW_RESIZED: {
+#if RENDER_API == OPEN_GL
+                    glViewport(0, 0, event.window.data1, event.window.data2);
+#endif
+                }
+                break;
                 default: {}
             }
         }
