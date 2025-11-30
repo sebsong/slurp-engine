@@ -46,7 +46,7 @@ static bool initSDL(SDL_Window*& outWindow) {
 #endif
 
 #if RENDER_API == OPEN_GL
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
     if (!glContext) {
@@ -137,14 +137,23 @@ int main(int argc, char* argv[]) {
     slurpLib = platform::loadSlurpLib(libFilePath);
     slurpLib.init(permanentMemory, transientMemory, platformLib, renderApi, false);
 
+#if DEBUG
+    int targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
+#else
+    int targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
+#endif
+    float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
+    float targetMillisPerFrame = targetSecondsPerFrame * 1000.f;
+
     GlobalRunning = true;
     while (GlobalRunning) {
         // Handle Input
         slurp::KeyboardState keyboardState{};
         slurp::MouseState mouseState{};
         slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
+        uint64_t frameStartMillis = SDL_GetTicks();
 
-        slurpLib.frameEnd();
+        slurpLib.frameStart();
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -169,11 +178,16 @@ int main(int argc, char* argv[]) {
         }
         slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
 
-        slurpLib.updateAndRender(SDL_GetTicks() / 1000.f);
+        slurpLib.updateAndRender(targetSecondsPerFrame);
 #if RENDER_API == OPEN_GL
         SDL_GL_SwapWindow(window);
 #endif
         // slurpLib.bufferAudio(buffer);
+
+        uint64_t frameMillis = SDL_GetTicks() - frameStartMillis;
+        if (frameMillis < targetMillisPerFrame) {
+            SDL_DelayPrecise(targetMillisPerFrame - frameMillis);
+        }
 
         slurpLib.frameEnd();
     }
