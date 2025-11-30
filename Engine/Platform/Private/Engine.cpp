@@ -145,15 +145,24 @@ int main(int argc, char* argv[]) {
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
     float targetMillisPerFrame = targetSecondsPerFrame * 1000.f;
 
+    slurp::KeyboardState keyboardState{};
+    slurp::MouseState mouseState{};
+    slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
     GlobalRunning = true;
     while (GlobalRunning) {
         // Handle Input
-        slurp::KeyboardState keyboardState{};
-        slurp::MouseState mouseState{};
-        slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
         uint64_t frameStartMillis = SDL_GetTicks();
 
         slurpLib.frameStart();
+
+        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
+            slurp::DigitalInputState& inputState = entry.second;
+            inputState.transitionCount = 0;
+        }
+        for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
+            slurp::DigitalInputState& inputState = entry.second;
+            inputState.transitionCount = 0;
+        }
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
