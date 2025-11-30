@@ -47,6 +47,9 @@ static bool initSDL(SDL_Window*& outWindow) {
 
 #if RENDER_API == OPEN_GL
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
     if (!glContext) {
@@ -143,7 +146,7 @@ int main(int argc, char* argv[]) {
     int targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
 #endif
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
-    float targetMillisPerFrame = targetSecondsPerFrame * 1000.f;
+    uint64_t targetNanosPerFrame = targetSecondsPerFrame * 1000000000;
 
     slurp::KeyboardState keyboardState{};
     slurp::MouseState mouseState{};
@@ -151,7 +154,7 @@ int main(int argc, char* argv[]) {
     GlobalRunning = true;
     while (GlobalRunning) {
         // Handle Input
-        uint64_t frameStartMillis = SDL_GetTicks();
+        uint64_t frameStartNanos = SDL_GetTicksNS();
 
         slurpLib.frameStart();
 
@@ -187,15 +190,18 @@ int main(int argc, char* argv[]) {
         }
         slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
 
+#if RENDER_API == OPEN_GL
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
         slurpLib.updateAndRender(targetSecondsPerFrame);
 #if RENDER_API == OPEN_GL
         SDL_GL_SwapWindow(window);
 #endif
         // slurpLib.bufferAudio(buffer);
 
-        uint64_t frameMillis = SDL_GetTicks() - frameStartMillis;
-        if (frameMillis < targetMillisPerFrame) {
-            SDL_DelayPrecise(targetMillisPerFrame - frameMillis);
+        uint64_t frameNanos = static_cast<float>(SDL_GetTicks()) - frameStartNanos;
+        if (frameNanos < targetNanosPerFrame) {
+            SDL_DelayPrecise(targetNanosPerFrame - frameNanos);
         }
 
         slurpLib.frameEnd();
