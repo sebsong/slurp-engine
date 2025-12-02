@@ -27,8 +27,10 @@ include_engine_module(OpenGL)
 include_game_module(Core)
 include_game_module(Entities)
 
-include_directories(ExternalLibs/SDL-release-3.2.26/include)
+set(SDL_SHARED OFF CACHE BOOL "Disable SDL3 shared lib" FORCE)
+set(SDL_STATIC ON CACHE BOOL "Enable SDL3 static lib" FORCE)
 add_subdirectory(ExternalLibs/SDL-release-3.2.26 EXCLUDE_FROM_ALL)
+include_directories(ExternalLibs/SDL-release-3.2.26/include)
 include_directories(ExternalLibs/glad/include)
 
 add_subdirectory(Engine/Platform/Private)

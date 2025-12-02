@@ -77,7 +77,7 @@ elseif (APPLE)
     add_compile_definitions(PLATFORM_MAC)
 
     # COMPILER AND LINKER FLAGS
-    set(mac_libs SDL3::SDL3)
+    set(mac_libs SDL3::SDL3-static)
     set(compiler_flags -fexceptions -finline-functions -std=c++20)
     set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-cast-function-type)
     set(debug_flags -O0 -g)
