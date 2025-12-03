@@ -141,12 +141,12 @@ int main(int argc, char* argv[]) {
     slurpLib.init(permanentMemory, transientMemory, platformLib, renderApi, false);
 
 #if DEBUG
-    uint64_t targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
+    uint32_t targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
 #else
-    uint64_t targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
+    uint32_t targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
 #endif
-    double targetSecondsPerFrame = 1.0 / targetFramesPerSecond;
-    uint64_t targetNanosPerFrame = targetSecondsPerFrame * 1000000000;
+    float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
+    uint64_t targetNanosPerFrame = static_cast<uint64_t>(static_cast<double>(targetSecondsPerFrame) * 1'000'000'000.0);
 
     slurp::MouseState mouseState{};
     slurp::KeyboardState keyboardState{};
