@@ -7,7 +7,11 @@
 #include "SlurpEngine.h"
 #include "SDL3/SDL.h"
 
+#if PLATFORM_WINDOWS
+#elif PLATFORM_MAC
 #include "MacOS.cpp"
+#endif
+
 #if RENDER_API == OPEN_GL
 #include "OpenGL.cpp"
 #endif
@@ -259,7 +263,11 @@ int main(int argc, char* argv[]) {
             numAudioSamplesToBuffer
         };
         slurpLib.bufferAudio(audioBuffer);
-        SDL_PutAudioStreamData(audioStream, audioSampleBuffer, numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample));
+        SDL_PutAudioStreamData(
+            audioStream,
+            audioSampleBuffer,
+            numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample)
+        );
 
         uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;
         if (frameNanos < targetNanosPerFrame) {

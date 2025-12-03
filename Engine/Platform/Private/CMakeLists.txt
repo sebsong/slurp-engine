@@ -28,7 +28,7 @@ if (WIN32)
     # PREPROCESSOR MACROS
     add_compile_definitions(PLATFORM_WINDOWS)
     # COMPILER AND LINKER FLAGS
-    set(win_libs user32.lib gdi32.lib Winmm.lib Shlwapi.lib libksuser.a libglfw3.a)
+    set(win_libs SDL3::SDL3-static)
     set(slurp_libs)
     if (MSVC)
         set(compiler_flags -nologo -FC -EHsc -Oi -std:c++20)
@@ -67,10 +67,10 @@ if (WIN32)
     )
 
     # WIN ENGINE EXE
-    add_executable(win_engine WIN32 WinEngine.cpp)
-    target_compile_options(win_engine PRIVATE ${compiler_flags})
-    target_link_libraries(win_engine PRIVATE ${win_libs})
-    target_link_options(win_engine PRIVATE ${linker_flags})
+    add_executable(engine WIN32 Engine.cpp)
+    target_compile_options(engine PRIVATE ${compiler_flags})
+    target_link_libraries(engine PRIVATE ${win_libs})
+    target_link_options(engine PRIVATE ${linker_flags})
 
 elseif (APPLE)
     message("Building for Mac")
