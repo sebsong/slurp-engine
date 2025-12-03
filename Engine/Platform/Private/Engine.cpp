@@ -6,7 +6,6 @@
 #include "Settings.h"
 #include "SlurpEngine.h"
 #include "SDL3/SDL.h"
-#include "SDL3/SDL_main.h"
 
 #include "MacOS.cpp"
 #if RENDER_API == OPEN_GL
@@ -24,7 +23,7 @@ static bool initSDL(SDL_Window*& outWindow) {
         logging::error("Failed to set SDL app metadata.");
         return false;
     }
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         logging::error("Failed to initialize SDL.");
         return false;
     }
@@ -133,6 +132,7 @@ int main(int argc, char* argv[]) {
     platformLib = loadPlatformLib();
     renderApi = loadRenderApi();
 
+    const char* basePath = SDL_GetBasePath(); // TODO: use this instead of the platform version?
     std::string libFilePathStr = platform::getLocalFilePath(SLURP_LIB_FILE_NAME);
     const char* libFilePath = libFilePathStr.c_str();
     std::string libLoadFilePathStr = platform::getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
@@ -147,6 +147,17 @@ int main(int argc, char* argv[]) {
 #endif
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
     uint64_t targetNanosPerFrame = static_cast<uint64_t>(static_cast<double>(targetSecondsPerFrame) * 1'000'000'000.0);
+
+    SDL_AudioSpec audioSpec{
+        SDL_AUDIO_S16LE,
+        NUM_AUDIO_CHANNELS,
+        AUDIO_SAMPLES_PER_SECOND
+    };
+    SDL_AudioDeviceID audioDeviceId = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
+    SDL_AudioStream* audioStream = SDL_CreateAudioStream(nullptr, &audioSpec);
+    if (!SDL_BindAudioStream(audioDeviceId, audioStream)) {
+        ASSERT_LOG(false, "Failed to bind audio stream.");
+    }
 
     slurp::MouseState mouseState{};
     slurp::KeyboardState keyboardState{};
@@ -235,7 +246,20 @@ int main(int argc, char* argv[]) {
 #if RENDER_API == OPEN_GL
         SDL_GL_SwapWindow(window);
 #endif
-        // slurpLib.bufferAudio(buffer);
+
+        // TODO: clean up audio types and api
+        constexpr int targetNumAudioSamplesToBuffer = static_cast<int>(
+            AUDIO_SAMPLES_PER_SECOND * AUDIO_BUFFER_WRITE_AHEAD_SECONDS);
+        audio::StereoAudioSample audioSampleBuffer[targetNumAudioSamplesToBuffer];
+        int numAudioSamplesBuffered = SDL_GetAudioStreamQueued(audioStream) / sizeof(audio::StereoAudioSample);
+        int numAudioSamplesToBuffer = std::max(targetNumAudioSamplesToBuffer - numAudioSamplesBuffered, 0);
+        audio::AudioBuffer audioBuffer{
+            audioSampleBuffer,
+            AUDIO_SAMPLES_PER_SECOND,
+            numAudioSamplesToBuffer
+        };
+        slurpLib.bufferAudio(audioBuffer);
+        SDL_PutAudioStreamData(audioStream, audioSampleBuffer, numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample));
 
         uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;
         if (frameNanos < targetNanosPerFrame) {
