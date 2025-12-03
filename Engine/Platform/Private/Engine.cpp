@@ -161,6 +161,7 @@ int main(int argc, char* argv[]) {
 
     slurp::MouseState mouseState{};
     slurp::KeyboardState keyboardState{};
+    std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
     GlobalRunning = true;
     while (GlobalRunning) {
@@ -226,12 +227,102 @@ int main(int argc, char* argv[]) {
                     } else {
                         logging::error(std::format("Keyboard code not registered: {}", SDL_GetKeyName(sdlCode)));
                     }
-                    break;
                 }
+                break;
+                case SDL_EVENT_GAMEPAD_ADDED: {
+                    SDL_GamepadDeviceEvent gamepadDeviceEvent = event.gdevice;
+                    if (sdlJoystickIdToGamepadIdx.size() < MAX_NUM_GAMEPADS &&
+                        !sdlJoystickIdToGamepadIdx.contains(gamepadDeviceEvent.which)
+                    ) {
+                        sdlJoystickIdToGamepadIdx[gamepadDeviceEvent.which] = static_cast<uint8_t>(
+                            sdlJoystickIdToGamepadIdx.size()
+                        );
+                    }
+                }
+                break;
+                case SDL_EVENT_GAMEPAD_REMOVED: {
+                    SDL_GamepadDeviceEvent gamepadDeviceEvent = event.gdevice;
+                    sdlJoystickIdToGamepadIdx.erase(gamepadDeviceEvent.which);
+                }
+                break;
+                case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
+                    SDL_GamepadAxisEvent gamepadAxisEvent = event.gaxis;
+                    uint8_t gamepadIndex = sdlJoystickIdToGamepadIdx[gamepadAxisEvent.which];
+                    float* axisStateStart;
+                    float* axisStateEnd;
+                    switch (gamepadAxisEvent.axis) {
+                        case SDL_GAMEPAD_AXIS_LEFTX: {
+                            slurp::AnalogStickInputState& inputState = gamepadStates[gamepadIndex].leftStick;
+                            axisStateStart = &inputState.start.x;
+                            axisStateEnd = &inputState.end.x;
+                        }
+                        break;
+                        case SDL_GAMEPAD_AXIS_LEFTY: {
+                            slurp::AnalogStickInputState& inputState = gamepadStates[gamepadIndex].leftStick;
+                            axisStateStart = &inputState.start.y;
+                            axisStateEnd = &inputState.end.y;
+                        }
+                        break;
+                        case SDL_GAMEPAD_AXIS_RIGHTX: {
+                            slurp::AnalogStickInputState& inputState = gamepadStates[gamepadIndex].rightStick;
+                            axisStateStart = &inputState.start.x;
+                            axisStateEnd = &inputState.end.x;
+                        }
+                        break;
+                        case SDL_GAMEPAD_AXIS_RIGHTY: {
+                            slurp::AnalogStickInputState& inputState = gamepadStates[gamepadIndex].rightStick;
+                            axisStateStart = &inputState.start.y;
+                            axisStateEnd = &inputState.end.y;
+                        }
+                        break;
+                        case SDL_GAMEPAD_AXIS_LEFT_TRIGGER: {
+                            slurp::AnalogTriggerInputState& inputState = gamepadStates[gamepadIndex].leftTrigger;
+                            axisStateStart = &inputState.start;
+                            axisStateEnd = &inputState.end;
+                        }
+                        break;
+                        case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER: {
+                            slurp::AnalogTriggerInputState& inputState = gamepadStates[gamepadIndex].rightTrigger;
+                            axisStateStart = &inputState.start;
+                            axisStateEnd = &inputState.end;
+                        }
+                        break;
+                        default: {
+                            logging::error(std::format("Gamepad axis not registered: {}", gamepadAxisEvent.axis));
+                            break;
+                        }
+                    }
+                    *axisStateStart = *axisStateEnd;
+                    *axisStateEnd = gamepadAxisEvent.value;
+                }
+                break;
+                case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+                case SDL_EVENT_GAMEPAD_BUTTON_UP: {
+                    SDL_GamepadButtonEvent gamepadButtonEvent = event.gbutton;
+                    SDL_GamepadButtonCode sdlCode = gamepadButtonEvent.button;
+
+                    if (GamepadButtonSDLCodeToSlurpCode.contains(sdlCode) &&
+                        sdlJoystickIdToGamepadIdx.contains(gamepadButtonEvent.which)
+                    ) {
+                        slurp::GamepadCode slurpCode = GamepadButtonSDLCodeToSlurpCode.at(sdlCode);
+                        uint8_t gamepadIndex = sdlJoystickIdToGamepadIdx[gamepadButtonEvent.which];
+                        slurp::DigitalInputState& inputState = gamepadStates[gamepadIndex].state[slurpCode];
+                        // TODO: update transition count computation if we poll multiple times per frame
+                        inputState.transitionCount = gamepadButtonEvent.down != inputState.isDown;
+                        inputState.isDown = gamepadButtonEvent.down;
+                    } else {
+                        logging::error(std::format("Gamepad code not registered: {}", SDL_GetKeyName(sdlCode)));
+                    }
+                }
+                break;
                 case SDL_EVENT_WINDOW_RESIZED: {
 #if RENDER_API == OPEN_GL
                     glViewport(0, 0, event.window.data1, event.window.data2);
 #endif
+                }
+                break;
+                case SDL_EVENT_QUIT: {
+                    GlobalRunning = false;
                 }
                 break;
                 default: {}
@@ -259,14 +350,18 @@ int main(int argc, char* argv[]) {
             numAudioSamplesToBuffer
         };
         slurpLib.bufferAudio(audioBuffer);
-        SDL_PutAudioStreamData(audioStream, audioSampleBuffer, numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample));
+        SDL_PutAudioStreamData(
+            audioStream,
+            audioSampleBuffer,
+            numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample)
+        );
+
+        slurpLib.frameEnd();
 
         uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;
         if (frameNanos < targetNanosPerFrame) {
             SDL_DelayPrecise(targetNanosPerFrame - frameNanos);
         }
-
-        slurpLib.frameEnd();
     }
     return 0;
 }

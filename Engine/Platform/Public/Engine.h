@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_gamepad.h>
 
 typedef uint8_t SDL_MouseButtonCode;
 static const std::unordered_map<SDL_MouseButtonCode, slurp::MouseCode> MouseButtonSDLCodeToSlurpCode =
@@ -41,3 +42,21 @@ static const std::unordered_map<SDL_Keycode, slurp::KeyboardCode> KeyboardSDLCod
     {SDLK_F4, slurp::KeyboardCode::F4},
 };
 
+typedef uint8_t SDL_GamepadButtonCode;
+static const std::unordered_map<SDL_GamepadButtonCode, slurp::GamepadCode> GamepadButtonSDLCodeToSlurpCode =
+{
+    {SDL_GAMEPAD_BUTTON_DPAD_UP, slurp::GamepadCode::DPAD_UP},
+    {SDL_GAMEPAD_BUTTON_DPAD_DOWN, slurp::GamepadCode::DPAD_DOWN},
+    {SDL_GAMEPAD_BUTTON_DPAD_LEFT, slurp::GamepadCode::DPAD_LEFT},
+    {SDL_GAMEPAD_BUTTON_DPAD_RIGHT, slurp::GamepadCode::DPAD_RIGHT},
+    {SDL_GAMEPAD_BUTTON_START, slurp::GamepadCode::START},
+    {SDL_GAMEPAD_BUTTON_BACK, slurp::GamepadCode::BACK},
+    {SDL_GAMEPAD_BUTTON_LEFT_STICK, slurp::GamepadCode::LEFT_STICK},
+    {SDL_GAMEPAD_BUTTON_RIGHT_STICK, slurp::GamepadCode::RIGHT_STICK},
+    {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, slurp::GamepadCode::LEFT_SHOULDER},
+    {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, slurp::GamepadCode::RIGHT_SHOULDER},
+    {SDL_GAMEPAD_BUTTON_NORTH, slurp::GamepadCode::X},
+    {SDL_GAMEPAD_BUTTON_EAST, slurp::GamepadCode::A},
+    {SDL_GAMEPAD_BUTTON_SOUTH, slurp::GamepadCode::B},
+    {SDL_GAMEPAD_BUTTON_WEST, slurp::GamepadCode::Y},
+};
