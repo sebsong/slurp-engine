@@ -141,15 +141,15 @@ int main(int argc, char* argv[]) {
     slurpLib.init(permanentMemory, transientMemory, platformLib, renderApi, false);
 
 #if DEBUG
-    int targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
+    uint64_t targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
 #else
-    int targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
+    uint64_t targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
 #endif
-    float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
+    double targetSecondsPerFrame = 1.0 / targetFramesPerSecond;
     uint64_t targetNanosPerFrame = targetSecondsPerFrame * 1000000000;
 
-    slurp::KeyboardState keyboardState{};
     slurp::MouseState mouseState{};
+    slurp::KeyboardState keyboardState{};
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
     GlobalRunning = true;
     while (GlobalRunning) {
@@ -158,11 +158,12 @@ int main(int argc, char* argv[]) {
 
         slurpLib.frameStart();
 
-        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
+        for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
-        for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
+
+        for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
@@ -170,12 +171,42 @@ int main(int argc, char* argv[]) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+                case SDL_EVENT_MOUSE_MOTION: {
+                    int windowWidth;
+                    int windowHeight;
+                    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+                    SDL_MouseMotionEvent mouseMotionEvent = event.motion;
+                    slurp::Vec2 mouseScreenPosition = {mouseMotionEvent.x, mouseMotionEvent.y};
+                    // TODO: maybe this should be cached and updated whenever the screen dimensions (infrequently) update
+                    slurp::Mat32<float> screenToWorldMatrix = {
+                        {static_cast<float>(WORLD_WIDTH) / windowWidth, 0.f},
+                        {0.f, -static_cast<float>(WORLD_HEIGHT) / windowHeight},
+                        {-WORLD_WIDTH_MAX, WORLD_HEIGHT_MAX},
+                    };
+                    mouseState.position = mouseScreenPosition * screenToWorldMatrix;
+                }
+                break;
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                case SDL_EVENT_MOUSE_BUTTON_UP: {
+                    SDL_MouseButtonEvent mouseButtonEvent = event.button;
+                    SDL_MouseButtonCode sdlCode = mouseButtonEvent.button;
+                    if (MouseButtonSDLCodeToSlurpCode.contains(sdlCode)) {
+                        slurp::MouseCode slurpCode = MouseButtonSDLCodeToSlurpCode.at(sdlCode);
+                        slurp::DigitalInputState& inputState = mouseState.state[slurpCode];
+                        inputState.transitionCount = mouseButtonEvent.down ? mouseButtonEvent.clicks : 1;
+                        inputState.isDown = mouseButtonEvent.down;
+                    } else {
+                        logging::error(std::format("Mouse button code not registered: {}", SDL_GetKeyName(sdlCode)));
+                    }
+                }
+                break;
                 case SDL_EVENT_KEY_DOWN:
                 case SDL_EVENT_KEY_UP: {
                     SDL_KeyboardEvent keyboardEvent = event.key;
                     SDL_Keycode sdlCode = keyboardEvent.key;
 
-                    if (KeyboardSDLCodeToSlurpCode.contains(sdlCode) > 0) {
+                    if (KeyboardSDLCodeToSlurpCode.contains(sdlCode)) {
                         slurp::KeyboardCode slurpCode = KeyboardSDLCodeToSlurpCode.at(sdlCode);
                         slurp::DigitalInputState& inputState = keyboardState.state[slurpCode];
                         // TODO: update transition count computation if we poll multiple times per frame
@@ -206,7 +237,7 @@ int main(int argc, char* argv[]) {
 #endif
         // slurpLib.bufferAudio(buffer);
 
-        uint64_t frameNanos = static_cast<float>(SDL_GetTicks()) - frameStartNanos;
+        uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;
         if (frameNanos < targetNanosPerFrame) {
             SDL_DelayPrecise(targetNanosPerFrame - frameNanos);
         }

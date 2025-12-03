@@ -2,7 +2,18 @@
 #include "Input.h"
 
 #include <unordered_map>
+#include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_keycode.h>
+
+typedef uint8_t SDL_MouseButtonCode;
+static const std::unordered_map<SDL_MouseButtonCode, slurp::MouseCode> MouseButtonSDLCodeToSlurpCode =
+{
+    {SDL_BUTTON_LEFT, slurp::MouseCode::LeftClick},
+    {SDL_BUTTON_RIGHT, slurp::MouseCode::RightClick},
+    {SDL_BUTTON_MIDDLE, slurp::MouseCode::MiddleClick},
+    {SDL_BUTTON_X1, slurp::MouseCode::Button1},
+    {SDL_BUTTON_X2, slurp::MouseCode::Button2},
+};
 
 static const std::unordered_map<SDL_Keycode, slurp::KeyboardCode> KeyboardSDLCodeToSlurpCode =
 {
