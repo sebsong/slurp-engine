@@ -16,6 +16,7 @@ endif ()
 define(WINDOW_TITLE "Slurp's Up!")
 define(APP_NAME "SlurpEngine")
 define(APP_VERSION "1.0.0")
+define(APP_VERSION_SHORT "1.0")
 define(APP_IDENTIFIER "com.slurp.slurpengine")
 
 define(SLURP_LIB_FILE_NAME "${APP_NAME}${LIB_FILE_EXT}")
@@ -93,8 +94,7 @@ elseif (APPLE)
     endif ()
 
     # SLURP ENGINE LIBRARY
-    set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/engine.app/Contents/MacOS/)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/engine.app/Contents/Resources/)
     add_library(slurp_engine SHARED SlurpEngine.cpp)
     set_target_properties(slurp_engine PROPERTIES
             OUTPUT_NAME ${APP_NAME}
@@ -105,7 +105,7 @@ elseif (APPLE)
     target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
     target_link_options(slurp_engine PRIVATE ${linker_flags})
     add_custom_command(TARGET slurp_engine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${SLURP_LIB_MARKER_FILE_NAME}
+            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${SLURP_LIB_MARKER_FILE_NAME}
     )
 
     # MAC ENGINE EXE
@@ -113,7 +113,19 @@ elseif (APPLE)
     target_compile_options(engine PRIVATE ${compiler_flags})
     target_link_libraries(engine PRIVATE ${mac_libs})
     target_link_options(engine PRIVATE ${linker_flags})
-    set_target_properties(engine PROPERTIES MACOSX_BUNDLE TRUE MACOSX_BUNDLE_GUI_IDENTIFIER APP_IDENTIFIER)
+
+    set(BUNDLE_IDENTIFIER ${APP_IDENTIFIER})
+    set(BUNDLE_NAME ${APP_NAME})
+    set(BUNDLE_VERSION ${APP_VERSION})
+    set(BUNDLE_VERSION_SHORT ${APP_VERSION_SHORT})
+    set(BUNDLE_VERSION_LONG ${APP_VERSION})
+    set(SDL_FILESYSTEM_BASE_DIR_TYPE resource)
+    set(INFO_PLIST_FILE_PATH ${PROJECT_SOURCE_DIR}/Info.plist.in)
+    set_target_properties(
+            engine PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST_FILE_PATH}
+    )
 elseif (UNIX)
     message("Linux not supported (yet?)")
 endif ()
