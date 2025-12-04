@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
                         break;
                         default: {
                             logging::error(std::format("Gamepad axis not registered: {}", gamepadAxisEvent.axis));
-                            break;
+                            continue;
                         }
                     }
                     *axisStateStart = *axisStateEnd;
