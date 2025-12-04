@@ -17,7 +17,6 @@ namespace platform {
     };
 #endif
 
-    std::string getLocalFilePath(const char* fileName);
     slurp::SlurpDll loadSlurpLib(const char* libFilePath);
     types::byte* allocateMemory(size_t numBytes);
 

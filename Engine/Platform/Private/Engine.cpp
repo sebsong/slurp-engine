@@ -7,7 +7,10 @@
 #include "SlurpEngine.h"
 #include "SDL3/SDL.h"
 
+#include <filesystem>
+
 #if PLATFORM_WINDOWS
+#include "Windows.cpp"
 #elif PLATFORM_MAC
 #include "MacOS.cpp"
 #endif
@@ -20,6 +23,10 @@ static bool GlobalRunning;
 
 PLATFORM_SHUTDOWN(platform::shutdown) {
     GlobalRunning = false;
+}
+
+static std::string getLocalFilePath(const char* filename) {
+    return std::filesystem::path(SDL_GetBasePath()).replace_filename(filename).string();
 }
 
 static bool initSDL(SDL_Window*& outWindow) {
@@ -126,22 +133,25 @@ int main(int argc, char* argv[]) {
     platform::PlatformDll platformLib;
     render::RenderApi renderApi;
     slurp::SlurpDll slurpLib;
+    slurp::MouseState mouseState{};
+    slurp::KeyboardState keyboardState{};
+    std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
+    slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
 
     if (!initSDL(window)) {
         logging::error("Failed to initialize SDL.");
         return 1;
     }
 
-    allocateMemoryArenas(permanentMemory, transientMemory);
+    /* load libraries and apis */
     platformLib = loadPlatformLib();
     renderApi = loadRenderApi();
-
-    const char* basePath = SDL_GetBasePath(); // TODO: use this instead of the platform version?
-    std::string libFilePathStr = platform::getLocalFilePath(SLURP_LIB_FILE_NAME);
+    std::string libFilePathStr = getLocalFilePath(SLURP_LIB_FILE_NAME);
     const char* libFilePath = libFilePathStr.c_str();
-    std::string libLoadFilePathStr = platform::getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
+    std::string libLoadFilePathStr = getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
     const char* libLoadFilePath = libLoadFilePathStr.c_str();
     slurpLib = platform::loadSlurpLib(libFilePath);
+    allocateMemoryArenas(permanentMemory, transientMemory);
     slurpLib.init(permanentMemory, transientMemory, platformLib, renderApi, false);
 
 #if DEBUG
@@ -152,6 +162,7 @@ int main(int argc, char* argv[]) {
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
     uint64_t targetNanosPerFrame = static_cast<uint64_t>(static_cast<double>(targetSecondsPerFrame) * 1'000'000'000.0);
 
+    /* initialize audio */
     SDL_AudioSpec audioSpec{
         SDL_AUDIO_S16LE,
         NUM_AUDIO_CHANNELS,
@@ -163,27 +174,21 @@ int main(int argc, char* argv[]) {
         ASSERT_LOG(false, "Failed to bind audio stream.");
     }
 
-    slurp::MouseState mouseState{};
-    slurp::KeyboardState keyboardState{};
-    std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
-    slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
     GlobalRunning = true;
     while (GlobalRunning) {
-        // Handle Input
         uint64_t frameStartNanos = SDL_GetTicksNS();
-
         slurpLib.frameStart();
 
+        /* reset input state */
         for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
-
         for (std::pair<const slurp::KeyboardCode, slurp::DigitalInputState>& entry: keyboardState.state) {
             slurp::DigitalInputState& inputState = entry.second;
             inputState.transitionCount = 0;
         }
-
+        /* handle SDL events */
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -334,6 +339,7 @@ int main(int argc, char* argv[]) {
         }
         slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
 
+        /* update and render */
 #if RENDER_API == OPEN_GL
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
@@ -342,6 +348,7 @@ int main(int argc, char* argv[]) {
         SDL_GL_SwapWindow(window);
 #endif
 
+        /* audio */
         // TODO: clean up audio types and api
         constexpr int targetNumAudioSamplesToBuffer = static_cast<int>(
             AUDIO_SAMPLES_PER_SECOND * AUDIO_BUFFER_WRITE_AHEAD_SECONDS);
@@ -361,7 +368,6 @@ int main(int argc, char* argv[]) {
         );
 
         slurpLib.frameEnd();
-
         uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;
         if (frameNanos < targetNanosPerFrame) {
             SDL_DelayPrecise(targetNanosPerFrame - frameNanos);
