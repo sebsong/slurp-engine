@@ -29,11 +29,12 @@ static std::string getLocalFilePath(const char* filename) {
     return std::filesystem::path(SDL_GetBasePath()).replace_filename(filename).string();
 }
 
-static bool initSDL(SDL_Window*& outWindow) {
+static bool initSDL(SDL_Window*& outWindow, SDL_AudioStream*& outAudioStream) {
     if (!SDL_SetAppMetadata(APP_NAME, APP_VERSION, APP_IDENTIFIER)) {
         logging::error("Failed to set SDL app metadata.");
         return false;
     }
+    SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "directsound");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         logging::error("Failed to initialize SDL.");
         return false;
@@ -79,6 +80,19 @@ static bool initSDL(SDL_Window*& outWindow) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
 #endif
+
+    /* initialize audio */
+    SDL_AudioSpec audioSpec{
+        SDL_AUDIO_S16LE,
+        NUM_AUDIO_CHANNELS,
+        AUDIO_SAMPLES_PER_SECOND
+    };
+    SDL_AudioDeviceID audioDeviceId = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
+    SDL_AudioStream* audioStream = SDL_CreateAudioStream(nullptr, &audioSpec);
+    outAudioStream = audioStream;
+    if (!SDL_BindAudioStream(audioDeviceId, audioStream)) {
+        ASSERT_LOG(false, "Failed to bind audio stream.");
+    }
 
     return true;
 }
@@ -128,6 +142,7 @@ static render::RenderApi loadRenderApi() {
 
 int main(int argc, char* argv[]) {
     SDL_Window* window;
+    SDL_AudioStream* audioStream;
     memory::MemoryArena permanentMemory;
     memory::MemoryArena transientMemory;
     platform::PlatformDll platformLib;
@@ -138,7 +153,7 @@ int main(int argc, char* argv[]) {
     std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
 
-    if (!initSDL(window)) {
+    if (!initSDL(window, audioStream)) {
         logging::error("Failed to initialize SDL.");
         return 1;
     }
@@ -161,18 +176,6 @@ int main(int argc, char* argv[]) {
 #endif
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
     uint64_t targetNanosPerFrame = static_cast<uint64_t>(static_cast<double>(targetSecondsPerFrame) * 1'000'000'000.0);
-
-    /* initialize audio */
-    SDL_AudioSpec audioSpec{
-        SDL_AUDIO_S16LE,
-        NUM_AUDIO_CHANNELS,
-        AUDIO_SAMPLES_PER_SECOND
-    };
-    SDL_AudioDeviceID audioDeviceId = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
-    SDL_AudioStream* audioStream = SDL_CreateAudioStream(nullptr, &audioSpec);
-    if (!SDL_BindAudioStream(audioDeviceId, audioStream)) {
-        ASSERT_LOG(false, "Failed to bind audio stream.");
-    }
 
     GlobalRunning = true;
     while (GlobalRunning) {
