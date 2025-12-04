@@ -1,10 +1,6 @@
 #include "OpenGL.h"
 
 #include "WinGlad.c"
-#if PLATFORM_WINDOWS
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "GLFW/glfw3native.h"
-#endif
 
 #include "Settings.h"
 #include "Logging.h"

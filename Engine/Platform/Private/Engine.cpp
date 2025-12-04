@@ -7,7 +7,11 @@
 #include "SlurpEngine.h"
 #include "SDL3/SDL.h"
 
+#if PLATFORM_WINDOWS
+#elif PLATFORM_MAC
 #include "MacOS.cpp"
+#endif
+
 #if RENDER_API == OPEN_GL
 #include "OpenGL.cpp"
 #endif
