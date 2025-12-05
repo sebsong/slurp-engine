@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CollectionTypes.h"
+#include "PlayingSound.h"
 
 #include <cstdint>
 
 namespace audio {
-    struct PlayingSound;
     struct AudioBuffer;
 
     typedef uint32_t sound_id;

@@ -16,15 +16,15 @@ namespace mine_site {
     MineSiteSpawner::MineSiteSpawner(): Entity("MineSiteSpawner") {}
 
     static slurp::Vec2<float> getRandomSpawnLocation() {
-        float spawnX = random::randomFloat(OuterBounds.i.x, OuterBounds.j.x);
+        float spawnX = rnd::randomFloat(OuterBounds.i.x, OuterBounds.j.x);
 
         float spawnY;
         if (math::inRange(spawnX, InnerBounds.i.x, InnerBounds.j.x)) {
-            spawnY = random::randomBool()
-                         ? random::randomFloat(OuterBounds.j.y, InnerBounds.j.y)
-                         : random::randomFloat(InnerBounds.i.y, OuterBounds.i.y);
+            spawnY = rnd::randomBool()
+                         ? rnd::randomFloat(OuterBounds.j.y, InnerBounds.j.y)
+                         : rnd::randomFloat(InnerBounds.i.y, OuterBounds.i.y);
         } else {
-            spawnY = random::randomFloat(OuterBounds.j.y, OuterBounds.i.y);
+            spawnY = rnd::randomFloat(OuterBounds.j.y, OuterBounds.i.y);
         }
 
         return {spawnX, spawnY};

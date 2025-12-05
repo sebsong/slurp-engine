@@ -9,10 +9,16 @@
 #include <fstream>
 
 namespace asset {
+//TODO: need to package this with the build
 #ifdef ASSETS_DIR
     static const std::string AssetsDirectory = ASSETS_DIR;
 #else
+#if PLATFORM_WINDOWS
     static const std::string AssetsDirectory = "../../../../Assets/";
+#elif PLATFORM_MAC
+    static const std::string AssetsDirectory = "../../../../../../../Assets/";
+#endif
+
 #endif
 
     static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";

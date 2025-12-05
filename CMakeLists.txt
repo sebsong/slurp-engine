@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 project(SlurpEngine)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 
 function(include_engine_module target)
@@ -26,8 +27,10 @@ include_engine_module(OpenGL)
 include_game_module(Core)
 include_game_module(Entities)
 
-include_directories(ExternalLibs/glfw-3.4.bin.WIN64/include)
-link_directories(ExternalLibs/glfw-3.4.bin.WIN64/lib-mingw-w64)
+set(SDL_SHARED OFF CACHE BOOL "Disable SDL3 shared lib" FORCE)
+set(SDL_STATIC ON CACHE BOOL "Enable SDL3 static lib" FORCE)
+add_subdirectory(ExternalLibs/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
+include_directories(ExternalLibs/SDL-release-3.2.28/include)
 include_directories(ExternalLibs/glad/include)
 
 add_subdirectory(Engine/Platform/Private)

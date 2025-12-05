@@ -7,6 +7,9 @@
 #if PLATFORM_WINDOWS
 #undef DLL_EXPORT
 #define DLL_EXPORT __declspec( dllexport )
+#elif PLATFORM_MAC
+#undef DLL_EXPORT
+#define DLL_EXPORT __attribute__((visibility("default")))
 #endif
 
 // NOTE: Define dynamic types for hot reloading

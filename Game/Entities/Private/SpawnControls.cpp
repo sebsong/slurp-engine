@@ -89,7 +89,7 @@ namespace ui {
                           stopTurretPlacement();
                       }
                   },
-                  [this](UIButton* button) {
+                  [](UIButton* button) {
                       button->physicsInfo.position.y += 1;
                   }
               )

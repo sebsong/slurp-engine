@@ -13,7 +13,7 @@
 
 inline void ASSERT(bool expression) {
 #if DEBUG
-    if (!(expression)) { *(int*) (nullptr) = 0; }
+    if (!(expression)) {  __builtin_trap(); }
 #endif
 }
 
@@ -21,7 +21,7 @@ inline void ASSERT_LOG(bool expression, const std::string&& message) {
 #if DEBUG
     if (!expression) {
         logging::error(message);
-        *(int*) (nullptr) = 0;
+        __builtin_trap();
     }
 #endif
 }

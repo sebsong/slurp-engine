@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <functional>
 
-
 namespace timer {
     typedef uint32_t timer_handle;
 

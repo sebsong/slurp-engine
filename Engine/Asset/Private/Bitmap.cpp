@@ -1,7 +1,13 @@
 #include "Bitmap.h"
 
+#if PLATFORM_WINDOWS
 #include <windef.h>
 #include <wingdi.h>
+#elif PLATFORM_MAC
+// TODO: better way to get these?
+#define BI_RGB 0
+#define BI_BITFIELDS 3
+#endif
 
 namespace asset {
     static constexpr uint8_t FourBitMaskLow = 0b00001111;

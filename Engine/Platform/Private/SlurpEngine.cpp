@@ -50,7 +50,7 @@
 #include "Game.cpp"
 
 namespace slurp {
-    SLURP_INIT(init) {
+    SLURP_INIT(slurp_init) {
         /** Memory **/
         if (!isInitialized) {
             Globals = permanentMemory.allocate<Global>();
@@ -91,9 +91,9 @@ namespace slurp {
         entity::initializeEntities();
     }
 
-    SLURP_FRAME_START(frameStart) {}
+    SLURP_FRAME_START(slurp_frameStart) {}
 
-    SLURP_HANDLE_INPUT(handleInput) {
+    SLURP_HANDLE_INPUT(slurp_handleInput) {
         game::handleMouseAndKeyboardInput(mouseState, keyboardState);
         for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
             if (!gamepadStates[gamepadIndex].isConnected) { continue; }
@@ -120,11 +120,11 @@ namespace slurp {
 #endif
     }
 
-    SLURP_BUFFER_AUDIO(bufferAudio) {
+    SLURP_BUFFER_AUDIO(slurp_bufferAudio) {
         audio::bufferAudio(buffer);
     }
 
-    SLURP_UPDATE_AND_RENDER(updateAndRender) {
+    SLURP_UPDATE_AND_RENDER(slurp_updateAndRender) {
         timer::tick(dt);
 
         game::update(dt);
@@ -149,11 +149,11 @@ namespace slurp {
 #endif
     }
 
-    SLURP_FRAME_END(frameEnd) {
+    SLURP_FRAME_END(slurp_frameEnd) {
         memory::SingleFrame->freeAll();
     }
 
-    SLURP_SHUTDOWN(shutdown) {
+    SLURP_SHUTDOWN(slurp_shutdown) {
         job::shutdown();
         timer::shutdown();
         memory::Transient->freeAll();

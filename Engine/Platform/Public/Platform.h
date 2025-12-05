@@ -1,9 +1,13 @@
 #pragma once
 #include "DynamicDeclaration.h"
-#include "Memory.h"
+#include "MemoryConstructs.h"
 
 #include <functional>
 #include <cstdint>
+
+namespace slurp {
+    struct SlurpDll;
+}
 
 namespace platform {
 #if DEBUG
@@ -13,6 +17,8 @@ namespace platform {
     };
 #endif
 
+    slurp::SlurpDll loadSlurpLib(const char* libFilePath);
+    types::byte* allocateMemory(size_t numBytes);
 
 #define PLATFORM_VIBRATE_GAMEPAD(fnName) void fnName(int gamepadIndex, float leftMotorSpeed, float rightMotorSpeed)
 #define PLATFORM_SHUTDOWN(fnName) void fnName()

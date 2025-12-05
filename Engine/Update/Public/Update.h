@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Collision.h"
-#include "Math.h"
+#include "Mathematics.h"
 #include "Physics.h"
 
 namespace entity {

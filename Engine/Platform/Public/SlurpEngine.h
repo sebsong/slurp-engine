@@ -18,7 +18,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SpinLock.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Memory.cpp"
+#include "MemoryConstructs.cpp"
 
 namespace slurp {
     struct EngineSystems {
@@ -44,28 +44,28 @@ namespace slurp {
 #define SLURP_FRAME_END(fnName) void fnName()
 #define SLURP_SHUTDOWN(fnName) void fnName()
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, init)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_INIT, slurp_init)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_FRAME_START, frameStart)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_FRAME_START, slurp_frameStart)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_INPUT, handleInput)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_HANDLE_INPUT, slurp_handleInput)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_BUFFER_AUDIO, bufferAudio)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_BUFFER_AUDIO, slurp_bufferAudio)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE_AND_RENDER, updateAndRender)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_UPDATE_AND_RENDER, slurp_updateAndRender)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_FRAME_END, frameEnd)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_FRAME_END, slurp_frameEnd)
 
-    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_SHUTDOWN, shutdown)
+    SLURP_DECLARE_DYNAMIC_DLL_VOID(SLURP_SHUTDOWN, slurp_shutdown)
 
     struct SlurpDll {
-        dyn_init* init = stub_init;
-        dyn_frameStart* frameStart = stub_frameStart;
-        dyn_handleInput* handleInput = stub_handleInput;
-        dyn_bufferAudio* bufferAudio = stub_bufferAudio;
-        dyn_updateAndRender* updateAndRender = stub_updateAndRender;
-        dyn_frameEnd* frameEnd = stub_frameEnd;
-        dyn_shutdown* shutdown = stub_shutdown;
+        dyn_slurp_init* init = stub_slurp_init;
+        dyn_slurp_frameStart* frameStart = stub_slurp_frameStart;
+        dyn_slurp_handleInput* handleInput = stub_slurp_handleInput;
+        dyn_slurp_bufferAudio* bufferAudio = stub_slurp_bufferAudio;
+        dyn_slurp_updateAndRender* updateAndRender = stub_slurp_updateAndRender;
+        dyn_slurp_frameEnd* frameEnd = stub_slurp_frameEnd;
+        dyn_slurp_shutdown* shutdown = stub_slurp_shutdown;
     };
 
 }
