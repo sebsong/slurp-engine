@@ -21,12 +21,12 @@
 
 static bool GlobalRunning;
 
-PLATFORM_SHUTDOWN(platform::shutdown) {
-    GlobalRunning = false;
+PLATFORM_GET_LOCAL_FILE_PATH(platform::getLocalFilePath) {
+    return std::filesystem::path(SDL_GetBasePath()).replace_filename(filename).string();
 }
 
-static std::string getLocalFilePath(const char* filename) {
-    return std::filesystem::path(SDL_GetBasePath()).replace_filename(filename).string();
+PLATFORM_SHUTDOWN(platform::shutdown) {
+    GlobalRunning = false;
 }
 
 static bool initSDL(SDL_Window*& outWindow, SDL_AudioStream*& outAudioStream) {
@@ -111,17 +111,12 @@ static void allocateMemoryArenas(memory::MemoryArena& outPermanentMemory, memory
 
 static platform::PlatformDll loadPlatformLib() {
     platform::PlatformDll platformLib = {};
-    // platformDll.vibrateGamepad = platform::vibrateGamepad;
+    platformLib.getLocalFilePath = platform::getLocalFilePath;
+    platformLib.vibrateGamepad = platform::vibrateGamepad;
     platformLib.shutdown = platform::shutdown;
-    // #if DEBUG
-    //     platformDll.DEBUG_readFile = platform::DEBUG_readFile;
-    //     platformDll.DEBUG_writeFile = platform::DEBUG_writeFile;
-    //     platformDll.DEBUG_freeMemory = platform::DEBUG_freeMemory;
-    //     platformDll.DEBUG_togglePause = platform::DEBUG_togglePause;
-    //     platformDll.DEBUG_beginRecording = platform::DEBUG_beginRecording;
-    //     platformDll.DEBUG_endRecording = platform::DEBUG_endRecording;
-    //     platformDll.DEBUG_beginPlayback = platform::DEBUG_beginPlayback;
-    // #endif
+#if DEBUG
+    platformLib.DEBUG_togglePause = platform::DEBUG_togglePause;
+#endif
     return platformLib;
 }
 
@@ -163,9 +158,9 @@ int main(int argc, char* argv[]) {
     /* load libraries and apis */
     platformLib = loadPlatformLib();
     renderApi = loadRenderApi();
-    std::string libFilePathStr = getLocalFilePath(SLURP_LIB_FILE_NAME);
+    std::string libFilePathStr = platform::getLocalFilePath(SLURP_LIB_FILE_NAME);
     const char* libFilePath = libFilePathStr.c_str();
-    std::string libLoadFilePathStr = getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
+    std::string libLoadFilePathStr = platform::getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
     const char* libLoadFilePath = libLoadFilePathStr.c_str();
     slurpLib = platform::loadSlurpLib(libFilePath);
     allocateMemoryArenas(permanentMemory, transientMemory);
