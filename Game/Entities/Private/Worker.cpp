@@ -45,6 +45,7 @@ namespace worker {
           _isLoaded(false),
           _isAtTargetLocation(false),
           _isCorrupted(false),
+          _isIdle(false),
           _corruptionRemaining(StartingCorruption) {}
 
     void Worker::initialize() {
@@ -100,9 +101,7 @@ namespace worker {
             }
         } else {
             physicsInfo.direction = (_targetLocation - physicsInfo.position).normalize();
-            if (!_isPurifying) {
-                physicsInfo.acceleration = BaseAcceleration;
-            }
+            physicsInfo.acceleration = BaseAcceleration;
         }
     }
 

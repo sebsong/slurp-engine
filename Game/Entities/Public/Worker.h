@@ -19,7 +19,6 @@ namespace worker {
         bool _isLoaded;
         bool _isAtTargetLocation;
         bool _isCorrupted;
-        bool _isPurifying;
         bool _isIdle;
         slurp::Vec2<float> _targetLocation;
         int _corruptionRemaining;
