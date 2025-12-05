@@ -1,7 +1,5 @@
 #include "OpenGL.h"
 
-#include "WinGlad.c"
-
 #include "Settings.h"
 #include "Logging.h"
 #include "Matrix.h"
@@ -9,7 +7,8 @@
 #include "RenderInfo.h"
 #include "Bitmap.h"
 
-#include "SDL3/SDL.h"
+#include <SDL3/SDL.h>
+#include <Glad.c>
 
 namespace open_gl {
     // e.g. [-WORLD_WIDTH / 2, -WORLD_HEIGHT / 2] -> [-1, -1]

@@ -5,8 +5,8 @@
 #include "RenderApi.h"
 #include "Settings.h"
 #include "SlurpEngine.h"
-#include "SDL3/SDL.h"
 
+#include <SDL3/SDL.h>
 #include <filesystem>
 
 #if PLATFORM_WINDOWS
