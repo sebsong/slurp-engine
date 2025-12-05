@@ -1,4 +1,6 @@
 #pragma once
+#include <functional>
+
 #include "Input.h"
 
 #include <unordered_map>

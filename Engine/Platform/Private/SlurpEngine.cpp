@@ -49,6 +49,11 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
+#if DEBUG
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Recording.cpp"
+#endif
+
 namespace slurp {
     SLURP_INIT(slurp_init) {
         /** Memory **/
@@ -94,30 +99,35 @@ namespace slurp {
     SLURP_FRAME_START(slurp_frameStart) {}
 
     SLURP_HANDLE_INPUT(slurp_handleInput) {
+#if DEBUG
+        if (keyboardState.justPressed(KeyboardCode::P)) {
+            Globals->PlatformDll->DEBUG_togglePause();
+        }
+        if (keyboardState.justPressed(KeyboardCode::R) && !Globals->RecordingState->isPlayingBack) {
+            if (!Globals->RecordingState->isRecording) {
+                beginRecording(Globals->RecordingState);
+            } else {
+                endRecording(Globals->RecordingState);
+            }
+        }
+        if (keyboardState.justPressed(KeyboardCode::T)) {
+            beginPlayback(Globals->RecordingState);
+        }
+
+        if (Globals->RecordingState->isRecording) {
+            recordInput(Globals->RecordingState, mouseState, keyboardState, gamepadStates);
+        }
+        if (Globals->RecordingState->isPlayingBack) {
+            readInputRecording(Globals->RecordingState, mouseState, keyboardState, gamepadStates);
+        }
+#endif
+
         game::handleMouseAndKeyboardInput(mouseState, keyboardState);
         for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
             if (!gamepadStates[gamepadIndex].isConnected) { continue; }
             game::handleGamepadInput(gamepadIndex, gamepadStates[gamepadIndex]);
         }
         entity::handleInput(mouseState, keyboardState, gamepadStates);
-
-#if DEBUG
-        if (keyboardState.justPressed(KeyboardCode::P)) { Globals->PlatformDll->DEBUG_togglePause(); }
-        if (keyboardState.justPressed(KeyboardCode::R) && !Globals->RecordingState->isPlayingBack) {
-            if (!Globals->RecordingState->isRecording) {
-                Globals->RecordingState->isRecording = true;
-                Globals->PlatformDll->DEBUG_beginRecording();
-            } else {
-                Globals->PlatformDll->DEBUG_endRecording();
-                Globals->RecordingState->isRecording = false;
-            }
-        }
-        if (keyboardState.justPressed(KeyboardCode::T)) {
-            Globals->RecordingState->isPlayingBack = true;
-            auto onPlaybackEnd = []() -> void { Globals->RecordingState->isPlayingBack = false; };
-            Globals->PlatformDll->DEBUG_beginPlayback(onPlaybackEnd);
-        }
-#endif
     }
 
     SLURP_BUFFER_AUDIO(slurp_bufferAudio) {
