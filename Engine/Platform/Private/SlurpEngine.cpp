@@ -99,6 +99,9 @@ namespace slurp {
     SLURP_FRAME_START(slurp_frameStart) {}
 
     SLURP_HANDLE_INPUT(slurp_handleInput) {
+        const MouseState* actualMouseState = &mouseState;
+        const KeyboardState* actualKeyboardState = &keyboardState;
+        const GamepadState (*actualGamepadStates)[MAX_NUM_GAMEPADS] = &gamepadStates;
 #if DEBUG
         if (keyboardState.justPressed(KeyboardCode::P)) {
             Globals->PlatformDll->DEBUG_togglePause();
@@ -117,17 +120,28 @@ namespace slurp {
         if (Globals->RecordingState->isRecording) {
             recordInput(Globals->RecordingState, mouseState, keyboardState, gamepadStates);
         }
+        MouseState recordingMouseState{};
+        KeyboardState recordingKeyboardState{};
+        GamepadState (recordingGamepadStates)[MAX_NUM_GAMEPADS]{};
         if (Globals->RecordingState->isPlayingBack) {
-            readInputRecording(Globals->RecordingState, mouseState, keyboardState, gamepadStates);
+            readInputRecording(
+                Globals->RecordingState,
+                recordingMouseState,
+                recordingKeyboardState,
+                recordingGamepadStates
+            );
+            actualMouseState = &recordingMouseState;
+            actualKeyboardState = &recordingKeyboardState;
+            actualGamepadStates = &recordingGamepadStates;
         }
 #endif
 
-        game::handleMouseAndKeyboardInput(mouseState, keyboardState);
+        game::handleMouseAndKeyboardInput(*actualMouseState, *actualKeyboardState);
         for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
             if (!gamepadStates[gamepadIndex].isConnected) { continue; }
-            game::handleGamepadInput(gamepadIndex, gamepadStates[gamepadIndex]);
+            game::handleGamepadInput(gamepadIndex, *actualGamepadStates[gamepadIndex]);
         }
-        entity::handleInput(mouseState, keyboardState, gamepadStates);
+        entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
     }
 
     SLURP_BUFFER_AUDIO(slurp_bufferAudio) {

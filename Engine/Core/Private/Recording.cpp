@@ -37,9 +37,8 @@ namespace slurp {
         RecordingState* recordingState,
         const MouseState& mouseState,
         const KeyboardState& keyboardState,
-        GamepadState gamepadStates[MAX_NUM_GAMEPADS]
+        const GamepadState gamepadStates[MAX_NUM_GAMEPADS]
     ) {
-        DWORD _;
         // record mouse input
         recordingState->recordingFileStream << mouseState.position;
         recordStateMap(recordingState, mouseState.state);
@@ -49,22 +48,22 @@ namespace slurp {
 
         // record gamepad input
         for (int gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
-            GamepadState& gamepadState = gamepadStates[gamepadIndex];
+            const GamepadState& gamepadState = gamepadStates[gamepadIndex];
             recordingState->recordingFileStream << gamepadState.isConnected;
             recordingState->recordingFileStream.write(
-                reinterpret_cast<types::byte*>(&gamepadState.leftStick),
+                reinterpret_cast<const types::byte*>(&gamepadState.leftStick),
                 sizeof(gamepadState.leftStick)
             );
             recordingState->recordingFileStream.write(
-                reinterpret_cast<types::byte*>(&gamepadState.rightStick),
+                reinterpret_cast<const types::byte*>(&gamepadState.rightStick),
                 sizeof(gamepadState.rightStick)
             );
             recordingState->recordingFileStream.write(
-                reinterpret_cast<types::byte*>(&gamepadState.leftTrigger),
+                reinterpret_cast<const types::byte*>(&gamepadState.leftTrigger),
                 sizeof(gamepadState.leftTrigger)
             );
             recordingState->recordingFileStream.write(
-                reinterpret_cast<types::byte*>(&gamepadState.rightTrigger),
+                reinterpret_cast<const types::byte*>(&gamepadState.rightTrigger),
                 sizeof(gamepadState.rightTrigger)
             );
             recordStateMap(recordingState, gamepadState.state);
@@ -97,7 +96,6 @@ namespace slurp {
         RecordingState* recordingState,
         std::unordered_map<T, DigitalInputState>& outStateMap
     ) {
-        DWORD _;
         size_t numStates = 0;
         recordingState->recordingFileStream >> numStates;
         outStateMap.clear();
@@ -114,28 +112,17 @@ namespace slurp {
         KeyboardState& outKeyboardState,
         GamepadState outGamepadStates[MAX_NUM_GAMEPADS]
     ) {
-        DWORD bytesRead;
-        // read mouse input
-        // TODO: check number of bytes left
-        recordingState->recordingFileStream.read(
-            reinterpret_cast<types::byte*>(&outMouseState.position),
-            sizeof(outMouseState.position)
-        );
-
-        // ReadFile(
-        //     recordingState->recordingFileStream,
-        //     &outMouseState.position,
-        //     sizeof(outMouseState.position),
-        //     &bytesRead,
-        //     nullptr
-        // );
-        if (bytesRead == 0) {
+        if (recordingState->recordingFileStream.eof()) {
             recordingState->isPlayingBack = false;
             recordingState->recordingFileStream.close();
             recordingState->onPlaybackEnd();
         }
 
-        DWORD _;
+        // read mouse input
+        recordingState->recordingFileStream.read(
+            reinterpret_cast<types::byte*>(&outMouseState.position),
+            sizeof(outMouseState.position)
+        );
         readInputStateMap(recordingState, outMouseState.state);
 
         // read keyboard input
