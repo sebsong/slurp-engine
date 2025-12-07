@@ -20,9 +20,18 @@
 #endif
 
 static bool GlobalRunning;
+static bool GlobalIsPaused;
 
 PLATFORM_GET_LOCAL_FILE_PATH(platform::getLocalFilePath) {
     return std::filesystem::path(SDL_GetBasePath()).replace_filename(filename).string();
+}
+
+PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause) {
+    GlobalIsPaused = !GlobalIsPaused;
+}
+
+PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
+    // TODO: impl
 }
 
 PLATFORM_SHUTDOWN(platform::shutdown) {
@@ -338,6 +347,12 @@ int main(int argc, char* argv[]) {
             }
         }
         slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
+
+#if DEBUG
+        if (GlobalIsPaused) {
+            continue;
+        }
+#endif
 
         /* update and render */
         slurpLib.updateAndRender(targetSecondsPerFrame);

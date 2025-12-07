@@ -7,7 +7,7 @@ namespace slurp {
     void beginRecording(RecordingState* recordingState) {
         recordingState->recordingFileStream = std::fstream(
             Globals->PlatformDll->getLocalFilePath(RECORDING_FILE_NAME),
-            std::ios::binary
+            std::fstream::in | std::fstream::out | std::fstream::trunc
         );
         std::fstream& fileStream = recordingState->recordingFileStream;
         if (!fileStream || !fileStream.is_open()) {
@@ -29,7 +29,10 @@ namespace slurp {
         size_t numStates = stateMap.size();
         recordingState->recordingFileStream << numStates;
         for (const std::pair<const T, DigitalInputState>& entry: stateMap) {
-            recordingState->recordingFileStream << entry;
+            recordingState->recordingFileStream.write(
+                reinterpret_cast<const types::byte*>(&entry),
+                sizeof(entry)
+            );
         }
     }
 
@@ -101,7 +104,10 @@ namespace slurp {
         outStateMap.clear();
         for (size_t i = 0; i < numStates; i++) {
             std::pair<const T, DigitalInputState> entry;
-            recordingState->recordingFileStream >> entry;
+            recordingState->recordingFileStream.read(
+                reinterpret_cast<types::byte*>(&entry),
+                sizeof(entry)
+            );
             outStateMap.insert(entry);
         }
     }
