@@ -61,6 +61,8 @@ namespace game {
 
         asset::Sprite* mouseCursorSprite;
 
+        asset::Sprite* overlaySprite;
+
         asset::Sound* backgroundMusic;
         asset::Sound* resourceCollected;
         asset::Sound* resourceCollectedLow;
@@ -99,6 +101,7 @@ namespace game {
         ui::StopwatchDisplay stopwatchDisplay;
 
         mouse_cursor::MouseCursor mouseCursor;
+        entity::Entity overlay;
     };
 
     enum ZOrder {

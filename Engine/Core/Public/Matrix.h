@@ -16,6 +16,8 @@ namespace slurp {
             };
 
             Vec2<T> rows[2];
+
+            T values[4];
         };
 
         Mat22(const Vec2<T>& i, const Vec2<T>& j) : i(i), j(j) {}
@@ -41,6 +43,8 @@ namespace slurp {
             };
 
             Vec2<T> rows[3];
+
+            T values[6];
         };
 
         Mat32(const Vec2<T>& i, const Vec2<T>& j, const Vec2<T>& k) : i(i), j(j), k(k) {}
@@ -62,6 +66,8 @@ namespace slurp {
             };
 
             Vec3<T> rows[3];
+
+            T values[9];
         };
 
         Mat33(const Vec3<T>& i, const Vec3<T>& j, const Vec3<T>& k) : i(i), j(j), k(k) {}

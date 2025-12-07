@@ -68,6 +68,8 @@ namespace game {
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
+        Assets->overlaySprite = asset::loadSprite("overlay.bmp", "overlay.glsl", "overlay.glsl");
+
         // NOTE: https://opengameart.org/content/since-2-am
         Assets->backgroundMusic = asset::loadSound("since_2_am.wav");
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
@@ -156,6 +158,13 @@ namespace game {
                 );
 
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
+
+        new(&State->mouseCursor) entity::Entity(
+            "Overlay",
+            render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
+            physics::PhysicsInfo(),
+            collision::CollisionInfo()
+        );
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
