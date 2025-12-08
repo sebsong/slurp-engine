@@ -1,6 +1,7 @@
 #pragma once
 
 #if DEBUG
+#include <fstream>
 #include <functional>
 
 namespace slurp {

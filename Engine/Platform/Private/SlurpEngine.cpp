@@ -87,9 +87,6 @@ namespace slurp {
             Globals->AudioPlayer = new(&engineSystems->audioPlayer) audio::AudioPlayer();
         }
         job::initialize();
-#if DEBUG
-        Globals->RecordingState = new(memory::Transient->allocate<RecordingState>()) RecordingState();
-#endif
 
         /** Game **/
         game::initialize(isInitialized);
@@ -106,26 +103,26 @@ namespace slurp {
         if (keyboardState.justPressed(KeyboardCode::P)) {
             Globals->PlatformDll->DEBUG_togglePause();
         }
-        if (keyboardState.justPressed(KeyboardCode::R) && !Globals->RecordingState->isPlayingBack) {
-            if (!Globals->RecordingState->isRecording) {
-                beginRecording(Globals->RecordingState);
+        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState.isPlayingBack) {
+            if (!GlobalRecordingState.isRecording) {
+                beginRecording(GlobalRecordingState);
             } else {
-                endRecording(Globals->RecordingState);
+                endRecording(GlobalRecordingState);
             }
         }
         if (keyboardState.justPressed(KeyboardCode::T)) {
-            beginPlayback(Globals->RecordingState);
+            beginPlayback(GlobalRecordingState);
         }
 
-        if (Globals->RecordingState->isRecording) {
-            recordInput(Globals->RecordingState, mouseState, keyboardState, gamepadStates);
+        if (GlobalRecordingState.isRecording) {
+            recordInput(GlobalRecordingState, mouseState, keyboardState, gamepadStates);
         }
         MouseState recordingMouseState{};
         KeyboardState recordingKeyboardState{};
-        GamepadState (recordingGamepadStates)[MAX_NUM_GAMEPADS]{};
-        if (Globals->RecordingState->isPlayingBack) {
+        GamepadState recordingGamepadStates[MAX_NUM_GAMEPADS]{};
+        if (GlobalRecordingState.isPlayingBack) {
             readInputRecording(
-                Globals->RecordingState,
+                GlobalRecordingState,
                 recordingMouseState,
                 recordingKeyboardState,
                 recordingGamepadStates
@@ -155,14 +152,14 @@ namespace slurp {
         entity::updateAndRender(dt);
 
 #if DEBUG
-        if (Globals->RecordingState->isRecording) {
+        if (GlobalRecordingState.isRecording) {
             debug::drawRectBorder(
                 {-WORLD_WIDTH_MAX, -WORLD_HEIGHT_MAX},
                 {WORLD_WIDTH_MAX,WORLD_HEIGHT_MAX},
                 10,
                 DEBUG_RED_COLOR
             );
-        } else if (Globals->RecordingState->isPlayingBack) {
+        } else if (GlobalRecordingState.isPlayingBack) {
             debug::drawRectBorder(
                 {-WORLD_WIDTH_MAX, -WORLD_HEIGHT_MAX},
                 {WORLD_WIDTH_MAX,WORLD_HEIGHT_MAX},

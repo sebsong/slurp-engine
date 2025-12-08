@@ -1,4 +1,5 @@
 #pragma once
+#include "Recording.h"
 
 namespace memory {
     struct GameMemory;
@@ -38,7 +39,6 @@ namespace game {
 }
 
 namespace slurp {
-    struct RecordingState;
     class EntityPipeline;
 
     // TODO: maybe have static helper methods instead of needing to reference these directly
@@ -53,12 +53,13 @@ namespace slurp {
         asset::AssetLoader* AssetLoader;
         entity::EntityPipeline* EntityPipeline;
         audio::AudioPlayer* AudioPlayer;
-#if DEBUG
-        RecordingState* RecordingState;
-#endif
 
         // TODO: should these live in the game module to give the game module full ownership
         game::GameAssets* GameAssets;
         game::GameState* GameState;
     }* Globals;
+
+#if DEBUG
+    static RecordingState GlobalRecordingState;
+#endif
 }
