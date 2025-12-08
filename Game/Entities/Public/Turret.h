@@ -23,5 +23,7 @@ namespace turret {
 
         void update(float dt) override;
 
+        void onCollisionEnter(const collision::CollisionDetails& collisionDetails) override;
+
     };
 }

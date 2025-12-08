@@ -159,7 +159,7 @@ namespace game {
 
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
 
-        new(&State->mouseCursor) entity::Entity(
+        new(&State->overlay) entity::Entity(
             "Overlay",
             render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
             physics::PhysicsInfo(),

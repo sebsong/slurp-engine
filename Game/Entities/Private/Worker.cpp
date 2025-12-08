@@ -6,7 +6,7 @@
 
 namespace worker {
     static const geometry::Shape WorkerShape = {geometry::Rect, {5, 3}};
-    static constexpr float BaseSpeed = 100;
+    static constexpr float BaseSpeed = 50;
     static constexpr float BaseAcceleration = BaseSpeed * 16;
     static const slurp::Vec2<float> StartPos = {50, 50};
     static constexpr float CollectionTime = 2.f;
@@ -46,12 +46,23 @@ namespace worker {
           _isAtTargetLocation(false),
           _isCorrupted(false),
           _isIdle(false),
-          _corruptionRemaining(StartingCorruption) {}
+          _corruptionRemaining(StartingCorruption),
+          speedMultiplierTimerHandle(timer::reserveHandle()) {}
 
     void Worker::initialize() {
         Entity::initialize();
         game::State->corruptibleWorkers.push_back(this);
         findNewMiningLocation();
+    }
+
+    void Worker::applySpeedMultiplier(float speedMultiplier, float duration) {
+        physicsInfo.maxSpeed = BaseSpeed * speedMultiplier;
+        timer::start(
+            speedMultiplierTimerHandle,
+            duration,
+            false,
+            [this] { physicsInfo.maxSpeed = BaseSpeed; }
+        );
     }
 
     void Worker::corrupt() {

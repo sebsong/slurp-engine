@@ -9,6 +9,8 @@ namespace worker {
 
         void initialize() override;
 
+        void applySpeedMultiplier(float speedMultiplier, float duration);
+
         void corrupt();
 
         bool isCorrupted() const;
@@ -22,6 +24,7 @@ namespace worker {
         bool _isIdle;
         slurp::Vec2<float> _targetLocation;
         int _corruptionRemaining;
+        timer::timer_handle speedMultiplierTimerHandle;
 
         void update(float dt) override;
 

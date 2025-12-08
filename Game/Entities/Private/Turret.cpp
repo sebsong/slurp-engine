@@ -3,13 +3,17 @@
 namespace turret {
     static constexpr float Range = 32.f;
     static constexpr float ShootCooldown = 1.f;
-    static const slurp::Vec2<float> RenderOffset = {0, 5};
+    static const slurp::Vec2<float> RenderOffset = {0, .5};
 
     static constexpr float OrbMaxHeightOffset = 0.f;
     static constexpr float OrbMinHeightOffset = -3.f;
 
     static constexpr float TurretSpawnTime = 1.f;
     static constexpr float TurretIdleAnimDuration = 2.f;
+
+    static constexpr float WorkerSpeedMultiplier = 2.f;
+    static constexpr float CorruptedWorkerSpeedMultiplier = 0.5f;
+    static constexpr float SpeedMultiplierDuration = 2.f;
 
     enum Sprites: uint8_t {
         TurretOrb = 0,
@@ -35,7 +39,7 @@ namespace turret {
               collision::CollisionInfo(
                   true,
                   true,
-                  geometry::Shape{geometry::Rect, {2 * Range, 2 * Range}},
+                  geometry::Shape{geometry::Rect, {2 * Range, 1.75 * Range}},
                   true
               )
           ),
@@ -73,11 +77,12 @@ namespace turret {
         float closestDistance = std::numeric_limits<float>::max();
         for (Entity* entity: potentialTargets) {
             if (worker::Worker* worker = dynamic_cast<worker::Worker*>(entity)) {
-                if (worker->isCorrupted()) {
-                    float distance = physicsInfo.position.distanceTo(worker->physicsInfo.position);
-                    if (distance <= range && (targetWorker == nullptr || distance < closestDistance)) {
-                        targetWorker = worker;
-                    }
+                float distance = physicsInfo.position.distanceTo(worker->physicsInfo.position);
+                if (distance <= range &&
+                    worker->isCorrupted() &&
+                    (targetWorker == nullptr || distance < closestDistance)
+                ) {
+                    targetWorker = worker;
                 }
             }
         }
@@ -121,5 +126,21 @@ namespace turret {
         //     physicsInfo.position + slurp::Vec2{-Range, -Range},
         //     physicsInfo.position + slurp::Vec2{Range, Range}
         // );
+    }
+
+    void Turret::onCollisionEnter(const collision::CollisionDetails& collisionDetails) {
+        Entity::onCollisionEnter(collisionDetails);
+        if (!_finishedSpawn) {
+            return;
+        }
+
+        if (worker::Worker* worker = dynamic_cast<worker::Worker*>(collisionDetails.entity)) {
+            // TODO: need circle collider to account for range
+            if (worker->isCorrupted()) {
+                worker->applySpeedMultiplier(CorruptedWorkerSpeedMultiplier, SpeedMultiplierDuration);
+            } else {
+                worker->applySpeedMultiplier(WorkerSpeedMultiplier, SpeedMultiplierDuration);
+            }
+        }
     }
 }
