@@ -42,7 +42,6 @@ namespace ui {
         _onPressFn(std::move(onPressFn)),
         _onReleaseFn(std::move(onReleaseFn)),
         _keyCode(keyCode),
-        _buttonIconSprite(buttonIconSprite),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
         _buttonPressedSprite(buttonPressSprite) {}

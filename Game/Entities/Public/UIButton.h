@@ -26,7 +26,6 @@ namespace ui {
         std::function<void(UIButton* button)> _onPressFn;
         std::function<void(UIButton* button)> _onReleaseFn;
         slurp::KeyboardCode _keyCode;
-        asset::Sprite* _buttonIconSprite;
         asset::Sprite* _buttonSprite;
         asset::Sprite* _buttonHoverSprite;
         asset::Sprite* _buttonPressedSprite;
