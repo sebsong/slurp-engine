@@ -1,6 +1,9 @@
 # slurp-engine 🍜
 A souped up C++ game engine. Delicious and homecooked.
 
+December 9, 2025
+<img width="2556" height="1437" alt="image" src="https://github.com/user-attachments/assets/ac2b02f5-9cfe-4ac1-b18c-606eb35a79b8" />
+
 October 28, 2025 (First Game Prototype)
 <img width="2559" height="1364" alt="image" src="https://github.com/user-attachments/assets/c748fe6b-c93b-44d7-b551-ff3916bf42b3" />
 
