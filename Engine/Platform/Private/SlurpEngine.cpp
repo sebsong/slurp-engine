@@ -49,6 +49,11 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
+#if DEBUG
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Recording.cpp"
+#endif
+
 namespace slurp {
     SLURP_INIT(slurp_init) {
         /** Memory **/
@@ -82,9 +87,6 @@ namespace slurp {
             Globals->AudioPlayer = new(&engineSystems->audioPlayer) audio::AudioPlayer();
         }
         job::initialize();
-#if DEBUG
-        Globals->RecordingState = new(memory::Transient->allocate<RecordingState>()) RecordingState();
-#endif
 
         /** Game **/
         game::initialize(isInitialized);
@@ -94,30 +96,49 @@ namespace slurp {
     SLURP_FRAME_START(slurp_frameStart) {}
 
     SLURP_HANDLE_INPUT(slurp_handleInput) {
-        game::handleMouseAndKeyboardInput(mouseState, keyboardState);
-        for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
-            if (!gamepadStates[gamepadIndex].isConnected) { continue; }
-            game::handleGamepadInput(gamepadIndex, gamepadStates[gamepadIndex]);
-        }
-        entity::handleInput(mouseState, keyboardState, gamepadStates);
-
+        const MouseState* actualMouseState = &mouseState;
+        const KeyboardState* actualKeyboardState = &keyboardState;
+        const GamepadState (*actualGamepadStates)[MAX_NUM_GAMEPADS] = &gamepadStates;
 #if DEBUG
-        if (keyboardState.justPressed(KeyboardCode::P)) { Globals->PlatformDll->DEBUG_togglePause(); }
-        if (keyboardState.justPressed(KeyboardCode::R) && !Globals->RecordingState->isPlayingBack) {
-            if (!Globals->RecordingState->isRecording) {
-                Globals->RecordingState->isRecording = true;
-                Globals->PlatformDll->DEBUG_beginRecording();
+        if (keyboardState.justPressed(KeyboardCode::P)) {
+            Globals->PlatformDll->DEBUG_togglePause();
+        }
+        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState.isPlayingBack) {
+            if (!GlobalRecordingState.isRecording) {
+                beginRecording(GlobalRecordingState);
             } else {
-                Globals->PlatformDll->DEBUG_endRecording();
-                Globals->RecordingState->isRecording = false;
+                endRecording(GlobalRecordingState);
             }
         }
         if (keyboardState.justPressed(KeyboardCode::T)) {
-            Globals->RecordingState->isPlayingBack = true;
-            auto onPlaybackEnd = []() -> void { Globals->RecordingState->isPlayingBack = false; };
-            Globals->PlatformDll->DEBUG_beginPlayback(onPlaybackEnd);
+            beginPlayback(GlobalRecordingState);
+        }
+
+        if (GlobalRecordingState.isRecording) {
+            recordInput(GlobalRecordingState, mouseState, keyboardState, gamepadStates);
+        }
+        MouseState recordingMouseState{};
+        KeyboardState recordingKeyboardState{};
+        GamepadState recordingGamepadStates[MAX_NUM_GAMEPADS]{};
+        if (GlobalRecordingState.isPlayingBack) {
+            readInputRecording(
+                GlobalRecordingState,
+                recordingMouseState,
+                recordingKeyboardState,
+                recordingGamepadStates
+            );
+            actualMouseState = &recordingMouseState;
+            actualKeyboardState = &recordingKeyboardState;
+            actualGamepadStates = &recordingGamepadStates;
         }
 #endif
+
+        game::handleMouseAndKeyboardInput(*actualMouseState, *actualKeyboardState);
+        for (uint8_t gamepadIndex = 0; gamepadIndex < MAX_NUM_GAMEPADS; gamepadIndex++) {
+            if (!gamepadStates[gamepadIndex].isConnected) { continue; }
+            game::handleGamepadInput(gamepadIndex, *actualGamepadStates[gamepadIndex]);
+        }
+        entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
     }
 
     SLURP_BUFFER_AUDIO(slurp_bufferAudio) {
@@ -131,14 +152,14 @@ namespace slurp {
         entity::updateAndRender(dt);
 
 #if DEBUG
-        if (Globals->RecordingState->isRecording) {
+        if (GlobalRecordingState.isRecording) {
             debug::drawRectBorder(
                 {-WORLD_WIDTH_MAX, -WORLD_HEIGHT_MAX},
                 {WORLD_WIDTH_MAX,WORLD_HEIGHT_MAX},
                 10,
                 DEBUG_RED_COLOR
             );
-        } else if (Globals->RecordingState->isPlayingBack) {
+        } else if (GlobalRecordingState.isPlayingBack) {
             debug::drawRectBorder(
                 {-WORLD_WIDTH_MAX, -WORLD_HEIGHT_MAX},
                 {WORLD_WIDTH_MAX,WORLD_HEIGHT_MAX},

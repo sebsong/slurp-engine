@@ -34,7 +34,7 @@ define(ENGINE_EXE_NAME "engine")
 
 # COMPILER AND LINKER FLAGS
 set(compiler_flags -fexceptions -finline-functions -std=c++20)
-set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wuninitialized -Wclass-memaccess -Wno-cast-function-type)
+set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wuninitialized -Wno-cast-function-type)
 set(debug_flags -O0 -g)
 set(release_flags -O2)
 set(linker_flags -ffunction-sections -fdata-sections)

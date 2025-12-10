@@ -29,13 +29,6 @@ namespace slurp {
         audio::AudioPlayer audioPlayer;
     };
 
-#if DEBUG
-    struct RecordingState {
-        bool isRecording;
-        bool isPlayingBack;
-    };
-#endif
-
 #define SLURP_INIT(fnName) void fnName(memory::MemoryArena& permanentMemory, memory::MemoryArena& transientMemory, const platform::PlatformDll& platformDll, const render::RenderApi& renderApi, bool isInitialized)
 #define SLURP_FRAME_START(fnName) void fnName()
 #define SLURP_HANDLE_INPUT(fnName) void fnName(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState, const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS])

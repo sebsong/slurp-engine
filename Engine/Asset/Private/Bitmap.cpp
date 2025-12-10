@@ -59,7 +59,7 @@ namespace asset {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 // TODO: avoid an extra read by re-using this for low + high bitmasking
-                types::byte colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
+                uint8_t colorIndex = bitmapBytes[x / 2 + y * rowSizeBytes];
                 if (x % 2 == 0) {
                     colorIndex = (colorIndex & FourBitMaskHigh) >> 4;
                 } else {
