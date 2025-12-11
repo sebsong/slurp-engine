@@ -26,9 +26,11 @@ PLATFORM_GET_LOCAL_FILE_PATH(platform::getLocalFilePath) {
     return std::filesystem::path(SDL_GetBasePath()).replace_filename(filename).string();
 }
 
+#if DEBUG
 PLATFORM_DEBUG_TOGGLE_PAUSE(platform::DEBUG_togglePause) {
     GlobalIsPaused = !GlobalIsPaused;
 }
+#endif
 
 PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
     // TODO: impl

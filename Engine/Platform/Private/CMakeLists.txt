@@ -37,7 +37,7 @@ set(compiler_flags -fexceptions -finline-functions -std=c++20)
 set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wuninitialized -Wno-cast-function-type)
 set(debug_flags -O0 -g)
 set(release_flags -O2)
-set(linker_flags -ffunction-sections -fdata-sections)
+set(linker_flags -static -ffunction-sections -fdata-sections)
 if (WIN32)
     list(APPEND debug_flags -Wl,-Map=Engine.map)
     list(APPEND linker_flags -Wl,--gc-sections)
@@ -94,3 +94,18 @@ if (APPLE)
             MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST_FILE_PATH}
     )
 endif ()
+
+# ASSETS
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/Assets/
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Assets
+
+        FILES_MATCHING
+        PATTERN "*.bmp"
+        PATTERN "*.hex"
+        PATTERN "*.glsl"
+        PATTERN "*.wav"
+
+        PATTERN "*.aesprite"  EXCLUDE # Aesprite
+        PATTERN "*.flp"       EXCLUDE # FL Studio
+        PATTERN "*.bfxrsound" EXCLUDE # Bfxr
+)

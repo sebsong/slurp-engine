@@ -40,22 +40,3 @@ add_subdirectory(External/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
 add_subdirectory(External/box2d-3.1.1 EXCLUDE_FROM_ALL)
 
 add_subdirectory(Engine/Platform/Private)
-
-# ASSETS
-# Install the filtered Assets folder next to the executable
-#install(DIRECTORY ${CMAKE_SOURCE_DIR}/Assets/
-#        DESTINATION bin/Assets  # Or 'Assets' if exe is in root; adjust to match your exe install
-#        FILES_MATCHING
-#        PATTERN "*.bmp"  # Sprites and animations
-#        PATTERN "*.wav"  # Sounds/music
-#        # Add more patterns for other asset types if needed (e.g., PATTERN "*.ogg" for additional audio)
-#        EXCLUDE
-#        PATTERN "*.psd"   # Photoshop files
-#        PATTERN "*.blend" # Blender files
-#        PATTERN "*.fla"   # Adobe Animate
-#        PATTERN "*.ai"    # Illustrator
-#        PATTERN "*.svn"   # Version control dirs
-#        PATTERN "*.git"
-#        # Add more exclusions for any other editing/temp files in your Assets folder
-#)
-
