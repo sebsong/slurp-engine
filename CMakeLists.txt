@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 
 function(include_engine_module target)
-    include_directories(Engine/${target}/Public)
+    target_include_directories(Engine/${target}/Public)
     include_directories(Engine/${target}/Private)
 endfunction()
 
@@ -13,6 +13,7 @@ function(include_game_module target)
     include_directories(Game/${target}/Private)
 endfunction()
 
+# ENGINE
 include_engine_module(Asset)
 include_engine_module(Audio)
 include_engine_module(Core)
@@ -24,13 +25,11 @@ include_engine_module(Render)
 include_engine_module(Update)
 include_engine_module(OpenGL)
 
+# GAME
 include_game_module(Core)
 include_game_module(Entities)
 
-set(SDL_SHARED OFF CACHE BOOL "Disable SDL3 shared lib" FORCE)
-set(SDL_STATIC ON CACHE BOOL "Enable SDL3 static lib" FORCE)
-add_subdirectory(ExternalLibs/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
-include_directories(ExternalLibs/SDL-release-3.2.28/include)
-include_directories(ExternalLibs/glad/include)
+# EXTERNAL
+add_subdirectory(ExternalLibs)
 
 add_subdirectory(Engine/Platform/Private)
