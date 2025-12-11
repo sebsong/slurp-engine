@@ -4,15 +4,15 @@ function(define target value)
 endfunction()
 
 if (WIN32)
-    message("Building for Windows.")
+    message(DEBUG "Building for Windows.")
     add_compile_definitions(PLATFORM_WINDOWS)
     define(LIB_FILE_EXT ".dll")
 elseif (APPLE)
-    message("Building for Mac.")
+    message(DEBUG "Building for Mac.")
     add_compile_definitions(PLATFORM_MAC)
     define(LIB_FILE_EXT ".dylib")
 elseif (UNIX)
-    message("Building for Linux.")
+    message(DEBUG "Building for Linux.")
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -37,7 +37,7 @@ set(compiler_flags -fexceptions -finline-functions -std=c++20)
 set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wuninitialized -Wno-cast-function-type)
 set(debug_flags -O0 -g)
 set(release_flags -O2)
-set(linker_flags -ffunction-sections -fdata-sections)
+set(linker_flags -static -ffunction-sections -fdata-sections)
 if (WIN32)
     list(APPEND debug_flags -Wl,-Map=Engine.map)
     list(APPEND linker_flags -Wl,--gc-sections)
@@ -64,6 +64,7 @@ set_target_properties(slurp_engine PROPERTIES
         SUFFIX ${LIB_FILE_EXT}
 )
 target_compile_options(slurp_engine PRIVATE ${compiler_flags})
+set(slurp_libs box2d::box2d)
 target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
 target_link_options(slurp_engine PRIVATE ${linker_flags})
 add_custom_command(TARGET slurp_engine POST_BUILD
@@ -74,12 +75,11 @@ add_custom_command(TARGET slurp_engine POST_BUILD
 )
 
 # ENGINE EXE
-set(engine_libs SDL3::SDL3-static)
 add_executable(${ENGINE_EXE_NAME} Engine.cpp)
 target_compile_options(${ENGINE_EXE_NAME} PRIVATE ${compiler_flags})
+set(engine_libs SDL3::SDL3-static)
 target_link_libraries(${ENGINE_EXE_NAME} PRIVATE ${engine_libs})
 target_link_options(${ENGINE_EXE_NAME} PRIVATE ${linker_flags})
-
 if (APPLE)
     set(BUNDLE_IDENTIFIER ${APP_IDENTIFIER})
     set(BUNDLE_NAME ${APP_NAME})
@@ -94,3 +94,18 @@ if (APPLE)
             MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST_FILE_PATH}
     )
 endif ()
+
+# ASSETS
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/Assets/
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Assets
+
+        FILES_MATCHING
+        PATTERN "*.bmp"
+        PATTERN "*.hex"
+        PATTERN "*.glsl"
+        PATTERN "*.wav"
+
+        PATTERN "*.aesprite"  EXCLUDE # Aesprite
+        PATTERN "*.flp"       EXCLUDE # FL Studio
+        PATTERN "*.bfxrsound" EXCLUDE # Bfxr
+)

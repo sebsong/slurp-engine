@@ -1,5 +1,4 @@
 #include "Collision.h"
-
 #include "Entity.h"
 
 namespace collision {

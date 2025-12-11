@@ -13,6 +13,7 @@ function(include_game_module target)
     include_directories(Game/${target}/Private)
 endfunction()
 
+# ENGINE
 include_engine_module(Asset)
 include_engine_module(Audio)
 include_engine_module(Core)
@@ -24,13 +25,18 @@ include_engine_module(Render)
 include_engine_module(Update)
 include_engine_module(OpenGL)
 
+# GAME
 include_game_module(Core)
 include_game_module(Entities)
 
+# EXTERNAL
+include_directories(External/SDL-release-3.2.28/include)
+include_directories(External/glad/include)
+include_directories(External/box2d-3.1.1/include)
+
 set(SDL_SHARED OFF CACHE BOOL "Disable SDL3 shared lib" FORCE)
 set(SDL_STATIC ON CACHE BOOL "Enable SDL3 static lib" FORCE)
-add_subdirectory(ExternalLibs/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
-include_directories(ExternalLibs/SDL-release-3.2.28/include)
-include_directories(ExternalLibs/glad/include)
+add_subdirectory(External/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
+add_subdirectory(External/box2d-3.1.1 EXCLUDE_FROM_ALL)
 
 add_subdirectory(Engine/Platform/Private)

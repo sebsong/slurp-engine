@@ -68,7 +68,10 @@ list(APPEND CMAKE_MODULE_PATH "${SDL3_SOURCE_DIR}/cmake")
 include("${SDL3_SOURCE_DIR}/cmake/macros.cmake")
 include("${SDL3_SOURCE_DIR}/cmake/sdlchecks.cmake")
 include("${SDL3_SOURCE_DIR}/cmake/sdlcompilers.cmake")
+# START SLURP MOD
+#include("${SDL3_SOURCE_DIR}/cmake/sdltargets.cmake")
 include("${SDL3_SOURCE_DIR}/cmake/sdlcommands.cmake")
+# END SLURP MOD
 include("${SDL3_SOURCE_DIR}/cmake/sdlcpu.cmake")
 include("${SDL3_SOURCE_DIR}/cmake/sdlmanpages.cmake")
 include("${SDL3_SOURCE_DIR}/cmake/sdlplatform.cmake")
