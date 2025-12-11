@@ -52,16 +52,15 @@ else ()
 endif ()
 
 # EXTERNAL LIBS
-set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/External/libs)
 find_library(BOX2D_LIB
         NAMES BOX2D
-        PATHS ${EXTERNAL_LIBS_DIR}
+        PATHS ${LIB_INSTALL_DIR}
         NO_DEFAULT_PATH
         REQUIRED
 )
 find_library(SDL3_LIB
         NAMES SDL3
-        PATHS ${EXTERNAL_LIBS_DIR}
+        PATHS ${LIB_INSTALL_DIR}
         NO_DEFAULT_PATH
         REQUIRED
 )
@@ -89,6 +88,7 @@ add_custom_command(TARGET slurp_engine POST_BUILD
 add_custom_command(TARGET slurp_engine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${SLURP_LIB_MARKER_FILE_NAME}
 )
+add_dependencies(slurp_engine External)
 
 # ENGINE EXE
 message(WARNING "SOURCE: " ${CMAKE_SOURCE_DIR})
@@ -96,7 +96,6 @@ add_executable(${ENGINE_EXE_NAME} Engine.cpp)
 target_compile_options(${ENGINE_EXE_NAME} PRIVATE ${compiler_flags})
 target_link_libraries(${ENGINE_EXE_NAME} PRIVATE ${ENGINE_LIBS})
 target_link_options(${ENGINE_EXE_NAME} PRIVATE ${linker_flags})
-
 if (APPLE)
     set(BUNDLE_IDENTIFIER ${APP_IDENTIFIER})
     set(BUNDLE_NAME ${APP_NAME})
@@ -111,3 +110,4 @@ if (APPLE)
             MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST_FILE_PATH}
     )
 endif ()
+add_dependencies(engine External)

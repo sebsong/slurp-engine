@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(SlurpEngine)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
+include(ExternalProject)
 
 function(include_engine_module target)
     include_directories(Engine/${target}/Public)
@@ -34,22 +35,22 @@ include_directories(SDL-release-3.2.28/include)
 include_directories(glad/include)
 include_directories(box2d-3.1.1/include)
 
-#ExternalProject_Add(ExternalLibs
-#        PREFIX ${CMAKE_BINARY_DIR}/External  # Isolated build dir
-#        SOURCE_DIR ${CMAKE_SOURCE_DIR}/External  # Path to external CMakeLists.txt
-#        CMAKE_ARGS
-#        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}  # Match build type
-#        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}  # Install to main project's prefix (e.g., bin/lib/include)
-#        -DCMAKE_CXX_STANDARD=20  # Match standards
-#        -DSDL_SHARED=OFF
-#        -DSDL_STATIC=ON
-#        INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>  # Force install after build
-#        BUILD_ALWAYS OFF  # Skip rebuild if unchanged
-#        # Optional: For better dependency tracking
+set(LIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/External/libs)
+ExternalProject_Add(External
+        PREFIX ${CMAKE_BINARY_DIR}/External
+        SOURCE_DIR ${CMAKE_SOURCE_DIR}/External
+        CMAKE_ARGS
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_CXX_STANDARD=20
+        -DSDL_SHARED=OFF
+        -DSDL_STATIC=ON
+        INSTALL_COMMAND ${CMAKE_COMMAND} --install ${LIB_INSTALL_DIR}
+        BUILD_ALWAYS OFF
+        # Optional: For better dependency tracking
 #        BUILD_BYPRODUCTS ${CMAKE_INSTALL_PREFIX}/lib/libSDL3.a
 #        ${CMAKE_INSTALL_PREFIX}/lib/libbox2d.a
-#)
-
+)
 
 add_subdirectory(Engine/Platform/Private)
 
