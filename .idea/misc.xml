@@ -6,10 +6,9 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <excludeRoots>
-      <file path="$PROJECT_DIR$/External/SDL-release-3.2.28" />
-      <file path="$PROJECT_DIR$/External/box2d-3.1.1" />
-      <file path="$PROJECT_DIR$/External/glad" />
-      <file path="$PROJECT_DIR$/External/libs" />
+      <file path="$PROJECT_DIR$/External" />
+      <file path="$PROJECT_DIR$/cmake-build-debug" />
+      <file path="$PROJECT_DIR$/cmake-build-release" />
     </excludeRoots>
   </component>
 </project>

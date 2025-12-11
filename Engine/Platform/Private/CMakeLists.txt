@@ -51,22 +51,6 @@ else ()
     list(APPEND compiler_flags ${release_flags})
 endif ()
 
-# EXTERNAL LIBS
-find_library(BOX2D_LIB
-        NAMES BOX2D
-        PATHS ${LIB_INSTALL_DIR}
-        NO_DEFAULT_PATH
-        REQUIRED
-)
-find_library(SDL3_LIB
-        NAMES SDL3
-        PATHS ${LIB_INSTALL_DIR}
-        NO_DEFAULT_PATH
-        REQUIRED
-)
-set(SLURP_LIBS ${BOX2D_LIB})
-set(ENGINE_LIBS ${SDL3_LIB})
-
 # SLURP ENGINE LIBRARY
 if (WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -80,7 +64,8 @@ set_target_properties(slurp_engine PROPERTIES
         SUFFIX ${LIB_FILE_EXT}
 )
 target_compile_options(slurp_engine PRIVATE ${compiler_flags})
-target_link_libraries(slurp_engine PRIVATE ${SLURP_LIBS})
+set(slurp_libs box2d::box2d)
+target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
 target_link_options(slurp_engine PRIVATE ${linker_flags})
 add_custom_command(TARGET slurp_engine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
@@ -88,13 +73,12 @@ add_custom_command(TARGET slurp_engine POST_BUILD
 add_custom_command(TARGET slurp_engine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${SLURP_LIB_MARKER_FILE_NAME}
 )
-add_dependencies(slurp_engine External)
 
 # ENGINE EXE
-message(WARNING "SOURCE: " ${CMAKE_SOURCE_DIR})
 add_executable(${ENGINE_EXE_NAME} Engine.cpp)
 target_compile_options(${ENGINE_EXE_NAME} PRIVATE ${compiler_flags})
-target_link_libraries(${ENGINE_EXE_NAME} PRIVATE ${ENGINE_LIBS})
+set(engine_libs SDL3::SDL3-static)
+target_link_libraries(${ENGINE_EXE_NAME} PRIVATE ${engine_libs})
 target_link_options(${ENGINE_EXE_NAME} PRIVATE ${linker_flags})
 if (APPLE)
     set(BUNDLE_IDENTIFIER ${APP_IDENTIFIER})
@@ -110,4 +94,3 @@ if (APPLE)
             MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST_FILE_PATH}
     )
 endif ()
-add_dependencies(engine External)

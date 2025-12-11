@@ -31,26 +31,14 @@ include_game_module(Core)
 include_game_module(Entities)
 
 # EXTERNAL
-include_directories(SDL-release-3.2.28/include)
-include_directories(glad/include)
-include_directories(box2d-3.1.1/include)
+include_directories(External/SDL-release-3.2.28/include)
+include_directories(External/glad/include)
+include_directories(External/box2d-3.1.1/include)
 
-set(LIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/External/libs)
-ExternalProject_Add(External
-        PREFIX ${CMAKE_BINARY_DIR}/External
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/External
-        CMAKE_ARGS
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        -DCMAKE_CXX_STANDARD=20
-        -DSDL_SHARED=OFF
-        -DSDL_STATIC=ON
-        INSTALL_COMMAND ${CMAKE_COMMAND} --install ${LIB_INSTALL_DIR}
-        BUILD_ALWAYS OFF
-        # Optional: For better dependency tracking
-#        BUILD_BYPRODUCTS ${CMAKE_INSTALL_PREFIX}/lib/libSDL3.a
-#        ${CMAKE_INSTALL_PREFIX}/lib/libbox2d.a
-)
+set(SDL_SHARED OFF CACHE BOOL "Disable SDL3 shared lib" FORCE)
+set(SDL_STATIC ON CACHE BOOL "Enable SDL3 static lib" FORCE)
+add_subdirectory(External/SDL-release-3.2.28)
+add_subdirectory(External/box2d-3.1.1)
 
 add_subdirectory(Engine/Platform/Private)
 
