@@ -41,6 +41,7 @@ static const std::unordered_map<SDL_Keycode, slurp::KeyboardCode> KeyboardSDLCod
     {SDLK_SPACE, slurp::KeyboardCode::SPACE},
     {SDLK_ESCAPE, slurp::KeyboardCode::ESC},
     {SDL_KMOD_ALT, slurp::KeyboardCode::ALT},
+    {SDLK_TAB, slurp::KeyboardCode::TAB},
     {SDLK_F4, slurp::KeyboardCode::F4},
 };
 

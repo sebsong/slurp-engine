@@ -27,6 +27,8 @@ namespace game {
     static constexpr int NumInitialCorruptedWorkers = 1;
 
     static void loadAssets() {
+        MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
+
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
 
@@ -82,10 +84,15 @@ namespace game {
 
     void initialize(bool isInitialized) {
         if (isInitialized) {
+            MenuAssets = slurp::Globals->MenuAssets;
+            MenuState = slurp::Globals->MenuState;
             Assets = slurp::Globals->GameAssets;
             State = slurp::Globals->GameState;
         } else {
+            sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
             GameSystems* gameSystems = memory::Permanent->allocate<GameSystems>();
+            MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
+            MenuState = slurp::Globals->MenuState = &gameSystems->menuState;
             Assets = slurp::Globals->GameAssets = &gameSystems->assets;
             State = slurp::Globals->GameState = &gameSystems->state;
             loadAssets();
@@ -94,22 +101,33 @@ namespace game {
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(State->randomSeed);
 
+        slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
+
+        if (mainMenuActive) {
+            new(&MenuState->background) entity::Entity(
+                "Background",
+                render::RenderInfo(asset::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            );
+            return;
+        }
+
         audio::setGlobalVolume(GlobalVolume);
         if (!State->bgmId) {
             State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
         }
-        slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
         new(&State->background) entity::Entity(
             "Background",
-            render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->backgroundSprite, BACKGROUND_Z)),
+            render::RenderInfo(asset::SpriteInstance(Assets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
 
         new(&State->border) entity::Entity(
             "Border",
-            render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->borderSprite, BORDER_Z)),
+            render::RenderInfo(asset::SpriteInstance(Assets->borderSprite, BORDER_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
@@ -173,6 +191,12 @@ namespace game {
             keyboardState.isDown(slurp::KeyboardCode::ESC)
         ) {
             slurp::Globals->PlatformDll->shutdown();
+        }
+
+        if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
+            mainMenuActive = !mainMenuActive;
+            sceneMemory.freeAll();
+            initialize(true);
         }
     }
 

@@ -82,6 +82,7 @@ namespace slurp {
         ESC,
         SPACE,
         ALT,
+        TAB,
         F4,
     };
 

@@ -34,8 +34,10 @@ namespace audio {
 }
 
 namespace game {
-    struct GameState;
-    struct GameAssets;
+    struct MenuState;
+    struct MenuAssets;
+    struct State;
+    struct Assets;
 }
 
 namespace slurp {
@@ -55,8 +57,10 @@ namespace slurp {
         audio::AudioPlayer* AudioPlayer;
 
         // TODO: should these live in the game module to give the game module full ownership
-        game::GameAssets* GameAssets;
-        game::GameState* GameState;
+        game::MenuAssets* MenuAssets;
+        game::MenuState* MenuState;
+        game::Assets* GameAssets;
+        game::State* GameState;
     }* Globals;
 
 #if DEBUG

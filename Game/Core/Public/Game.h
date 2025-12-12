@@ -22,7 +22,15 @@ namespace ui_button {
 }
 
 namespace game {
-    struct GameAssets {
+    struct MenuAssets {
+        asset::Sprite* backgroundSprite;
+    };
+
+    struct MenuState {
+        entity::Entity background;
+    };
+
+    struct Assets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
 
@@ -72,7 +80,7 @@ namespace game {
         asset::Sound* turretShoot;
     };
 
-    struct GameState {
+    struct State {
         uint32_t randomSeed;
         audio::sound_id bgmId;
 
@@ -114,12 +122,20 @@ namespace game {
     };
 
     struct GameSystems {
-        GameAssets assets;
-        GameState state;
+        MenuAssets menuAssets;
+        MenuState menuState;
+        Assets assets;
+        State state;
     };
 
-    static GameAssets* Assets;
-    static GameState* State;
+    static MenuAssets* MenuAssets;
+    static MenuState* MenuState;
+    static Assets* Assets;
+    static State* State;
+
+    static bool mainMenuActive = false;
+
+    static memory::MemoryArena sceneMemory;
 
     void initialize(bool isInitialized);
 
