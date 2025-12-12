@@ -28,6 +28,13 @@ namespace game {
 
     static void loadAssets() {
         MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
+        MenuAssets->titleTextSprite = asset::loadSprite("title_text.bmp");
+        MenuAssets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
+        MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
+        MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
+
+        MenuAssets->bgm = asset::loadSound("ambient.wav");
 
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
@@ -82,41 +89,61 @@ namespace game {
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
     }
 
+    static void transitionScene(bool isMainMenu) {
+        mainMenuActive = isMainMenu;
+        audio::clearAll();
+        entity::clearAll();
+        sceneMemory.freeAll();
+        initialize(true);
+    }
+
     void initialize(bool isInitialized) {
-        if (isInitialized) {
-            MenuAssets = slurp::Globals->MenuAssets;
-            MenuState = slurp::Globals->MenuState;
-            Assets = slurp::Globals->GameAssets;
-            State = slurp::Globals->GameState;
-        } else {
+        if (!isInitialized) {
             sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
-            GameSystems* gameSystems = memory::Permanent->allocate<GameSystems>();
-            MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
-            MenuState = slurp::Globals->MenuState = &gameSystems->menuState;
-            Assets = slurp::Globals->GameAssets = &gameSystems->assets;
-            State = slurp::Globals->GameState = &gameSystems->state;
-            loadAssets();
         }
+        GameSystems* gameSystems = sceneMemory.allocate<GameSystems>();
+        MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
+        MenuState = slurp::Globals->MenuState = &gameSystems->menuState;
+        Assets = slurp::Globals->GameAssets = &gameSystems->assets;
+        State = slurp::Globals->GameState = &gameSystems->state;
+        loadAssets();
 
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(State->randomSeed);
 
         slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
 
+        new(&State->mouseCursor) mouse_cursor::MouseCursor();
+
         if (mainMenuActive) {
+            audio::play(MenuAssets->bgm, 0.5, true);
             new(&MenuState->background) entity::Entity(
                 "Background",
                 render::RenderInfo(asset::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             );
+            new(&MenuState->titleText) entity::Entity(
+                "Title Text",
+                render::RenderInfo(asset::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
+                physics::PhysicsInfo({0, 100}),
+                collision::CollisionInfo()
+            );
+            new(&MenuState->playButton) ui::UIButton(
+                MenuAssets->playButtonTextSprite,
+                MenuAssets->buttonSprite,
+                MenuAssets->buttonHoverSprite,
+                MenuAssets->buttonPressSprite,
+                {0, -25},
+                slurp::KeyboardCode::SPACE,
+                [](ui::UIButton* button) { transitionScene(false); },
+                [](ui::UIButton* button) {}
+            );
             return;
         }
 
         audio::setGlobalVolume(GlobalVolume);
-        if (!State->bgmId) {
-            State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
-        }
+        State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
 
         new(&State->background) entity::Entity(
             "Background",
@@ -175,8 +202,6 @@ namespace game {
                     false
                 );
 
-        new(&State->mouseCursor) mouse_cursor::MouseCursor();
-
         new(&State->overlay) entity::Entity(
             "Overlay",
             render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
@@ -194,9 +219,7 @@ namespace game {
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
-            mainMenuActive = !mainMenuActive;
-            sceneMemory.freeAll();
-            initialize(true);
+            transitionScene(!mainMenuActive);
         }
     }
 

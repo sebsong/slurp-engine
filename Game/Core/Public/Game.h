@@ -1,4 +1,5 @@
 #pragma once
+#include "AudioPlayer.h"
 #include "Base.h"
 #include "EntityPool.h"
 #include "MineSite.h"
@@ -17,17 +18,22 @@
 #define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
 
-namespace ui_button {
-    class UIButton;
-}
-
 namespace game {
     struct MenuAssets {
         asset::Sprite* backgroundSprite;
+        asset::Sprite* titleTextSprite;
+        asset::Sprite* playButtonTextSprite;
+        asset::Sprite* buttonSprite;
+        asset::Sprite* buttonHoverSprite;
+        asset::Sprite* buttonPressSprite;
+
+        asset::Sound* bgm;
     };
 
     struct MenuState {
         entity::Entity background;
+        entity::Entity titleText;
+        ui::UIButton playButton;
     };
 
     struct Assets {
@@ -133,7 +139,7 @@ namespace game {
     static Assets* Assets;
     static State* State;
 
-    static bool mainMenuActive = false;
+    static bool mainMenuActive = true;
 
     static memory::MemoryArena sceneMemory;
 

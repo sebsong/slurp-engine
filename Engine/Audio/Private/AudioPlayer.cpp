@@ -53,6 +53,11 @@ namespace audio {
         }
     }
 
+    void AudioPlayer::clearAll() {
+        _oneShotQueue.clear();
+        _loopingQueue.clear();
+    }
+
     static void bufferFromQueue(
         StereoAudioSampleContainer* sampleContainers,
         types::deque_arena<PlayingSound>& queue,

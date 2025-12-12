@@ -4,7 +4,6 @@
 namespace ui {
     class UIButton final : public entity::Entity {
     public:
-
         UIButton(
             asset::Sprite* buttonIconSprite,
             asset::Sprite* buttonSprite,

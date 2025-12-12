@@ -15,6 +15,7 @@ namespace ui {
               collision::CollisionInfo()
           ),
           _isStopped(true),
+          _secondsElapsed(0),
           _hoursDisplay(
               NumberDisplay(
                   {position.x - 44, position.y},
@@ -57,7 +58,7 @@ namespace ui {
     }
 
     void StopwatchDisplay::reset() {
-        secondsElapsed = 0;
+        _secondsElapsed = 0;
     }
 
     void StopwatchDisplay::initialize() {
@@ -66,12 +67,12 @@ namespace ui {
 
     void StopwatchDisplay::update(float dt) {
         Entity::update(dt);
-        secondsElapsed += dt;
+        _secondsElapsed += dt;
 
-        uint32_t hours = secondsElapsed / (60 * 60);
-        uint32_t minutes = static_cast<uint32_t>(secondsElapsed / 60) % 60;
-        uint32_t seconds = static_cast<uint32_t>(secondsElapsed) % 60;
-        uint32_t deciSeconds = (secondsElapsed - static_cast<uint32_t>(secondsElapsed)) * 10;
+        uint32_t hours = _secondsElapsed / (60 * 60);
+        uint32_t minutes = static_cast<uint32_t>(_secondsElapsed / 60) % 60;
+        uint32_t seconds = static_cast<uint32_t>(_secondsElapsed) % 60;
+        uint32_t deciSeconds = (_secondsElapsed - static_cast<uint32_t>(_secondsElapsed)) * 10;
         _hoursDisplay.number = hours;
         _minutesDisplay.number = minutes;
         _secondsDisplay.number = seconds;
