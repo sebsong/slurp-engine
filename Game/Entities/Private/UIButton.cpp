@@ -1,7 +1,6 @@
 #include "UIButton.h"
 
 namespace ui {
-    static const geometry::Shape buttonShape = {geometry::Rect, {25, 16}};
     static const slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
 
     UIButton::UIButton(
@@ -9,7 +8,8 @@ namespace ui {
         asset::Sprite* buttonSprite,
         asset::Sprite* buttonHoverSprite,
         asset::Sprite* buttonPressSprite,
-        slurp::Vec2<float>&& position,
+        const geometry::Shape& buttonShape,
+        const slurp::Vec2<float>& position,
         slurp::KeyboardCode keyCode,
         std::function<void(UIButton* button)>&& onPressFn,
         std::function<void(UIButton* button)>&& onReleaseFn
@@ -29,7 +29,7 @@ namespace ui {
                     )
                 }
             ),
-            physics::PhysicsInfo(std::move(position)),
+            physics::PhysicsInfo(position),
             collision::CollisionInfo(
                 true,
                 true,

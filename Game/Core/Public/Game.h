@@ -23,6 +23,7 @@ namespace game {
         asset::Sprite* backgroundSprite;
         asset::Sprite* titleTextSprite;
         asset::Sprite* playButtonTextSprite;
+        asset::Sprite* exitButtonTextSprite;
         asset::Sprite* buttonSprite;
         asset::Sprite* buttonHoverSprite;
         asset::Sprite* buttonPressSprite;
@@ -34,6 +35,7 @@ namespace game {
         entity::Entity background;
         entity::Entity titleText;
         ui::UIButton playButton;
+        ui::UIButton exitButton;
     };
 
     struct Assets {

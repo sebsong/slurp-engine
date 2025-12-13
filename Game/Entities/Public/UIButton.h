@@ -9,7 +9,8 @@ namespace ui {
             asset::Sprite* buttonSprite,
             asset::Sprite* buttonHoverSprite,
             asset::Sprite* buttonPressSprite,
-            slurp::Vec2<float>&& position,
+            const geometry::Shape& buttonShape,
+            const slurp::Vec2<float>& position,
             slurp::KeyboardCode keyCode,
             std::function<void(UIButton* button)>&& onPressFn,
             std::function<void(UIButton* button)>&& onReleaseFn

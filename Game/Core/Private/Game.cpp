@@ -30,6 +30,7 @@ namespace game {
         MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
         MenuAssets->titleTextSprite = asset::loadSprite("title_text.bmp");
         MenuAssets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        MenuAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
         MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
         MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
         MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
@@ -129,15 +130,39 @@ namespace game {
                 physics::PhysicsInfo({0, 100}),
                 collision::CollisionInfo()
             );
+            const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
             new(&MenuState->playButton) ui::UIButton(
                 MenuAssets->playButtonTextSprite,
                 MenuAssets->buttonSprite,
                 MenuAssets->buttonHoverSprite,
                 MenuAssets->buttonPressSprite,
+                buttonShape,
                 {0, -25},
-                slurp::KeyboardCode::SPACE,
-                [](ui::UIButton* button) { transitionScene(false); },
-                [](ui::UIButton* button) {}
+                slurp::KeyboardCode::ENTER,
+                [](ui::UIButton* button) {
+                    button->physicsInfo.position.y -= 2;
+                },
+                [](ui::UIButton* button) {
+                    transitionScene(false);
+                    button->physicsInfo.position.y += 2;
+                }
+            );
+
+            new(&MenuState->exitButton) ui::UIButton(
+                MenuAssets->exitButtonTextSprite,
+                MenuAssets->buttonSprite,
+                MenuAssets->buttonHoverSprite,
+                MenuAssets->buttonPressSprite,
+                buttonShape,
+                {0, -75},
+                slurp::KeyboardCode::ESC,
+                [](ui::UIButton* button) {
+                    button->physicsInfo.position.y -= 2;
+                },
+                [](ui::UIButton* button) {
+                    platform::exit();
+                    button->physicsInfo.position.y += 2;
+                }
             );
             return;
         }
@@ -215,7 +240,7 @@ namespace game {
             (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) ||
             keyboardState.isDown(slurp::KeyboardCode::ESC)
         ) {
-            slurp::Globals->PlatformDll->shutdown();
+            platform::exit();
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
@@ -225,7 +250,7 @@ namespace game {
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
         if (gamepadState.isDown(slurp::GamepadCode::START) || gamepadState.isDown(slurp::GamepadCode::B)) {
-            slurp::Globals->PlatformDll->shutdown();
+            platform::exit();
         }
     }
 

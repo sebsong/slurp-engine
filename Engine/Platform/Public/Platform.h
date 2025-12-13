@@ -5,6 +5,8 @@
 #include <functional>
 #include <cstdint>
 
+#include "Global.h"
+
 namespace slurp {
     struct SlurpDll;
 }
@@ -50,4 +52,8 @@ namespace platform {
         dyn_DEBUG_togglePause* DEBUG_togglePause = stub_DEBUG_togglePause;
 #endif
     };
+
+    inline void exit() {
+        slurp::Globals->PlatformDll->shutdown();
+    }
 }

@@ -15,6 +15,8 @@ namespace ui {
         {WORLD_WIDTH_MAX - 20, WORLD_HEIGHT_MAX - 55}
     };
 
+    static const geometry::Shape buttonShape = {geometry::Rect, {25, 16}};
+
     SpawnControls::SpawnControls(const slurp::Vec2<float>& position)
         : Entity("SpawnControls"),
           _spawnWorkerButton(
@@ -23,6 +25,7 @@ namespace ui {
                   game::Assets->button,
                   game::Assets->buttonHover,
                   game::Assets->buttonPress,
+                  buttonShape,
                   {position.x - 30, position.y},
                   slurp::KeyboardCode::NUM_1,
                   [this](UIButton* button) {
@@ -51,6 +54,7 @@ namespace ui {
                   game::Assets->button,
                   game::Assets->buttonHover,
                   game::Assets->buttonPress,
+                  buttonShape,
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
                   [this](UIButton* button) {
@@ -79,6 +83,7 @@ namespace ui {
                   game::Assets->button,
                   game::Assets->buttonHover,
                   game::Assets->buttonPress,
+                  buttonShape,
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
                   [this](UIButton* button) {
