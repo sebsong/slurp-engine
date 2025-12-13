@@ -112,7 +112,7 @@ namespace game {
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(State->randomSeed);
 
-        slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
+        slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
 
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
 
@@ -139,13 +139,11 @@ namespace game {
                 buttonShape,
                 {0, -25},
                 slurp::KeyboardCode::ENTER,
-                [](ui::UIButton* button) {
-                    button->physicsInfo.position.y -= 2;
-                },
+                [](ui::UIButton* button) {},
                 [](ui::UIButton* button) {
                     transitionScene(false);
-                    button->physicsInfo.position.y += 2;
-                }
+                },
+                -2
             );
 
             new(&MenuState->exitButton) ui::UIButton(
@@ -156,13 +154,11 @@ namespace game {
                 buttonShape,
                 {0, -75},
                 slurp::KeyboardCode::ESC,
-                [](ui::UIButton* button) {
-                    button->physicsInfo.position.y -= 2;
-                },
+                [](ui::UIButton* button) {},
                 [](ui::UIButton* button) {
                     platform::exit();
-                    button->physicsInfo.position.y += 2;
-                }
+                },
+                -2
             );
             return;
         }

@@ -12,7 +12,8 @@ namespace ui {
         const slurp::Vec2<float>& position,
         slurp::KeyboardCode keyCode,
         std::function<void(UIButton* button)>&& onPressFn,
-        std::function<void(UIButton* button)>&& onReleaseFn
+        std::function<void(UIButton* button)>&& onReleaseFn,
+        float pressOffset
     ) : Entity(
             "UI Button",
             render::RenderInfo(
@@ -44,7 +45,8 @@ namespace ui {
         _keyCode(keyCode),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
-        _buttonPressedSprite(buttonPressSprite) {}
+        _buttonPressedSprite(buttonPressSprite),
+        _pressOffset(pressOffset) {}
 
     void UIButton::enableButton() {
         setAlpha(1.f);
@@ -52,7 +54,7 @@ namespace ui {
     }
 
     void UIButton::disableButton() {
-        release();
+        cancel();
         setAlpha(0.5f);
         _buttonDisabled = true;
     }
@@ -76,16 +78,16 @@ namespace ui {
             if (mouseState.isDown(slurp::MouseCode::LeftClick)) {
                 press();
             } else {
+                release();
                 hover();
             }
             return;
         }
 
-        release();
+        cancel();
     }
 
     void UIButton::hover() {
-        release();
         setTexture(_buttonHoverSprite);
     }
 
@@ -95,15 +97,24 @@ namespace ui {
             return;
         }
         _isPressed = true;
+        physicsInfo.position.y += _pressOffset;
         _onPressFn(this);
     }
 
     void UIButton::release() {
+        if (!_isPressed) {
+            return;
+        }
+        cancel();
+        _onReleaseFn(this);
+    }
+
+    void UIButton::cancel() {
         setTexture(_buttonSprite);
         if (!_isPressed) {
             return;
         }
         _isPressed = false;
-        _onReleaseFn(this);
+        physicsInfo.position.y -= _pressOffset;
     }
 }
