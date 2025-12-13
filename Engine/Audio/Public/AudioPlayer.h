@@ -24,6 +24,8 @@ namespace audio {
 
         void stop(sound_id id);
 
+        void clearAll();
+
         /** Engine **/
         void bufferAudio(const AudioBuffer& buffer);
 
@@ -49,6 +51,10 @@ namespace audio {
 
     inline void stop(sound_id id) {
         slurp::Globals->AudioPlayer->stop(id);
+    }
+
+    inline void clearAll() {
+        slurp::Globals->AudioPlayer->clearAll();
     }
 
     inline void bufferAudio(const AudioBuffer& buffer) {

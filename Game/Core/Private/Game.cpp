@@ -27,6 +27,16 @@ namespace game {
     static constexpr int NumInitialCorruptedWorkers = 1;
 
     static void loadAssets() {
+        MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
+        MenuAssets->titleTextSprite = asset::loadSprite("title_text.bmp");
+        MenuAssets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        MenuAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
+        MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
+        MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
+        MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
+
+        MenuAssets->bgm = asset::loadSound("ambient.wav");
+
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
 
@@ -80,36 +90,92 @@ namespace game {
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
     }
 
+    static void transitionScene(bool isMainMenu) {
+        mainMenuActive = isMainMenu;
+        audio::clearAll();
+        entity::clearAll();
+        sceneMemory.freeAll();
+        initialize(true);
+    }
+
     void initialize(bool isInitialized) {
-        if (isInitialized) {
-            Assets = slurp::Globals->GameAssets;
-            State = slurp::Globals->GameState;
-        } else {
-            GameSystems* gameSystems = memory::Permanent->allocate<GameSystems>();
-            Assets = slurp::Globals->GameAssets = &gameSystems->assets;
-            State = slurp::Globals->GameState = &gameSystems->state;
-            loadAssets();
+        if (!isInitialized) {
+            sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
         }
+        GameSystems* gameSystems = sceneMemory.allocate<GameSystems>();
+        MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
+        MenuState = slurp::Globals->MenuState = &gameSystems->menuState;
+        Assets = slurp::Globals->GameAssets = &gameSystems->assets;
+        State = slurp::Globals->GameState = &gameSystems->state;
+        loadAssets();
 
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(State->randomSeed);
 
-        audio::setGlobalVolume(GlobalVolume);
-        if (!State->bgmId) {
-            State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
+        slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
+
+        new(&State->mouseCursor) mouse_cursor::MouseCursor();
+
+        if (mainMenuActive) {
+            audio::play(MenuAssets->bgm, 0.5, true);
+            new(&MenuState->background) entity::Entity(
+                "Background",
+                render::RenderInfo(asset::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
+                physics::PhysicsInfo(),
+                collision::CollisionInfo()
+            );
+            new(&MenuState->titleText) entity::Entity(
+                "Title Text",
+                render::RenderInfo(asset::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
+                physics::PhysicsInfo({0, 100}),
+                collision::CollisionInfo()
+            );
+            const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
+            new(&MenuState->playButton) ui::UIButton(
+                MenuAssets->playButtonTextSprite,
+                MenuAssets->buttonSprite,
+                MenuAssets->buttonHoverSprite,
+                MenuAssets->buttonPressSprite,
+                buttonShape,
+                {0, -25},
+                slurp::KeyboardCode::ENTER,
+                [](ui::UIButton* button) {},
+                [](ui::UIButton* button) {
+                    transitionScene(false);
+                },
+                -2
+            );
+
+            new(&MenuState->exitButton) ui::UIButton(
+                MenuAssets->exitButtonTextSprite,
+                MenuAssets->buttonSprite,
+                MenuAssets->buttonHoverSprite,
+                MenuAssets->buttonPressSprite,
+                buttonShape,
+                {0, -75},
+                slurp::KeyboardCode::ESC,
+                [](ui::UIButton* button) {},
+                [](ui::UIButton* button) {
+                    platform::exit();
+                },
+                -2
+            );
+            return;
         }
-        slurp::Globals->RenderApi->setBackgroundColor(0.4f, 0.1f, 1.0f);
+
+        audio::setGlobalVolume(GlobalVolume);
+        State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
 
         new(&State->background) entity::Entity(
             "Background",
-            render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->backgroundSprite, BACKGROUND_Z)),
+            render::RenderInfo(asset::SpriteInstance(Assets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
 
         new(&State->border) entity::Entity(
             "Border",
-            render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->borderSprite, BORDER_Z)),
+            render::RenderInfo(asset::SpriteInstance(Assets->borderSprite, BORDER_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
@@ -157,8 +223,6 @@ namespace game {
                     false
                 );
 
-        new(&State->mouseCursor) mouse_cursor::MouseCursor();
-
         new(&State->overlay) entity::Entity(
             "Overlay",
             render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
@@ -172,13 +236,17 @@ namespace game {
             (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) ||
             keyboardState.isDown(slurp::KeyboardCode::ESC)
         ) {
-            slurp::Globals->PlatformDll->shutdown();
+            platform::exit();
+        }
+
+        if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
+            transitionScene(!mainMenuActive);
         }
     }
 
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState) {
         if (gamepadState.isDown(slurp::GamepadCode::START) || gamepadState.isDown(slurp::GamepadCode::B)) {
-            slurp::Globals->PlatformDll->shutdown();
+            platform::exit();
         }
     }
 

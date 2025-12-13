@@ -4,8 +4,6 @@
 namespace ui {
     class StopwatchDisplay final : public entity::Entity {
     public:
-        float secondsElapsed;
-
         StopwatchDisplay(const slurp::Vec2<float>& position);
 
         void start();
@@ -16,6 +14,7 @@ namespace ui {
 
     private:
         bool _isStopped;
+        float _secondsElapsed;
 
         NumberDisplay _hoursDisplay;
         NumberDisplay _minutesDisplay;

@@ -28,6 +28,8 @@ namespace entity {
 
         void removeEntity(const Entity* entity);
 
+        void clearAll();
+
     private:
         entity_id _nextEntityId;
         types::vector_arena<Entity*> _pipeline;
@@ -55,5 +57,9 @@ namespace entity {
 
     inline void removeEntity(const Entity* entity) {
         slurp::Globals->EntityPipeline->removeEntity(entity);
+    }
+
+    inline void clearAll() {
+        slurp::Globals->EntityPipeline->clearAll();
     }
 }

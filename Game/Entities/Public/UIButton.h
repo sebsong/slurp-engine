@@ -4,16 +4,17 @@
 namespace ui {
     class UIButton final : public entity::Entity {
     public:
-
         UIButton(
             asset::Sprite* buttonIconSprite,
             asset::Sprite* buttonSprite,
             asset::Sprite* buttonHoverSprite,
             asset::Sprite* buttonPressSprite,
-            slurp::Vec2<float>&& position,
+            const geometry::Shape& buttonShape,
+            const slurp::Vec2<float>& position,
             slurp::KeyboardCode keyCode,
             std::function<void(UIButton* button)>&& onPressFn,
-            std::function<void(UIButton* button)>&& onReleaseFn
+            std::function<void(UIButton* button)>&& onReleaseFn,
+            float pressOffset = -1
         );
 
         void enableButton();
@@ -29,6 +30,7 @@ namespace ui {
         asset::Sprite* _buttonSprite;
         asset::Sprite* _buttonHoverSprite;
         asset::Sprite* _buttonPressedSprite;
+        float _pressOffset;
 
         void handleMouseAndKeyboardInput(
             const slurp::MouseState& mouseState,
@@ -40,5 +42,7 @@ namespace ui {
         void press();
 
         void release();
+
+        void cancel();
     };
 }

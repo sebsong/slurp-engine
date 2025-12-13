@@ -1,4 +1,5 @@
 #pragma once
+#include "AudioPlayer.h"
 #include "Base.h"
 #include "EntityPool.h"
 #include "MineSite.h"
@@ -17,12 +18,27 @@
 #define MAX_NUM_TURRETS 100
 #define MAX_NUM_MINE_SITES 100
 
-namespace ui_button {
-    class UIButton;
-}
-
 namespace game {
-    struct GameAssets {
+    struct MenuAssets {
+        asset::Sprite* backgroundSprite;
+        asset::Sprite* titleTextSprite;
+        asset::Sprite* playButtonTextSprite;
+        asset::Sprite* exitButtonTextSprite;
+        asset::Sprite* buttonSprite;
+        asset::Sprite* buttonHoverSprite;
+        asset::Sprite* buttonPressSprite;
+
+        asset::Sound* bgm;
+    };
+
+    struct MenuState {
+        entity::Entity background;
+        entity::Entity titleText;
+        ui::UIButton playButton;
+        ui::UIButton exitButton;
+    };
+
+    struct Assets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
 
@@ -72,7 +88,7 @@ namespace game {
         asset::Sound* turretShoot;
     };
 
-    struct GameState {
+    struct State {
         uint32_t randomSeed;
         audio::sound_id bgmId;
 
@@ -114,12 +130,20 @@ namespace game {
     };
 
     struct GameSystems {
-        GameAssets assets;
-        GameState state;
+        MenuAssets menuAssets;
+        MenuState menuState;
+        Assets assets;
+        State state;
     };
 
-    static GameAssets* Assets;
-    static GameState* State;
+    static MenuAssets* MenuAssets;
+    static MenuState* MenuState;
+    static Assets* Assets;
+    static State* State;
+
+    static bool mainMenuActive = true;
+
+    static memory::MemoryArena sceneMemory;
 
     void initialize(bool isInitialized);
 

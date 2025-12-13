@@ -54,6 +54,11 @@ namespace entity {
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
+
+                if (!entity->initialized) {
+                    entity->initialize();
+                }
+
                 entity->update(dt);
                 entity->updatePhysics(dt);
                 // TODO: move to a separate physics update that potentially runs more frequently
@@ -109,5 +114,9 @@ namespace entity {
             std::format("Could not find entity to remove from pipeline: {}", entity->name)
         );
         _pipeline.erase(position);
+    }
+
+    void EntityPipeline::clearAll() {
+        _pipeline.clear();
     }
 }

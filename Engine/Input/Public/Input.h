@@ -80,8 +80,15 @@ namespace slurp {
         NUM_8,
         NUM_9,
         ESC,
+        ENTER,
+        BACKSPACE,
+        LEFT_ARROW,
+        RIGHT_ARROW,
+        UP_ARROW,
+        DOWN_ARROW,
         SPACE,
         ALT,
+        TAB,
         F4,
     };
 
