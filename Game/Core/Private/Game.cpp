@@ -43,6 +43,11 @@ namespace game {
 
         Assets->screenCoverSprite = asset::loadSprite("screen_cover.bmp");
         Assets->pauseMenuSprite = asset::loadSprite("pause_menu.bmp");
+        Assets->resumeButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        Assets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
+        Assets->bigButtonSprite = asset::loadSprite("button_big.bmp");
+        Assets->bigButtonHoverSprite = asset::loadSprite("button_big_hover.bmp");
+        Assets->bigButtonPressSprite = asset::loadSprite("button_big_press.bmp");
 
         Assets->baseSprite = asset::loadSprite("base.bmp");
         Assets->baseIdleAnim = asset::loadSpriteAnimation("base_idle_anim.bmp", 5);
@@ -249,7 +254,7 @@ namespace game {
         }
 
         if (!mainMenuActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
-            State->pauseMenu.enabled = !State->pauseMenu.enabled;
+            State->pauseMenu.toggle();
         }
     }
 

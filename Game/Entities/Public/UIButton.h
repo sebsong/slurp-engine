@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "ZOrder.h"
 
 namespace ui {
     class UIButton final : public entity::Entity {
@@ -15,7 +16,8 @@ namespace ui {
             std::function<void(UIButton* button)>&& onPressFn,
         std::function<void(UIButton* button)>&& releaseActionFn,
             std::function<void(UIButton* button)>&& onReleaseFn,
-            float pressOffset = -1
+            float pressOffset = -1,
+            int zOrder = game::ZOrder::UI_Z
         );
 
         void enableButton();

@@ -14,19 +14,20 @@ namespace ui {
         std::function<void(UIButton* button)>&& onPressFn,
         std::function<void(UIButton* button)>&& releaseActionFn,
         std::function<void(UIButton* button)>&& onReleaseFn,
-        float pressOffset
+        float pressOffset,
+        int zOrder
     ) : Entity(
             "UI Button",
             render::RenderInfo(
                 (asset::SpriteInstance[2]){
                     asset::SpriteInstance(
                         buttonSprite,
-                        game::UI_Z,
+                        zOrder,
                         buttonRenderOffset
                     ),
                     asset::SpriteInstance(
                         buttonIconSprite,
-                        game::UI_Z - 1,
+                        zOrder - 1,
                         buttonRenderOffset
                     )
                 }

@@ -6,8 +6,10 @@ namespace ui {
     public:
         PauseMenu();
 
+        void toggle();
+
     private:
-        Entity _menu;
-        Entity _screenCover;
+        UIButton _resumeButton;
+        UIButton _exitButton;
     };
 }

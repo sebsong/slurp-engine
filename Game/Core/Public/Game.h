@@ -45,6 +45,11 @@ namespace game {
 
         asset::Sprite* screenCoverSprite;
         asset::Sprite* pauseMenuSprite;
+        asset::Sprite* resumeButtonTextSprite;
+        asset::Sprite* exitButtonTextSprite;
+        asset::Sprite* bigButtonSprite;
+        asset::Sprite* bigButtonHoverSprite;
+        asset::Sprite* bigButtonPressSprite;
 
         asset::Sprite* baseSprite;
         asset::SpriteAnimation* baseIdleAnim;
@@ -123,16 +128,6 @@ namespace game {
 
         mouse_cursor::MouseCursor mouseCursor;
         entity::Entity overlay;
-    };
-
-    enum ZOrder {
-        BACKGROUND_Z = Z_ORDER_MAX,
-        BORDER_Z = Z_ORDER_MAX - 10,
-        BACKGROUND_ENTITY_Z = Z_ORDER_MAX - 20,
-        PROGRESS_BAR_Z = -(Z_ORDER_MAX - 30),
-        UI_Z = -(Z_ORDER_MAX - 20),
-        PAUSE_Z = -(Z_ORDER_MAX - 10),
-        MOUSE_Z = -Z_ORDER_MAX,
     };
 
     struct GameSystems {
