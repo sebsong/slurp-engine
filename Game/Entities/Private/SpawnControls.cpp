@@ -29,7 +29,6 @@ namespace ui {
                   {position.x - 30, position.y},
                   slurp::KeyboardCode::NUM_1,
                   [this](UIButton* button) {
-                      button->physicsInfo.position.y -= 1;
                       button->playAnimation(game::Assets->buttonPressAnim, WorkerBuildTime, true);
                       timer::start(
                           _spawnWorkerTimerHandle,
@@ -41,9 +40,9 @@ namespace ui {
                           }
                       );
                   },
+                  [this](UIButton* button) {},
                   [this](UIButton* button) {
                       button->stopAnimation();
-                      button->physicsInfo.position.y += 1;
                       timer::cancel(_spawnWorkerTimerHandle);
                   }
               )
@@ -58,7 +57,6 @@ namespace ui {
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
                   [this](UIButton* button) {
-                      button->physicsInfo.position.y -= 1;
                       button->playAnimation(game::Assets->buttonPressAnim, MineSiteBuildTime, true);
                       timer::start(
                           _spawnMineSiteTimerHandle,
@@ -70,9 +68,9 @@ namespace ui {
                           }
                       );
                   },
+                  [this](UIButton* button) {},
                   [this](UIButton* button) {
                       button->stopAnimation();
-                      button->physicsInfo.position.y += 1;
                       timer::cancel(_spawnMineSiteTimerHandle);
                   }
               )
@@ -87,16 +85,14 @@ namespace ui {
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
                   [this](UIButton* button) {
-                      button->physicsInfo.position.y -= 1;
                       if (!_isPlacingTurret) {
                           startTurretPlacement();
                       } else {
                           stopTurretPlacement();
                       }
                   },
-                  [](UIButton* button) {
-                      button->physicsInfo.position.y += 1;
-                  }
+                  [this](UIButton* button) {},
+                  [](UIButton* button) {}
               )
           ),
           _turretPlacementGuide(

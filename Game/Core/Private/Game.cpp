@@ -143,6 +143,7 @@ namespace game {
                 [](ui::UIButton* button) {
                     transitionScene(false);
                 },
+                [](ui::UIButton* button) {},
                 -2
             );
 
@@ -158,6 +159,7 @@ namespace game {
                 [](ui::UIButton* button) {
                     platform::exit();
                 },
+                [](ui::UIButton* button) {},
                 -2
             );
             return;

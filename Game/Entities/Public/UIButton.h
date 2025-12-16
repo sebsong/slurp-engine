@@ -13,6 +13,7 @@ namespace ui {
             const slurp::Vec2<float>& position,
             slurp::KeyboardCode keyCode,
             std::function<void(UIButton* button)>&& onPressFn,
+        std::function<void(UIButton* button)>&& releaseActionFn,
             std::function<void(UIButton* button)>&& onReleaseFn,
             float pressOffset = -1
         );
@@ -23,8 +24,10 @@ namespace ui {
 
     private:
         bool _isPressed;
+        bool _wasPressedByMouse;
         bool _buttonDisabled;
         std::function<void(UIButton* button)> _onPressFn;
+        std::function<void(UIButton* button)> _releaseActionFn;
         std::function<void(UIButton* button)> _onReleaseFn;
         slurp::KeyboardCode _keyCode;
         asset::Sprite* _buttonSprite;
@@ -42,7 +45,5 @@ namespace ui {
         void press();
 
         void release();
-
-        void cancel();
     };
 }
