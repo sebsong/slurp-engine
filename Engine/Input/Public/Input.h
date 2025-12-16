@@ -79,7 +79,7 @@ namespace slurp {
         NUM_7,
         NUM_8,
         NUM_9,
-        ESC,
+        ESCAPE,
         ENTER,
         BACKSPACE,
         LEFT_ARROW,

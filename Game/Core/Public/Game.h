@@ -10,6 +10,7 @@
 #include "Turret.h"
 #include "UIButton.h"
 #include "NumberDisplay.h"
+#include "PauseMenu.h"
 #include "ProgressBar.h"
 #include "SpawnControls.h"
 #include "StopwatchDisplay.h"
@@ -41,6 +42,9 @@ namespace game {
     struct Assets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
+
+        asset::Sprite* screenCoverSprite;
+        asset::Sprite* pauseMenuSprite;
 
         asset::Sprite* baseSprite;
         asset::SpriteAnimation* baseIdleAnim;
@@ -94,6 +98,7 @@ namespace game {
 
         entity::Entity background;
         entity::Entity border;
+        ui::PauseMenu pauseMenu;
         obstacle::Obstacle wallUp;
         obstacle::Obstacle wallDown;
         obstacle::Obstacle wallLeft;
@@ -102,7 +107,7 @@ namespace game {
         base::Base base;
         mine_site::MineSiteSpawner mineSiteSpawner;
         entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES> mineSites;
-        types::deque_arena<slurp::Vec2<float>> mineSpots;
+        types::deque_arena<slurp::Vec2<float> > mineSpots;
 
         entity::EntityPool<worker::Worker, MAX_NUM_WORKERS> workers;
         types::vector_arena<worker::Worker*> corruptibleWorkers;
@@ -122,10 +127,11 @@ namespace game {
 
     enum ZOrder {
         BACKGROUND_Z = Z_ORDER_MAX,
-        BORDER_Z = Z_ORDER_MAX - 1,
-        BACKGROUND_ENTITY_Z = Z_ORDER_MAX - 2,
-        PROGRESS_BAR_Z = -(Z_ORDER_MAX - 2),
-        UI_Z = -(Z_ORDER_MAX - 1),
+        BORDER_Z = Z_ORDER_MAX - 10,
+        BACKGROUND_ENTITY_Z = Z_ORDER_MAX - 20,
+        PROGRESS_BAR_Z = -(Z_ORDER_MAX - 30),
+        UI_Z = -(Z_ORDER_MAX - 20),
+        PAUSE_Z = -(Z_ORDER_MAX - 10),
         MOUSE_Z = -Z_ORDER_MAX,
     };
 

@@ -39,7 +39,7 @@ static const std::unordered_map<SDL_Keycode, slurp::KeyboardCode> KeyboardSDLCod
     {SDLK_8, slurp::KeyboardCode::NUM_8},
     {SDLK_9, slurp::KeyboardCode::NUM_9},
     {SDLK_SPACE, slurp::KeyboardCode::SPACE},
-    {SDLK_ESCAPE, slurp::KeyboardCode::ESC},
+    {SDLK_ESCAPE, slurp::KeyboardCode::ESCAPE},
     {SDLK_RETURN, slurp::KeyboardCode::ENTER},
     {SDLK_BACKSPACE, slurp::KeyboardCode::BACKSPACE},
     {SDLK_LEFT, slurp::KeyboardCode::LEFT_ARROW},

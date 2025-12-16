@@ -17,6 +17,7 @@
 #include "StopwatchDisplay.cpp"
 #include "ProgressBar.cpp"
 #include "SpawnControls.cpp"
+#include "PauseMenu.cpp"
 
 namespace game {
     static const float GlobalVolume = 0.3f;
@@ -39,6 +40,9 @@ namespace game {
 
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
+
+        Assets->screenCoverSprite = asset::loadSprite("screen_cover.bmp");
+        Assets->pauseMenuSprite = asset::loadSprite("pause_menu.bmp");
 
         Assets->baseSprite = asset::loadSprite("base.bmp");
         Assets->baseIdleAnim = asset::loadSpriteAnimation("base_idle_anim.bmp", 5);
@@ -138,12 +142,12 @@ namespace game {
                 MenuAssets->buttonPressSprite,
                 buttonShape,
                 {0, -25},
-                slurp::KeyboardCode::ENTER,
-                [](ui::UIButton* button) {},
-                [](ui::UIButton* button) {
+                std::nullopt,
+                [](ui::UIButton* _) {},
+                [](ui::UIButton* _) {
                     transitionScene(false);
                 },
-                [](ui::UIButton* button) {},
+                [](ui::UIButton* _) {},
                 -2
             );
 
@@ -154,12 +158,12 @@ namespace game {
                 MenuAssets->buttonPressSprite,
                 buttonShape,
                 {0, -75},
-                slurp::KeyboardCode::ESC,
-                [](ui::UIButton* button) {},
-                [](ui::UIButton* button) {
+                std::nullopt,
+                [](ui::UIButton* _) {},
+                [](ui::UIButton* _) {
                     platform::exit();
                 },
-                [](ui::UIButton* button) {},
+                [](ui::UIButton* _) {},
                 -2
             );
             return;
@@ -181,6 +185,8 @@ namespace game {
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
+
+        new(&State->pauseMenu) ui::PauseMenu();
 
         new(&State->base) base::Base();
 
@@ -234,15 +240,16 @@ namespace game {
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
-        if (
-            (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) ||
-            keyboardState.isDown(slurp::KeyboardCode::ESC)
-        ) {
+        if (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) {
             platform::exit();
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
             transitionScene(!mainMenuActive);
+        }
+
+        if (!mainMenuActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
+            State->pauseMenu.enabled = !State->pauseMenu.enabled;
         }
     }
 

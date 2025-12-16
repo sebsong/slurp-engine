@@ -10,7 +10,7 @@ namespace ui {
         asset::Sprite* buttonPressSprite,
         const geometry::Shape& buttonShape,
         const slurp::Vec2<float>& position,
-        slurp::KeyboardCode keyCode,
+        std::optional<slurp::KeyboardCode> keyCode,
         std::function<void(UIButton* button)>&& onPressFn,
         std::function<void(UIButton* button)>&& releaseActionFn,
         std::function<void(UIButton* button)>&& onReleaseFn,
@@ -72,7 +72,7 @@ namespace ui {
             return;
         }
 
-        bool pressedByKey = keyboardState.isDown(_keyCode);
+        bool pressedByKey = _keyCode.has_value() ? keyboardState.isDown(_keyCode.value()) : false;
         bool mouseOnButton = mouseHitTest(mouseState.position);
         bool pressedByMouse = mouseOnButton && mouseState.isDown(slurp::MouseCode::LeftClick);
 
