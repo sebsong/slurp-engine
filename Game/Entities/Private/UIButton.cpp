@@ -117,5 +117,6 @@ namespace ui {
         _wasPressedByMouse = false;
         _isPressed = false;
         physicsInfo.position.y -= _pressOffset;
+        _onReleaseFn(this);
     }
 }

@@ -42,6 +42,7 @@ namespace ui {
                   },
                   [this](UIButton* button) {},
                   [this](UIButton* button) {
+                      logging::info("RELEASE");
                       button->stopAnimation();
                       timer::cancel(_spawnWorkerTimerHandle);
                   }
