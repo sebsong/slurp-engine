@@ -34,4 +34,6 @@
 # MacOS
 *.DS_Store
 
+Backup/
+
 Engine/x64

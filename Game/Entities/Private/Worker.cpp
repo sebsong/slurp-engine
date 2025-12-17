@@ -185,7 +185,7 @@ namespace worker {
                 if (_isCorrupted) {
                     audio::play(game::Assets->errorCollect);
                 } else {
-                    audio::play(game::Assets->resourceCollectedLow);
+                    audio::play(game::Assets->collect_1_1);
                 }
             }
         );

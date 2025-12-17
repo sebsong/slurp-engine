@@ -91,6 +91,9 @@ namespace game {
         asset::Sound* backgroundMusic;
         asset::Sound* resourceCollected;
         asset::Sound* resourceCollectedLow;
+        asset::Sound* collect_1_1;
+        asset::Sound* collect_1_2;
+        asset::Sound* collect_1_3;
         asset::Sound* errorCollect;
         asset::Sound* resourceDropOff;
         asset::Sound* spawnMineSite;

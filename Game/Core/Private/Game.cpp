@@ -20,7 +20,7 @@
 #include "PauseMenu.cpp"
 
 namespace game {
-    static const float GlobalVolume = 0.3f;
+    static const float GlobalVolume = 1.0f;
     // NOTE: https://freesound.org/people/Seth_Makes_Sounds/sounds/706018/
     // static constexpr const char* BackgroundMusicSoundFileName = "bgm.wav";
 
@@ -90,9 +90,12 @@ namespace game {
         Assets->overlaySprite = asset::loadSprite("overlay.bmp", "overlay.glsl", "overlay.glsl");
 
         // NOTE: https://opengameart.org/content/since-2-am
-        Assets->backgroundMusic = asset::loadSound("since_2_am.wav");
+        Assets->backgroundMusic = asset::loadSound("bgm_chords.wav");
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
+        Assets->collect_1_1 = asset::loadSound("collect_1_1.wav");
+        Assets->collect_1_2 = asset::loadSound("collect_1_2.wav");
+        Assets->collect_1_3 = asset::loadSound("collect_1_3.wav");
         Assets->errorCollect = asset::loadSound("error.wav");
         Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
         Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
@@ -118,14 +121,15 @@ namespace game {
         State = slurp::Globals->GameState = &gameSystems->state;
         loadAssets();
 
+        audio::setGlobalVolume(GlobalVolume);
+
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(State->randomSeed);
 
         slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
 
-
         if (mainMenuActive) {
-            audio::play(MenuAssets->bgm, 0.5, true);
+            audio::play(MenuAssets->bgm, 0.2, true);
             new(&MenuState->background) entity::Entity(
                 "Background",
                 render::RenderInfo(asset::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
@@ -174,8 +178,7 @@ namespace game {
             return;
         }
 
-        audio::setGlobalVolume(GlobalVolume);
-        State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
+        State->bgmId = audio::play(Assets->backgroundMusic, 0.2, true);
 
         new(&State->background) entity::Entity(
             "Background",

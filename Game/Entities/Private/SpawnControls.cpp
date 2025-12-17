@@ -40,7 +40,7 @@ namespace ui {
                           }
                       );
                   },
-                  [this](UIButton* button) {},
+                  [](UIButton* _) {},
                   [this](UIButton* button) {
                       logging::info("RELEASE");
                       button->stopAnimation();
@@ -69,7 +69,7 @@ namespace ui {
                           }
                       );
                   },
-                  [this](UIButton* button) {},
+                  [](UIButton* _) {},
                   [this](UIButton* button) {
                       button->stopAnimation();
                       timer::cancel(_spawnMineSiteTimerHandle);
@@ -85,15 +85,15 @@ namespace ui {
                   buttonShape,
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
-                  [this](UIButton* button) {
+                  [this](UIButton* _) {
                       if (!_isPlacingTurret) {
                           startTurretPlacement();
                       } else {
                           stopTurretPlacement();
                       }
                   },
-                  [this](UIButton* button) {},
-                  [](UIButton* button) {}
+                  [](UIButton* _) {},
+                  [](UIButton* _) {}
               )
           ),
           _turretPlacementGuide(
