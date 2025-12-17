@@ -91,7 +91,7 @@ namespace turret {
     }
 
     void Turret::shootAtTarget() {
-        audio::play(game::Assets->turretShoot);
+        audio::play(game::Assets->turretShoot, 0.2f);
         playAnimation(game::Assets->turretShootAnim, ShootCooldown);
         _target->decrementCorruption();
         _currentShootCooldown = ShootCooldown;

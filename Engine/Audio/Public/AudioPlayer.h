@@ -45,7 +45,7 @@ namespace audio {
         return slurp::Globals->AudioPlayer->play(sound);
     }
 
-    inline sound_id play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+    inline sound_id play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop = false) {
         return slurp::Globals->AudioPlayer->play(sound, volumeMultiplier, shouldLoop);
     }
 

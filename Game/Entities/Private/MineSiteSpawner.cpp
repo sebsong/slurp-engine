@@ -35,7 +35,7 @@ namespace mine_site {
         newMineSite->physicsInfo.position = getRandomSpawnLocation();
         game::State->mineSites.enableInstance(newMineSite);
         newMineSite->playAnimation(game::Assets->mineSiteSpawnAnim, 2.f);
-        audio::play(game::Assets->spawnMineSite);
+        audio::play(game::Assets->spawnMineSite, 0.2f);
     }
 
     void MineSiteSpawner::initialize() {

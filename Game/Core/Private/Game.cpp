@@ -93,9 +93,12 @@ namespace game {
         Assets->backgroundMusic = asset::loadSound("bgm_chords.wav");
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
-        Assets->collect_1_1 = asset::loadSound("collect_1_1.wav");
-        Assets->collect_1_2 = asset::loadSound("collect_1_2.wav");
-        Assets->collect_1_3 = asset::loadSound("collect_1_3.wav");
+        Assets->collect[0] = asset::loadSound("collect_1_1.wav");
+        Assets->collect[1] = asset::loadSound("collect_1_2.wav");
+        Assets->collect[2] = asset::loadSound("collect_1_3.wav");
+        Assets->dropoff[0] = asset::loadSound("dropoff_1_1.wav");
+        Assets->dropoff[1] = asset::loadSound("dropoff_1_2.wav");
+        Assets->dropoff[2] = asset::loadSound("dropoff_1_3.wav");
         Assets->errorCollect = asset::loadSound("error.wav");
         Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
         Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
@@ -178,7 +181,7 @@ namespace game {
             return;
         }
 
-        State->bgmId = audio::play(Assets->backgroundMusic, 0.2, true);
+        State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
 
         new(&State->background) entity::Entity(
             "Background",

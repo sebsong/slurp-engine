@@ -26,8 +26,8 @@ namespace rnd {
         return (randomFloat()) * (max - min) + min;
     }
 
-    template <typename C, typename T>
-    T pickRandom(const C& collection, T defaultValue) {
+    template<typename C, typename T>
+    T pickRandom(const C& collection, const T defaultValue) {
         if (collection.empty()) {
             return defaultValue;
         }
@@ -35,12 +35,12 @@ namespace rnd {
         return collection.at(randomIndex(collection.size()));
     }
 
-    template <typename C, typename T>
+    template<typename C, typename T>
     T* pickRandom(const C& collection) {
         return pickRandom<C, T*>(collection, nullptr);
     }
 
-    template <typename C>
+    template<typename C>
     void shuffle(C& collection) {
         std::random_device rd;
         std::mt19937 g(rd());

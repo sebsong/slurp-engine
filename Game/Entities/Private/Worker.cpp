@@ -4,6 +4,8 @@
 
 #include <ranges>
 
+#include "Timer.h"
+
 namespace worker {
     static const geometry::Shape WorkerShape = {geometry::Rect, {5, 3}};
     static constexpr float BaseSpeed = 50;
@@ -161,7 +163,7 @@ namespace worker {
         timer::delay(
             DropOffTime,
             [this] {
-                audio::play(game::Assets->resourceDropOff);
+                audio::play(game::Assets->dropoff[rnd::randomIndex(3)]);
                 dropOff();
             }
         );
@@ -183,9 +185,9 @@ namespace worker {
             [this] {
                 collect();
                 if (_isCorrupted) {
-                    audio::play(game::Assets->errorCollect);
+                    audio::play(game::Assets->errorCollect, 0.2f);
                 } else {
-                    audio::play(game::Assets->collect_1_1);
+                    audio::play(game::Assets->collect[rnd::randomIndex(3)]);
                 }
             }
         );
