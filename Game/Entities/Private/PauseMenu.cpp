@@ -59,7 +59,7 @@ namespace ui {
               )
           ) {
         toggle();
-        setAlpha(0, .7); // TODO: fix alpha z sorting
+        setAlpha(0, .75); // TODO: fix alpha z sorting
     }
 
     void PauseMenu::toggle() {
