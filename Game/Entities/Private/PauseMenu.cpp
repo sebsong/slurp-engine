@@ -10,12 +10,12 @@ namespace ui {
               render::RenderInfo{
                   (asset::SpriteInstance[2]){
                       asset::SpriteInstance(
-                          game::Assets->pauseMenuSprite,
-                          game::PAUSE_Z
-                      ),
-                      asset::SpriteInstance(
                           game::Assets->screenCoverSprite,
                           game::PAUSE_Z + 1
+                      ),
+                      asset::SpriteInstance(
+                          game::Assets->pauseMenuSprite,
+                          game::PAUSE_Z
                       )
                   }
               },
@@ -59,7 +59,7 @@ namespace ui {
               )
           ) {
         toggle();
-        setAlpha(1, 0); // TODO: fix alpha z sorting
+        setAlpha(0, .7); // TODO: fix alpha z sorting
     }
 
     void PauseMenu::toggle() {

@@ -123,7 +123,6 @@ namespace game {
 
         slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
 
-        new(&State->mouseCursor) mouse_cursor::MouseCursor();
 
         if (mainMenuActive) {
             audio::play(MenuAssets->bgm, 0.5, true);
@@ -171,6 +170,7 @@ namespace game {
                 [](ui::UIButton* _) {},
                 -2
             );
+            new(&State->mouseCursor) mouse_cursor::MouseCursor();
             return;
         }
 
@@ -190,8 +190,6 @@ namespace game {
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
-
-        new(&State->pauseMenu) ui::PauseMenu();
 
         new(&State->base) base::Base();
 
@@ -236,12 +234,15 @@ namespace game {
                     false
                 );
 
-        new(&State->overlay) entity::Entity(
-            "Overlay",
-            render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
-            physics::PhysicsInfo(),
-            collision::CollisionInfo()
-        );
+        new(&State->pauseMenu) ui::PauseMenu();
+
+        new(&State->mouseCursor) mouse_cursor::MouseCursor();
+        // new(&State->overlay) entity::Entity(
+        //     "Overlay",
+        //     render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
+        //     physics::PhysicsInfo(),
+        //     collision::CollisionInfo()
+        // );
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
