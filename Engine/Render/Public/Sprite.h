@@ -23,7 +23,7 @@ namespace asset {
         int zOrder;
         slurp::Vec2<float> renderOffset;
 
-        SpriteInstance(
+        explicit SpriteInstance(
             const Sprite* sprite,
             const slurp::Vec2<float>& renderOffset = slurp::Vec2<float>::Zero,
             bool isCentered = true
