@@ -1,5 +1,7 @@
 #include "Entity.h"
 
+#include "EntityPipeline.h"
+
 namespace entity {
     Entity::Entity() noexcept: Entity(
         INVALID_ENTITY_ID,

@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "NumberDisplay.h"
 
 namespace ui {
     class StopwatchDisplay final : public entity::Entity {

@@ -1,6 +1,8 @@
 #include "SpawnControls.h"
 
 #include "Game.h"
+#include "Matrix.h"
+#include "Settings.h"
 
 namespace ui {
     static constexpr uint32_t WorkerBuildCost = 5;

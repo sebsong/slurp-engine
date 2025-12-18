@@ -52,7 +52,6 @@ namespace asset {
     void loadSpriteData(
         Sprite* sprite,
         const Bitmap* bitmap,
-        const std::string& vertexShaderSource,
-        const std::string& fragmentShaderSource
+        render::object_id shaderProgramId
     );
 }

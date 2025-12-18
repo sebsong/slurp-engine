@@ -13,6 +13,3 @@
 #define DEBUG_MONITOR_REFRESH_RATE 60
 
 #define HIDE_CURSOR 1
-
-#define OPEN_GL 1
-#define RENDER_API OPEN_GL

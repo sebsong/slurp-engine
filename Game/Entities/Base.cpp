@@ -1,5 +1,7 @@
 #include "Base.h"
 
+#include "Game.h"
+
 namespace base {
     static const geometry::Shape BaseShape = {geometry::Rect, {32, 10}};
     static const slurp::Vec2<float> RenderOffset = {0, 8};

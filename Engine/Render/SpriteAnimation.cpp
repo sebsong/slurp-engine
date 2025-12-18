@@ -1,5 +1,7 @@
 #include "SpriteAnimation.h"
 
+#include "Bitmap.h"
+
 namespace asset {
     void SpriteAnimation::play(float totalDuration, bool shouldLoop, bool playReversed) {
         stop();

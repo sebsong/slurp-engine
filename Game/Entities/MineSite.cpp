@@ -1,4 +1,5 @@
 #include "MineSite.h"
+#include "Game.h"
 
 namespace mine_site {
     static const geometry::Shape MineSiteShape = {geometry::Rect, {24, 12}};

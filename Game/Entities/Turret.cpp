@@ -1,9 +1,10 @@
 #include "Turret.h"
 
+#include "Game.h"
+
 namespace turret {
     static constexpr float Range = 32.f;
     static constexpr float ShootCooldown = 1.f;
-    static const slurp::Vec2<float> RenderOffset = {0, .5};
 
     static constexpr float OrbMaxHeightOffset = 0.f;
     static constexpr float OrbMinHeightOffset = -3.f;

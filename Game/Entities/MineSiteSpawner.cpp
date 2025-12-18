@@ -1,7 +1,10 @@
 #include "MineSiteSpawner.h"
 
+#include "Game.h"
 #include "Matrix.h"
+#include "MineSite.h"
 #include "Random.h"
+#include "Settings.h"
 
 namespace mine_site {
     static const slurp::Mat22<float> OuterBounds = {

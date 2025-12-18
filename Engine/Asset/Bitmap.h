@@ -44,7 +44,7 @@ namespace asset {
         Bitmap* bitmaps;
     };
 
-    void loadBitmapData(Bitmap* bitmap, const types::byte* bitmapFileBytes);
+    void loadBitmapData(Bitmap* bitmap, types::byte* bitmapFileBytes);
 
     BitmapSheet sliceBitmap(const Bitmap* bitmap, uint8_t numSlices);
 }

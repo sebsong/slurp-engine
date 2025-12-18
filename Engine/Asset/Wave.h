@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include "Types.h"
+#include "Asset.h"
 
 #define WAVE_CHUNK_ID(char1, char2, char3, char4) ( (char4) << 24 | (char3) << 16 | (char2) << 8 | (char1) )
 

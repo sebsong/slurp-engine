@@ -4,6 +4,7 @@
 #include "Bitmap.h"
 #include "Debug.h"
 #include "Types.h"
+#include "Wave.h"
 
 #include <filesystem>
 #include <fstream>

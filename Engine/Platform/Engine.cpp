@@ -1,22 +1,35 @@
 #include "Engine.h"
 
+#include "SlurpEngine.h"
+#include "MemoryConstructs.h"
 #include "Logging.h"
 #include "Platform.h"
 #include "RenderApi.h"
 #include "Settings.h"
-#include "SlurpEngine.h"
 
 #include <SDL3/SDL.h>
+#include <glad/glad.h>
 #include <filesystem>
 
+#include "Matrix.h"
+
+#if UNITY_BUILD
+
 #if PLATFORM_WINDOWS
-#include "Win32.cpp"
+    #include "Win32.cpp"
 #elif PLATFORM_MAC
-#include "MacOS.cpp"
+    #include "MacOS.cpp"
 #endif
 
 #if RENDER_API == OPEN_GL
-#include "OpenGL.cpp"
+    #include "OpenGL.cpp"
+#endif
+
+#else
+#if RENDER_API == OPEN_GL
+    #include "OpenGL.h"
+#endif
+
 #endif
 
 static bool GlobalRunning;
@@ -133,18 +146,18 @@ static platform::PlatformDll loadPlatformLib() {
 
 static render::RenderApi loadRenderApi() {
     render::RenderApi renderApi = {};
-    renderApi.setBackgroundColor = open_gl::setBackgroundColor;
-    renderApi.createTexture = open_gl::createTexture;
-    renderApi.createShaderProgram = open_gl::createShaderProgram;
-    renderApi.bindShaderUniformFloat = open_gl::bindShaderUniformFloat;
-    renderApi.bindShaderUniformBool = open_gl::bindShaderUniformBool;
-    renderApi.genVertexArrayBuffer = open_gl::genVertexArrayBuffer;
-    renderApi.genElementArrayBuffer = open_gl::genElementArrayBuffer;
-    renderApi.drawVertexArray = open_gl::drawVertexArray;
-    renderApi.drawElementArray = open_gl::drawElementArray;
-    renderApi.drawPoint = open_gl::drawPoint;
-    renderApi.drawLine = open_gl::drawLine;
-    renderApi.deleteResources = open_gl::deleteResources;
+    renderApi.setBackgroundColor = render::setBackgroundColor;
+    renderApi.createTexture = render::createTexture;
+    renderApi.createShaderProgram = render::createShaderProgram;
+    renderApi.bindShaderUniformFloat = render::bindShaderUniformFloat;
+    renderApi.bindShaderUniformBool = render::bindShaderUniformBool;
+    renderApi.genVertexArrayBuffer = render::genVertexArrayBuffer;
+    renderApi.genElementArrayBuffer = render::genElementArrayBuffer;
+    renderApi.drawVertexArray = render::drawVertexArray;
+    renderApi.drawElementArray = render::drawElementArray;
+    renderApi.drawPoint = render::drawPoint;
+    renderApi.drawLine = render::drawLine;
+    renderApi.deleteResources = render::deleteResources;
     return renderApi;
 }
 

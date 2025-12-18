@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Entity.h"
 #include "Collision.h"
 #include "Mathematics.h"
 #include "Physics.h"

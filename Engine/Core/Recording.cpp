@@ -1,7 +1,11 @@
 #if DEBUG
 #include "Recording.h"
 
+#include "Debug.h"
+#include "Global.h"
+#include "Input.h"
 #include "MemoryConstructs.h"
+#include "Platform.h"
 
 namespace slurp {
     void beginRecording(RecordingState& recordingState) {
@@ -36,7 +40,7 @@ namespace slurp {
         }
     }
 
-    static void recordInput(
+    void recordInput(
         RecordingState& recordingState,
         const MouseState& mouseState,
         const KeyboardState& keyboardState,
@@ -112,7 +116,7 @@ namespace slurp {
         }
     }
 
-    static void readInputRecording(
+    void readInputRecording(
         RecordingState& recordingState,
         MouseState& outMouseState,
         KeyboardState& outKeyboardState,

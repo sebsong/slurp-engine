@@ -1,11 +1,13 @@
 ﻿#include "SlurpEngine.h"
 #include "Global.h"
+#include "Game.h"
 #include "Random.h"
 #include "Debug.h"
+#include "Recording.h"
 #include "Settings.h"
 
+#if UNITY_BUILD
 /** Single translation unit, unity build **/
-//TODO: have option to not do unity build
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Debug.cpp"
@@ -52,6 +54,8 @@
 #if DEBUG
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Recording.cpp"
+#endif
+
 #endif
 
 namespace slurp {

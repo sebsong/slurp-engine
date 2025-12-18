@@ -1,7 +1,10 @@
 #pragma once
 #include "Entity.h"
+#include "Worker.h"
 
 namespace turret {
+    static const slurp::Vec2<float> RenderOffset = {0, .5};
+
     class Turret final : public entity::Entity {
     public:
         Turret();

@@ -11,14 +11,17 @@
 #include "AudioPlayer.h"
 #include "Game.h"
 
+#if UNITY_BUILD
+
 /** Single translation unit, unity build **/
-//TODO: have option to not do unity build
 
 // TODO: figure out if we can move these with the other unity build includes
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SpinLock.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "MemoryConstructs.cpp"
+
+#endif
 
 namespace slurp {
     struct EngineSystems {
@@ -60,5 +63,4 @@ namespace slurp {
         dyn_slurp_frameEnd* frameEnd = stub_slurp_frameEnd;
         dyn_slurp_shutdown* shutdown = stub_slurp_shutdown;
     };
-
 }

@@ -1,5 +1,7 @@
 #pragma once
 #include "Entity.h"
+#include "Timer.h"
+#include "UIButton.h"
 
 // TODO: include SpawnControls.cpp in Game.cpp
 // TODO: register this entity in game::initGame

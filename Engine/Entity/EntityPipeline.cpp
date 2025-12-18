@@ -2,6 +2,8 @@
 
 #include "Entity.h"
 #include "Input.h"
+#include "Render.h"
+#include "Settings.h"
 #include "Update.h"
 
 namespace entity {

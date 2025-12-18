@@ -10,7 +10,7 @@
 #include <SDL3/SDL.h>
 #include <Glad.c>
 
-namespace open_gl {
+namespace render {
     // e.g. [-WORLD_WIDTH / 2, -WORLD_HEIGHT / 2] -> [-1, -1]
     // e.g. [0, 0]                                -> [0, 0]
     // e.g. [WORLD_WIDTH / 2, WORLD_HEIGHT / 2]   -> [1, 1]
@@ -76,18 +76,18 @@ namespace open_gl {
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderId, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShaderId);
-        if (!validateShader(vertexShaderId)) { return render::INVALID_OBJECT_ID; }
+        if (!validateShader(vertexShaderId)) { return INVALID_OBJECT_ID; }
 
         uint32_t fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShaderId, 1, &fragmentShaderSource, nullptr);
         glCompileShader(fragmentShaderId);
-        if (!validateShader(fragmentShaderId)) { return render::INVALID_OBJECT_ID; }
+        if (!validateShader(fragmentShaderId)) { return INVALID_OBJECT_ID; }
 
-        render::object_id shaderProgramId = glCreateProgram();
+        object_id shaderProgramId = glCreateProgram();
         glAttachShader(shaderProgramId, vertexShaderId);
         glAttachShader(shaderProgramId, fragmentShaderId);
         glLinkProgram(shaderProgramId);
-        if (!validateShaderProgram(shaderProgramId)) { return render::INVALID_OBJECT_ID; }
+        if (!validateShaderProgram(shaderProgramId)) { return INVALID_OBJECT_ID; }
 
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
@@ -98,7 +98,7 @@ namespace open_gl {
     RENDER_BIND_SHADER_UNIFORM_FLOAT(bindShaderUniformFloat) {
         glUseProgram(shaderProgramId);
         int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
-        if (uniformLoc != render::INVALID_OBJECT_ID) {
+        if (uniformLoc != INVALID_OBJECT_ID) {
             glUniform1f(uniformLoc, value);
         }
     }
@@ -106,13 +106,13 @@ namespace open_gl {
     RENDER_BIND_SHADER_UNIFORM_BOOL(bindShaderUniformBool) {
         glUseProgram(shaderProgramId);
         int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
-        if (uniformLoc != render::INVALID_OBJECT_ID) {
+        if (uniformLoc != INVALID_OBJECT_ID) {
             glUniform1i(uniformLoc, value);
         }
     }
 
     RENDER_GEN_VERTEX_ARRAY_BUFFER(genVertexArrayBuffer) {
-        render::object_id vertexArrayId;
+        object_id vertexArrayId;
         glGenVertexArrays(1, &vertexArrayId);
         glBindVertexArray(vertexArrayId);
 
@@ -121,38 +121,38 @@ namespace open_gl {
         glGenBuffers(1, &vertexBufferId);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
         glVertexAttribPointer(
-            render::POSITION_VERTEX_ATTRIBUTE_IDX,
+            POSITION_VERTEX_ATTRIBUTE_IDX,
             slurp::Vec2<float>::DimensionCount,
             GL_FLOAT,
             GL_FALSE,
-            sizeof(render::Vertex),
+            sizeof(Vertex),
             nullptr
         );
-        glEnableVertexAttribArray(render::POSITION_VERTEX_ATTRIBUTE_IDX);
+        glEnableVertexAttribArray(POSITION_VERTEX_ATTRIBUTE_IDX);
 
         // TODO: make this optional?
         glVertexAttribPointer(
-            render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX,
+            TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX,
             slurp::Vec2<float>::DimensionCount,
             GL_FLOAT,
             GL_FALSE,
-            sizeof(render::Vertex),
-            reinterpret_cast<void*>(sizeof(render::Vertex::position))
+            sizeof(Vertex),
+            reinterpret_cast<void*>(sizeof(Vertex::position))
         );
-        glEnableVertexAttribArray(render::TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX);
+        glEnableVertexAttribArray(TEXTURE_COORD_VERTEX_ATTRIBUTE_IDX);
 
         for (int i = 0; i < vertexCount; i++) {
-            render::Vertex& vertex = vertexArray[i];
+            Vertex& vertex = vertexArray[i];
             vertex.position *= WorldToOpenGLClipSpaceMatrix;
         }
         // TODO: allow usage control
-        uint32_t vertexSize = sizeof(render::Vertex);
+        uint32_t vertexSize = sizeof(Vertex);
         glBufferData(GL_ARRAY_BUFFER, vertexSize * vertexCount, vertexArray, GL_DYNAMIC_DRAW);
         return vertexArrayId;
     }
 
     RENDER_GEN_ELEMENT_ARRAY_BUFFER(genElementArrayBuffer) {
-        render::object_id vertexArrayId = open_gl::genVertexArrayBuffer(vertexArray, vertexCount);
+        object_id vertexArrayId = genVertexArrayBuffer(vertexArray, vertexCount);
 
         // TODO: return this back out for later resource cleanup
         uint32_t elementBufferId;
@@ -164,30 +164,30 @@ namespace open_gl {
         return vertexArrayId;
     }
 
-    static void setZOrderUniform(render::object_id shaderProgramId, int zOrder) {
+    static void setZOrderUniform(object_id shaderProgramId, int zOrder) {
         int zOrderUniformLoc = glGetUniformLocation(
             shaderProgramId,
-            render::Z_ORDER_UNIFORM_NAME
+            Z_ORDER_UNIFORM_NAME
         );
-        if (zOrderUniformLoc != render::INVALID_OBJECT_ID) {
+        if (zOrderUniformLoc != INVALID_OBJECT_ID) {
             glUniform1f(zOrderUniformLoc, static_cast<float>(zOrder) / (Z_ORDER_MAX + 1));
         }
     }
 
-    static void setColorUniform(render::object_id shaderProgramId, const slurp::Vec4<float>& color) {
+    static void setColorUniform(object_id shaderProgramId, const slurp::Vec4<float>& color) {
         int colorUniformLoc = glGetUniformLocation(
             shaderProgramId,
-            render::COLOR_UNIFORM_NAME
+            COLOR_UNIFORM_NAME
         );
-        if (colorUniformLoc != render::INVALID_OBJECT_ID) {
+        if (colorUniformLoc != INVALID_OBJECT_ID) {
             glUniform4fv(colorUniformLoc, 1, color.values);
         }
     }
 
     static void prepareDraw(
-        render::object_id vertexArrayId,
-        render::object_id textureId,
-        render::object_id shaderProgramId,
+        object_id vertexArrayId,
+        object_id textureId,
+        object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
         float alpha,
         int zOrder
@@ -196,16 +196,16 @@ namespace open_gl {
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUseProgram(shaderProgramId);
 
-        int timeUniformLoc = glGetUniformLocation(shaderProgramId, render::TIME_UNIFORM_NAME);
-        if (timeUniformLoc != render::INVALID_OBJECT_ID) {
+        int timeUniformLoc = glGetUniformLocation(shaderProgramId, TIME_UNIFORM_NAME);
+        if (timeUniformLoc != INVALID_OBJECT_ID) {
             glUniform1f(timeUniformLoc, SDL_GetTicks() / 1000.f);
         }
 
         int positionTransformUniformLoc = glGetUniformLocation(
             shaderProgramId,
-            render::POSITION_TRANSFORM_UNIFORM_NAME
+            POSITION_TRANSFORM_UNIFORM_NAME
         );
-        if (positionTransformUniformLoc != render::INVALID_OBJECT_ID) {
+        if (positionTransformUniformLoc != INVALID_OBJECT_ID) {
             // TODO: is it better to perform this in the shader?
             const slurp::Vec2<float>& position = positionTransform * WorldToOpenGLClipSpaceMatrix;
             glUniform2fv(positionTransformUniformLoc, 1, position.values);
@@ -213,9 +213,9 @@ namespace open_gl {
 
         int alphaUniformLoc = glGetUniformLocation(
             shaderProgramId,
-            render::ALPHA_COORD_UNIFORM_NAME
+            ALPHA_COORD_UNIFORM_NAME
         );
-        if (alphaUniformLoc != render::INVALID_OBJECT_ID) {
+        if (alphaUniformLoc != INVALID_OBJECT_ID) {
             glUniform1f(alphaUniformLoc, alpha);
         }
 

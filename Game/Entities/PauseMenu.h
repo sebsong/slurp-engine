@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "UIButton.h"
 
 namespace ui {
     class PauseMenu final : public entity::Entity {

@@ -1,5 +1,8 @@
 #include "StopwatchDisplay.h"
 
+#include "Game.h"
+#include "NumberDisplay.h"
+
 namespace ui {
     StopwatchDisplay::StopwatchDisplay(const slurp::Vec2<float>& position)
         : Entity(

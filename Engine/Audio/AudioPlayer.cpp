@@ -1,5 +1,6 @@
 #include "AudioPlayer.h"
 
+#include "Asset.h"
 #include "PlayingSound.h"
 
 namespace audio {

@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "Timer.h"
 
 namespace worker {
     class Worker final : public entity::Entity {

@@ -1,5 +1,7 @@
 #include "Sprite.h"
 
+#include "Bitmap.h"
+
 namespace asset {
     // NOTE: represents a rectangle made of 2 triangles
     static constexpr int SpriteMeshVertexCount = 4;

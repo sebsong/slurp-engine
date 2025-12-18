@@ -1,6 +1,7 @@
 #include "Wave.h"
 
 #if PLATFORM_WINDOWS
+#include <windef.h>
 #include <mmeapi.h>
 #elif PLATFORM_MAC
 // TODO: better way to get this?

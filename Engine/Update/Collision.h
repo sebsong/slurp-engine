@@ -1,7 +1,8 @@
 #pragma once
-#include <set>
-
+#include "CollectionTypes.h"
 #include "Geometry.h"
+
+#include <set>
 
 namespace entity {
     struct Entity;

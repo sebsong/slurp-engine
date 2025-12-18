@@ -1,4 +1,5 @@
 #pragma once
+#include "Audio.h"
 
 namespace asset {
     struct Sound;

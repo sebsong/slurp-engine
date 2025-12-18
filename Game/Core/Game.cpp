@@ -5,6 +5,8 @@
 #include "EntityPipeline.h"
 #include "Settings.h"
 
+#if UNITY_BUILD
+
 #include "Obstacle.cpp"
 #include "Base.cpp"
 #include "MineSite.cpp"
@@ -18,6 +20,8 @@
 #include "ProgressBar.cpp"
 #include "SpawnControls.cpp"
 #include "PauseMenu.cpp"
+
+#endif
 
 namespace game {
     static const float GlobalVolume = 1.0f;

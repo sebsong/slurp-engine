@@ -1,5 +1,8 @@
 #include "PauseMenu.h"
+#include "Game.h"
+#include "Platform.h"
 #include "ZOrder.h"
+#include "Sprite.h"
 
 namespace ui {
     const geometry::Shape& PauseButtonShape = geometry::Shape(geometry::Rect, {52, 34});

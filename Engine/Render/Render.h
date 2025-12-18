@@ -9,6 +9,7 @@ namespace entity {
 }
 
 namespace asset {
+    struct SpriteAnimation;
     struct SpriteInstance;
 }
 

@@ -4,6 +4,14 @@
 
 #include <queue>
 
+#include "Input.h"
+
+namespace slurp {
+    struct GamepadState;
+    struct KeyboardState;
+    struct MouseState;
+}
+
 namespace entity {
     struct Entity;
 

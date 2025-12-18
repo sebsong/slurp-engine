@@ -41,9 +41,15 @@ namespace job {
         void _processJobs(uint8_t workerIndex);
     };
 
-    static void initialize();
+    inline void initialize() {
+        slurp::Globals->JobRunner->initialize();
+    }
 
-    static job_id queueJob(std::function<void()>&& fn);
+    inline job_id queueJob(std::function<void()>&& fn) {
+        return slurp::Globals->JobRunner->queueJob(std::move(fn));
+    }
 
-    static void shutdown();
+    inline void shutdown() {
+        slurp::Globals->JobRunner->shutdown();
+    }
 }
