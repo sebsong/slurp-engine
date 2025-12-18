@@ -1,10 +1,6 @@
 #pragma once
 \#include "Entity.h"
 
-// TODO: include ${CLASS_NAME}.cpp in Game.cpp
-// TODO: register this entity in game::initGame
-// TODO: register this entity in slurp::GameState
-
 #set ($CLASS_NAME_SNAKE_CASE = $CLASS_NAME.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase())
 namespace ${CLASS_NAME_SNAKE_CASE} {
     class ${CLASS_NAME} final : public entity::Entity {

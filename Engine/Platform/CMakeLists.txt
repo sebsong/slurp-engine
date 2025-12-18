@@ -58,6 +58,31 @@ else ()
     list(APPEND linker_flags ${release_linker_flags})
 endif ()
 
+set(SLURP_SOURCE_FILES
+        SlurpEngine.cpp
+        Debug.cpp
+        JobRunner.cpp
+        Timer.cpp
+        Bitmap.cpp
+        Sprite.cpp
+        SpriteAnimation.cpp
+        Wave.cpp
+        Asset.cpp
+        Render.cpp
+        RenderInfo.cpp
+        Physics.cpp
+        Collision.cpp
+        Update.cpp
+        Entity.cpp
+        EntityPipeline.cpp
+        PlayingSound.cpp
+        AudioPlayer.cpp
+        Game.cpp
+)
+if (DEBUG)
+    list(APPEND SLURP_SOURCE_FILES Recording.cpp)
+endif ()
+
 # SLURP ENGINE LIBRARY
 if (WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -94,7 +119,7 @@ if (APPLE)
     set(BUNDLE_VERSION_SHORT ${APP_VERSION_SHORT})
     set(BUNDLE_VERSION_LONG ${APP_VERSION})
     set(SDL_FILESYSTEM_BASE_DIR_TYPE resource)
-    set(INFO_PLIST_FILE_PATH ${PROJECT_SOURCE_DIR}/Info.plist.in)
+    set(INFO_PLIST_FILE_PATH ../../Info.plist.in)
     set_target_properties(
             ${ENGINE_EXE_NAME} PROPERTIES
             MACOSX_BUNDLE TRUE
