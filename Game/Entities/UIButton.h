@@ -14,8 +14,9 @@ namespace ui {
             const slurp::Vec2<float>& position,
             std::optional<slurp::KeyboardCode> keyCode,
             std::function<void(UIButton* button)>&& onPressFn,
-        std::function<void(UIButton* button)>&& releaseActionFn,
+            std::function<void(UIButton* button)>&& releaseActionFn,
             std::function<void(UIButton* button)>&& onReleaseFn,
+            std::function<void(UIButton* button)>&& onHoverFn,
             float pressOffset = -1,
             int zOrder = game::ZOrder::UI_Z
         );
@@ -27,10 +28,12 @@ namespace ui {
     private:
         bool _isPressed;
         bool _wasPressedByMouse;
+        bool _isHovered;
         bool _buttonDisabled;
         std::function<void(UIButton* button)> _onPressFn;
         std::function<void(UIButton* button)> _releaseActionFn;
         std::function<void(UIButton* button)> _onReleaseFn;
+        std::function<void(UIButton* button)> _onHoverFn;
         std::optional<slurp::KeyboardCode> _keyCode;
         asset::Sprite* _buttonSprite;
         asset::Sprite* _buttonHoverSprite;

@@ -39,6 +39,9 @@ namespace ui {
                       toggle();
                   },
                   [](UIButton* _) {},
+                  [](UIButton* _) {
+                      audio::play(game::Assets->buttonHover);
+                  },
                   -2,
                   game::PAUSE_Z - 1
               )
@@ -57,6 +60,9 @@ namespace ui {
                       platform::exit();
                   },
                   [](UIButton* _) {},
+                  [](UIButton* _) {
+                      audio::play(game::Assets->buttonHover);
+                  },
                   -2,
                   game::PAUSE_Z - 1
               )

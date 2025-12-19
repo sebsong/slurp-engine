@@ -30,6 +30,7 @@ namespace game {
         asset::Sprite* buttonPressSprite;
 
         asset::Sound* bgm;
+        asset::Sound* buttonHover;
     };
 
     struct MainMenuState {
@@ -72,9 +73,9 @@ namespace game {
 
         asset::Sprite* resourcesCollectedFill;
 
-        asset::Sprite* button;
-        asset::Sprite* buttonHover;
-        asset::Sprite* buttonPress;
+        asset::Sprite* buttonSprite;
+        asset::Sprite* buttonHoverSprite;
+        asset::Sprite* buttonPressSprite;
         asset::SpriteAnimation* buttonPressAnim;
 
         asset::Sprite* workerButtonIcon;
@@ -89,6 +90,7 @@ namespace game {
         asset::Sprite* overlaySprite;
 
         asset::Sound* backgroundMusic;
+        asset::Sound* buttonHover;
         asset::Sound* resourceCollected;
         asset::Sound* resourceCollectedLow;
         asset::Sound* collect[3];

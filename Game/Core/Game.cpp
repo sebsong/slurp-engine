@@ -41,6 +41,7 @@ namespace game {
         MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
 
         MenuAssets->bgm = asset::loadSound("ambient.wav");
+        MenuAssets->buttonHover = asset::loadSound("button_hover.wav");
 
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
@@ -75,9 +76,9 @@ namespace game {
 
         Assets->resourcesCollectedFill = asset::loadSprite("resources_collected_bar_fill.bmp");
 
-        Assets->button = asset::loadSprite("button.bmp");
-        Assets->buttonHover = asset::loadSprite("button_hover.bmp");
-        Assets->buttonPress = asset::loadSprite("button_press.bmp");
+        Assets->buttonSprite = asset::loadSprite("button.bmp");
+        Assets->buttonHoverSprite = asset::loadSprite("button_hover.bmp");
+        Assets->buttonPressSprite = asset::loadSprite("button_press.bmp");
         Assets->buttonPressAnim = asset::loadSpriteAnimation("button_press_anim.bmp", 15);
 
         Assets->workerButtonIcon = asset::loadSprite("worker_button_icon.bmp");
@@ -93,8 +94,8 @@ namespace game {
 
         Assets->overlaySprite = asset::loadSprite("overlay.bmp", "overlay.glsl", "overlay.glsl");
 
-        // NOTE: https://opengameart.org/content/since-2-am
         Assets->backgroundMusic = asset::loadSound("bgm_chords.wav");
+        Assets->buttonHover = asset::loadSound("button_hover.wav");
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
         Assets->collect[0] = asset::loadSound("collect_1_1.wav");
@@ -164,6 +165,9 @@ namespace game {
                     transitionScene(false);
                 },
                 [](ui::UIButton* _) {},
+                [](ui::UIButton* _) {
+                    audio::play(Assets->buttonHover);
+                },
                 -2
             );
 
@@ -180,6 +184,9 @@ namespace game {
                     platform::exit();
                 },
                 [](ui::UIButton* _) {},
+                [](ui::UIButton* _) {
+                    audio::play(Assets->buttonHover);
+                },
                 -2
             );
             new(&State->mouseCursor) mouse_cursor::MouseCursor();

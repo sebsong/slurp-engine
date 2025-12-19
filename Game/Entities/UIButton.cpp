@@ -14,6 +14,7 @@ namespace ui {
         std::function<void(UIButton* button)>&& onPressFn,
         std::function<void(UIButton* button)>&& releaseActionFn,
         std::function<void(UIButton* button)>&& onReleaseFn,
+        std::function<void(UIButton* button)>&& onHoverFn,
         float pressOffset,
         int zOrder
     ) : Entity(
@@ -42,10 +43,12 @@ namespace ui {
         ),
         _isPressed(false),
         _wasPressedByMouse(false),
+        _isHovered(false),
         _buttonDisabled(false),
         _onPressFn(std::move(onPressFn)),
         _releaseActionFn(std::move(releaseActionFn)),
         _onReleaseFn(std::move(onReleaseFn)),
+        _onHoverFn(std::move(onHoverFn)),
         _keyCode(keyCode),
         _buttonSprite(buttonSprite),
         _buttonHoverSprite(buttonHoverSprite),
@@ -88,16 +91,24 @@ namespace ui {
             (!_wasPressedByMouse || (_wasPressedByMouse && mouseOnButton))
         ) {
             _releaseActionFn(this);
+        } else if (_isPressed) {
+            release();
         }
-        release();
 
         if (mouseOnButton) {
             hover();
+        } else {
+            release();
         }
     }
 
     void UIButton::hover() {
         setTexture(_buttonHoverSprite);
+        if (_isHovered) {
+            return;
+        }
+        _isHovered = true;
+        _onHoverFn(this);
     }
 
     void UIButton::press() {
@@ -112,6 +123,7 @@ namespace ui {
 
     void UIButton::release() {
         setTexture(_buttonSprite);
+        _isHovered = false;
         if (!_isPressed) {
             return;
         }

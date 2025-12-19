@@ -24,9 +24,9 @@ namespace ui {
           _spawnWorkerButton(
               UIButton(
                   game::Assets->workerSprite,
-                  game::Assets->button,
-                  game::Assets->buttonHover,
-                  game::Assets->buttonPress,
+                  game::Assets->buttonSprite,
+                  game::Assets->buttonHoverSprite,
+                  game::Assets->buttonPressSprite,
                   buttonShape,
                   {position.x - 30, position.y},
                   slurp::KeyboardCode::NUM_1,
@@ -46,15 +46,18 @@ namespace ui {
                   [this](UIButton* button) {
                       button->stopAnimation();
                       timer::cancel(_spawnWorkerTimerHandle);
+                  },
+                  [](UIButton* _) {
+                      audio::play(game::Assets->buttonHover);
                   }
               )
           ),
           _spawnMineSiteButton(
               UIButton(
                   game::Assets->mineSiteButtonIcon,
-                  game::Assets->button,
-                  game::Assets->buttonHover,
-                  game::Assets->buttonPress,
+                  game::Assets->buttonSprite,
+                  game::Assets->buttonHoverSprite,
+                  game::Assets->buttonPressSprite,
                   buttonShape,
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
@@ -74,15 +77,18 @@ namespace ui {
                   [this](UIButton* button) {
                       button->stopAnimation();
                       timer::cancel(_spawnMineSiteTimerHandle);
+                  },
+                  [](UIButton* _) {
+                      audio::play(game::Assets->buttonHover);
                   }
               )
           ),
           _spawnTurretButton(
               UIButton(
                   game::Assets->turretButtonIcon,
-                  game::Assets->button,
-                  game::Assets->buttonHover,
-                  game::Assets->buttonPress,
+                  game::Assets->buttonSprite,
+                  game::Assets->buttonHoverSprite,
+                  game::Assets->buttonPressSprite,
                   buttonShape,
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
@@ -94,9 +100,13 @@ namespace ui {
                       }
                   },
                   [](UIButton* _) {},
-                  [](UIButton* _) {}
+                  [](UIButton* _) {},
+                  [](UIButton* _) {
+                      audio::play(game::Assets->buttonHover);
+                  }
               )
           ),
+          _isPlacingTurret(false),
           _turretPlacementGuide(
               Entity(
                   "Turret Placement Guide",
