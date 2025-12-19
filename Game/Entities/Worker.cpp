@@ -13,15 +13,11 @@ namespace worker {
     static const slurp::Vec2<float> StartPos = {50, 50};
     static constexpr float CollectionTime = 2.f;
     static constexpr float DropOffTime = .5f;
-    static constexpr int NumCollectionTransitions = 5;
 
     static const float CorruptionChance = .05f;
     static const uint8_t StartingCorruption = 2;
     static const uint8_t MaxCorruption = 5;
     static constexpr int NumEruptionTargets = 2;
-
-    static const float PurifyDeceleration = -10;
-    static const float PurifyDelay = 3;
 
     Worker::Worker()
         : Entity(
