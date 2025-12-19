@@ -1,6 +1,8 @@
 #pragma once
 #include "Audio.h"
 
+#include <functional>
+
 namespace asset {
     struct Sound;
 }
@@ -13,6 +15,7 @@ namespace audio {
         const asset::Sound* sound;
         float volumeMultiplier;
         bool shouldLoop;
+        std::function<void()> onFinish; // TODO: move sound?
         uint32_t sampleIndex;
         bool isPlaying;
 
@@ -20,7 +23,8 @@ namespace audio {
             uint32_t id,
             const asset::Sound* sound,
             float volumeMultiplier,
-            bool shouldLoop
+            bool shouldLoop,
+            std::function<void()> onFinish
         );
 
         void bufferAudio(

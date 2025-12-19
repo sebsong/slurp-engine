@@ -18,9 +18,12 @@ namespace audio {
         /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
-        sound_id play(const asset::Sound* sound);
-
-        sound_id play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop);
+        sound_id play(
+            const asset::Sound* sound,
+            float volumeMultiplier,
+            bool shouldLoop,
+            const std::function<void()>& onFinish
+        );
 
         void stop(sound_id id);
 
@@ -41,12 +44,13 @@ namespace audio {
         slurp::Globals->AudioPlayer->setGlobalVolume(volumeMultiplier);
     }
 
-    inline sound_id play(const asset::Sound* sound) {
-        return slurp::Globals->AudioPlayer->play(sound);
-    }
-
-    inline sound_id play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop = false) {
-        return slurp::Globals->AudioPlayer->play(sound, volumeMultiplier, shouldLoop);
+    inline sound_id play(
+        const asset::Sound* sound,
+        float volumeMultiplier = 1.f,
+        bool shouldLoop = false,
+        const std::function<void()>& onFinish = [] {}
+    ) {
+        return slurp::Globals->AudioPlayer->play(sound, volumeMultiplier, shouldLoop, onFinish);
     }
 
     inline void stop(sound_id id) {

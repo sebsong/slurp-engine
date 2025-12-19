@@ -29,7 +29,8 @@ namespace game {
         asset::Sprite* buttonHoverSprite;
         asset::Sprite* buttonPressSprite;
 
-        asset::Sound* bgm;
+        asset::Sound* bgmIntro;
+        asset::Sound* bgmMain;
         asset::Sound* buttonHover;
     };
 

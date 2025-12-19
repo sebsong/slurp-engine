@@ -13,17 +13,18 @@ namespace audio {
         _globalVolumeMultiplier = volumeMultiplier;
     }
 
-    sound_id AudioPlayer::play(const asset::Sound* sound) {
-        return play(sound, 1.0f, false);
-    }
-
-    sound_id AudioPlayer::play(const asset::Sound* sound, float volumeMultiplier, bool shouldLoop) {
+    sound_id AudioPlayer::play(
+        const asset::Sound* sound,
+        float volumeMultiplier,
+        bool shouldLoop,
+        const std::function<void()>& onFinish
+    ) {
         ASSERT(sound);
         if (!sound) {
             return INVALID_SOUND_ID;
         }
 
-        PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop);
+        PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop, onFinish);
         if (shouldLoop) {
             _loopingQueue.push_back(playingSound);
         } else {

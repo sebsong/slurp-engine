@@ -40,7 +40,8 @@ namespace game {
         MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
         MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
 
-        MenuAssets->bgm = asset::loadSound("ambient.wav");
+        MenuAssets->bgmIntro = asset::loadSound("bgm_chord_intro.wav");
+        MenuAssets->bgmMain = asset::loadSound("bgm_main.wav");
         MenuAssets->buttonHover = asset::loadSound("button_hover.wav");
 
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
@@ -138,7 +139,14 @@ namespace game {
         slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
 
         if (mainMenuActive) {
-            audio::play(MenuAssets->bgm, 0.2, true);
+            audio::play(
+                MenuAssets->bgmIntro,
+                0.6,
+                false,
+                [] {
+                    audio::play(MenuAssets->bgmMain, 0.6, true);
+                }
+            );
             new(&MenuState->background) entity::Entity(
                 "Background",
                 render::RenderInfo(asset::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
@@ -193,7 +201,7 @@ namespace game {
             return;
         }
 
-        State->bgmId = audio::play(Assets->backgroundMusic, 0.5, true);
+        State->bgmId = audio::play(Assets->backgroundMusic, 0.6, true);
 
         new(&State->background) entity::Entity(
             "Background",
