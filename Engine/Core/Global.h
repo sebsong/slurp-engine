@@ -34,17 +34,21 @@ namespace audio {
 }
 
 namespace game {
-    struct MenuState;
-    struct MenuAssets;
-    struct State;
-    struct Assets;
+    struct MainMenuState;
+    struct MainMenuAssets;
+    struct GameState;
+    struct GameAssets;
 }
+
+#define GLOBAL(decl) \
+    inline decl; \
+    extern decl;
 
 namespace slurp {
     class EntityPipeline;
 
     // TODO: maybe have static helper methods instead of needing to reference these directly
-    static struct Global {
+    struct Global {
         memory::GameMemory* GameMemory;
 
         const platform::PlatformDll* PlatformDll;
@@ -57,13 +61,15 @@ namespace slurp {
         audio::AudioPlayer* AudioPlayer;
 
         // TODO: should these live in the game module to give the game module full ownership
-        game::MenuAssets* MenuAssets;
-        game::MenuState* MenuState;
-        game::Assets* GameAssets;
-        game::State* GameState;
-    }* Globals;
+        game::MainMenuAssets* MenuAssets;
+        game::MainMenuState* MenuState;
+        game::GameAssets* GameAssets;
+        game::GameState* GameState;
+    };
+
+    GLOBAL(Global* Globals)
 
 #if DEBUG
-    static RecordingState GlobalRecordingState;
+    GLOBAL(RecordingState GlobalRecordingState)
 #endif
 }

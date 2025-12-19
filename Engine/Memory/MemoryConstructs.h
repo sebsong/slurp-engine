@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Global.h"
 #include "Types.h"
 #include "SpinLock.h"
 
@@ -82,11 +83,8 @@ namespace memory {
         MemoryArena assetLoader;
     };
 
-    static MemoryArena* Permanent;
-
-    static MemoryArena* Transient;
-
-    static MemoryArena* SingleFrame;
-
-    static MemoryArena* AssetLoader;
+    GLOBAL(MemoryArena* Permanent)
+    GLOBAL(MemoryArena* Transient)
+    GLOBAL(MemoryArena* SingleFrame)
+    GLOBAL(MemoryArena* AssetLoader)
 }

@@ -28,7 +28,7 @@ namespace worker {
               "Worker",
               render::RenderInfo(
                   asset::SpriteInstance(
-                      slurp::Globals->GameAssets->workerSprite,
+                      game::Assets->workerSprite,
                       {0, 3}
                   )
               ),

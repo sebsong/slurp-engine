@@ -20,7 +20,7 @@
 #define MAX_NUM_MINE_SITES 100
 
 namespace game {
-    struct MenuAssets {
+    struct MainMenuAssets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* titleTextSprite;
         asset::Sprite* playButtonTextSprite;
@@ -32,14 +32,14 @@ namespace game {
         asset::Sound* bgm;
     };
 
-    struct MenuState {
+    struct MainMenuState {
         entity::Entity background;
         entity::Entity titleText;
         ui::UIButton playButton;
         ui::UIButton exitButton;
     };
 
-    struct Assets {
+    struct GameAssets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
 
@@ -99,7 +99,7 @@ namespace game {
         asset::Sound* turretShoot;
     };
 
-    struct State {
+    struct GameState {
         uint32_t randomSeed;
         audio::sound_id bgmId;
 
@@ -133,20 +133,20 @@ namespace game {
     };
 
     struct GameSystems {
-        MenuAssets menuAssets;
-        MenuState menuState;
-        Assets assets;
-        State state;
+        MainMenuAssets menuAssets;
+        MainMenuState menuState;
+        GameAssets assets;
+        GameState state;
     };
 
-    static MenuAssets* MenuAssets;
-    static MenuState* MenuState;
-    static Assets* Assets;
-    static State* State;
+    GLOBAL(MainMenuAssets* MenuAssets)
+    GLOBAL(MainMenuState* MenuState)
+    GLOBAL(GameAssets* Assets)
+    GLOBAL(GameState* State)
 
-    static bool mainMenuActive = true;
+    GLOBAL(bool mainMenuActive)
 
-    static memory::MemoryArena sceneMemory;
+    GLOBAL(memory::MemoryArena sceneMemory)
 
     void initialize(bool isInitialized);
 

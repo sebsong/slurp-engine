@@ -7,14 +7,16 @@
 namespace memory {
     MemoryArena::MemoryArena(): _name("UNINITIALIZED"),
                                 _fullMemoryBlock({}),
-                                _availableMemoryBlock({}) {}
+                                _availableMemoryBlock({}),
+                                _lock({}) {}
 
     MemoryArena::MemoryArena(
         std::string&& name,
         MemoryBlock memoryBlock
     ): _name(std::move(name)),
        _fullMemoryBlock(memoryBlock),
-       _availableMemoryBlock(memoryBlock) {}
+       _availableMemoryBlock(memoryBlock),
+       _lock(lock::SpinLock()) {}
 
     MemoryArena::MemoryArena(
         const MemoryArena& other

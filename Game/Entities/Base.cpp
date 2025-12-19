@@ -15,7 +15,7 @@ namespace base {
     Base::Base()
         : Entity(
               "Base",
-              render::RenderInfo(asset::SpriteInstance(slurp::Globals->GameAssets->baseSprite, RenderOffset)),
+              render::RenderInfo(asset::SpriteInstance(game::Assets->baseSprite, RenderOffset)),
               physics::PhysicsInfo(),
               collision::CollisionInfo()
           ),

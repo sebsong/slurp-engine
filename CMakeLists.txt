@@ -183,8 +183,8 @@ set(ENGINE_SOURCE_FILES
 )
 if (NOT UNITY_BUILD)
     list(APPEND ENGINE_SOURCE_FILES
-            Engine/Core/SpinLock.cpp
             Engine/Memory/MemoryConstructs.cpp
+            Engine/Core/SpinLock.cpp
     )
 
     if (WIN32)

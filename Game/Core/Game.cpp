@@ -120,6 +120,7 @@ namespace game {
     void initialize(bool isInitialized) {
         if (!isInitialized) {
             sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
+            mainMenuActive = true;
         }
         GameSystems* gameSystems = sceneMemory.allocate<GameSystems>();
         MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
