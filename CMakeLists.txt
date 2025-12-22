@@ -63,6 +63,12 @@ set(SDLMIXER_VORBIS_TREMOR FALSE CACHE BOOL "Ogg Vorbis audio via libvorbisidec 
 set(SDLMIXER_WAVPACK FALSE CACHE BOOL "WavPack audio" FORCE)
 add_subdirectory(External/SDL_mixer-commit-82a64d7 EXCLUDE_FROM_ALL)
 
+set(BOX2D_SAMPLES FALSE CACHE BOOL "Build the Box2D samples" FORCE)
+set(BOX2D_BENCHMARKS FALSE CACHE BOOL "Build the Box2D benchmarks" FORCE)
+set(BOX2D_DOCS FALSE CACHE BOOL "Build the Box2D documentation" FORCE)
+set(BOX2D_PROFILE FALSE CACHE BOOL "Enable profiling with Tracy" FORCE)
+set(BOX2D_VALIDATE FALSE CACHE BOOL "Enable heavy validation" FORCE)
+set(BOX2D_UNIT_TESTS FALSE CACHE BOOL "Build the Box2D unit tests" FORCE)
 add_subdirectory(External/box2d-3.1.1 EXCLUDE_FROM_ALL)
 
 if (WIN32)
@@ -89,9 +95,6 @@ define_string(APP_VERSION "1.0.0")
 define_string(APP_VERSION_SHORT "1.0")
 define_string(APP_IDENTIFIER "com.slurp.slurpengine")
 
-define_string(SLURP_LIB_FILE_NAME "${APP_NAME}${LIB_FILE_EXT}")
-define_string(SLURP_LIB_MARKER_FILE_NAME "${SLURP_LIB_FILE_NAME}.marker")
-define_string(SLURP_LIB_LOAD_FILE_NAME "${APP_NAME}Load${LIB_FILE_EXT}")
 define_string(RECORDING_FILE_NAME "${APP_NAME}.rec")
 
 define_string(ENGINE_EXE_NAME "engine")
@@ -104,36 +107,39 @@ define(OPEN_GL 1)
 define(RENDER_API ${OPEN_GL})
 
 # COMPILER AND LINKER FLAGS
-set(compiler_flags -fexceptions -finline-functions -std=c++20)
-set(warning_flags -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wuninitialized -Wno-cast-function-type)
-list(APPEND compiler_flags ${warning_flags})
-set(debug_compiler_flags -O0 -g)
-set(release_compiler_flags -O2)
+set(COMPILER_FLAGS -fexceptions -finline-functions -std=c++20)
+set(WARNING_FLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wuninitialized -Wno-cast-function-type)
+list(APPEND COMPILER_FLAGS ${WARNING_FLAGS})
+set(DEBUG_COMPILER_FLAGS -O0 -g)
+set(RELEASE_COMPILER_FLAGS -O2)
 
-set(linker_flags -ffunction-sections -fdata-sections)
-set(debug_linker_flags)
-set(release_linker_flags)
+set(LINKER_FLAGS -ffunction-sections -fdata-sections)
+set(DEBUG_LINKER_FLAGS)
+set(RELEASE_LINKER_FLAGS)
 
 if (WIN32)
-    list(APPEND debug_compiler_flags -Wl,-Map=Engine.map)
-    list(APPEND linker_flags -Wl,--gc-sections)
-    list(APPEND release_linker_flags -static)
+    list(APPEND DEBUG_COMPILER_FLAGS -Wl,-Map=Engine.map)
+    list(APPEND LINKER_FLAGS -Wl,--gc-sections)
+    list(APPEND RELEASE_LINKER_FLAGS -static)
 elseif (APPLE OR UNIX)
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    list(APPEND compiler_flags ${debug_compiler_flags})
-    list(APPEND linker_flags ${debug_linker_flags})
+    list(APPEND COMPILER_FLAGS ${DEBUG_COMPILER_FLAGS})
+    list(APPEND LINKER_FLAGS ${DEBUG_LINKER_FLAGS})
 else ()
-    list(APPEND compiler_flags ${release_compiler_flags})
-    list(APPEND linker_flags ${release_linker_flags})
+    list(APPEND COMPILER_FLAGS ${RELEASE_COMPILER_FLAGS})
+    list(APPEND LINKER_FLAGS ${RELEASE_LINKER_FLAGS})
 endif ()
 
-set(SLURP_SOURCE_FILES
-        Engine/Platform/SlurpEngine.cpp
+# ENGINE EXE
+set(ENGINE_SOURCE_FILES
+        Engine/Platform/Engine.cpp
 )
 if (NOT UNITY_BUILD)
-    list(APPEND SLURP_SOURCE_FILES
+    list(APPEND ENGINE_SOURCE_FILES
+            Engine/Core/SlurpEngine.cpp
+
             Engine/Asset/Asset.cpp
             Engine/Asset/Bitmap.cpp
             Engine/Asset/Wave.cpp
@@ -168,45 +174,6 @@ if (NOT UNITY_BUILD)
             Game/Entities/UIButton.cpp
             Game/Entities/Worker.cpp
     )
-    if (DEBUG)
-        list(APPEND SLURP_SOURCE_FILES
-                Engine/Core/Debug.cpp
-                Engine/Core/Recording.cpp
-        )
-    endif ()
-endif ()
-
-# SLURP ENGINE LIBRARY
-if (WIN32)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-elseif (APPLE)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${ENGINE_EXE_NAME}.app/Contents/Resources)
-endif ()
-add_library(slurp_engine SHARED ${SLURP_SOURCE_FILES})
-set_target_properties(slurp_engine PROPERTIES
-        OUTPUT_NAME ${APP_NAME}
-        PREFIX ""
-        SUFFIX ${LIB_FILE_EXT}
-)
-target_compile_options(slurp_engine PRIVATE ${compiler_flags})
-set(slurp_libs box2d::box2d)
-target_link_libraries(slurp_engine PRIVATE ${slurp_libs})
-target_link_options(slurp_engine PRIVATE ${linker_flags})
-add_custom_command(TARGET slurp_engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-)
-add_custom_command(TARGET slurp_engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${SLURP_LIB_MARKER_FILE_NAME}
-)
-
-set(ENGINE_SOURCE_FILES
-        Engine/Platform/Engine.cpp
-)
-if (NOT UNITY_BUILD)
-    list(APPEND ENGINE_SOURCE_FILES
-            Engine/Memory/MemoryConstructs.cpp
-            Engine/Core/SpinLock.cpp
-    )
 
     if (WIN32)
         list(APPEND ENGINE_SOURCE_FILES Engine/Platform/Win32.cpp)
@@ -217,15 +184,24 @@ if (NOT UNITY_BUILD)
     if (RENDER_API EQUAL OPEN_GL)
         list(APPEND ENGINE_SOURCE_FILES Engine/OpenGL/OpenGL.cpp)
     endif ()
+    if (DEBUG)
+        list(APPEND ENGINE_SOURCE_FILES
+                Engine/Core/Debug.cpp
+                Engine/Core/Recording.cpp
+        )
+    endif ()
 endif ()
 
+set(ENGINE_LIBS
+        SDL3::SDL3-static
+#        SDL3_mixer-static
+        box2d::box2d
+)
 
-# ENGINE EXE
 add_executable(${ENGINE_EXE_NAME} ${ENGINE_SOURCE_FILES})
-target_compile_options(${ENGINE_EXE_NAME} PRIVATE ${compiler_flags})
-set(engine_libs SDL3::SDL3-static)
-target_link_libraries(${ENGINE_EXE_NAME} PRIVATE ${engine_libs})
-target_link_options(${ENGINE_EXE_NAME} PRIVATE ${linker_flags})
+target_compile_options(${ENGINE_EXE_NAME} PRIVATE ${COMPILER_FLAGS})
+target_link_libraries(${ENGINE_EXE_NAME} PRIVATE ${ENGINE_LIBS})
+target_link_options(${ENGINE_EXE_NAME} PRIVATE ${LINKER_FLAGS})
 if (APPLE)
     set(BUNDLE_IDENTIFIER ${APP_IDENTIFIER})
     set(BUNDLE_NAME ${APP_NAME})
@@ -233,7 +209,7 @@ if (APPLE)
     set(BUNDLE_VERSION_SHORT ${APP_VERSION_SHORT})
     set(BUNDLE_VERSION_LONG ${APP_VERSION})
     set(SDL_FILESYSTEM_BASE_DIR_TYPE resource)
-    set(INFO_PLIST_FILE_PATH ../../Info.plist.in)
+    set(INFO_PLIST_FILE_PATH ${CMAKE_SOURCE_DIR}/Info.plist.in)
     set_target_properties(
             ${ENGINE_EXE_NAME} PROPERTIES
             MACOSX_BUNDLE TRUE

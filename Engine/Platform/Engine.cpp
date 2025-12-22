@@ -4,6 +4,7 @@
 #include "MemoryConstructs.h"
 #include "Logging.h"
 #include "Platform.h"
+#include "Matrix.h"
 #include "RenderApi.h"
 #include "Settings.h"
 
@@ -11,23 +12,16 @@
 #include <glad/glad.h>
 #include <filesystem>
 
-#include "Matrix.h"
-
 #if UNITY_BUILD
 
+#include "SlurpEngine.cpp"
 #if PLATFORM_WINDOWS
     #include "Win32.cpp"
 #elif PLATFORM_MAC
     #include "MacOS.cpp"
 #endif
-
 #if RENDER_API == OPEN_GL
     #include "OpenGL.cpp"
-#endif
-
-#else
-#if RENDER_API == OPEN_GL
-    #include "OpenGL.h"
 #endif
 
 #endif
@@ -49,7 +43,7 @@ PLATFORM_VIBRATE_GAMEPAD(platform::vibrateGamepad) {
     // TODO: impl
 }
 
-PLATFORM_SHUTDOWN(platform::shutdown) {
+PLATFORM_SHUTDOWN(shutdown) {
     GlobalRunning = false;
 }
 
@@ -137,7 +131,7 @@ static platform::PlatformDll loadPlatformLib() {
     platform::PlatformDll platformLib = {};
     platformLib.getLocalFilePath = platform::getLocalFilePath;
     platformLib.vibrateGamepad = platform::vibrateGamepad;
-    platformLib.shutdown = platform::shutdown;
+    platformLib.shutdown = shutdown;
 #if DEBUG
     platformLib.DEBUG_togglePause = platform::DEBUG_togglePause;
 #endif
@@ -168,7 +162,6 @@ int main(int argc, char* argv[]) {
     memory::MemoryArena transientMemory;
     platform::PlatformDll platformLib;
     render::RenderApi renderApi;
-    slurp::SlurpDll slurpLib;
     slurp::MouseState mouseState{};
     slurp::KeyboardState keyboardState{};
     std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
@@ -182,13 +175,8 @@ int main(int argc, char* argv[]) {
     /* load libraries and apis */
     platformLib = loadPlatformLib();
     renderApi = loadRenderApi();
-    std::string libFilePathStr = platform::getLocalFilePath(SLURP_LIB_FILE_NAME);
-    const char* libFilePath = libFilePathStr.c_str();
-    std::string libLoadFilePathStr = platform::getLocalFilePath(SLURP_LIB_LOAD_FILE_NAME);
-    const char* libLoadFilePath = libLoadFilePathStr.c_str();
-    slurpLib = platform::loadSlurpLib(libFilePath);
     allocateMemoryArenas(permanentMemory, transientMemory);
-    slurpLib.init(permanentMemory, transientMemory, platformLib, renderApi, false);
+    slurp::init(permanentMemory, transientMemory, platformLib, renderApi, false);
 
 #if DEBUG
     uint32_t targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
@@ -196,12 +184,13 @@ int main(int argc, char* argv[]) {
     uint32_t targetFramesPerSecond = DEFAULT_MONITOR_REFRESH_RATE;
 #endif
     float targetSecondsPerFrame = 1.f / targetFramesPerSecond;
-    uint64_t targetNanosPerFrame = static_cast<uint64_t>(static_cast<double>(targetSecondsPerFrame) * 1'000'000'000.0);
+    uint64_t targetNanosPerFrame = static_cast<uint64_t>(
+        static_cast<double>(targetSecondsPerFrame) * 1'000'000'000.0);
 
     GlobalRunning = true;
     while (GlobalRunning) {
         uint64_t frameStartNanos = SDL_GetTicksNS();
-        slurpLib.frameStart();
+        slurp::frameStart();
 
         /* reset input state */
         for (std::pair<const slurp::MouseCode, slurp::DigitalInputState>& entry: mouseState.state) {
@@ -242,7 +231,9 @@ int main(int argc, char* argv[]) {
                         inputState.transitionCount = mouseButtonEvent.down ? mouseButtonEvent.clicks : 1;
                         inputState.isDown = mouseButtonEvent.down;
                     } else {
-                        logging::error(std::format("Mouse button code not registered: {}", SDL_GetKeyName(sdlCode)));
+                        logging::error(
+                            std::format("Mouse button code not registered: {}", SDL_GetKeyName(sdlCode))
+                        );
                     }
                 }
                 break;
@@ -361,7 +352,7 @@ int main(int argc, char* argv[]) {
                 default: {}
             }
         }
-        slurpLib.handleInput(mouseState, keyboardState, gamepadStates);
+        slurp::handleInput(mouseState, keyboardState, gamepadStates);
 
 #if DEBUG
         if (GlobalIsPaused) {
@@ -370,7 +361,7 @@ int main(int argc, char* argv[]) {
 #endif
 
         /* update and render */
-        slurpLib.updateAndRender(targetSecondsPerFrame);
+        slurp::updateAndRender(targetSecondsPerFrame);
 #if RENDER_API == OPEN_GL
         SDL_GL_SwapWindow(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -388,14 +379,14 @@ int main(int argc, char* argv[]) {
             AUDIO_SAMPLES_PER_SECOND,
             numAudioSamplesToBuffer
         };
-        slurpLib.bufferAudio(audioBuffer);
+        slurp::bufferAudio(audioBuffer);
         SDL_PutAudioStreamData(
             audioStream,
             audioSampleBuffer,
             numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample)
         );
 
-        slurpLib.frameEnd();
+        slurp::frameEnd();
         uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;
         if (frameNanos < targetNanosPerFrame) {
             SDL_DelayPrecise(targetNanosPerFrame - frameNanos);

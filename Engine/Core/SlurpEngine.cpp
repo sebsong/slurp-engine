@@ -59,7 +59,13 @@
 #endif
 
 namespace slurp {
-    SLURP_INIT(slurp_init) {
+    void init(
+        memory::MemoryArena& permanentMemory,
+        memory::MemoryArena& transientMemory,
+        const platform::PlatformDll& platformDll,
+        const render::RenderApi& renderApi,
+        bool isInitialized
+    ) {
         /** Memory **/
         if (!isInitialized) {
             Globals = permanentMemory.allocate<Global>();
@@ -97,9 +103,13 @@ namespace slurp {
         entity::initializeEntities();
     }
 
-    SLURP_FRAME_START(slurp_frameStart) {}
+    void frameStart() {}
 
-    SLURP_HANDLE_INPUT(slurp_handleInput) {
+    void handleInput(
+        const MouseState& mouseState,
+        const KeyboardState& keyboardState,
+        const GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
+    ) {
         const MouseState* actualMouseState = &mouseState;
         const KeyboardState* actualKeyboardState = &keyboardState;
         const GamepadState (*actualGamepadStates)[MAX_NUM_GAMEPADS] = &gamepadStates;
@@ -145,11 +155,11 @@ namespace slurp {
         entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
     }
 
-    SLURP_BUFFER_AUDIO(slurp_bufferAudio) {
+    void bufferAudio(const audio::AudioBuffer& buffer) {
         audio::bufferAudio(buffer);
     }
 
-    SLURP_UPDATE_AND_RENDER(slurp_updateAndRender) {
+    void updateAndRender(float dt) {
         timer::tick(dt);
 
         game::update(dt);
@@ -174,11 +184,11 @@ namespace slurp {
 #endif
     }
 
-    SLURP_FRAME_END(slurp_frameEnd) {
+    void frameEnd() {
         memory::SingleFrame->freeAll();
     }
 
-    SLURP_SHUTDOWN(slurp_shutdown) {
+    void shutdown() {
         job::shutdown();
         timer::shutdown();
         memory::Transient->freeAll();
