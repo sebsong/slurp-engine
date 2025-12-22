@@ -35,14 +35,18 @@ include_directories(Game/Core)
 include_directories(Game/Entities)
 
 # EXTERNAL
-include_directories(External/SDL-release-3.2.28/include)
+include_directories(External/SDL-prerelease-3.3.6/include)
+#include_directories(External/SDL-release-3.2.28/include)
+#include_directories(External/SDL-commit-efc3363/include)
 include_directories(External/SDL_mixer-commit-82a64d7/include)
 include_directories(External/glad/include)
 include_directories(External/box2d-3.1.1/include)
 
 set(SDL_SHARED OFF CACHE BOOL "SDL3 shared lib" FORCE)
 set(SDL_STATIC ON CACHE BOOL "SDL3 static lib" FORCE)
-add_subdirectory(External/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
+add_subdirectory(External/SDL-prerelease-3.3.6 EXCLUDE_FROM_ALL)
+#add_subdirectory(External/SDL-release-3.2.28 EXCLUDE_FROM_ALL)
+#add_subdirectory(External/SDL-commit-efc3363 EXCLUDE_FROM_ALL)
 
 set(BUILD_SHARED_LIBS FALSE CACHE BOOL "SDL3_Mixer shared lib" FORCE)
 set(SDLMIXER_AIFF FALSE CACHE BOOL "SDL3_Mixer AIFF format" FORCE)
@@ -194,7 +198,7 @@ endif ()
 
 set(ENGINE_LIBS
         SDL3::SDL3-static
-#        SDL3_mixer-static
+        SDL3_mixer-static
         box2d::box2d
 )
 

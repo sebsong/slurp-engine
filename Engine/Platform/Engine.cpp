@@ -52,6 +52,7 @@ static bool initSDL(SDL_Window*& outWindow, SDL_AudioStream*& outAudioStream) {
         logging::error("Failed to set SDL app metadata.");
         return false;
     }
+
 #if PLATFORM_WINDOWS
     SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "directsound");
 #endif

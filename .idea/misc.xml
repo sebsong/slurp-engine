@@ -5,8 +5,13 @@
   </component>
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
-    <excludeRoots>
+    <libraryRoots>
       <file path="$PROJECT_DIR$/External" />
+    </libraryRoots>
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/External/SDL-commit-efc3363" />
+      <file path="$PROJECT_DIR$/External/SDL-prerelease-3.3.4" />
+      <file path="$PROJECT_DIR$/External/SDL-release-3.2.28" />
       <file path="$PROJECT_DIR$/cmake-build-debug" />
       <file path="$PROJECT_DIR$/cmake-build-release" />
     </excludeRoots>
