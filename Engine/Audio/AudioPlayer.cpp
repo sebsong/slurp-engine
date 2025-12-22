@@ -4,13 +4,16 @@
 #include "PlayingSound.h"
 
 namespace audio {
-    AudioPlayer::AudioPlayer(): _nextSoundId(1),
-                                _globalVolumeMultiplier(1.f),
-                                _loopingQueue(types::deque_arena<PlayingSound>()),
-                                _oneShotQueue(types::deque_arena<PlayingSound>()) {}
+    AudioPlayer::AudioPlayer(MIX_Mixer* audioMixer)
+        : _nextSoundId(1),
+          _globalVolumeMultiplier(1.f),
+          _audioMixer(audioMixer),
+          _loopingQueue(types::deque_arena<PlayingSound>()),
+          _oneShotQueue(types::deque_arena<PlayingSound>()) {}
 
     void AudioPlayer::setGlobalVolume(float volumeMultiplier) {
         _globalVolumeMultiplier = volumeMultiplier;
+        MIX_SetMasterGain(_audioMixer, volumeMultiplier);
     }
 
     sound_id AudioPlayer::play(
@@ -25,16 +28,24 @@ namespace audio {
         }
 
         PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop, onFinish);
-        if (shouldLoop) {
-            _loopingQueue.push_back(playingSound);
-        } else {
-            _oneShotQueue.push_back(playingSound);
-        }
 
-        // TODO: have separate maximums for different sound categories
-        if (_oneShotQueue.size() > MAX_NUM_PLAYING_ONE_SHOT_SOUNDS) {
-            _oneShotQueue.pop_front();
+        MIX_Track* audioTrack = MIX_CreateTrack(_audioMixer);
+        MIX_SetTrackAudio(audioTrack, sound->audio);
+        if (shouldLoop) {
+            MIX_SetTrackGain(audioTrack, volumeMultiplier);
+            MIX_SetTrackLoops(audioTrack, -1);
         }
+        MIX_PlayTrack(audioTrack, 0);
+        // if (shouldLoop) {
+        //     _loopingQueue.push_back(playingSound);
+        // } else {
+        //     _oneShotQueue.push_back(playingSound);
+        // }
+        //
+        // // TODO: have separate maximums for different sound categories
+        // if (_oneShotQueue.size() > MAX_NUM_PLAYING_ONE_SHOT_SOUNDS) {
+        //     _oneShotQueue.pop_front();
+        // }
 
         return playingSound.id;
     }
@@ -60,42 +71,42 @@ namespace audio {
         _loopingQueue.clear();
     }
 
-    static void bufferFromQueue(
-        StereoAudioSampleContainer* sampleContainers,
-        types::deque_arena<PlayingSound>& queue,
-        int numSamplesToWrite,
-        float volumeMultiplier,
-        bool dampMix
-    ) {
-        for (types::deque_arena<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
-            PlayingSound& playingSound = *it;
-            if (!playingSound.sound->isLoaded) {
-                it++;
-                continue;
-            }
-
-            playingSound.bufferAudio(sampleContainers, numSamplesToWrite, volumeMultiplier, dampMix);
-
-            if (!playingSound.isPlaying) {
-                it = queue.erase(it);
-            } else {
-                it++;
-            }
-        }
-    }
-
-    void AudioPlayer::bufferAudio(const AudioBuffer& buffer) {
-        StereoAudioSampleContainer* sampleContainers =
-                memory::SingleFrame->allocate<StereoAudioSampleContainer>(
-                    buffer.numSamplesToWrite,
-                    true
-                );
-
-        /** Buffer one shot sounds first with damping to avoid clipping **/
-        /** Buffer looping sounds after without damping to preserve persistent sounds (e.g. music) **/
-        bufferFromQueue(sampleContainers, _oneShotQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, true);
-        bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
-
-        std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
-    }
+    // static void bufferFromQueue(
+    //     StereoAudioSampleContainer* sampleContainers,
+    //     types::deque_arena<PlayingSound>& queue,
+    //     int numSamplesToWrite,
+    //     float volumeMultiplier,
+    //     bool dampMix
+    // ) {
+    //     for (types::deque_arena<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
+    //         PlayingSound& playingSound = *it;
+    //         if (!playingSound.sound->isLoaded) {
+    //             it++;
+    //             continue;
+    //         }
+    //
+    //         playingSound.bufferAudio(sampleContainers, numSamplesToWrite, volumeMultiplier, dampMix);
+    //
+    //         if (!playingSound.isPlaying) {
+    //             it = queue.erase(it);
+    //         } else {
+    //             it++;
+    //         }
+    //     }
+    // }
+    //
+    // void AudioPlayer::bufferAudio(const AudioBuffer& buffer) {
+    //     StereoAudioSampleContainer* sampleContainers =
+    //             memory::SingleFrame->allocate<StereoAudioSampleContainer>(
+    //                 buffer.numSamplesToWrite,
+    //                 true
+    //             );
+    //
+    //     /** Buffer one shot sounds first with damping to avoid clipping **/
+    //     /** Buffer looping sounds after without damping to preserve persistent sounds (e.g. music) **/
+    //     bufferFromQueue(sampleContainers, _oneShotQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, true);
+    //     bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
+    //
+    //     std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
+    // }
 }

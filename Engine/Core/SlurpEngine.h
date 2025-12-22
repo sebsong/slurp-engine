@@ -23,6 +23,8 @@
 
 #endif
 
+struct MIX_Mixer;
+
 namespace slurp {
     struct EngineSystems {
         timer::Timer timer;
@@ -37,6 +39,7 @@ namespace slurp {
         memory::MemoryArena& transientMemory,
         const platform::PlatformDll& platformDll,
         const render::RenderApi& renderApi,
+        MIX_Mixer* audioMixer,
         bool isInitialized
     );
 

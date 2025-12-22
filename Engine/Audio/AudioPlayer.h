@@ -3,7 +3,7 @@
 #include "CollectionTypes.h"
 #include "PlayingSound.h"
 
-#include <cstdint>
+struct MIX_Mixer;
 
 namespace audio {
     struct AudioBuffer;
@@ -13,7 +13,7 @@ namespace audio {
 
     class AudioPlayer {
     public:
-        explicit AudioPlayer();
+        explicit AudioPlayer(MIX_Mixer* audioMixer);
 
         /** Game **/
         void setGlobalVolume(float volumeMultiplier);
@@ -30,11 +30,12 @@ namespace audio {
         void clearAll();
 
         /** Engine **/
-        void bufferAudio(const AudioBuffer& buffer);
+        // void bufferAudio(const AudioBuffer& buffer);
 
     private:
         sound_id _nextSoundId;
         float _globalVolumeMultiplier;
+        MIX_Mixer* _audioMixer;
         types::deque_arena<PlayingSound> _loopingQueue;
         types::deque_arena<PlayingSound> _oneShotQueue;
     };
@@ -61,7 +62,7 @@ namespace audio {
         slurp::Globals->AudioPlayer->clearAll();
     }
 
-    inline void bufferAudio(const AudioBuffer& buffer) {
-        slurp::Globals->AudioPlayer->bufferAudio(buffer);
-    }
+    // inline void bufferAudio(const AudioBuffer& buffer) {
+    //     slurp::Globals->AudioPlayer->bufferAudio(buffer);
+    // }
 }

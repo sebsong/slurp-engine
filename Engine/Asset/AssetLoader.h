@@ -4,13 +4,15 @@
 #include "Asset.h"
 #include "CollectionTypes.h"
 
+struct MIX_Mixer;
+
 namespace asset {
     struct Sprite;
     struct SpriteAnimation;
 
     class AssetLoader {
     public:
-        AssetLoader();
+        explicit AssetLoader(MIX_Mixer* audioMixer);
 
         ShaderProgram* loadShaderProgram(
             const std::string& vertexShaderFileName,
@@ -32,8 +34,9 @@ namespace asset {
         Sound* loadSound(const std::string& waveFileName);
 
     private:
-        std::hash<std::string> _stringHasher;
         types::unordered_map_arena<asset_id, Asset*> _assets;
+        std::hash<std::string> _stringHasher;
+        MIX_Mixer* _audioMixer;
 
         asset_id _getAssetId(const std::string& assetFilePath) const;
 

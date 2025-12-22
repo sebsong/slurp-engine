@@ -6,6 +6,7 @@
 #include "JobRunner.h"
 #include "SpriteInstance.h"
 #include "Wave.h"
+#include "SDL3_mixer/SDL_mixer.h"
 
 //TODO: need to package this with the build
 #ifdef ASSETS_DIR
@@ -27,8 +28,10 @@ namespace asset {
     static const std::string VertexShadersDirectory = ShadersDirectory + "1_Vertex/";
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
-    AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
-                                _assets(types::unordered_map_arena<asset_id, Asset*>()) {}
+    AssetLoader::AssetLoader(MIX_Mixer* audioMixer)
+        : _assets(types::unordered_map_arena<asset_id, Asset*>()),
+          _stringHasher(std::hash<std::string>()),
+          _audioMixer(audioMixer) {}
 
     static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
@@ -170,8 +173,6 @@ namespace asset {
         return animation;
     }
 
-    // TODO: pre-process wave files into the engine sample size
-    // TODO: stream the file in async
     Sound* AssetLoader::loadSound(const std::string& waveFileName) {
         std::string filePath = SoundsDirectory + waveFileName;
         asset_id assetId = _getAssetId(filePath);
@@ -183,16 +184,14 @@ namespace asset {
         Sound* sound = memory::Permanent->allocate<Sound>();
         _registerAsset(assetId, sound);
 
-        auto loadFn = [sound, filePath]() {
-            FileReadResult fileReadResult = readBytes(filePath);
-            types::byte* fileBytes = fileReadResult.contents;
-            ASSERT(fileBytes);
-            if (!fileBytes) {
-                return;
-            }
-            loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
-        };
-        job::queueJob(loadFn);
+        MIX_Audio* audio = MIX_LoadAudio(_audioMixer, filePath.c_str(), true);
+        if (!audio) {
+            ASSERT_LOG(false, std::format("Failed to load audio file: {}", filePath));
+        }
+
+        sound->audio =  audio;
+        sound->isLoaded = true;
+        sound->sourceFileName = waveFileName;
 
         return sound;
     }

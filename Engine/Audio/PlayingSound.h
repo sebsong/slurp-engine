@@ -27,12 +27,12 @@ namespace audio {
             std::function<void()> onFinish
         );
 
-        void bufferAudio(
-            StereoAudioSampleContainer* sampleContainers,
-            int numSamplesToWrite,
-            float globalVolumeMultiplier,
-            bool dampMix
-        );
+        // void bufferAudio(
+        //     StereoAudioSampleContainer* sampleContainers,
+        //     int numSamplesToWrite,
+        //     float globalVolumeMultiplier,
+        //     bool dampMix
+        // );
 
         bool operator==(const PlayingSound&) const;
     };

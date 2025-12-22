@@ -4,6 +4,7 @@
 #include "Audio.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "SDL3_mixer/SDL_mixer.h"
 
 namespace asset {
     typedef uint32_t asset_id;
@@ -27,8 +28,7 @@ namespace asset {
     };
 
     struct Sound : Asset {
-        uint32_t numSamples;
-        audio::StereoAudioSampleContainer* sampleData;
+        MIX_Audio* audio;
     };
 
     struct ShaderSource : Asset {

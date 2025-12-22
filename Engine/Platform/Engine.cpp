@@ -122,7 +122,6 @@ static bool initSDL(SDL_Window*& outWindow, MIX_Mixer*& outAudioMixer, SDL_Audio
 
     // TODO: do this in AudioPlayer
     // MIX_Track* audioTrack = MIX_CreateTrack(audioMixer);
-    // MIX_Audio* audio = MIX_LoadAudio(audioMixer, "../Assets/Sounds/bgm_main.wav", true);
     // MIX_SetTrackAudio(audioTrack, audio);
     // MIX_PlayTrack(audioTrack, 0);
 
@@ -195,7 +194,7 @@ int main(int argc, char* argv[]) {
     platformLib = loadPlatformLib();
     renderApi = loadRenderApi();
     allocateMemoryArenas(permanentMemory, transientMemory);
-    slurp::init(permanentMemory, transientMemory, platformLib, renderApi, false);
+    slurp::init(permanentMemory, transientMemory, platformLib, renderApi, audioMixer, false);
 
 #if DEBUG
     uint32_t targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
