@@ -95,9 +95,6 @@ define_string(APP_VERSION "1.0.0")
 define_string(APP_VERSION_SHORT "1.0")
 define_string(APP_IDENTIFIER "com.slurp.slurpengine")
 
-define_string(SLURP_LIB_FILE_NAME "${APP_NAME}${LIB_FILE_EXT}")
-define_string(SLURP_LIB_MARKER_FILE_NAME "${SLURP_LIB_FILE_NAME}.marker")
-define_string(SLURP_LIB_LOAD_FILE_NAME "${APP_NAME}Load${LIB_FILE_EXT}")
 define_string(RECORDING_FILE_NAME "${APP_NAME}.rec")
 
 define_string(ENGINE_EXE_NAME "engine")
