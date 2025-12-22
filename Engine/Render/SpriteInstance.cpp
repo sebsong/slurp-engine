@@ -1,14 +1,14 @@
-#include "Sprite.h"
+#include "SpriteInstance.h"
 
 #include "Bitmap.h"
 
-namespace asset {
+namespace render {
     // NOTE: represents a rectangle made of 2 triangles
     static constexpr int SpriteMeshVertexCount = 4;
     static constexpr int SpriteMeshElementCount = 6;
     static constexpr uint32_t SpriteElements[SpriteMeshElementCount] = {0, 1, 2, 2, 3, 0};
 
-    static slurp::Vec2<float> getRenderOffset(const Sprite* sprite, bool isCentered) {
+    static slurp::Vec2<float> getRenderOffset(const asset::Sprite* sprite, bool isCentered) {
         if (!isCentered || !sprite) {
             return slurp::Vec2<float>::Zero;
         }
@@ -16,7 +16,7 @@ namespace asset {
     }
 
     SpriteInstance::SpriteInstance(
-        const Sprite* sprite,
+        const asset::Sprite* sprite,
         const slurp::Vec2<float>& renderOffset,
         bool isCentered
     ): SpriteInstance(
@@ -28,7 +28,7 @@ namespace asset {
     ) {}
 
     SpriteInstance::SpriteInstance(
-        const Sprite* sprite,
+        const asset::Sprite* sprite,
         int zOrder,
         const slurp::Vec2<float>& renderOffset,
         bool isCentered
@@ -42,14 +42,14 @@ namespace asset {
 
     SpriteInstance::SpriteInstance(
         bool renderingEnabled,
-        const Sprite* sprite,
+        const asset::Sprite* sprite,
         bool syncZOrderToY,
         int zOrder,
         const slurp::Vec2<float>& renderOffset
     ): renderingEnabled(renderingEnabled),
        dimensions(sprite ? sprite->dimensions : slurp::Vec2<int>::Zero),
-       mesh(sprite ? sprite->mesh : Mesh{}),
-       material(sprite ? sprite->material : Material{}),
+       mesh(sprite ? sprite->mesh : asset::Mesh{}),
+       material(sprite ? sprite->material : asset::Material{}),
        animation({}),
        syncZOrderToY(syncZOrderToY),
        zOrder(zOrder),
@@ -64,8 +64,8 @@ namespace asset {
     }
 
     void loadSpriteData(
-        Sprite* sprite,
-        const Bitmap* bitmap,
+        asset::Sprite* sprite,
+        const asset::Bitmap* bitmap,
         render::object_id shaderProgramId
     ) {
         // TODO: specify scale factor on entity that also applies to collision shapes
@@ -99,8 +99,8 @@ namespace asset {
         render::object_id textureId = slurp::Globals->RenderApi->createTexture(bitmap);
 
         sprite->dimensions = dimensions;
-        sprite->mesh = Mesh{vertexArrayId, SpriteMeshElementCount};
-        sprite->material = Material{textureId, shaderProgramId, 1.f};
+        sprite->mesh = asset::Mesh{vertexArrayId, SpriteMeshElementCount};
+        sprite->material = asset::Material{textureId, shaderProgramId, 1.f};
         sprite->isLoaded = true;
     }
 }

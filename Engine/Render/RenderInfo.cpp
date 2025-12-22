@@ -1,10 +1,10 @@
 #include "RenderInfo.h"
 
 namespace render {
-    static void copySprites(uint8_t numSprites, const asset::SpriteInstance* src, asset::SpriteInstance* dest) {
+    static void copySprites(uint8_t numSprites, const SpriteInstance* src, SpriteInstance* dest) {
         if (src) {
             for (uint8_t i = 0; i < numSprites; i++) {
-                new(&dest[i]) asset::SpriteInstance(src[i]);
+                new(&dest[i]) SpriteInstance(src[i]);
             }
         }
     }
@@ -15,15 +15,15 @@ namespace render {
             nullptr
         ) {}
 
-    RenderInfo::RenderInfo(const asset::SpriteInstance& sprite)
+    RenderInfo::RenderInfo(const SpriteInstance& sprite)
         : RenderInfo(
             1,
             &sprite
         ) {}
 
-    RenderInfo::RenderInfo(uint8_t numSprites, const asset::SpriteInstance* sprites)
+    RenderInfo::RenderInfo(uint8_t numSprites, const SpriteInstance* sprites)
         : numSprites(numSprites),
-          sprites(memory::Permanent->allocate<asset::SpriteInstance>(numSprites)) {
+          sprites(memory::Permanent->allocate<SpriteInstance>(numSprites)) {
         if (sprites) {
             copySprites(numSprites, sprites, this->sprites);
         }

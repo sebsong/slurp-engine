@@ -1,6 +1,6 @@
 #include "Debug.h"
 
-#include "Asset.h"
+#include "AssetLoader.h"
 #include "Global.h"
 #include "RenderApi.h"
 #if DEBUG

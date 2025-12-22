@@ -7,7 +7,7 @@ namespace mouse_cursor {
     MouseCursor::MouseCursor(): Entity(
         "MouseCursor",
         render::RenderInfo(
-            asset::SpriteInstance(
+            render::SpriteInstance(
                 game::Assets->mouseCursorSprite,
                 game::MOUSE_Z
             )

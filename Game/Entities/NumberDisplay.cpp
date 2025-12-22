@@ -22,7 +22,7 @@ namespace ui {
           _numDigits(numDigits),
           _showLeadingZeroes(showLeadingZeroes) {
         for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
-            new(&renderInfo.sprites[i]) asset::SpriteInstance(
+            new(&renderInfo.sprites[i]) render::SpriteInstance(
                 game::Assets->digitSprites[0],
                 game::UI_Z,
                 {-i * 10.f, 0.f}

@@ -3,7 +3,7 @@
 #include "Platform.h"
 #include "Timer.h"
 #include "JobRunner.h"
-#include "Asset.h"
+#include "AssetLoader.h"
 #include "DynamicDeclaration.h"
 #include "Input.h"
 #include "Audio.h"

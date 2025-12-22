@@ -26,10 +26,10 @@ namespace turret {
         : Entity(
               "Turret",
               render::RenderInfo(
-                  (asset::SpriteInstance[3]){
-                      asset::SpriteInstance(game::Assets->turretOrbSprite, RenderOffset),
-                      asset::SpriteInstance(game::Assets->turretPitSprite, RenderOffset),
-                      asset::SpriteInstance(
+                  (render::SpriteInstance[3]){
+                      render::SpriteInstance(game::Assets->turretOrbSprite, RenderOffset),
+                      render::SpriteInstance(game::Assets->turretPitSprite, RenderOffset),
+                      render::SpriteInstance(
                           game::Assets->turretRangeIndicatorSprite,
                           game::BACKGROUND_ENTITY_Z,
                           RenderOffset

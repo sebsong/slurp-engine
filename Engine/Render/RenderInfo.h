@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sprite.h"
+#include "SpriteInstance.h"
 
 #define Z_ORDER_MAX 1000
 
@@ -11,16 +11,16 @@ namespace asset {
 namespace render {
     struct RenderInfo {
         uint8_t numSprites;
-        asset::SpriteInstance* sprites;
+        SpriteInstance* sprites;
 
         RenderInfo();
 
-        RenderInfo(const asset::SpriteInstance& sprite);
+        RenderInfo(const SpriteInstance& sprite);
 
-        RenderInfo(uint8_t numSprites, const asset::SpriteInstance* sprites);
+        RenderInfo(uint8_t numSprites, const SpriteInstance* sprites);
 
         template<size_t N>
-        RenderInfo(const asset::SpriteInstance (&sprites)[N]): RenderInfo(N, sprites) {}
+        RenderInfo(const SpriteInstance (&sprites)[N]): RenderInfo(N, sprites) {}
 
         RenderInfo(uint8_t numSprites);
 

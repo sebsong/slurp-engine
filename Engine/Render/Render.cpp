@@ -1,9 +1,9 @@
 #include "Render.h"
 
-#include "Sprite.h"
+#include "SpriteInstance.h"
 
 namespace render {
-    void draw(const slurp::Vec2<float>& position, asset::SpriteInstance& sprite, asset::SpriteAnimation& animation) {
+    void draw(const slurp::Vec2<float>& position, SpriteInstance& sprite, asset::SpriteAnimation& animation) {
         if (sprite.renderingEnabled && !sprite.dimensions.isZero()) {
             asset::Mesh& mesh = sprite.mesh;
             asset::Material& material = sprite.material;

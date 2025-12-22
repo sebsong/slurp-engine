@@ -72,7 +72,7 @@ namespace entity {
                 }
 
                 for (int i = 0; i < renderInfo.numSprites; i++) {
-                    asset::SpriteInstance& sprite = renderInfo.sprites[i];
+                    render::SpriteInstance& sprite = renderInfo.sprites[i];
                     if (sprite.syncZOrderToY) {
                         sprite.zOrder = static_cast<int>(
                             (entity->physicsInfo.position.y / WORLD_HEIGHT_MAX) * Z_ORDER_MAX

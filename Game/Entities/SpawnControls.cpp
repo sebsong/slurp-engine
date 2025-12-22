@@ -111,13 +111,13 @@ namespace ui {
               Entity(
                   "Turret Placement Guide",
                   render::RenderInfo(
-                      (asset::SpriteInstance[2]){
-                          asset::SpriteInstance(
+                      (render::SpriteInstance[2]){
+                          render::SpriteInstance(
                               game::Assets->turretSprite,
                               turret::RenderOffset
                           ),
 
-                          asset::SpriteInstance(
+                          render::SpriteInstance(
                               game::Assets->turretRangeIndicatorSprite,
                               game::BACKGROUND_ENTITY_Z,
                               turret::RenderOffset

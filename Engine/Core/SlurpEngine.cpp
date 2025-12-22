@@ -19,13 +19,13 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Bitmap.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Sprite.cpp"
+#include "SpriteInstance.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SpriteAnimation.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Wave.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Asset.cpp"
+#include "AssetLoader.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Render.cpp"

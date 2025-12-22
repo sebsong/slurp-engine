@@ -1,27 +1,25 @@
-#include "Asset.h"
-
-#include "SlurpEngine.h"
-#include "Bitmap.h"
-#include "Debug.h"
-#include "Types.h"
-#include "Wave.h"
+#include "AssetLoader.h"
 
 #include <filesystem>
-#include <fstream>
 
-namespace asset {
+#include "Bitmap.h"
+#include "JobRunner.h"
+#include "SpriteInstance.h"
+#include "Wave.h"
+
 //TODO: need to package this with the build
 #ifdef ASSETS_DIR
     static const std::string AssetsDirectory = ASSETS_DIR;
 #else
 #if PLATFORM_WINDOWS
-    static const std::string AssetsDirectory = "../Assets/";
+static const std::string AssetsDirectory = "../Assets/";
 #elif PLATFORM_MAC
     static const std::string AssetsDirectory = "../../../../Assets/";
 #endif
 
 #endif
 
+namespace asset {
     static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
     static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
     static const std::string SoundsDirectory = AssetsDirectory + "Sounds/";
@@ -148,7 +146,7 @@ namespace asset {
         Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
 
         render::object_id shaderProgramId = loadShaderProgram(vertexShaderFileName, fragmentShaderFileName)->programId;
-        loadSpriteData(sprite, bitmap, shaderProgramId);
+        render::loadSpriteData(sprite, bitmap, shaderProgramId);
 
         return sprite;
     }

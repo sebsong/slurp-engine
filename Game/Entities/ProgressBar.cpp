@@ -1,5 +1,7 @@
 #include "ProgressBar.h"
 
+#include "AssetLoader.h"
+
 namespace ui {
     // ProgressBar::ProgressBar(): Entity("ProgressBar") {}
     static const char* ProgressUniformName = "progress";
@@ -19,7 +21,7 @@ namespace ui {
        _bar(
            Entity(
                "Bar",
-               render::RenderInfo(asset::SpriteInstance(barSprite, zOrder)),
+               render::RenderInfo(render::SpriteInstance(barSprite, zOrder)),
                physics::PhysicsInfo(position),
                {}
            )
@@ -27,7 +29,7 @@ namespace ui {
        _fill(
            Entity(
                "Fill",
-               render::RenderInfo(asset::SpriteInstance(fillSprite, zOrder)),
+               render::RenderInfo(render::SpriteInstance(fillSprite, zOrder)),
                physics::PhysicsInfo(position),
                {}
            )

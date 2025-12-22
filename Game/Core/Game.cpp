@@ -149,13 +149,13 @@ namespace game {
             );
             new(&MenuState->background) entity::Entity(
                 "Background",
-                render::RenderInfo(asset::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
+                render::RenderInfo(render::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
                 physics::PhysicsInfo(),
                 collision::CollisionInfo()
             );
             new(&MenuState->titleText) entity::Entity(
                 "Title Text",
-                render::RenderInfo(asset::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
+                render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
                 physics::PhysicsInfo({0, 100}),
                 collision::CollisionInfo()
             );
@@ -205,14 +205,14 @@ namespace game {
 
         new(&State->background) entity::Entity(
             "Background",
-            render::RenderInfo(asset::SpriteInstance(Assets->backgroundSprite, BACKGROUND_Z)),
+            render::RenderInfo(render::SpriteInstance(Assets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
 
         new(&State->border) entity::Entity(
             "Border",
-            render::RenderInfo(asset::SpriteInstance(Assets->borderSprite, BORDER_Z)),
+            render::RenderInfo(render::SpriteInstance(Assets->borderSprite, BORDER_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
@@ -265,7 +265,7 @@ namespace game {
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
         // new(&State->overlay) entity::Entity(
         //     "Overlay",
-        //     render::RenderInfo(asset::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
+        //     render::RenderInfo(render::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
         //     physics::PhysicsInfo(),
         //     collision::CollisionInfo()
         // );
