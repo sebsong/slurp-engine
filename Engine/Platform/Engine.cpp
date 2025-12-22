@@ -9,6 +9,7 @@
 #include "Settings.h"
 
 #include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <glad/glad.h>
 #include <filesystem>
 
@@ -47,7 +48,7 @@ PLATFORM_SHUTDOWN(shutdown) {
     GlobalRunning = false;
 }
 
-static bool initSDL(SDL_Window*& outWindow, SDL_AudioStream*& outAudioStream) {
+static bool initSDL(SDL_Window*& outWindow, MIX_Mixer*& outAudioMixer, SDL_AudioStream*& outAudioStream) {
     if (!SDL_SetAppMetadata(APP_NAME, APP_VERSION, APP_IDENTIFIER)) {
         logging::error("Failed to set SDL app metadata.");
         return false;
@@ -109,6 +110,22 @@ static bool initSDL(SDL_Window*& outWindow, SDL_AudioStream*& outAudioStream) {
         AUDIO_SAMPLES_PER_SECOND
     };
     SDL_AudioDeviceID audioDeviceId = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
+
+    if (!MIX_Init()) {
+        ASSERT_LOG(false, "Failed to initialize SDL3_mixer.");
+    }
+    MIX_Mixer* audioMixer = MIX_CreateMixerDevice(audioDeviceId, &audioSpec);
+    if (!audioMixer) {
+        ASSERT_LOG(false, "Failed to create SDL3_mixer mixer.");
+    }
+    outAudioMixer = audioMixer;
+
+    // TODO: do this in AudioPlayer
+    // MIX_Track* audioTrack = MIX_CreateTrack(audioMixer);
+    // MIX_Audio* audio = MIX_LoadAudio(audioMixer, "../Assets/Sounds/bgm_main.wav", true);
+    // MIX_SetTrackAudio(audioTrack, audio);
+    // MIX_PlayTrack(audioTrack, 0);
+
     SDL_AudioStream* audioStream = SDL_CreateAudioStream(nullptr, &audioSpec);
     outAudioStream = audioStream;
     if (!SDL_BindAudioStream(audioDeviceId, audioStream)) {
@@ -158,6 +175,7 @@ static render::RenderApi loadRenderApi() {
 
 int main(int argc, char* argv[]) {
     SDL_Window* window;
+    MIX_Mixer* audioMixer;
     SDL_AudioStream* audioStream;
     memory::MemoryArena permanentMemory;
     memory::MemoryArena transientMemory;
@@ -168,7 +186,7 @@ int main(int argc, char* argv[]) {
     std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
 
-    if (!initSDL(window, audioStream)) {
+    if (!initSDL(window, audioMixer, audioStream)) {
         logging::error("Failed to initialize SDL.");
         return 1;
     }

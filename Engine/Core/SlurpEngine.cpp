@@ -96,7 +96,6 @@ namespace slurp {
             Globals->EntityPipeline = new(&engineSystems->entityPipeline) entity::EntityPipeline();
             Globals->AudioPlayer = new(&engineSystems->audioPlayer) audio::AudioPlayer();
         }
-        job::initialize();
 
         /** Game **/
         game::initialize(isInitialized);
