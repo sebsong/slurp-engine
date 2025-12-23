@@ -7,32 +7,24 @@ namespace asset {
     struct Sound;
 }
 
+struct MIX_Track;
+
 namespace audio {
     struct AudioBuffer;
 
     struct PlayingSound {
         uint32_t id;
-        const asset::Sound* sound;
-        float volumeMultiplier;
-        bool shouldLoop;
-        std::function<void()> onFinish; // TODO: move sound?
-        uint32_t sampleIndex;
-        bool isPlaying;
+        const asset::Sound* sound; // NOTE: debug
+        std::function<void()> onFinish;
+        MIX_Track* audioTrack;
+        bool isStopped;
 
         PlayingSound(
             uint32_t id,
             const asset::Sound* sound,
-            float volumeMultiplier,
-            bool shouldLoop,
-            std::function<void()> onFinish
+            const std::function<void()>& onFinish,
+            MIX_Track* audioTrack
         );
-
-        // void bufferAudio(
-        //     StereoAudioSampleContainer* sampleContainers,
-        //     int numSamplesToWrite,
-        //     float globalVolumeMultiplier,
-        //     bool dampMix
-        // );
 
         bool operator==(const PlayingSound&) const;
     };

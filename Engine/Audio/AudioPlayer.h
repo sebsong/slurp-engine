@@ -4,18 +4,18 @@
 #include "PlayingSound.h"
 
 struct MIX_Mixer;
+struct MIX_Track;
 
 namespace audio {
     struct AudioBuffer;
 
     typedef uint32_t sound_id;
-    const static sound_id INVALID_SOUND_ID = 0;
+    static constexpr sound_id INVALID_SOUND_ID = 0;
 
     class AudioPlayer {
     public:
         explicit AudioPlayer(MIX_Mixer* audioMixer);
 
-        /** Game **/
         void setGlobalVolume(float volumeMultiplier);
 
         sound_id play(
@@ -27,17 +27,19 @@ namespace audio {
 
         void stop(sound_id id);
 
-        void clearAll();
+        void stop(MIX_Track* audioTrack);
 
-        /** Engine **/
-        // void bufferAudio(const AudioBuffer& buffer);
+        void stopAll();
 
     private:
         sound_id _nextSoundId;
         float _globalVolumeMultiplier;
         MIX_Mixer* _audioMixer;
-        types::deque_arena<PlayingSound> _loopingQueue;
-        types::deque_arena<PlayingSound> _oneShotQueue;
+        // TODO: split these into groups, e.g. bgm, sound fx
+        types::vector_arena<MIX_Track*> _availableAudioTracks;
+        types::deque_arena<PlayingSound> _playingSounds;
+
+        void stop(PlayingSound& playingSound);
     };
 
     /** Global Methods **/
@@ -59,10 +61,6 @@ namespace audio {
     }
 
     inline void clearAll() {
-        slurp::Globals->AudioPlayer->clearAll();
+        slurp::Globals->AudioPlayer->stopAll();
     }
-
-    // inline void bufferAudio(const AudioBuffer& buffer) {
-    //     slurp::Globals->AudioPlayer->bufferAudio(buffer);
-    // }
 }

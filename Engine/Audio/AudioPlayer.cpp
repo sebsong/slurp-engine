@@ -3,13 +3,30 @@
 #include "Asset.h"
 #include "PlayingSound.h"
 
+#define NUM_AUDIO_TRACKS 128
+
 namespace audio {
+    static void onTrackFinish(void* userdata, MIX_Track* audioTrack) {
+        AudioPlayer* audioPlayer = static_cast<AudioPlayer*>(userdata);
+        if (audioPlayer) {
+            audioPlayer->stop(audioTrack);
+        }
+    }
+
     AudioPlayer::AudioPlayer(MIX_Mixer* audioMixer)
         : _nextSoundId(1),
           _globalVolumeMultiplier(1.f),
           _audioMixer(audioMixer),
-          _loopingQueue(types::deque_arena<PlayingSound>()),
-          _oneShotQueue(types::deque_arena<PlayingSound>()) {}
+          _availableAudioTracks(types::vector_arena<MIX_Track*>()),
+          _playingSounds(types::deque_arena<PlayingSound>()) {
+        for (int i = 0; i < NUM_AUDIO_TRACKS; i++) {
+            MIX_Track* audioTrack = MIX_CreateTrack(_audioMixer);
+            if (!audioTrack) {
+                ASSERT_LOG(false, "Failed to create MIX_Track.");
+            }
+            _availableAudioTracks.push_back(audioTrack);
+        }
+    }
 
     void AudioPlayer::setGlobalVolume(float volumeMultiplier) {
         _globalVolumeMultiplier = volumeMultiplier;
@@ -27,86 +44,68 @@ namespace audio {
             return INVALID_SOUND_ID;
         }
 
-        PlayingSound playingSound(_nextSoundId++, sound, volumeMultiplier, shouldLoop, onFinish);
-
-        MIX_Track* audioTrack = MIX_CreateTrack(_audioMixer);
-        MIX_SetTrackAudio(audioTrack, sound->audio);
-        if (shouldLoop) {
-            MIX_SetTrackGain(audioTrack, volumeMultiplier);
-            MIX_SetTrackLoops(audioTrack, -1);
+        MIX_Track* audioTrack;
+        if (_availableAudioTracks.size() > 0) {
+            audioTrack = _availableAudioTracks.back();
+            _availableAudioTracks.pop_back();
+        } else {
+            ASSERT_LOG(_playingSounds.size() > 0, "No playing sounds, no available audio tracks.");
+            PlayingSound oldestPlayingSound = _playingSounds.front();
+            stop(oldestPlayingSound.id);
+            audioTrack = oldestPlayingSound.audioTrack;
         }
-        MIX_PlayTrack(audioTrack, 0);
-        // if (shouldLoop) {
-        //     _loopingQueue.push_back(playingSound);
-        // } else {
-        //     _oneShotQueue.push_back(playingSound);
-        // }
-        //
-        // // TODO: have separate maximums for different sound categories
-        // if (_oneShotQueue.size() > MAX_NUM_PLAYING_ONE_SHOT_SOUNDS) {
-        //     _oneShotQueue.pop_front();
-        // }
+        MIX_SetTrackAudio(audioTrack, sound->audio);
+        MIX_SetTrackGain(audioTrack, volumeMultiplier);
+        SDL_PropertiesID propertiesId = SDL_CreateProperties();
+        if (shouldLoop) {
+            SDL_SetNumberProperty(propertiesId, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
+        }
+        MIX_SetTrackStoppedCallback(
+            audioTrack,
+            &onTrackFinish,
+            this
+        );
+        MIX_PlayTrack(audioTrack, propertiesId);
 
+        PlayingSound playingSound(_nextSoundId++, sound, onFinish, audioTrack);
+        _playingSounds.emplace_back(playingSound);
         return playingSound.id;
     }
 
     void AudioPlayer::stop(sound_id id) {
-        // TODO: might be nice to store the playing sounds as a map to not have to search through like this
-        for (types::deque_arena<PlayingSound>::iterator it = _loopingQueue.begin(); it != _loopingQueue.end(); it++) {
+        for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
             if (it->id == id) {
-                _loopingQueue.erase(it);
-                return;
-            }
-        }
-        for (types::deque_arena<PlayingSound>::iterator it = _oneShotQueue.begin(); it != _oneShotQueue.end(); it++) {
-            if (it->id == id) {
-                _oneShotQueue.erase(it);
+                stop(*it);
+                _playingSounds.erase(it);
                 return;
             }
         }
     }
 
-    void AudioPlayer::clearAll() {
-        _oneShotQueue.clear();
-        _loopingQueue.clear();
+    void AudioPlayer::stop(MIX_Track* audioTrack) {
+        for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
+            if (it->audioTrack == audioTrack) {
+                stop(*it);
+                _playingSounds.erase(it);
+                return;
+            }
+        }
     }
 
-    // static void bufferFromQueue(
-    //     StereoAudioSampleContainer* sampleContainers,
-    //     types::deque_arena<PlayingSound>& queue,
-    //     int numSamplesToWrite,
-    //     float volumeMultiplier,
-    //     bool dampMix
-    // ) {
-    //     for (types::deque_arena<PlayingSound>::iterator it = queue.begin(); it != queue.end();) {
-    //         PlayingSound& playingSound = *it;
-    //         if (!playingSound.sound->isLoaded) {
-    //             it++;
-    //             continue;
-    //         }
-    //
-    //         playingSound.bufferAudio(sampleContainers, numSamplesToWrite, volumeMultiplier, dampMix);
-    //
-    //         if (!playingSound.isPlaying) {
-    //             it = queue.erase(it);
-    //         } else {
-    //             it++;
-    //         }
-    //     }
-    // }
-    //
-    // void AudioPlayer::bufferAudio(const AudioBuffer& buffer) {
-    //     StereoAudioSampleContainer* sampleContainers =
-    //             memory::SingleFrame->allocate<StereoAudioSampleContainer>(
-    //                 buffer.numSamplesToWrite,
-    //                 true
-    //             );
-    //
-    //     /** Buffer one shot sounds first with damping to avoid clipping **/
-    //     /** Buffer looping sounds after without damping to preserve persistent sounds (e.g. music) **/
-    //     bufferFromQueue(sampleContainers, _oneShotQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, true);
-    //     bufferFromQueue(sampleContainers, _loopingQueue, buffer.numSamplesToWrite, _globalVolumeMultiplier, false);
-    //
-    //     std::copy_n(sampleContainers, buffer.numSamplesToWrite, buffer.samples);
-    // }
+    void AudioPlayer::stopAll() {
+        for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
+            stop(*it);
+        }
+        _playingSounds.clear();
+    }
+
+    void AudioPlayer::stop(PlayingSound& playingSound) {
+        if (playingSound.isStopped) {
+            return;
+        }
+        playingSound.isStopped = true;
+        MIX_StopTrack(playingSound.audioTrack, 0);
+        _availableAudioTracks.push_back(playingSound.audioTrack);
+        playingSound.onFinish();
+    }
 }
