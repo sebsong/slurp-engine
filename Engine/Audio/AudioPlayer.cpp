@@ -92,11 +92,13 @@ namespace audio {
         }
     }
 
-    void AudioPlayer::stopAll() {
+    void AudioPlayer::clearAll() {
         for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
-            stop(*it);
+            it->isStopped = true;
+            _availableAudioTracks.push_back(it->audioTrack);
         }
         _playingSounds.clear();
+        MIX_StopAllTracks(_audioMixer, 0);
     }
 
     void AudioPlayer::stop(PlayingSound& playingSound) {

@@ -29,7 +29,7 @@ namespace audio {
 
         void stop(MIX_Track* audioTrack);
 
-        void stopAll();
+        void clearAll();
 
     private:
         sound_id _nextSoundId;
@@ -61,6 +61,6 @@ namespace audio {
     }
 
     inline void clearAll() {
-        slurp::Globals->AudioPlayer->stopAll();
+        slurp::Globals->AudioPlayer->clearAll();
     }
 }
