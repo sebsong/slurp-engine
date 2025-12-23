@@ -48,7 +48,7 @@ PLATFORM_SHUTDOWN(shutdown) {
     GlobalRunning = false;
 }
 
-static bool initSDL(SDL_Window*& outWindow, MIX_Mixer*& outAudioMixer, SDL_AudioStream*& outAudioStream) {
+static bool initSDL(SDL_Window*& outWindow, MIX_Mixer*& outAudioMixer) {
     if (!SDL_SetAppMetadata(APP_NAME, APP_VERSION, APP_IDENTIFIER)) {
         logging::error("Failed to set SDL app metadata.");
         return false;
@@ -120,17 +120,6 @@ static bool initSDL(SDL_Window*& outWindow, MIX_Mixer*& outAudioMixer, SDL_Audio
     }
     outAudioMixer = audioMixer;
 
-    // TODO: do this in AudioPlayer
-    // MIX_Track* audioTrack = MIX_CreateTrack(audioMixer);
-    // MIX_SetTrackAudio(audioTrack, audio);
-    // MIX_PlayTrack(audioTrack, 0);
-
-    SDL_AudioStream* audioStream = SDL_CreateAudioStream(nullptr, &audioSpec);
-    outAudioStream = audioStream;
-    if (!SDL_BindAudioStream(audioDeviceId, audioStream)) {
-        ASSERT_LOG(false, "Failed to bind audio stream.");
-    }
-
     return true;
 }
 
@@ -175,7 +164,6 @@ static render::RenderApi loadRenderApi() {
 int main(int argc, char* argv[]) {
     SDL_Window* window;
     MIX_Mixer* audioMixer;
-    SDL_AudioStream* audioStream;
     memory::MemoryArena permanentMemory;
     memory::MemoryArena transientMemory;
     platform::PlatformDll platformLib;
@@ -185,7 +173,7 @@ int main(int argc, char* argv[]) {
     std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
     slurp::GamepadState gamepadStates[MAX_NUM_GAMEPADS]{};
 
-    if (!initSDL(window, audioMixer, audioStream)) {
+    if (!initSDL(window, audioMixer)) {
         logging::error("Failed to initialize SDL.");
         return 1;
     }
@@ -384,25 +372,6 @@ int main(int argc, char* argv[]) {
         SDL_GL_SwapWindow(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
-
-        /* audio */
-        // TODO: clean up audio types and api
-        constexpr int targetNumAudioSamplesToBuffer = static_cast<int>(
-            AUDIO_SAMPLES_PER_SECOND * AUDIO_BUFFER_WRITE_AHEAD_SECONDS);
-        audio::StereoAudioSample audioSampleBuffer[targetNumAudioSamplesToBuffer];
-        int numAudioSamplesBuffered = SDL_GetAudioStreamQueued(audioStream) / sizeof(audio::StereoAudioSample);
-        int numAudioSamplesToBuffer = std::max(targetNumAudioSamplesToBuffer - numAudioSamplesBuffered, 0);
-        audio::AudioBuffer audioBuffer{
-            audioSampleBuffer,
-            AUDIO_SAMPLES_PER_SECOND,
-            numAudioSamplesToBuffer
-        };
-        slurp::bufferAudio(audioBuffer);
-        SDL_PutAudioStreamData(
-            audioStream,
-            audioSampleBuffer,
-            numAudioSamplesToBuffer * sizeof(audio::StereoAudioSample)
-        );
 
         slurp::frameEnd();
         uint64_t frameNanos = SDL_GetTicksNS() - frameStartNanos;

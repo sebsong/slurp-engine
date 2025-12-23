@@ -142,7 +142,6 @@ if (NOT UNITY_BUILD)
 
             Engine/Asset/AssetLoader.cpp
             Engine/Asset/Bitmap.cpp
-            Engine/Asset/Wave.cpp
             Engine/Audio/AudioPlayer.cpp
             Engine/Audio/PlayingSound.cpp
             Engine/Core/JobRunner.cpp

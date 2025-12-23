@@ -5,7 +5,6 @@
 #include "Bitmap.h"
 #include "JobRunner.h"
 #include "SpriteInstance.h"
-#include "Wave.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
 //TODO: need to package this with the build

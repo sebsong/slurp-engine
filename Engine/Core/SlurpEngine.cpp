@@ -23,8 +23,6 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SpriteAnimation.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Wave.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
 #include "AssetLoader.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
@@ -156,7 +154,6 @@ namespace slurp {
     }
 
     void bufferAudio(const audio::AudioBuffer& buffer) {
-        // audio::bufferAudio(buffer);
     }
 
     void updateAndRender(float dt) {
