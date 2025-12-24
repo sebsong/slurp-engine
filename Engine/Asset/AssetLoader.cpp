@@ -9,12 +9,12 @@
 
 //TODO: need to package this with the build
 #ifdef ASSETS_DIR
-    static const std::string AssetsDirectory = ASSETS_DIR;
+static const std::string AssetsDirectory = ASSETS_DIR;
 #else
 #if PLATFORM_WINDOWS
 static const std::string AssetsDirectory = "../Assets/";
 #elif PLATFORM_MAC
-    static const std::string AssetsDirectory = "../../../../Assets/";
+static const std::string AssetsDirectory = "../../../../Assets/";
 #endif
 
 #endif
@@ -172,7 +172,7 @@ namespace asset {
         return animation;
     }
 
-    Sound* AssetLoader::loadSound(const std::string& waveFileName) {
+    Sound* AssetLoader::loadSound(const std::string& waveFileName, audio::sound_group_id groupId) {
         std::string filePath = SoundsDirectory + waveFileName;
         asset_id assetId = _getAssetId(filePath);
 
@@ -188,7 +188,8 @@ namespace asset {
             ASSERT_LOG(false, std::format("Failed to load audio file: {}", filePath));
         }
 
-        sound->audio =  audio;
+        sound->audio = audio;
+        sound->groupId = groupId;
         sound->isLoaded = true;
         sound->sourceFileName = waveFileName;
 

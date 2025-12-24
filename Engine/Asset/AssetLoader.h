@@ -31,7 +31,10 @@ namespace asset {
 
         SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames);
 
-        Sound* loadSound(const std::string& waveFileName);
+        Sound* loadSound(
+            const std::string& waveFileName,
+            audio::sound_group_id groupId = AUDIO_SOUND_GROUP_OTHER
+        );
 
     private:
         types::unordered_map_arena<asset_id, Asset*> _assets;

@@ -2,10 +2,60 @@
 
 #include "Asset.h"
 #include "PlayingSound.h"
-
-#define NUM_AUDIO_TRACKS 128
+#include <SDL3_mixer/SDL_mixer.h>
 
 namespace audio {
+    static void initializeSoundGroup(
+        MIX_Mixer* audioMixer,
+        types::unordered_map_arena<sound_group_id, SoundGroupState> soundGroupStates,
+        sound_group_id groupId,
+        int numTracks
+    ) {
+        MIX_Group* audioMixGroup = MIX_CreateGroup(audioMixer);
+        soundGroupStates[groupId] = SoundGroupState{
+            audioMixGroup,
+            types::vector_arena<MIX_Track*>(),
+            types::deque_arena<PlayingSound>()
+        };
+        types::vector_arena<MIX_Track*>& availableAudioTracks = soundGroupStates[groupId].availableAudioTracks;
+        availableAudioTracks.reserve(numTracks);
+        for (int i = 0; i < numTracks; i++) {
+            MIX_Track* audioTrack = MIX_CreateTrack(audioMixer);
+            MIX_SetTrackGroup(audioTrack, audioMixGroup);
+            if (!audioTrack) {
+                ASSERT_LOG(false, "Failed to create MIX_Track.");
+            }
+            availableAudioTracks.push_back(audioTrack);
+        }
+    }
+
+    AudioPlayer::AudioPlayer(MIX_Mixer* audioMixer)
+        : _nextSoundId(1),
+          _audioMixer(audioMixer),
+          _soundGroupStates(types::unordered_map_arena<sound_group_id, SoundGroupState>()) {
+        initializeSoundGroup(_audioMixer, _soundGroupStates, AUDIO_SOUND_GROUP_BGM, NUM_AUDIO_TRACKS_BGM);
+        initializeSoundGroup(_audioMixer, _soundGroupStates, AUDIO_SOUND_GROUP_SFX, NUM_AUDIO_TRACKS_SFX);
+        initializeSoundGroup(_audioMixer, _soundGroupStates, AUDIO_SOUND_GROUP_OTHER, NUM_AUDIO_TRACKS_OTHER);
+    }
+
+    void AudioPlayer::setGlobalVolume(float volumeMultiplier) const {
+        MIX_SetMasterGain(_audioMixer, volumeMultiplier);
+    }
+
+    void AudioPlayer::setGroupVolume(sound_group_id groupId, float volumeMultiplier) {
+        ASSERT_LOG(
+            !_soundGroupStates.contains(groupId),
+            std::format("Could not find sound group id: {}", groupId)
+        );
+        if (!_soundGroupStates.contains(groupId)) {
+            return;
+        }
+
+        MIX_Group* audioMixGroup = _soundGroupStates[groupId].audioMixGroup;
+        // TODO: read this out and use it later, move name to constant
+        SDL_SetFloatProperty(audioMixGroup->props, "GroupGain", volumeMultiplier);
+    }
+
     static void onTrackFinish(void* userdata, MIX_Track* audioTrack) {
         AudioPlayer* audioPlayer = static_cast<AudioPlayer*>(userdata);
         if (audioPlayer) {
@@ -13,46 +63,33 @@ namespace audio {
         }
     }
 
-    AudioPlayer::AudioPlayer(MIX_Mixer* audioMixer)
-        : _nextSoundId(1),
-          _globalVolumeMultiplier(1.f),
-          _audioMixer(audioMixer),
-          _availableAudioTracks(types::vector_arena<MIX_Track*>()),
-          _playingSounds(types::deque_arena<PlayingSound>()) {
-        for (int i = 0; i < NUM_AUDIO_TRACKS; i++) {
-            MIX_Track* audioTrack = MIX_CreateTrack(_audioMixer);
-            if (!audioTrack) {
-                ASSERT_LOG(false, "Failed to create MIX_Track.");
-            }
-            _availableAudioTracks.push_back(audioTrack);
-        }
-    }
-
-    void AudioPlayer::setGlobalVolume(float volumeMultiplier) {
-        _globalVolumeMultiplier = volumeMultiplier;
-        MIX_SetMasterGain(_audioMixer, volumeMultiplier);
-    }
-
-    sound_id AudioPlayer::play(
+    PlayingSound* AudioPlayer::play(
         const asset::Sound* sound,
         float volumeMultiplier,
         bool shouldLoop,
         const std::function<void()>& onFinish
     ) {
-        ASSERT(sound);
-        if (!sound) {
-            return INVALID_SOUND_ID;
+        ASSERT_LOG(sound, "Sound not provided.");
+        ASSERT_LOG(
+            !_soundGroupStates.contains(sound->groupId),
+            std::format("Could not find sound group id: {}", sound->groupId)
+        );
+        if (!sound || !_soundGroupStates.contains(sound->groupId)) {
+            return nullptr;
         }
 
+        types::vector_arena<MIX_Track*>& availableAudioTracks = _soundGroupStates[sound->groupId].availableAudioTracks;
+        types::deque_arena<PlayingSound>& playingSounds = _soundGroupStates[sound->groupId].playingSounds;
+
         MIX_Track* audioTrack;
-        if (!_availableAudioTracks.empty()) {
-            audioTrack = _availableAudioTracks.back();
-            _availableAudioTracks.pop_back();
+        if (!availableAudioTracks.empty()) {
+            audioTrack = availableAudioTracks.back();
+            availableAudioTracks.pop_back();
         } else {
-            ASSERT_LOG(!_playingSounds.empty(), "No playing sounds, no available audio tracks.");
-            PlayingSound oldestPlayingSound = _playingSounds.front();
-            stop(oldestPlayingSound.id);
-            audioTrack = oldestPlayingSound.audioTrack;
+            ASSERT_LOG(!playingSounds.empty(), "No playing sounds, no available audio tracks.");
+            PlayingSound* oldestPlayingSound = &playingSounds.front();
+            stop(oldestPlayingSound);
+            audioTrack = oldestPlayingSound->audioTrack;
         }
         MIX_SetTrackAudio(audioTrack, sound->audio);
         MIX_SetTrackGain(audioTrack, volumeMultiplier);
@@ -68,46 +105,57 @@ namespace audio {
         MIX_PlayTrack(audioTrack, propertiesId);
 
         PlayingSound playingSound(_nextSoundId++, sound, onFinish, audioTrack);
-        _playingSounds.emplace_back(playingSound);
-        return playingSound.id;
+        return &playingSounds.emplace_back(playingSound);
     }
 
-    void AudioPlayer::stop(sound_id id) {
-        for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
-            if (it->id == id) {
-                stop(*it);
-                _playingSounds.erase(it);
+    void AudioPlayer::stop(PlayingSound* playingSound) {
+        sound_group_id groupId = playingSound->sound->groupId;
+        types::deque_arena<PlayingSound>& playingSounds = _soundGroupStates[groupId].playingSounds;
+        for (auto it = playingSounds.begin(); it != playingSounds.end(); it++) {
+            if (it->id == playingSound->id) {
+                _stop(*it);
+                playingSounds.erase(it);
                 return;
             }
         }
     }
 
     void AudioPlayer::stop(MIX_Track* audioTrack) {
-        for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
-            if (it->audioTrack == audioTrack) {
-                stop(*it);
-                _playingSounds.erase(it);
+        for (auto& [_, soundGroupState]: _soundGroupStates) {
+            if (soundGroupState.audioMixGroup == audioTrack->group) {
+                types::deque_arena<PlayingSound>& playingSounds = soundGroupState.playingSounds;
+                for (auto it = playingSounds.begin(); it != playingSounds.end(); it++) {
+                    if (it->audioTrack == audioTrack) {
+                        _stop(*it);
+                        playingSounds.erase(it);
+                        return;
+                    }
+                }
                 return;
             }
         }
     }
 
     void AudioPlayer::clearAll() {
-        for (PlayingSound& _playingSound: _playingSounds) {
-            _playingSound.isStopped = true;
-            _availableAudioTracks.push_back(_playingSound.audioTrack);
+        for (auto& [_, soundGroupState]: _soundGroupStates) {
+            for (PlayingSound& _playingSound: soundGroupState.playingSounds) {
+                _playingSound.isStopped = true;
+                soundGroupState.availableAudioTracks.push_back(_playingSound.audioTrack);
+            }
+            soundGroupState.playingSounds.clear();
         }
-        _playingSounds.clear();
         MIX_StopAllTracks(_audioMixer, 0);
     }
 
-    void AudioPlayer::stop(PlayingSound& playingSound) {
+    void AudioPlayer::_stop(PlayingSound& playingSound) {
+        sound_group_id groupId = playingSound.sound->groupId;
+        types::vector_arena<MIX_Track*>& availableAudioTracks = _soundGroupStates[groupId].availableAudioTracks;
         if (playingSound.isStopped) {
             return;
         }
         playingSound.isStopped = true;
         MIX_StopTrack(playingSound.audioTrack, 0);
-        _availableAudioTracks.push_back(playingSound.audioTrack);
+        availableAudioTracks.push_back(playingSound.audioTrack);
         playingSound.onFinish();
     }
 }

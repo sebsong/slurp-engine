@@ -104,7 +104,6 @@ namespace game {
 
     struct GameState {
         uint32_t randomSeed;
-        audio::sound_id bgmId;
 
         entity::Entity background;
         entity::Entity border;

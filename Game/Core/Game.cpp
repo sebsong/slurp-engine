@@ -201,7 +201,7 @@ namespace game {
             return;
         }
 
-        State->bgmId = audio::play(Assets->backgroundMusic, 0.6, true);
+        audio::play(Assets->backgroundMusic, 0.6, true);
 
         new(&State->background) entity::Entity(
             "Background",

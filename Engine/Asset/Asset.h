@@ -2,6 +2,7 @@
 
 #include "MemoryAllocator.h"
 #include "Audio.h"
+#include "AudioPlayer.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "SDL3_mixer/SDL_mixer.h"
@@ -29,6 +30,7 @@ namespace asset {
 
     struct Sound : Asset {
         MIX_Audio* audio;
+        audio::sound_group_id groupId;
     };
 
     struct ShaderSource : Asset {
