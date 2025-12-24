@@ -45,11 +45,11 @@ namespace audio {
         }
 
         MIX_Track* audioTrack;
-        if (_availableAudioTracks.size() > 0) {
+        if (!_availableAudioTracks.empty()) {
             audioTrack = _availableAudioTracks.back();
             _availableAudioTracks.pop_back();
         } else {
-            ASSERT_LOG(_playingSounds.size() > 0, "No playing sounds, no available audio tracks.");
+            ASSERT_LOG(!_playingSounds.empty(), "No playing sounds, no available audio tracks.");
             PlayingSound oldestPlayingSound = _playingSounds.front();
             stop(oldestPlayingSound.id);
             audioTrack = oldestPlayingSound.audioTrack;
@@ -93,9 +93,9 @@ namespace audio {
     }
 
     void AudioPlayer::clearAll() {
-        for (auto it = _playingSounds.begin(); it != _playingSounds.end(); it++) {
-            it->isStopped = true;
-            _availableAudioTracks.push_back(it->audioTrack);
+        for (PlayingSound& _playingSound: _playingSounds) {
+            _playingSound.isStopped = true;
+            _availableAudioTracks.push_back(_playingSound.audioTrack);
         }
         _playingSounds.clear();
         MIX_StopAllTracks(_audioMixer, 0);

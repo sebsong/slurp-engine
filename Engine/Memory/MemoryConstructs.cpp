@@ -8,7 +8,7 @@ namespace memory {
     MemoryArena::MemoryArena(): _name("UNINITIALIZED"),
                                 _fullMemoryBlock({}),
                                 _availableMemoryBlock({}),
-                                _lock({}) {}
+                                _lock(lock::SpinLock()) {}
 
     MemoryArena::MemoryArena(
         std::string&& name,
