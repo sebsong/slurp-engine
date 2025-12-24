@@ -7,7 +7,7 @@
 namespace audio {
     static void initializeSoundGroup(
         MIX_Mixer* audioMixer,
-        types::unordered_map_arena<sound_group_id, SoundGroupState> soundGroupStates,
+        types::unordered_map_arena<sound_group_id, SoundGroupState>& soundGroupStates,
         sound_group_id groupId,
         int numTracks
     ) {
@@ -74,7 +74,7 @@ namespace audio {
     ) {
         ASSERT_LOG(sound, "Sound not provided.");
         ASSERT_LOG(
-            !_soundGroupStates.contains(sound->groupId),
+            _soundGroupStates.contains(sound->groupId),
             std::format("Could not find sound group id: {}", sound->groupId)
         );
         if (!sound || !_soundGroupStates.contains(sound->groupId)) {
