@@ -33,7 +33,7 @@ namespace asset {
 
         Sound* loadSound(
             const std::string& waveFileName,
-            audio::sound_group_id groupId = AUDIO_SOUND_GROUP_OTHER
+            audio::sound_group_id groupId
         );
 
     private:
@@ -81,7 +81,7 @@ namespace asset {
         return slurp::Globals->AssetLoader->loadSpriteAnimation(bitmapFileName, numFrames);
     }
 
-    inline Sound* loadSound(const std::string& waveFileName) {
-        return slurp::Globals->AssetLoader->loadSound(waveFileName);
+    inline Sound* loadSound(const std::string& waveFileName, audio::sound_group_id groupId = AUDIO_SOUND_GROUP_OTHER) {
+        return slurp::Globals->AssetLoader->loadSound(waveFileName, groupId);
     }
 }

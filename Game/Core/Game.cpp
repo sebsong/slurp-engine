@@ -40,8 +40,8 @@ namespace game {
         MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
         MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
 
-        MenuAssets->bgmIntro = asset::loadSound("bgm_chord_intro.wav");
-        MenuAssets->bgmMain = asset::loadSound("bgm_main.wav");
+        MenuAssets->bgmIntro = asset::loadSound("bgm_chord_intro.wav", AUDIO_SOUND_GROUP_BGM);
+        MenuAssets->bgmMain = asset::loadSound("bgm_main.wav", AUDIO_SOUND_GROUP_BGM);
         MenuAssets->buttonHover = asset::loadSound("button_hover.wav");
 
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
@@ -95,7 +95,7 @@ namespace game {
 
         Assets->overlaySprite = asset::loadSprite("overlay.bmp", "overlay.glsl", "overlay.glsl");
 
-        Assets->backgroundMusic = asset::loadSound("bgm_chords.wav");
+        Assets->backgroundMusic = asset::loadSound("bgm_chords.wav", AUDIO_SOUND_GROUP_BGM);
         Assets->buttonHover = asset::loadSound("button_hover.wav");
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");

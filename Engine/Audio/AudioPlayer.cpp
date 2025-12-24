@@ -24,6 +24,7 @@ namespace audio {
             MIX_SetTrackGroup(audioTrack, audioMixGroup);
             SDL_PropertiesID props = MIX_GetTrackProperties(audioTrack);
             SDL_SetNumberProperty(props, MIX_PROP_GROUP_ID_NUMBER, groupId);
+            SDL_SetFloatProperty(props, MIX_PROP_GROUP_GAIN_FLOAT, 1.f);
             if (!audioTrack) {
                 ASSERT_LOG(false, "Failed to create MIX_Track.");
             }
@@ -46,7 +47,7 @@ namespace audio {
 
     void AudioPlayer::setGroupVolume(sound_group_id groupId, float volumeMultiplier) {
         ASSERT_LOG(
-            !_soundGroupStates.contains(groupId),
+            _soundGroupStates.contains(groupId),
             std::format("Could not find sound group id: {}", groupId)
         );
         if (!_soundGroupStates.contains(groupId)) {
@@ -54,9 +55,8 @@ namespace audio {
         }
 
         MIX_Group* audioMixGroup = _soundGroupStates[groupId].audioMixGroup;
-        // TODO: read this out and use it later, move name to constant
         SDL_PropertiesID props = MIX_GetGroupProperties(audioMixGroup);
-        SDL_SetFloatProperty(props, "GroupGain", volumeMultiplier);
+        SDL_SetFloatProperty(props, MIX_PROP_GROUP_GAIN_FLOAT, volumeMultiplier);
     }
 
     static void onTrackFinish(void* userdata, MIX_Track* audioTrack) {
@@ -81,6 +81,7 @@ namespace audio {
             return nullptr;
         }
 
+        MIX_Group* audioMixGroup = _soundGroupStates[sound->groupId].audioMixGroup;
         types::vector_arena<MIX_Track*>& availableAudioTracks = _soundGroupStates[sound->groupId].availableAudioTracks;
         types::deque_arena<PlayingSound>& playingSounds = _soundGroupStates[sound->groupId].playingSounds;
 
@@ -95,7 +96,9 @@ namespace audio {
             audioTrack = oldestPlayingSound->audioTrack;
         }
         MIX_SetTrackAudio(audioTrack, sound->audio);
-        MIX_SetTrackGain(audioTrack, volumeMultiplier);
+        SDL_PropertiesID groupProps = MIX_GetGroupProperties(audioMixGroup);
+        float groupGain = SDL_GetFloatProperty(groupProps, MIX_PROP_GROUP_GAIN_FLOAT, 1.f);
+        MIX_SetTrackGain(audioTrack, volumeMultiplier * groupGain);
         SDL_PropertiesID propertiesId = SDL_CreateProperties();
         if (shouldLoop) {
             SDL_SetNumberProperty(propertiesId, MIX_PROP_PLAY_LOOPS_NUMBER, -1);

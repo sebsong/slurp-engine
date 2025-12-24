@@ -8,6 +8,8 @@ struct MIX_Group;
 struct MIX_Track;
 
 #define MIX_PROP_GROUP_ID_NUMBER "SDL_mixer.group.id"
+#define MIX_PROP_GROUP_GAIN_FLOAT "SDL_mixer.group.gain"
+
 #define AUDIO_SOUND_GROUP_BGM 1
 #define AUDIO_SOUND_GROUP_SFX 2
 #define AUDIO_SOUND_GROUP_OTHER 3
@@ -62,6 +64,10 @@ namespace audio {
     /** Global Methods **/
     inline void setGlobalVolume(float volumeMultiplier) {
         slurp::Globals->AudioPlayer->setGlobalVolume(volumeMultiplier);
+    }
+
+    inline void setGroupVolume(sound_group_id groupId, float volumeMultiplier) {
+        slurp::Globals->AudioPlayer->setGroupVolume(groupId, volumeMultiplier);
     }
 
     inline PlayingSound* play(
