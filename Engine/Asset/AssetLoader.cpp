@@ -1,27 +1,25 @@
-#include "Asset.h"
-
-#include "SlurpEngine.h"
-#include "Bitmap.h"
-#include "Debug.h"
-#include "Types.h"
-#include "Wave.h"
+#include "AssetLoader.h"
 
 #include <filesystem>
-#include <fstream>
 
-namespace asset {
+#include "Bitmap.h"
+#include "JobRunner.h"
+#include "SpriteInstance.h"
+#include "SDL3_mixer/SDL_mixer.h"
+
 //TODO: need to package this with the build
 #ifdef ASSETS_DIR
-    static const std::string AssetsDirectory = ASSETS_DIR;
+static const std::string AssetsDirectory = ASSETS_DIR;
 #else
 #if PLATFORM_WINDOWS
-    static const std::string AssetsDirectory = "../Assets/";
+static const std::string AssetsDirectory = "../Assets/";
 #elif PLATFORM_MAC
-    static const std::string AssetsDirectory = "../../../../Assets/";
+static const std::string AssetsDirectory = "../../../../Assets/";
 #endif
 
 #endif
 
+namespace asset {
     static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
     static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
     static const std::string SoundsDirectory = AssetsDirectory + "Sounds/";
@@ -29,8 +27,10 @@ namespace asset {
     static const std::string VertexShadersDirectory = ShadersDirectory + "1_Vertex/";
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
 
-    AssetLoader::AssetLoader(): _stringHasher(std::hash<std::string>()),
-                                _assets(types::unordered_map_arena<asset_id, Asset*>()) {}
+    AssetLoader::AssetLoader(MIX_Mixer* audioMixer)
+        : _assets(types::unordered_map_arena<asset_id, Asset*>()),
+          _stringHasher(std::hash<std::string>()),
+          _audioMixer(audioMixer) {}
 
     static FileReadResult readBytes(const std::string& filePath) {
         std::ifstream file(filePath, std::ios::binary);
@@ -148,7 +148,7 @@ namespace asset {
         Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
 
         render::object_id shaderProgramId = loadShaderProgram(vertexShaderFileName, fragmentShaderFileName)->programId;
-        loadSpriteData(sprite, bitmap, shaderProgramId);
+        render::loadSpriteData(sprite, bitmap, shaderProgramId);
 
         return sprite;
     }
@@ -172,9 +172,7 @@ namespace asset {
         return animation;
     }
 
-    // TODO: pre-process wave files into the engine sample size
-    // TODO: stream the file in async
-    Sound* AssetLoader::loadSound(const std::string& waveFileName) {
+    Sound* AssetLoader::loadSound(const std::string& waveFileName, audio::sound_group_id groupId) {
         std::string filePath = SoundsDirectory + waveFileName;
         asset_id assetId = _getAssetId(filePath);
 
@@ -185,16 +183,15 @@ namespace asset {
         Sound* sound = memory::Permanent->allocate<Sound>();
         _registerAsset(assetId, sound);
 
-        auto loadFn = [sound, filePath]() {
-            FileReadResult fileReadResult = readBytes(filePath);
-            types::byte* fileBytes = fileReadResult.contents;
-            ASSERT(fileBytes);
-            if (!fileBytes) {
-                return;
-            }
-            loadWaveData(sound, fileBytes, fileReadResult.sizeBytes);
-        };
-        job::queueJob(loadFn);
+        MIX_Audio* audio = MIX_LoadAudio(_audioMixer, filePath.c_str(), true);
+        if (!audio) {
+            ASSERT_LOG(false, std::format("Failed to load audio file: {}", filePath));
+        }
+
+        sound->audio = audio;
+        sound->groupId = groupId;
+        sound->isLoaded = true;
+        sound->sourceFileName = waveFileName;
 
         return sound;
     }

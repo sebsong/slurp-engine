@@ -20,13 +20,13 @@ namespace ui {
     ) : Entity(
             "UI Button",
             render::RenderInfo(
-                (asset::SpriteInstance[2]){
-                    asset::SpriteInstance(
+                (render::SpriteInstance[2]){
+                    render::SpriteInstance(
                         buttonSprite,
                         zOrder,
                         buttonRenderOffset
                     ),
-                    asset::SpriteInstance(
+                    render::SpriteInstance(
                         buttonIconSprite,
                         zOrder - 1,
                         buttonRenderOffset

@@ -2,7 +2,7 @@
 #include "Game.h"
 #include "Platform.h"
 #include "ZOrder.h"
-#include "Sprite.h"
+#include "SpriteInstance.h"
 
 namespace ui {
     const geometry::Shape& PauseButtonShape = geometry::Shape(geometry::Rect, {52, 34});
@@ -11,12 +11,12 @@ namespace ui {
         : Entity(
               "PauseMenu",
               render::RenderInfo{
-                  (asset::SpriteInstance[2]){
-                      asset::SpriteInstance(
+                  (render::SpriteInstance[2]){
+                      render::SpriteInstance(
                           game::Assets->screenCoverSprite,
                           game::PAUSE_Z + 1
                       ),
-                      asset::SpriteInstance(
+                      render::SpriteInstance(
                           game::Assets->pauseMenuSprite,
                           game::PAUSE_Z
                       )

@@ -22,8 +22,6 @@ namespace job {
     public:
         JobRunner();
 
-        void initialize();
-
         job_id queueJob(std::function<void()>&& fn);
 
         // TODO: method for checking status of a job_id
@@ -40,10 +38,6 @@ namespace job {
 
         void _processJobs(uint8_t workerIndex);
     };
-
-    inline void initialize() {
-        slurp::Globals->JobRunner->initialize();
-    }
 
     inline job_id queueJob(std::function<void()>&& fn) {
         return slurp::Globals->JobRunner->queueJob(std::move(fn));

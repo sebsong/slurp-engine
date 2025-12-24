@@ -23,7 +23,7 @@ namespace worker {
         : Entity(
               "Worker",
               render::RenderInfo(
-                  asset::SpriteInstance(
+                  render::SpriteInstance(
                       game::Assets->workerSprite,
                       {0, 3}
                   )

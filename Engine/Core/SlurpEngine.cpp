@@ -19,13 +19,11 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Bitmap.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Sprite.cpp"
+#include "SpriteInstance.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "SpriteAnimation.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "Wave.cpp"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Asset.cpp"
+#include "AssetLoader.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Render.cpp"
@@ -64,6 +62,7 @@ namespace slurp {
         memory::MemoryArena& transientMemory,
         const platform::PlatformDll& platformDll,
         const render::RenderApi& renderApi,
+        MIX_Mixer* audioMixer,
         bool isInitialized
     ) {
         /** Memory **/
@@ -92,11 +91,10 @@ namespace slurp {
             Globals->RenderApi = &renderApi;
             Globals->Timer = new(&engineSystems->timer) timer::Timer();
             Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
-            Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader();
+            Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader(audioMixer);
             Globals->EntityPipeline = new(&engineSystems->entityPipeline) entity::EntityPipeline();
-            Globals->AudioPlayer = new(&engineSystems->audioPlayer) audio::AudioPlayer();
+            Globals->AudioPlayer = new(&engineSystems->audioPlayer) audio::AudioPlayer(audioMixer);
         }
-        job::initialize();
 
         /** Game **/
         game::initialize(isInitialized);
@@ -156,7 +154,6 @@ namespace slurp {
     }
 
     void bufferAudio(const audio::AudioBuffer& buffer) {
-        audio::bufferAudio(buffer);
     }
 
     void updateAndRender(float dt) {

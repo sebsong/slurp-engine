@@ -8,7 +8,7 @@ namespace ui {
         : Entity(
               "TimeDisplay",
               render::RenderInfo(
-                  asset::SpriteInstance(
+                  render::SpriteInstance(
                       game::Assets->stopwatchPunctuationSprite,
                       game::UI_Z,
                       {-16, 0}

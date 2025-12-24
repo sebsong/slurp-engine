@@ -140,9 +140,8 @@ if (NOT UNITY_BUILD)
     list(APPEND ENGINE_SOURCE_FILES
             Engine/Core/SlurpEngine.cpp
 
-            Engine/Asset/Asset.cpp
+            Engine/Asset/AssetLoader.cpp
             Engine/Asset/Bitmap.cpp
-            Engine/Asset/Wave.cpp
             Engine/Audio/AudioPlayer.cpp
             Engine/Audio/PlayingSound.cpp
             Engine/Core/JobRunner.cpp
@@ -153,7 +152,7 @@ if (NOT UNITY_BUILD)
             Engine/Memory/MemoryConstructs.cpp
             Engine/Render/Render.cpp
             Engine/Render/RenderInfo.cpp
-            Engine/Render/Sprite.cpp
+            Engine/Render/SpriteInstance.cpp
             Engine/Render/SpriteAnimation.cpp
             Engine/Update/Collision.cpp
             Engine/Update/Physics.cpp

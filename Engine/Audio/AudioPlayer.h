@@ -3,40 +3,62 @@
 #include "CollectionTypes.h"
 #include "PlayingSound.h"
 
-#include <cstdint>
+struct MIX_Mixer;
+struct MIX_Group;
+struct MIX_Track;
+
+#define MIX_PROP_GROUP_ID_NUMBER "SDL_mixer.group.id"
+#define MIX_PROP_GROUP_GAIN_FLOAT "SDL_mixer.group.gain"
+
+#define AUDIO_SOUND_GROUP_BGM 1
+#define AUDIO_SOUND_GROUP_SFX 2
+#define AUDIO_SOUND_GROUP_OTHER 3
+
+#define NUM_AUDIO_TRACKS_BGM 8
+#define NUM_AUDIO_TRACKS_SFX 64
+#define NUM_AUDIO_TRACKS_OTHER 64
 
 namespace audio {
     struct AudioBuffer;
 
     typedef uint32_t sound_id;
-    const static sound_id INVALID_SOUND_ID = 0;
+    static constexpr sound_id INVALID_SOUND_ID = 0;
+
+    typedef uint32_t sound_group_id;
+
+    struct SoundGroupState {
+        MIX_Group* audioMixGroup;
+        types::vector_arena<MIX_Track*> availableAudioTracks;
+        types::deque_arena<PlayingSound> playingSounds;
+    };
 
     class AudioPlayer {
     public:
-        explicit AudioPlayer();
+        explicit AudioPlayer(MIX_Mixer* audioMixer);
 
-        /** Game **/
-        void setGlobalVolume(float volumeMultiplier);
+        void setGlobalVolume(float volumeMultiplier) const;
 
-        sound_id play(
+        void setGroupVolume(sound_group_id groupId, float volumeMultiplier);
+
+        PlayingSound* play(
             const asset::Sound* sound,
             float volumeMultiplier,
             bool shouldLoop,
             const std::function<void()>& onFinish
         );
 
-        void stop(sound_id id);
+        void stop(PlayingSound* playingSound);
+
+        void stop(MIX_Track* audioTrack);
 
         void clearAll();
 
-        /** Engine **/
-        void bufferAudio(const AudioBuffer& buffer);
-
     private:
         sound_id _nextSoundId;
-        float _globalVolumeMultiplier;
-        types::deque_arena<PlayingSound> _loopingQueue;
-        types::deque_arena<PlayingSound> _oneShotQueue;
+        MIX_Mixer* _audioMixer;
+        types::unordered_map_arena<sound_group_id, SoundGroupState> _soundGroupStates;
+
+        void _stop(PlayingSound& playingSound);
     };
 
     /** Global Methods **/
@@ -44,7 +66,11 @@ namespace audio {
         slurp::Globals->AudioPlayer->setGlobalVolume(volumeMultiplier);
     }
 
-    inline sound_id play(
+    inline void setGroupVolume(sound_group_id groupId, float volumeMultiplier) {
+        slurp::Globals->AudioPlayer->setGroupVolume(groupId, volumeMultiplier);
+    }
+
+    inline PlayingSound* play(
         const asset::Sound* sound,
         float volumeMultiplier = 1.f,
         bool shouldLoop = false,
@@ -53,15 +79,11 @@ namespace audio {
         return slurp::Globals->AudioPlayer->play(sound, volumeMultiplier, shouldLoop, onFinish);
     }
 
-    inline void stop(sound_id id) {
-        slurp::Globals->AudioPlayer->stop(id);
+    inline void stop(PlayingSound* playingSound) {
+        slurp::Globals->AudioPlayer->stop(playingSound);
     }
 
     inline void clearAll() {
         slurp::Globals->AudioPlayer->clearAll();
-    }
-
-    inline void bufferAudio(const AudioBuffer& buffer) {
-        slurp::Globals->AudioPlayer->bufferAudio(buffer);
     }
 }
