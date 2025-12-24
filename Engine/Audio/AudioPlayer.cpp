@@ -22,6 +22,8 @@ namespace audio {
         for (int i = 0; i < numTracks; i++) {
             MIX_Track* audioTrack = MIX_CreateTrack(audioMixer);
             MIX_SetTrackGroup(audioTrack, audioMixGroup);
+            SDL_PropertiesID props = MIX_GetTrackProperties(audioTrack);
+            SDL_SetNumberProperty(props, MIX_PROP_GROUP_ID_NUMBER, groupId);
             if (!audioTrack) {
                 ASSERT_LOG(false, "Failed to create MIX_Track.");
             }
@@ -53,7 +55,8 @@ namespace audio {
 
         MIX_Group* audioMixGroup = _soundGroupStates[groupId].audioMixGroup;
         // TODO: read this out and use it later, move name to constant
-        SDL_SetFloatProperty(audioMixGroup->props, "GroupGain", volumeMultiplier);
+        SDL_PropertiesID props = MIX_GetGroupProperties(audioMixGroup);
+        SDL_SetFloatProperty(props, "GroupGain", volumeMultiplier);
     }
 
     static void onTrackFinish(void* userdata, MIX_Track* audioTrack) {
@@ -121,8 +124,10 @@ namespace audio {
     }
 
     void AudioPlayer::stop(MIX_Track* audioTrack) {
-        for (auto& [_, soundGroupState]: _soundGroupStates) {
-            if (soundGroupState.audioMixGroup == audioTrack->group) {
+        for (auto& [groupId, soundGroupState]: _soundGroupStates) {
+            SDL_PropertiesID props = MIX_GetTrackProperties(audioTrack);
+            sound_group_id trackGroupId = SDL_GetNumberProperty(props, MIX_PROP_GROUP_ID_NUMBER, -1);
+            if (trackGroupId == groupId) {
                 types::deque_arena<PlayingSound>& playingSounds = soundGroupState.playingSounds;
                 for (auto it = playingSounds.begin(); it != playingSounds.end(); it++) {
                     if (it->audioTrack == audioTrack) {
@@ -134,6 +139,7 @@ namespace audio {
                 return;
             }
         }
+        ASSERT_LOG(false, "Could not find audio track.");
     }
 
     void AudioPlayer::clearAll() {

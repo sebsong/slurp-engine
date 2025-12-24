@@ -14,7 +14,7 @@ namespace audio {
 
     struct PlayingSound {
         uint32_t id;
-        const asset::Sound* sound; // NOTE: debug
+        const asset::Sound* sound;
         std::function<void()> onFinish;
         MIX_Track* audioTrack;
         bool isStopped;

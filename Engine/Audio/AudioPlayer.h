@@ -7,6 +7,7 @@ struct MIX_Mixer;
 struct MIX_Group;
 struct MIX_Track;
 
+#define MIX_PROP_GROUP_ID_NUMBER "SDL_mixer.group.id"
 #define AUDIO_SOUND_GROUP_BGM 1
 #define AUDIO_SOUND_GROUP_SFX 2
 #define AUDIO_SOUND_GROUP_OTHER 3
