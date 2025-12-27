@@ -16,8 +16,8 @@
 #include "StopwatchDisplay.h"
 
 #define MAX_NUM_WORKERS 10000
-#define MAX_NUM_TURRETS 100
-#define MAX_NUM_MINE_SITES 100
+#define MAX_NUM_TURRETS 1000
+#define MAX_NUM_MINE_SITES 1000
 
 namespace game {
     struct MainMenuAssets {
@@ -147,6 +147,7 @@ namespace game {
     GLOBAL(GameState* State)
 
     GLOBAL(bool mainMenuActive)
+    GLOBAL(bool shouldTransitionScene)
 
     GLOBAL(memory::MemoryArena sceneMemory)
 
@@ -160,6 +161,8 @@ namespace game {
     void handleGamepadInput(uint8_t gamepadIndex, const slurp::GamepadState& gamepadState);
 
     void update(float dt);
+
+    void frameEnd();
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target);
 

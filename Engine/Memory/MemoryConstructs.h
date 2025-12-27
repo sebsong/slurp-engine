@@ -49,13 +49,13 @@ namespace memory {
         types::byte* allocate(size_t size, bool clear = false);
 
         template<typename T>
-        T* allocate(size_t n, bool clear = false) {
+        T* allocateN(size_t n, bool clear = false) {
             return reinterpret_cast<T*>(allocate(n * sizeof(T), clear));
         }
 
         template<typename T>
-        T* allocate() {
-            return allocate<T>(1);
+        T* allocate(bool clear = false) {
+            return allocateN<T>(1, clear);
         }
 
         MemoryArena allocateSubArena(std::string&& name, size_t size);

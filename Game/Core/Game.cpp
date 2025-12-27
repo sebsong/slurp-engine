@@ -111,8 +111,8 @@ namespace game {
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
     }
 
-    static void transitionScene(bool isMainMenu) {
-        mainMenuActive = isMainMenu;
+    static void transitionScene() {
+        mainMenuActive = !mainMenuActive;
         audio::clearAll();
         entity::clearAll();
         sceneMemory.freeAll();
@@ -170,7 +170,7 @@ namespace game {
                 std::nullopt,
                 [](ui::UIButton* _) {},
                 [](ui::UIButton* _) {
-                    transitionScene(false);
+                    shouldTransitionScene = true;
                 },
                 [](ui::UIButton* _) {},
                 [](ui::UIButton* _) {
@@ -277,7 +277,7 @@ namespace game {
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
-            transitionScene(!mainMenuActive);
+            shouldTransitionScene = true;
         }
 
         if (!mainMenuActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
@@ -293,6 +293,13 @@ namespace game {
 
     void update(float dt) {
         State->goldProgressBar.progress = State->base.getProgress();
+    }
+
+    void frameEnd() {
+        if (shouldTransitionScene) {
+            shouldTransitionScene = false;
+            transitionScene();
+        }
     }
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {

@@ -23,7 +23,7 @@ namespace render {
 
     RenderInfo::RenderInfo(uint8_t numSprites, const SpriteInstance* sprites)
         : numSprites(numSprites),
-          sprites(memory::Permanent->allocate<SpriteInstance>(numSprites)) {
+          sprites(memory::Permanent->allocateN<SpriteInstance>(numSprites)) {
         if (sprites) {
             copySprites(numSprites, sprites, this->sprites);
         }

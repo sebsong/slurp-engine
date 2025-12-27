@@ -111,7 +111,7 @@ namespace asset {
         const types::byte* bitmapBytes = bitmapFileBytes + header->fileHeader.bfOffBits;
         int width = static_cast<int>(header->infoHeader.biWidth);
         int height = static_cast<int>(header->infoHeader.biHeight);
-        render::Pixel* map = memory::AssetLoader->allocate<render::Pixel>(width * height);
+        render::Pixel* map = memory::AssetLoader->allocateN<render::Pixel>(width * height);
 
         if (header->infoHeader.biCompression == BI_RGB && header->infoHeader.biBitCount <= 8) {
             loadBitmapColorPalette(
@@ -142,12 +142,12 @@ namespace asset {
     }
 
     BitmapSheet sliceBitmap(const Bitmap* bitmap, uint8_t numSlices) {
-        Bitmap* bitmaps = memory::AssetLoader->allocate<Bitmap>(numSlices);
+        Bitmap* bitmaps = memory::AssetLoader->allocateN<Bitmap>(numSlices);
         slurp::Vec2 sliceDimensions = {bitmap->dimensions.width / numSlices, bitmap->dimensions.height};
         for (uint8_t sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
             Bitmap& bitmapSlice = bitmaps[sliceIdx];
             bitmapSlice.dimensions = sliceDimensions;
-            bitmapSlice.map = memory::AssetLoader->allocate<render::Pixel>(
+            bitmapSlice.map = memory::AssetLoader->allocateN<render::Pixel>(
                 sliceDimensions.width * sliceDimensions.height
             );
             int xOffset = sliceDimensions.width * sliceIdx;

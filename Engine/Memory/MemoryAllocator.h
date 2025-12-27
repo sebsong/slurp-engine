@@ -16,7 +16,7 @@ namespace memory {
         }
 
         T* allocate(size_t n) {
-            return arena->allocate<T>(n); // TODO: respect memory alignment
+            return arena->allocateN<T>(n); // TODO: respect memory alignment
         }
 
         void deallocate(T* ptr, size_t n) {

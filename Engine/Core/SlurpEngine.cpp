@@ -182,6 +182,7 @@ namespace slurp {
     }
 
     void frameEnd() {
+        game::frameEnd();
         memory::SingleFrame->freeAll();
     }
 
