@@ -34,6 +34,7 @@ namespace game {
     static void loadAssets() {
         MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
         MenuAssets->titleTextSprite = asset::loadSprite("title_text.bmp");
+        MenuAssets->slurpEngineTextSprite = asset::loadSprite("slurp_engine.bmp");
         MenuAssets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
         MenuAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
         MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
@@ -157,6 +158,12 @@ namespace game {
                 "Title Text",
                 render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
                 physics::PhysicsInfo({0, 100}),
+                collision::CollisionInfo()
+            );
+            new(&MenuState->slurpEngineText) entity::Entity(
+                "Slurp Engine Text",
+                render::RenderInfo(render::SpriteInstance(MenuAssets->slurpEngineTextSprite, MOUSE_Z)),
+                physics::PhysicsInfo({275, -150}),
                 collision::CollisionInfo()
             );
             const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
