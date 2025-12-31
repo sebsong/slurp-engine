@@ -34,7 +34,7 @@ namespace game {
     static void loadAssets() {
         MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
         MenuAssets->titleTextSprite = asset::loadSprite("title_text.bmp");
-        MenuAssets->slurpEngineTextSprite = asset::loadSprite("slurp_engine.bmp");
+        MenuAssets->slurpEngineTextSprite = asset::loadSprite("made_with_slurp_engine.bmp");
         MenuAssets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
         MenuAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
         MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
