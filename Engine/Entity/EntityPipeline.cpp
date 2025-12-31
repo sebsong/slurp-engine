@@ -10,9 +10,6 @@ namespace entity {
     EntityPipeline::EntityPipeline() : _nextEntityId(1), _pipeline(types::vector_arena<Entity*>()) {}
 
     void EntityPipeline::registerEntity(Entity* entity) {
-        if (!entity->renderInfo.sprites) {
-            logging::warn("NO SPRITES");
-        }
         if (entity->id == INVALID_ENTITY_ID) {
             _pipeline.emplace_back(entity);
             entity->id = _nextEntityId++;
