@@ -59,7 +59,7 @@ namespace entity {
         };
 
         // TODO: have persistent collection of render components
-        std::vector<RenderComponent> renderComponents;
+        types::vector_arena<RenderComponent, memory::SingleFrameArenaAllocator<RenderComponent> > renderComponents;
         renderComponents.reserve(_pipeline.size());
 
         for (Entity* entity: _pipeline) {

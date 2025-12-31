@@ -55,4 +55,15 @@ namespace memory {
         template<typename U>
         TransientArenaAllocator(const TransientArenaAllocator<U>& allocator): MemoryArenaAllocator<T>(allocator) {}
     };
+
+    template<typename T>
+    class SingleFrameArenaAllocator : public MemoryArenaAllocator<T> {
+    public:
+        SingleFrameArenaAllocator(): MemoryArenaAllocator<T>() {
+            this->arena = SingleFrame;
+        }
+
+        template<typename U>
+        SingleFrameArenaAllocator(const SingleFrameArenaAllocator<U>& allocator): MemoryArenaAllocator<T>(allocator) {}
+    };
 }
