@@ -74,11 +74,13 @@ namespace slurp {
         } else {
             Globals = reinterpret_cast<Global*>(permanentMemory.getMemoryBlock().memory);
         }
+        Globals->GameMemory->scene = Globals->GameMemory->permanent->allocateSubArena("Scene",SCENE_ARENA_SIZE);
         Globals->GameMemory->singleFrame =
                 Globals->GameMemory->transient->allocateSubArena("Single Frame",SINGLE_FRAME_ARENA_SIZE);
         Globals->GameMemory->assetLoader =
                 Globals->GameMemory->transient->allocateSubArena("Asset Loader",ASSET_LOADER_ARENA_SIZE);
         memory::Permanent = Globals->GameMemory->permanent;
+        memory::Scene = &Globals->GameMemory->scene;
         memory::Transient = Globals->GameMemory->transient;
         memory::SingleFrame = &Globals->GameMemory->singleFrame;
         memory::AssetLoader = &Globals->GameMemory->assetLoader;
@@ -153,8 +155,7 @@ namespace slurp {
         entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
     }
 
-    void bufferAudio(const audio::AudioBuffer& buffer) {
-    }
+    void bufferAudio(const audio::AudioBuffer& buffer) {}
 
     void updateAndRender(float dt) {
         timer::tick(dt);

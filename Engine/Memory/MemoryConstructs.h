@@ -12,6 +12,7 @@
 #define terabytes(n) (gigabytes(n) * 1024)
 
 #define PERMANENT_ARENA_SIZE gigabytes(2)
+#define SCENE_ARENA_SIZE megabytes(500)
 
 #define TRANSIENT_ARENA_SIZE gigabytes(2)
 #define SINGLE_FRAME_ARENA_SIZE megabytes(1)
@@ -73,9 +74,11 @@ namespace memory {
         lock::SpinLock _lock;
     };
 
+    // TODO: doesn't make sense to split between permanent and transient anymore
     struct GameMemory {
         /** PERMANENT **/
         MemoryArena* permanent;
+        MemoryArena scene;
 
         /** TRANSIENT **/
         MemoryArena* transient;
@@ -84,6 +87,7 @@ namespace memory {
     };
 
     GLOBAL(MemoryArena* Permanent)
+    GLOBAL(MemoryArena* Scene)
     GLOBAL(MemoryArena* Transient)
     GLOBAL(MemoryArena* SingleFrame)
     GLOBAL(MemoryArena* AssetLoader)
