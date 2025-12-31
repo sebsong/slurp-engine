@@ -56,10 +56,18 @@ namespace entity {
     }
 
     void EntityPipeline::updateAndRender(float dt) {
+        struct RenderComponent {
+            slurp::Vec2<float>* position;
+            render::SpriteInstance* sprite;
+        };
+
+        // TODO: have persistent collection of render components
+        std::vector<RenderComponent> renderComponents;
+        renderComponents.reserve(_pipeline.size());
+
         for (Entity* entity: _pipeline) {
             //TODO: handle destruction
             if (entity->enabled) {
-
                 if (!entity->initialized) {
                     entity->initialize();
                 }
@@ -86,7 +94,13 @@ namespace entity {
                         animation.update(dt);
                     }
 
-                    render::draw(entity->physicsInfo.position, sprite, animation);
+                    renderComponents.emplace_back(
+                        RenderComponent{
+                            &entity->physicsInfo.position,
+                            &sprite
+                        }
+                    );
+                    // render::draw(entity->physicsInfo.position, sprite);
                 }
 #if DEBUG
 #if DEBUG_DRAW_COLLISION
@@ -103,6 +117,17 @@ namespace entity {
 #endif
 #endif
             }
+        }
+
+        std::sort(
+            renderComponents.begin(),
+            renderComponents.end(),
+            [](const RenderComponent& a, const RenderComponent& b) {
+                return b.sprite->zOrder < a.sprite->zOrder;
+            }
+        );
+        for (const RenderComponent& component: renderComponents) {
+            render::draw(*component.position, *component.sprite);
         }
     }
 

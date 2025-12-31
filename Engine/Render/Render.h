@@ -26,5 +26,5 @@ namespace render {
     constexpr Pixel BlueMask = 0x000000FF;
     constexpr uint8_t BlueShift = 0;
 
-    void draw(const slurp::Vec2<float>& position, render::SpriteInstance& sprite, asset::SpriteAnimation& animation);
+    void draw(const slurp::Vec2<float>& position, SpriteInstance& sprite);
 }
