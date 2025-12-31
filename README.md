@@ -1,4 +1,7 @@
-# slurp-engine 🍜
+# ![Slurp Engine](https://github.com/sebsong/slurp-engine/raw/main/slurp_engine.png "banner")
+
+slurp engine: 
+
 A souped up C++ game engine. Delicious and homecooked.
 
 December 9, 2025
