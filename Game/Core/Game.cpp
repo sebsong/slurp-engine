@@ -3,6 +3,7 @@
 #include "SlurpEngine.h"
 #include "RenderApi.h"
 #include "EntityPipeline.h"
+#include "Scene.h"
 #include "Settings.h"
 
 #if UNITY_BUILD

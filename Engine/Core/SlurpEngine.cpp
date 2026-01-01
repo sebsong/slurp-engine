@@ -4,6 +4,7 @@
 #include "Random.h"
 #include "Debug.h"
 #include "Recording.h"
+#include "Scene.h"
 #include "Settings.h"
 
 #if UNITY_BUILD
@@ -183,6 +184,7 @@ namespace slurp {
     }
 
     void frameEnd() {
+        scene::updateAll();
         game::frameEnd();
         memory::SingleFrame->freeAll();
     }

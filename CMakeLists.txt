@@ -146,6 +146,7 @@ if (NOT UNITY_BUILD)
             Engine/Audio/AudioPlayer.cpp
             Engine/Audio/PlayingSound.cpp
             Engine/Core/JobRunner.cpp
+            Engine/Core/Scene.cpp
             Engine/Core/SpinLock.cpp
             Engine/Core/Timer.cpp
             Engine/Entity/Entity.cpp

@@ -14,6 +14,8 @@ namespace scene {
 
     void start(Scene* scene);
 
+    void stop(Scene* scene);
+
     void pause(Scene* scene);
 
     void resume(Scene* scene);
@@ -21,7 +23,5 @@ namespace scene {
     void transition(Scene* currentScene, Scene* newScene);
 
     /** Engine **/
-    void load(Scene* scene);
-
-    void unload(Scene* scene);
+    void updateAll();
 }
