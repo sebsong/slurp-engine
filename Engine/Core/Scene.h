@@ -1,20 +1,24 @@
 #pragma once
-#include "MemoryConstructs.h"
+#include "Entity.h"
 
 namespace scene {
     struct Scene {
+        bool isActive;
         bool isPaused;
         bool shouldLoad;
         bool shouldUnload;
-        memory::MemoryArena sceneMemory;
+
+        virtual void init() = 0;
+        Scene() = default;
+        virtual ~Scene() = default;
     };
 
     /** Game **/
-    Scene* create(const std::string& name);
+    void registerScene(Scene* scene);
 
     void start(Scene* scene);
 
-    void stop(Scene* scene);
+    void end(Scene* scene);
 
     void pause(Scene* scene);
 

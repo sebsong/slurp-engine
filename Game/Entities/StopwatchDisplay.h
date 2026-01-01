@@ -5,6 +5,8 @@
 namespace ui {
     class StopwatchDisplay final : public entity::Entity {
     public:
+        StopwatchDisplay() = default;
+
         StopwatchDisplay(const slurp::Vec2<float>& position);
 
         void start();

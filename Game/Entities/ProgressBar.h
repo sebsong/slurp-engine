@@ -6,6 +6,8 @@ namespace ui {
     public:
         float progress;
 
+        ProgressBar() = default;
+
         ProgressBar(
             slurp::Vec2<float> position,
             float initialProgress,

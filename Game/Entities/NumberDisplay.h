@@ -8,6 +8,8 @@ namespace ui {
     public:
         int number;
 
+        NumberDisplay() = default;
+
         NumberDisplay(
             slurp::Vec2<float> position,
             int initialNumber,

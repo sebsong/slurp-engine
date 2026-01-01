@@ -10,6 +10,8 @@
 namespace ui {
     class SpawnControls final : public entity::Entity {
     public:
+        SpawnControls() = default;
+
         SpawnControls(const slurp::Vec2<float>& position);
 
         void refresh();

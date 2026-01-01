@@ -9,8 +9,10 @@ namespace entity {
     template<typename T, uint32_t N>
     class EntityPool {
     public:
+        EntityPool() = default;
+
         EntityPool(const T& entity) {
-            for (T& instance : instances) {
+            for (T& instance: instances) {
                 // TODO: figure out if we can avoid registering all these upfront
                 instance = entity;
                 instance.enabled = false;

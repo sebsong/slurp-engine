@@ -12,6 +12,7 @@
 #include "NumberDisplay.h"
 #include "PauseMenu.h"
 #include "ProgressBar.h"
+#include "Scene.h"
 #include "SpawnControls.h"
 #include "StopwatchDisplay.h"
 
@@ -35,12 +36,14 @@ namespace game {
         asset::Sound* buttonHover;
     };
 
-    struct MainMenuState {
+    struct MainMenuState : scene::Scene {
         entity::Entity background;
         entity::Entity titleText;
         entity::Entity slurpEngineText;
         ui::UIButton playButton;
         ui::UIButton exitButton;
+
+        void init() override;
     };
 
     struct GameAssets {
@@ -104,7 +107,7 @@ namespace game {
         asset::Sound* turretShoot;
     };
 
-    struct GameState {
+    struct GameState : scene::Scene {
         uint32_t randomSeed;
 
         entity::Entity background;
@@ -134,6 +137,8 @@ namespace game {
 
         mouse_cursor::MouseCursor mouseCursor;
         entity::Entity overlay;
+
+        void init() override;
     };
 
     struct GameSystems {

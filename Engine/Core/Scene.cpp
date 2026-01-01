@@ -1,27 +1,27 @@
 #include "Scene.h"
 
+#include "AudioPlayer.h"
 #include "Debug.h"
+#include "EntityPipeline.h"
 
 #define MAX_NUM_SCENES 20
 
 namespace scene {
-    static Scene AllScenes[MAX_NUM_SCENES];
-    static uint32_t NewSceneIndex = 0;
+    static Scene* AllScenes[MAX_NUM_SCENES];
+    static uint32_t NumRegisteredScenes = 0;
 
-    Scene* create(std::string&& name, size_t sizeBytes) {
-        Scene* scene = &AllScenes[NewSceneIndex++];
+    void registerScene(Scene* scene) {
+        AllScenes[NumRegisteredScenes++] = scene;
         scene->isPaused = false;
         scene->shouldLoad = false;
         scene->shouldUnload = false;
-        scene->sceneMemory = memory::Scene->allocateSubArena(std::move(name), sizeBytes);
-        return scene;
     }
 
     void start(Scene* scene) {
         scene->shouldLoad = true;
     }
 
-    void stop(Scene* scene) {
+    void end(Scene* scene) {
         scene->shouldUnload = true;
     }
 
@@ -34,28 +34,38 @@ namespace scene {
     }
 
     void transition(Scene* currentScene, Scene* newScene) {
-        stop(currentScene);
+        end(currentScene);
         start(newScene);
     }
 
-    static void load(Scene& scene) {
-        // TODO: load assets here?
+    static void load(Scene* scene) {
+        scene->init();
+        scene->isActive = true;
     }
 
-    static void unload(Scene& scene) {
-        // TODO: unload assets here?
-        scene.sceneMemory.freeAll();
+    static void unload(Scene* scene) {
+        // TODO: only remove associated entities and playing sounds from engine systems
+        entity::clearAll();
+        audio::clearAll();
+        scene->isActive = false;
     }
 
     void updateAll() {
-        for (Scene& scene: AllScenes) {
-            ASSERT_LOG(!(scene.shouldLoad && scene.shouldUnload), "Trying to load and unload at the same time.");
-            if (scene.shouldLoad) {
-                load(scene);
-                scene.shouldLoad = false;
-            } else if (scene.shouldUnload) {
+        // TODO: don't need 2 pass if we target entities and audio to unload
+        for (uint32_t i = 0; i < NumRegisteredScenes; i++) {
+            Scene* scene = AllScenes[i];
+            ASSERT_LOG(!(scene->shouldLoad && scene->shouldUnload), "Trying to load and unload at the same time.");
+            if (scene->shouldUnload) {
                 unload(scene);
-                scene.shouldUnload = false;
+                scene->shouldUnload = false;
+            }
+        }
+        for (uint32_t i = 0; i < NumRegisteredScenes; i++) {
+            Scene* scene = AllScenes[i];
+            ASSERT_LOG(!(scene->shouldLoad && scene->shouldUnload), "Trying to load and unload at the same time.");
+            if (scene->shouldLoad) {
+                load(scene);
+                scene->shouldLoad = false;
             }
         }
     }

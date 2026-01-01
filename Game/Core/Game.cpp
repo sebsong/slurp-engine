@@ -113,25 +113,17 @@ namespace game {
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
     }
 
-    static void transitionScene() {
-        mainMenuActive = !mainMenuActive;
-        audio::clearAll();
-        entity::clearAll();
-        sceneMemory.freeAll();
-        initialize(true);
-    }
-
     void initialize(bool isInitialized) {
         if (!isInitialized) {
             sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
-            mainMenuActive = true;
         }
         GameSystems* gameSystems = sceneMemory.allocate<GameSystems>();
         MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
-        MenuState = slurp::Globals->MenuState = &gameSystems->menuState;
+        MenuState = slurp::Globals->MenuState = new(&gameSystems->menuState) MainMenuState();
         Assets = slurp::Globals->GameAssets = &gameSystems->assets;
-        State = slurp::Globals->GameState = &gameSystems->state;
+        State = slurp::Globals->GameState = new(&gameSystems->state) GameState();
         loadAssets();
+
 
         audio::setGlobalVolume(GlobalVolume);
 
@@ -140,75 +132,82 @@ namespace game {
 
         slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
 
-        if (mainMenuActive) {
-            audio::play(
-                MenuAssets->bgmIntro,
-                0.6,
-                false,
-                [] {
-                    audio::play(MenuAssets->bgmMain, 0.6, true);
-                }
-            );
-            new(&MenuState->background) entity::Entity(
-                "Background",
-                render::RenderInfo(render::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
-                physics::PhysicsInfo(),
-                collision::CollisionInfo()
-            );
-            new(&MenuState->titleText) entity::Entity(
-                "Title Text",
-                render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
-                physics::PhysicsInfo({0, 100}),
-                collision::CollisionInfo()
-            );
-            new(&MenuState->slurpEngineText) entity::Entity(
-                "Slurp Engine Text",
-                render::RenderInfo(render::SpriteInstance(MenuAssets->slurpEngineTextSprite, MOUSE_Z)),
-                physics::PhysicsInfo({275, -150}),
-                collision::CollisionInfo()
-            );
-            const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
-            new(&MenuState->playButton) ui::UIButton(
-                MenuAssets->playButtonTextSprite,
-                MenuAssets->buttonSprite,
-                MenuAssets->buttonHoverSprite,
-                MenuAssets->buttonPressSprite,
-                buttonShape,
-                {0, -25},
-                std::nullopt,
-                [](ui::UIButton* _) {},
-                [](ui::UIButton* _) {
-                    shouldTransitionScene = true;
-                },
-                [](ui::UIButton* _) {},
-                [](ui::UIButton* _) {
-                    audio::play(Assets->buttonHover);
-                },
-                -2
-            );
+        scene::registerScene(MenuState);
+        scene::registerScene(State);
 
-            new(&MenuState->exitButton) ui::UIButton(
-                MenuAssets->exitButtonTextSprite,
-                MenuAssets->buttonSprite,
-                MenuAssets->buttonHoverSprite,
-                MenuAssets->buttonPressSprite,
-                buttonShape,
-                {0, -75},
-                std::nullopt,
-                [](ui::UIButton* _) {},
-                [](ui::UIButton* _) {
-                    platform::exit();
-                },
-                [](ui::UIButton* _) {},
-                [](ui::UIButton* _) {
-                    audio::play(Assets->buttonHover);
-                },
-                -2
-            );
-            new(&State->mouseCursor) mouse_cursor::MouseCursor();
-            return;
-        }
+        entity::clearAll(); // TODO: manually register entities instead of via constructor
+        scene::start(MenuState);
+    }
 
+    void MainMenuState::init() {
+        audio::play(
+            MenuAssets->bgmIntro,
+            0.6,
+            false,
+            [] {
+                audio::play(MenuAssets->bgmMain, 0.6, true);
+            }
+        );
+        new(&MenuState->background) entity::Entity(
+            "Background",
+            render::RenderInfo(render::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
+            physics::PhysicsInfo(),
+            collision::CollisionInfo()
+        );
+        new(&MenuState->titleText) entity::Entity(
+            "Title Text",
+            render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
+            physics::PhysicsInfo({0, 100}),
+            collision::CollisionInfo()
+        );
+        new(&MenuState->slurpEngineText) entity::Entity(
+            "Slurp Engine Text",
+            render::RenderInfo(render::SpriteInstance(MenuAssets->slurpEngineTextSprite, MOUSE_Z)),
+            physics::PhysicsInfo({275, -150}),
+            collision::CollisionInfo()
+        );
+        const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
+        new(&MenuState->playButton) ui::UIButton(
+            MenuAssets->playButtonTextSprite,
+            MenuAssets->buttonSprite,
+            MenuAssets->buttonHoverSprite,
+            MenuAssets->buttonPressSprite,
+            buttonShape,
+            {0, -25},
+            std::nullopt,
+            [](ui::UIButton* _) {},
+            [](ui::UIButton* _) {
+                scene::transition(MenuState, State);
+            },
+            [](ui::UIButton* _) {},
+            [](ui::UIButton* _) {
+                audio::play(Assets->buttonHover);
+            },
+            -2
+        );
+
+        new(&MenuState->exitButton) ui::UIButton(
+            MenuAssets->exitButtonTextSprite,
+            MenuAssets->buttonSprite,
+            MenuAssets->buttonHoverSprite,
+            MenuAssets->buttonPressSprite,
+            buttonShape,
+            {0, -75},
+            std::nullopt,
+            [](ui::UIButton* _) {},
+            [](ui::UIButton* _) {
+                platform::exit();
+            },
+            [](ui::UIButton* _) {},
+            [](ui::UIButton* _) {
+                audio::play(Assets->buttonHover);
+            },
+            -2
+        );
+        new(&State->mouseCursor) mouse_cursor::MouseCursor();
+    }
+
+    void GameState::init() {
         audio::play(Assets->backgroundMusic, 0.6, true);
 
         new(&State->background) entity::Entity(
@@ -285,10 +284,14 @@ namespace game {
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
-            shouldTransitionScene = true;
+            if (MenuState->isActive) {
+                scene::transition(MenuState, State);
+            } else {
+                scene::transition(State, MenuState);
+            }
         }
 
-        if (!mainMenuActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
+        if (State->isActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
             State->pauseMenu.toggle();
         }
     }
@@ -303,12 +306,7 @@ namespace game {
         State->goldProgressBar.progress = State->base.getProgress();
     }
 
-    void frameEnd() {
-        if (shouldTransitionScene) {
-            shouldTransitionScene = false;
-            transitionScene();
-        }
-    }
+    void frameEnd() {}
 
     bool almostAtTarget(entity::Entity* entity, slurp::Vec2<float> target) {
         return entity->physicsInfo.position.distanceSquaredTo(target) < entity->physicsInfo.speed * 0.01f;
