@@ -4,11 +4,11 @@
 #include "Game.h"
 
 namespace mouse_cursor {
-    MouseCursor::MouseCursor(): Entity(
+    MouseCursor::MouseCursor(asset::Sprite* sprite): Entity(
         "MouseCursor",
         render::RenderInfo(
             render::SpriteInstance(
-                game::Assets->mouseCursorSprite,
+                sprite,
                 game::MOUSE_Z
             )
         ),

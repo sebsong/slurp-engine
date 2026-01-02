@@ -41,6 +41,7 @@ namespace game {
         MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
         MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
         MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
+        MenuAssets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         MenuAssets->bgmIntro = asset::loadSound("bgm_chord_intro.wav", AUDIO_SOUND_GROUP_BGM);
         MenuAssets->bgmMain = asset::loadSound("bgm_main.wav", AUDIO_SOUND_GROUP_BGM);
@@ -140,34 +141,34 @@ namespace game {
     }
 
     void MainMenuState::load() {
-        MenuState->bgm = audio::play(
+        bgm = audio::play(
             MenuAssets->bgmIntro,
             0.6,
             false,
-            [] {
-                MenuState->bgm = audio::play(MenuAssets->bgmMain, 0.6, true);
+            [this] {
+                bgm = audio::play(MenuAssets->bgmMain, 0.6, true);
             }
         );
-        new(&MenuState->background) entity::Entity(
+        new(&background) entity::Entity(
             "Background",
             render::RenderInfo(render::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
-        new(&MenuState->titleText) entity::Entity(
+        new(&titleText) entity::Entity(
             "Title Text",
             render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
             physics::PhysicsInfo({0, 100}),
             collision::CollisionInfo()
         );
-        new(&MenuState->slurpEngineText) entity::Entity(
+        new(&slurpEngineText) entity::Entity(
             "Slurp Engine Text",
             render::RenderInfo(render::SpriteInstance(MenuAssets->slurpEngineTextSprite, MOUSE_Z)),
             physics::PhysicsInfo({275, -150}),
             collision::CollisionInfo()
         );
         const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
-        new(&MenuState->playButton) ui::UIButton(
+        new(&playButton) ui::UIButton(
             MenuAssets->playButtonTextSprite,
             MenuAssets->buttonSprite,
             MenuAssets->buttonHoverSprite,
@@ -186,7 +187,7 @@ namespace game {
             -2
         );
 
-        new(&MenuState->exitButton) ui::UIButton(
+        new(&exitButton) ui::UIButton(
             MenuAssets->exitButtonTextSprite,
             MenuAssets->buttonSprite,
             MenuAssets->buttonHoverSprite,
@@ -204,55 +205,55 @@ namespace game {
             },
             -2
         );
-        new(&State->mouseCursor) mouse_cursor::MouseCursor();
+        new(&mouseCursor) mouse_cursor::MouseCursor(MenuAssets->mouseCursorSprite);
     }
 
     void MainMenuState::unload() {
-        if (MenuState->bgm) {
-            audio::stop(MenuState->bgm);
+        if (bgm) {
+            audio::stop(bgm);
         }
     }
 
     void GameState::load() {
-        State->bgm = audio::play(Assets->backgroundMusic, 0.6, true);
+        bgm = audio::play(Assets->backgroundMusic, 0.6, true);
 
-        new(&State->background) entity::Entity(
+        new(&background) entity::Entity(
             "Background",
             render::RenderInfo(render::SpriteInstance(Assets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
 
-        new(&State->border) entity::Entity(
+        new(&border) entity::Entity(
             "Border",
             render::RenderInfo(render::SpriteInstance(Assets->borderSprite, BORDER_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
 
-        new(&State->base) base::Base();
+        new(&base) base::Base();
 
-        new(&State->mineSiteSpawner) mine_site::MineSiteSpawner();
+        new(&mineSiteSpawner) mine_site::MineSiteSpawner();
 
-        new(&State->mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
-        new(&State->mineSpots) types::deque_arena<slurp::Vec2<float> >();
+        new(&mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
+        new(&mineSpots) types::deque_arena<slurp::Vec2<float> >();
 
-        new(&State->workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
-        new(&State->corruptibleWorkers) types::vector_arena<worker::Worker*>();
-        State->corruptionEnabled = false;
+        new(&workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
+        new(&corruptibleWorkers) types::vector_arena<worker::Worker*>();
+        corruptionEnabled = false;
         timer::delay(
             EnableCorruptionDelay,
-            [] {
-                State->corruptionEnabled = true;
+            [this] {
+                corruptionEnabled = true;
                 corruptWorkers(NumInitialCorruptedWorkers);
             }
         );
 
-        new(&State->turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
+        new(&turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
 
-        new(&State->spawnControls) ui::SpawnControls({0, -160});
+        new(&spawnControls) ui::SpawnControls({0, -160});
 
-        new(&State->goldProgressBar)
+        new(&goldProgressBar)
                 ui::ProgressBar(
                     {0, 166},
                     0,
@@ -263,9 +264,9 @@ namespace game {
                 );
 
 
-        new(&State->stopwatchDisplay) ui::StopwatchDisplay({280, 166});
+        new(&stopwatchDisplay) ui::StopwatchDisplay({280, 166});
 
-        new(&State->resourcesCollectedDisplay)
+        new(&resourcesCollectedDisplay)
                 ui::NumberDisplay(
                     {-280, 166},
                     0,
@@ -273,20 +274,14 @@ namespace game {
                     false
                 );
 
-        new(&State->pauseMenu) ui::PauseMenu();
+        new(&pauseMenu) ui::PauseMenu();
 
-        new(&State->mouseCursor) mouse_cursor::MouseCursor();
-        // new(&State->overlay) entity::Entity(
-        //     "Overlay",
-        //     render::RenderInfo(render::SpriteInstance(Assets->overlaySprite, -Z_ORDER_MAX)),
-        //     physics::PhysicsInfo(),
-        //     collision::CollisionInfo()
-        // );
+        new(&mouseCursor) mouse_cursor::MouseCursor(Assets->mouseCursorSprite);
     }
 
     void GameState::unload() {
-        if (State->bgm) {
-            audio::stop(State->bgm);
+        if (bgm) {
+            audio::stop(bgm);
         }
     }
 

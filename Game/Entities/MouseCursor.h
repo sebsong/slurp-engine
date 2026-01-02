@@ -8,7 +8,9 @@ namespace enemy {
 namespace mouse_cursor {
     class MouseCursor final : public entity::Entity {
     public:
-        MouseCursor();
+        MouseCursor() = default;
+
+        MouseCursor(asset::Sprite* sprite);
 
     private:
         void handleMouseAndKeyboardInput(

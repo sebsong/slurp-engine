@@ -30,6 +30,7 @@ namespace game {
         asset::Sprite* buttonSprite;
         asset::Sprite* buttonHoverSprite;
         asset::Sprite* buttonPressSprite;
+        asset::Sprite* mouseCursorSprite;
 
         asset::Sound* bgmIntro;
         asset::Sound* bgmMain;
@@ -44,6 +45,8 @@ namespace game {
         entity::Entity slurpEngineText;
         ui::UIButton playButton;
         ui::UIButton exitButton;
+
+        mouse_cursor::MouseCursor mouseCursor;
 
         void load() override;
         void unload() override;
