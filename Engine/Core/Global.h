@@ -34,6 +34,8 @@ namespace audio {
 }
 
 namespace game {
+    struct PauseMenuState;
+    struct PauseMenuAssets;
     struct MainMenuState;
     struct MainMenuAssets;
     struct GameState;
@@ -65,6 +67,8 @@ namespace slurp {
         game::MainMenuState* MenuState;
         game::GameAssets* GameAssets;
         game::GameState* GameState;
+        game::PauseMenuAssets* PauseAssets;
+        game::PauseMenuState* PauseState;
     };
 
     GLOBAL(Global* Globals)

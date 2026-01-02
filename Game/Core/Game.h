@@ -58,13 +58,6 @@ namespace game {
         asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
 
-        asset::Sprite* screenCoverSprite;
-        asset::Sprite* pauseMenuSprite;
-        asset::Sprite* resumeButtonTextSprite;
-        asset::Sprite* exitButtonTextSprite;
-        asset::Sprite* bigButtonSprite;
-        asset::Sprite* bigButtonHoverSprite;
-        asset::Sprite* bigButtonPressSprite;
 
         asset::Sprite* baseSprite;
         asset::SpriteAnimation* baseIdleAnim;
@@ -122,7 +115,6 @@ namespace game {
 
         entity::Entity background;
         entity::Entity border;
-        ui::PauseMenu pauseMenu;
         obstacle::Obstacle wallUp;
         obstacle::Obstacle wallDown;
         obstacle::Obstacle wallLeft;
@@ -154,17 +146,41 @@ namespace game {
         void resume() override {};
     };
 
+    struct PauseMenuAssets {
+        asset::Sprite* screenCoverSprite;
+        asset::Sprite* pauseMenuSprite;
+        asset::Sprite* resumeButtonTextSprite;
+        asset::Sprite* exitButtonTextSprite;
+        asset::Sprite* bigButtonSprite;
+        asset::Sprite* bigButtonHoverSprite;
+        asset::Sprite* bigButtonPressSprite;
+        asset::Sound* buttonHover;
+    };
+
+    struct PauseMenuState: scene::Scene {
+        ui::PauseMenu pauseMenu;
+
+        void load() override;
+        void unload() override {};
+        void pause() override {};
+        void resume() override {};
+    };
+
     struct GameSystems {
         MainMenuAssets menuAssets;
         MainMenuState menuState;
         GameAssets assets;
         GameState state;
+        PauseMenuAssets pauseMenuAssets;
+        PauseMenuState pauseMenuState;
     };
 
     GLOBAL(MainMenuAssets* MenuAssets)
     GLOBAL(MainMenuState* MenuState)
     GLOBAL(GameAssets* Assets)
     GLOBAL(GameState* State)
+    GLOBAL(PauseMenuAssets* PauseAssets)
+    GLOBAL(PauseMenuState* PauseState)
 
     GLOBAL(bool mainMenuActive)
     GLOBAL(bool shouldTransitionScene)

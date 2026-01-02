@@ -50,14 +50,6 @@ namespace game {
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
 
-        Assets->screenCoverSprite = asset::loadSprite("screen_cover.bmp");
-        Assets->pauseMenuSprite = asset::loadSprite("pause_menu.bmp");
-        Assets->resumeButtonTextSprite = asset::loadSprite("play_button_text.bmp");
-        Assets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
-        Assets->bigButtonSprite = asset::loadSprite("button_big.bmp");
-        Assets->bigButtonHoverSprite = asset::loadSprite("button_big_hover.bmp");
-        Assets->bigButtonPressSprite = asset::loadSprite("button_big_press.bmp");
-
         Assets->baseSprite = asset::loadSprite("base.bmp");
         Assets->baseIdleAnim = asset::loadSpriteAnimation("base_idle_anim.bmp", 5);
 
@@ -112,6 +104,16 @@ namespace game {
         Assets->resourceDropOff = asset::loadSound("resource_drop_off.wav");
         Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
+
+        PauseAssets->screenCoverSprite = asset::loadSprite("screen_cover.bmp");
+        PauseAssets->pauseMenuSprite = asset::loadSprite("pause_menu.bmp");
+        PauseAssets->resumeButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        PauseAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
+        PauseAssets->bigButtonSprite = asset::loadSprite("button_big.bmp");
+        PauseAssets->bigButtonHoverSprite = asset::loadSprite("button_big_hover.bmp");
+        PauseAssets->bigButtonPressSprite = asset::loadSprite("button_big_press.bmp");
+
+        PauseAssets->buttonHover = asset::loadSound("button_hover.wav");
     }
 
     void initialize(bool isInitialized) {
@@ -123,6 +125,8 @@ namespace game {
         MenuState = slurp::Globals->MenuState = new(&gameSystems->menuState) MainMenuState();
         Assets = slurp::Globals->GameAssets = &gameSystems->assets;
         State = slurp::Globals->GameState = new(&gameSystems->state) GameState();
+        PauseAssets = slurp::Globals->PauseAssets = &gameSystems->pauseMenuAssets;
+        PauseState = slurp::Globals->PauseState = new(&gameSystems->pauseMenuState) PauseMenuState();
         loadAssets();
 
         audio::setGlobalVolume(GlobalVolume);
@@ -134,6 +138,7 @@ namespace game {
 
         scene::registerScene(MenuState);
         scene::registerScene(State);
+        scene::registerScene(PauseState);
 
         scene::start(MenuState);
     }
@@ -290,9 +295,6 @@ namespace game {
                 );
         scene::registerEntity(this, &resourcesCollectedDisplay);
 
-        new(&pauseMenu) ui::PauseMenu();
-        scene::registerEntity(this, &pauseMenu);
-
         new(&mouseCursor) mouse_cursor::MouseCursor(Assets->mouseCursorSprite);
         scene::registerEntity(this, &mouseCursor);
     }
@@ -301,6 +303,11 @@ namespace game {
         if (bgm) {
             audio::stop(bgm);
         }
+    }
+
+    void PauseMenuState::load() {
+        new(&pauseMenu) ui::PauseMenu();
+        scene::registerEntity(this, &pauseMenu);
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
@@ -317,7 +324,13 @@ namespace game {
         }
 
         if (State->isActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
-            State->pauseMenu.toggle();
+            if (!State->isPaused) {
+                scene::pause(State);
+                scene::start(PauseState);
+            } else {
+                scene::end(PauseState);
+                scene::resume(State);
+            }
         }
     }
 
