@@ -1,6 +1,5 @@
 #include "Scene.h"
 
-#include "AudioPlayer.h"
 #include "Debug.h"
 #include "EntityPipeline.h"
 
@@ -15,6 +14,13 @@ namespace scene {
         scene->isPaused = false;
         scene->shouldLoad = false;
         scene->shouldUnload = false;
+    }
+
+    void registerEntity(Scene* scene, entity::Entity* entity) {
+        scene->entities.push_back(entity);
+        if (scene->isActive) {
+            entity->initialize();
+        }
     }
 
     void start(Scene* scene) {
@@ -39,12 +45,15 @@ namespace scene {
     }
 
     static void load(Scene* scene) {
-        scene->init();
+        scene->load();
+        for (entity::Entity* entity: scene->entities) {
+            entity->initialize();
+        }
         scene->isActive = true;
     }
 
     static void unload(Scene* scene) {
-        // TODO: only remove associated entities and playing sounds from engine systems
+        scene->unload();
         entity::clearAll();
         audio::clearAll();
         scene->isActive = false;

@@ -4,17 +4,12 @@
 
 namespace audio {
     PlayingSound::PlayingSound(
-        uint32_t id,
         const asset::Sound* sound,
         const std::function<void()>& onFinish,
         MIX_Track* audioTrack
-    ): id(id),
-       sound(sound),
+    ): sound(sound),
        onFinish(onFinish),
        audioTrack(audioTrack),
+       isPaused(false),
        isStopped(false) {}
-
-    bool PlayingSound::operator==(const PlayingSound& other) const {
-        return id == other.id;
-    }
 }

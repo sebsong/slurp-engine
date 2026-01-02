@@ -139,7 +139,7 @@ namespace game {
         scene::start(MenuState);
     }
 
-    void MainMenuState::init() {
+    void MainMenuState::load() {
         audio::play(
             MenuAssets->bgmIntro,
             0.6,
@@ -207,7 +207,7 @@ namespace game {
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
     }
 
-    void GameState::init() {
+    void GameState::load() {
         audio::play(Assets->backgroundMusic, 0.6, true);
 
         new(&State->background) entity::Entity(

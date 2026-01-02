@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "CollectionTypes.h"
 #include "PlayingSound.h"
 
@@ -20,9 +22,6 @@ struct MIX_Track;
 
 namespace audio {
     struct AudioBuffer;
-
-    typedef uint32_t sound_id;
-    static constexpr sound_id INVALID_SOUND_ID = 0;
 
     typedef uint32_t sound_group_id;
 
@@ -51,14 +50,17 @@ namespace audio {
 
         void stop(MIX_Track* audioTrack);
 
+        void pause(PlayingSound* playingSound);
+
+        void resume(PlayingSound* playingSound);
+
         void clearAll();
 
     private:
-        sound_id _nextSoundId;
         MIX_Mixer* _audioMixer;
         types::unordered_map_arena<sound_group_id, SoundGroupState> _soundGroupStates;
 
-        void _stop(PlayingSound& playingSound);
+        void _stop(PlayingSound* playingSound);
     };
 
     /** Global Methods **/
@@ -81,6 +83,14 @@ namespace audio {
 
     inline void stop(PlayingSound* playingSound) {
         slurp::Globals->AudioPlayer->stop(playingSound);
+    }
+
+    inline void pause(PlayingSound* playingSound) {
+        slurp::Globals->AudioPlayer->pause(playingSound);
+    }
+
+    inline void resume(PlayingSound* playingSound) {
+        slurp::Globals->AudioPlayer->resume(playingSound);
     }
 
     inline void clearAll() {

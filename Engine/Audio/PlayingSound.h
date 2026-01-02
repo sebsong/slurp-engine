@@ -13,19 +13,16 @@ namespace audio {
     struct AudioBuffer;
 
     struct PlayingSound {
-        uint32_t id;
         const asset::Sound* sound;
         std::function<void()> onFinish;
         MIX_Track* audioTrack;
+        bool isPaused;
         bool isStopped;
 
         PlayingSound(
-            uint32_t id,
             const asset::Sound* sound,
             const std::function<void()>& onFinish,
             MIX_Track* audioTrack
         );
-
-        bool operator==(const PlayingSound&) const;
     };
 }

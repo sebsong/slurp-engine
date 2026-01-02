@@ -163,6 +163,7 @@ namespace slurp {
 
         game::update(dt);
         entity::updateAndRender(dt);
+        scene::updateAll();
 
 #if DEBUG
         if (GlobalRecordingState.isRecording) {
@@ -184,7 +185,6 @@ namespace slurp {
     }
 
     void frameEnd() {
-        scene::updateAll();
         game::frameEnd();
         memory::SingleFrame->freeAll();
     }

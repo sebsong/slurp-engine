@@ -7,14 +7,20 @@ namespace scene {
         bool isPaused;
         bool shouldLoad;
         bool shouldUnload;
+        types::vector_arena<entity::Entity*> entities;
 
-        virtual void init() = 0;
+        virtual void load() = 0;
+        virtual void pause() = 0;
+        virtual void resume() = 0;
+        virtual void unload() = 0;
         Scene() = default;
         virtual ~Scene() = default;
     };
 
     /** Game **/
     void registerScene(Scene* scene);
+
+    void registerEntity(Scene* scene, entity::Entity* entity);
 
     void start(Scene* scene);
 

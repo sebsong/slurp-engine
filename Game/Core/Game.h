@@ -43,7 +43,10 @@ namespace game {
         ui::UIButton playButton;
         ui::UIButton exitButton;
 
-        void init() override;
+        void load() override;
+        void pause() override {};
+        void resume() override {};
+        void unload() override {};
     };
 
     struct GameAssets {
@@ -138,7 +141,10 @@ namespace game {
         mouse_cursor::MouseCursor mouseCursor;
         entity::Entity overlay;
 
-        void init() override;
+        void load() override;
+        void pause() override {};
+        void resume() override {};
+        void unload() override {};
     };
 
     struct GameSystems {
