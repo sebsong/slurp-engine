@@ -2,6 +2,11 @@
 #include <cstdint>
 
 #include "Random.h"
+#include "Scene.h"
+
+namespace scene {
+    struct Scene;
+}
 
 namespace entity {
     struct Entity;
@@ -11,30 +16,31 @@ namespace entity {
     public:
         EntityPool() = default;
 
-        EntityPool(const T& entity) {
-            for (T& instance: instances) {
+        EntityPool(scene::Scene* scene, const T& entity): _scene(scene) {
+            for (T& instance: _instances) {
                 // TODO: figure out if we can avoid registering all these upfront
                 instance = entity;
                 instance.enabled = false;
-                disabledInstances.push_back(&instance);
+                _disabledInstances.push_back(&instance);
             }
         }
 
         T* nextInstance() {
             T* nextInstancePtr;
-            if (!disabledInstances.empty()) {
-                nextInstancePtr = disabledInstances.front();
-                disabledInstances.pop_front();
+            if (!_disabledInstances.empty()) {
+                nextInstancePtr = _disabledInstances.front();
+                _disabledInstances.pop_front();
             } else {
-                nextInstancePtr = enabledInstances.front();
-                enabledInstances.pop_front();
+                nextInstancePtr = _enabledInstances.front();
+                _enabledInstances.pop_front();
             }
             return nextInstancePtr;
         }
 
         void enableInstance(T* instancePtr) {
             instancePtr->enable();
-            enabledInstances.push_back(instancePtr);
+            _enabledInstances.push_back(instancePtr);
+            scene::registerEntity(_scene, instancePtr);
             // TODO: make sure to remove from disabledInstances
         }
 
@@ -46,35 +52,36 @@ namespace entity {
         }
 
         T* getRandomEnabledInstance() {
-            return rnd::pickRandom(enabledInstances);
+            return rnd::pickRandom(_enabledInstances);
         }
 
         typename types::deque_arena<T*>::iterator begin() {
-            return enabledInstances.begin();
+            return _enabledInstances.begin();
         }
 
         typename types::deque_arena<T*>::iterator end() {
-            return enabledInstances.end();
+            return _enabledInstances.end();
         }
 
         void recycleInstance(T* instancePtr) {
-            for (auto it = enabledInstances.begin(); it != enabledInstances.end(); it++) {
+            for (auto it = _enabledInstances.begin(); it != _enabledInstances.end(); it++) {
                 if (*it == instancePtr) {
-                    enabledInstances.erase(it);
+                    _enabledInstances.erase(it);
                     break;
                 }
             }
             instancePtr->enabled = false;
-            disabledInstances.push_back(instancePtr);
+            _disabledInstances.push_back(instancePtr);
         }
 
         T* operator[](int index) {
-            return &instances[index];
+            return &_instances[index];
         }
 
     private:
-        T instances[N];
-        types::deque_arena<T*> enabledInstances;
-        types::deque_arena<T*> disabledInstances;
+        T _instances[N];
+        types::deque_arena<T*> _enabledInstances;
+        types::deque_arena<T*> _disabledInstances;
+        scene::Scene* _scene;
     };
 }

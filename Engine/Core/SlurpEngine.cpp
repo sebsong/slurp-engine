@@ -101,7 +101,7 @@ namespace slurp {
 
         /** Game **/
         game::initialize(isInitialized);
-        entity::initializeEntities();
+        // entity::initializeEntities();
     }
 
     void frameStart() {}
@@ -153,7 +153,8 @@ namespace slurp {
             if (!gamepadStates[gamepadIndex].isConnected) { continue; }
             game::handleGamepadInput(gamepadIndex, *actualGamepadStates[gamepadIndex]);
         }
-        entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
+        // entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
+        scene::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
     }
 
     void bufferAudio(const audio::AudioBuffer& buffer) {}
@@ -162,8 +163,9 @@ namespace slurp {
         timer::tick(dt);
 
         game::update(dt);
-        entity::updateAndRender(dt);
-        scene::updateAll();
+        // entity::updateAndRender(dt);
+        scene::updateAndRenderEntities(dt);
+        scene::updateScenes();
 
 #if DEBUG
         if (GlobalRecordingState.isRecording) {

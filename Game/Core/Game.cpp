@@ -125,7 +125,6 @@ namespace game {
         State = slurp::Globals->GameState = new(&gameSystems->state) GameState();
         loadAssets();
 
-
         audio::setGlobalVolume(GlobalVolume);
 
         State->randomSeed = static_cast<uint32_t>(time(nullptr));
@@ -136,7 +135,6 @@ namespace game {
         scene::registerScene(MenuState);
         scene::registerScene(State);
 
-        entity::clearAll(); // TODO: manually register entities instead of via constructor
         scene::start(MenuState);
     }
 
@@ -155,18 +153,24 @@ namespace game {
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
+        scene::registerEntity(this, &background);
+
         new(&titleText) entity::Entity(
             "Title Text",
             render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
             physics::PhysicsInfo({0, 100}),
             collision::CollisionInfo()
         );
+        scene::registerEntity(this, &titleText);
+
         new(&slurpEngineText) entity::Entity(
             "Slurp Engine Text",
             render::RenderInfo(render::SpriteInstance(MenuAssets->slurpEngineTextSprite, MOUSE_Z)),
             physics::PhysicsInfo({275, -150}),
             collision::CollisionInfo()
         );
+        scene::registerEntity(this, &slurpEngineText);
+
         const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
         new(&playButton) ui::UIButton(
             MenuAssets->playButtonTextSprite,
@@ -186,6 +190,7 @@ namespace game {
             },
             -2
         );
+        scene::registerEntity(this, &playButton);
 
         new(&exitButton) ui::UIButton(
             MenuAssets->exitButtonTextSprite,
@@ -205,7 +210,10 @@ namespace game {
             },
             -2
         );
+        scene::registerEntity(this, &exitButton);
+
         new(&mouseCursor) mouse_cursor::MouseCursor(MenuAssets->mouseCursorSprite);
+        scene::registerEntity(this, &mouseCursor);
     }
 
     void MainMenuState::unload() {
@@ -223,6 +231,7 @@ namespace game {
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
+        scene::registerEntity(this, &background);
 
         new(&border) entity::Entity(
             "Border",
@@ -230,15 +239,18 @@ namespace game {
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
+        scene::registerEntity(this, &border);
 
         new(&base) base::Base();
+        scene::registerEntity(this, &base);
 
         new(&mineSiteSpawner) mine_site::MineSiteSpawner();
+        scene::registerEntity(this, &mineSiteSpawner);
 
-        new(&mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(mine_site::MineSite());
+        new(&mineSites) entity::EntityPool<mine_site::MineSite, MAX_NUM_MINE_SITES>(this, mine_site::MineSite());
         new(&mineSpots) types::deque_arena<slurp::Vec2<float> >();
 
-        new(&workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(worker::Worker());
+        new(&workers) entity::EntityPool<worker::Worker, MAX_NUM_WORKERS>(this, worker::Worker());
         new(&corruptibleWorkers) types::vector_arena<worker::Worker*>();
         corruptionEnabled = false;
         timer::delay(
@@ -249,9 +261,10 @@ namespace game {
             }
         );
 
-        new(&turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(turret::Turret());
+        new(&turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(this, turret::Turret());
 
         new(&spawnControls) ui::SpawnControls({0, -160});
+        scene::registerEntity(this, &spawnControls);
 
         new(&goldProgressBar)
                 ui::ProgressBar(
@@ -262,9 +275,11 @@ namespace game {
                     Assets->resourcesCollectedFill,
                     PROGRESS_BAR_Z
                 );
+        scene::registerEntity(this, &goldProgressBar);
 
 
         new(&stopwatchDisplay) ui::StopwatchDisplay({280, 166});
+        scene::registerEntity(this, &stopwatchDisplay);
 
         new(&resourcesCollectedDisplay)
                 ui::NumberDisplay(
@@ -273,10 +288,13 @@ namespace game {
                     MAX_NUM_DIGITS,
                     false
                 );
+        scene::registerEntity(this, &resourcesCollectedDisplay);
 
         new(&pauseMenu) ui::PauseMenu();
+        scene::registerEntity(this, &pauseMenu);
 
         new(&mouseCursor) mouse_cursor::MouseCursor(Assets->mouseCursorSprite);
+        scene::registerEntity(this, &mouseCursor);
     }
 
     void GameState::unload() {

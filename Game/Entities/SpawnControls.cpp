@@ -127,12 +127,21 @@ namespace ui {
                   physics::PhysicsInfo(),
                   collision::CollisionInfo()
               )
-          ) {
+          ) {}
+
+    void SpawnControls::initialize() {
+        Entity::initialize();
+
         _spawnWorkerTimerHandle = timer::reserveHandle();
         _spawnMineSiteTimerHandle = timer::reserveHandle();
 
         _turretPlacementGuide.enabled = false;
         _turretPlacementGuide.applyAlpha(0.5f);
+
+        scene::registerEntity(game::State, &_spawnWorkerButton);
+        scene::registerEntity(game::State, &_spawnMineSiteButton);
+        scene::registerEntity(game::State, &_spawnTurretButton);
+        scene::registerEntity(game::State, &_turretPlacementGuide);
     }
 
     void SpawnControls::refresh() {

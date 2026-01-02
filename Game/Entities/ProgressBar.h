@@ -17,10 +17,12 @@ namespace ui {
             int zOrder
         );
 
+        void initialize() override;
+
+        void update(float dt) override;
+
     private:
         Entity _bar;
         Entity _fill;
-
-        void update(float dt) override;
     };
 }

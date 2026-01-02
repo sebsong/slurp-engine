@@ -7,6 +7,8 @@ namespace ui {
     public:
         PauseMenu();
 
+        void initialize() override;
+
         void toggle();
 
     private:

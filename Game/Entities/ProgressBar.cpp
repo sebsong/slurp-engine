@@ -1,9 +1,10 @@
 #include "ProgressBar.h"
 
 #include "AssetLoader.h"
+#include "Game.h"
+#include "Scene.h"
 
 namespace ui {
-    // ProgressBar::ProgressBar(): Entity("ProgressBar") {}
     static const char* ProgressUniformName = "progress";
     static const char* IsVerticalUniformName = "isVertical";
 
@@ -42,6 +43,12 @@ namespace ui {
         _fill.renderInfo.sprites->bindShaderUniform(IsVerticalUniformName, isVertical);
     }
 
+
+    void ProgressBar::initialize() {
+        Entity::initialize();
+        scene::registerEntity(game::State, &_bar);
+        scene::registerEntity(game::State, &_fill);
+    }
 
     void ProgressBar::update(float dt) {
         Entity::update(dt);

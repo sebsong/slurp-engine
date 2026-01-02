@@ -124,7 +124,7 @@ namespace entity {
             }
         );
         for (const RenderComponent& component: renderComponents) {
-            render::draw(*component.position, *component.sprite);
+            render::draw(component.position, component.sprite);
         }
     }
 

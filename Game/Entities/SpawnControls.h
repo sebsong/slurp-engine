@@ -14,6 +14,12 @@ namespace ui {
 
         SpawnControls(const slurp::Vec2<float>& position);
 
+        void initialize() override;
+
+        void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) override;
+
+        void update(float dt) override;
+
         void refresh();
 
     private:
@@ -25,10 +31,6 @@ namespace ui {
 
         bool _isPlacingTurret;
         Entity _turretPlacementGuide;
-
-        void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) override;
-
-        void update(float dt) override;
 
         void startTurretPlacement();
 

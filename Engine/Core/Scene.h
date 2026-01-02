@@ -10,10 +10,15 @@ namespace scene {
         types::vector_arena<entity::Entity*> entities;
 
         virtual void load() = 0;
+
         virtual void unload() = 0;
+
         virtual void pause() = 0;
+
         virtual void resume() = 0;
+
         Scene() = default;
+
         virtual ~Scene() = default;
     };
 
@@ -33,5 +38,13 @@ namespace scene {
     void transition(Scene* currentScene, Scene* newScene);
 
     /** Engine **/
-    void updateAll();
+    void handleInput(
+        const slurp::MouseState& mouseState,
+        const slurp::KeyboardState& keyboardState,
+        const slurp::GamepadState (&gamepadStates)[MAX_NUM_GAMEPADS]
+    );
+
+    void updateAndRenderEntities(float dt);
+
+    void updateScenes();
 }

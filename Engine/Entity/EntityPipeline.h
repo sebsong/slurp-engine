@@ -18,6 +18,7 @@ namespace entity {
     typedef uint32_t entity_id;
     const static entity_id INVALID_ENTITY_ID = 0;
 
+    // TODO: deprecated
     class EntityPipeline {
     public:
         explicit EntityPipeline();

@@ -100,6 +100,6 @@ namespace entity {
 
         bool operator==(const Entity& other) const { return id == other.id; }
 
-        virtual ~Entity();
+        virtual ~Entity() = default;
     };
 }

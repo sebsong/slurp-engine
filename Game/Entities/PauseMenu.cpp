@@ -67,8 +67,16 @@ namespace ui {
                   game::PAUSE_Z - 1
               )
           ) {
+    }
+
+    void PauseMenu::initialize() {
+        Entity::initialize();
+
+        setAlpha(0, .75);
         toggle();
-        setAlpha(0, .75); // TODO: fix alpha z sorting
+
+        scene::registerEntity(game::State, &_resumeButton);
+        scene::registerEntity(game::State, &_exitButton);
     }
 
     void PauseMenu::toggle() {

@@ -76,14 +76,9 @@ namespace entity {
        renderInfo(renderInfo),
        physicsInfo(physicsInfo),
        collisionInfo(collisionInfo),
-       shouldDestroy(shouldDestroy) {
-        registerEntity(this);
-    }
+       shouldDestroy(shouldDestroy) {}
 
     void Entity::enable() {
-        if (id == INVALID_ENTITY_ID) {
-            registerEntity(this);
-        }
         enabled = true;
         if (!initialized) {
             initialize();
@@ -199,9 +194,5 @@ namespace entity {
             shouldDestroy = std::move(other.shouldDestroy);
         }
         return *this;
-    }
-
-    Entity::~Entity() {
-        removeEntity(this);
     }
 }
