@@ -55,7 +55,6 @@ namespace scene {
     static void unload(Scene* scene) {
         scene->unload();
         entity::clearAll();
-        audio::clearAll();
         scene->isActive = false;
     }
 

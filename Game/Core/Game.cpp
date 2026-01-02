@@ -140,12 +140,12 @@ namespace game {
     }
 
     void MainMenuState::load() {
-        audio::play(
+        MenuState->bgm = audio::play(
             MenuAssets->bgmIntro,
             0.6,
             false,
             [] {
-                audio::play(MenuAssets->bgmMain, 0.6, true);
+                MenuState->bgm = audio::play(MenuAssets->bgmMain, 0.6, true);
             }
         );
         new(&MenuState->background) entity::Entity(
@@ -207,8 +207,14 @@ namespace game {
         new(&State->mouseCursor) mouse_cursor::MouseCursor();
     }
 
+    void MainMenuState::unload() {
+        if (MenuState->bgm) {
+            audio::stop(MenuState->bgm);
+        }
+    }
+
     void GameState::load() {
-        audio::play(Assets->backgroundMusic, 0.6, true);
+        State->bgm = audio::play(Assets->backgroundMusic, 0.6, true);
 
         new(&State->background) entity::Entity(
             "Background",
@@ -276,6 +282,12 @@ namespace game {
         //     physics::PhysicsInfo(),
         //     collision::CollisionInfo()
         // );
+    }
+
+    void GameState::unload() {
+        if (State->bgm) {
+            audio::stop(State->bgm);
+        }
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {

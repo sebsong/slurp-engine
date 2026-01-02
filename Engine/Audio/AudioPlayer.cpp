@@ -61,7 +61,7 @@ namespace audio {
     static void onTrackFinish(void* userdata, MIX_Track* audioTrack) {
         AudioPlayer* audioPlayer = static_cast<AudioPlayer*>(userdata);
         if (audioPlayer) {
-            audioPlayer->stop(audioTrack);
+            audioPlayer->onFinish(audioTrack);
         }
     }
 
@@ -109,8 +109,7 @@ namespace audio {
         );
         MIX_PlayTrack(audioTrack, propertiesId);
 
-        PlayingSound playingSound(sound, onFinish, audioTrack);
-        return &playingSounds.emplace_back(playingSound);
+        return &playingSounds.emplace_back(PlayingSound{sound, onFinish, audioTrack});
     }
 
     void AudioPlayer::stop(PlayingSound* playingSound) {
@@ -127,25 +126,6 @@ namespace audio {
                 return;
             }
         }
-    }
-
-    void AudioPlayer::stop(MIX_Track* audioTrack) {
-        for (auto& [groupId, soundGroupState]: _soundGroupStates) {
-            SDL_PropertiesID props = MIX_GetTrackProperties(audioTrack);
-            sound_group_id trackGroupId = SDL_GetNumberProperty(props, MIX_PROP_GROUP_ID_NUMBER, -1);
-            if (trackGroupId == groupId) {
-                types::deque_arena<PlayingSound>& playingSounds = soundGroupState.playingSounds;
-                for (auto it = playingSounds.begin(); it != playingSounds.end(); it++) {
-                    if (it->audioTrack == audioTrack) {
-                        _stop(&*it);
-                        playingSounds.erase(it);
-                        return;
-                    }
-                }
-                return;
-            }
-        }
-        ASSERT_LOG(false, "Could not find audio track.");
     }
 
     void AudioPlayer::pause(PlayingSound* playingSound) {
@@ -175,6 +155,27 @@ namespace audio {
         MIX_StopAllTracks(_audioMixer, 0);
     }
 
+    void AudioPlayer::onFinish(MIX_Track* audioTrack) {
+        for (auto& [groupId, soundGroupState]: _soundGroupStates) {
+            SDL_PropertiesID props = MIX_GetTrackProperties(audioTrack);
+            sound_group_id trackGroupId = SDL_GetNumberProperty(props, MIX_PROP_GROUP_ID_NUMBER, -1);
+            if (trackGroupId == groupId) {
+                types::deque_arena<PlayingSound>& playingSounds = soundGroupState.playingSounds;
+                for (auto it = playingSounds.begin(); it != playingSounds.end(); it++) {
+                    if (it->audioTrack == audioTrack) {
+                        playingSounds.erase(it);
+                        PlayingSound* playingSound = &*it;
+                        _stop(playingSound);
+                        playingSound->onFinish();
+                        return;
+                    }
+                }
+                return;
+            }
+        }
+        ASSERT_LOG(false, "Could not find audio track.");
+    }
+
     void AudioPlayer::_stop(PlayingSound* playingSound) {
         if (playingSound->isStopped) {
             return;
@@ -186,6 +187,5 @@ namespace audio {
         availableAudioTracks.push_back(playingSound->audioTrack);
 
         playingSound->isStopped = true;
-        playingSound->onFinish();
     }
 }

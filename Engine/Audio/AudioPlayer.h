@@ -48,13 +48,13 @@ namespace audio {
 
         void stop(PlayingSound* playingSound);
 
-        void stop(MIX_Track* audioTrack);
-
         void pause(PlayingSound* playingSound);
 
         void resume(PlayingSound* playingSound);
 
         void clearAll();
+
+        void onFinish(MIX_Track* audioTrack);
 
     private:
         MIX_Mixer* _audioMixer;

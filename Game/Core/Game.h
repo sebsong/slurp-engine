@@ -37,6 +37,8 @@ namespace game {
     };
 
     struct MainMenuState : scene::Scene {
+        audio::PlayingSound* bgm;
+
         entity::Entity background;
         entity::Entity titleText;
         entity::Entity slurpEngineText;
@@ -44,9 +46,9 @@ namespace game {
         ui::UIButton exitButton;
 
         void load() override;
+        void unload() override;
         void pause() override {};
         void resume() override {};
-        void unload() override {};
     };
 
     struct GameAssets {
@@ -113,6 +115,8 @@ namespace game {
     struct GameState : scene::Scene {
         uint32_t randomSeed;
 
+        audio::PlayingSound* bgm;
+
         entity::Entity background;
         entity::Entity border;
         ui::PauseMenu pauseMenu;
@@ -142,9 +146,9 @@ namespace game {
         entity::Entity overlay;
 
         void load() override;
+        void unload() override;
         void pause() override {};
         void resume() override {};
-        void unload() override {};
     };
 
     struct GameSystems {

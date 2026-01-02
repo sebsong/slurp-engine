@@ -10,9 +10,9 @@ namespace scene {
         types::vector_arena<entity::Entity*> entities;
 
         virtual void load() = 0;
+        virtual void unload() = 0;
         virtual void pause() = 0;
         virtual void resume() = 0;
-        virtual void unload() = 0;
         Scene() = default;
         virtual ~Scene() = default;
     };
