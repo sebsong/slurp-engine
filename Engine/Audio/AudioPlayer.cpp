@@ -163,10 +163,10 @@ namespace audio {
                 types::deque_arena<PlayingSound>& playingSounds = soundGroupState.playingSounds;
                 for (auto it = playingSounds.begin(); it != playingSounds.end(); it++) {
                     if (it->audioTrack == audioTrack) {
-                        playingSounds.erase(it);
                         PlayingSound* playingSound = &*it;
                         _stop(playingSound);
                         playingSound->onFinish();
+                        playingSounds.erase(it);
                         return;
                     }
                 }
