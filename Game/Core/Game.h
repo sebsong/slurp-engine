@@ -156,12 +156,24 @@ namespace game {
         void resume() override {};
     };
 
+    struct GameOver : scene::Scene {
+        // TODO: replace with a game over screen
+        ui::PauseMenu pauseMenu;
+
+        void load() override;
+
+        void unload() override {};
+        void pause() override {};
+        void resume() override {};
+    };
+
     struct GameSystems {
         GameAssets assets;
         Global globalScene;
         MainMenu mainMenuScene;
         Game gameScene;
         PauseMenu pauseMenuScene;
+        GameOver gameOverScene;
     };
 
     GLOBAL(GameAssets* Assets)
@@ -169,6 +181,7 @@ namespace game {
     GLOBAL(MainMenu* MainMenuScene)
     GLOBAL(Game* GameScene)
     GLOBAL(PauseMenu* PauseMenuScene)
+    GLOBAL(GameOver* GameOverScene)
 
     GLOBAL(bool mainMenuActive)
     GLOBAL(bool shouldTransitionScene)

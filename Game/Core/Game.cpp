@@ -121,6 +121,7 @@ namespace game {
         MainMenuScene = new(&gameSystems->mainMenuScene) MainMenu();
         GameScene = new(&gameSystems->gameScene) Game();
         PauseMenuScene = new(&gameSystems->pauseMenuScene) PauseMenu();
+        GameOverScene = new(&gameSystems->gameOverScene) GameOver();
         loadAssets();
 
         audio::setGlobalVolume(GlobalVolume);
@@ -134,6 +135,7 @@ namespace game {
         scene::registerScene(MainMenuScene);
         scene::registerScene(GameScene);
         scene::registerScene(PauseMenuScene);
+        scene::registerScene(GameOverScene);
 
         scene::start(GlobalScene);
         scene::start(MainMenuScene);
@@ -307,6 +309,11 @@ namespace game {
         scene::registerEntity(this, &pauseMenu);
     }
 
+    void GameOver::load() {
+        new(&pauseMenu) ui::PauseMenu();
+        scene::registerEntity(this, &pauseMenu);
+    }
+
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
         if (keyboardState.isDown(slurp::KeyboardCode::ALT) && keyboardState.isDown(slurp::KeyboardCode::F4)) {
             platform::exit();
@@ -354,7 +361,14 @@ namespace game {
     }
 
     void update(float dt) {
-        GameScene->goldProgressBar.progress = GameScene->base.getProgress();
+        float goldProgress = GameScene->base.getProgress();
+        GameScene->goldProgressBar.progress = goldProgress;
+        if (goldProgress >= 1.f) {
+            GameScene->stopwatch.stop();
+            scene::pause(GameScene);
+            scene::end(PauseMenuScene);
+            scene::start(GameOverScene);
+        }
     }
 
     void frameEnd() {}
