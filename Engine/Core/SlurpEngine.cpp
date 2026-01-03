@@ -48,6 +48,9 @@
 #include "AudioPlayer.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Scene.cpp"
+
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Game.cpp"
 
 #if DEBUG
@@ -101,7 +104,6 @@ namespace slurp {
 
         /** Game **/
         game::initialize(isInitialized);
-        // entity::initializeEntities();
     }
 
     void frameStart() {}
@@ -153,7 +155,6 @@ namespace slurp {
             if (!gamepadStates[gamepadIndex].isConnected) { continue; }
             game::handleGamepadInput(gamepadIndex, *actualGamepadStates[gamepadIndex]);
         }
-        // entity::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
         scene::handleInput(*actualMouseState, *actualKeyboardState, *actualGamepadStates);
     }
 
@@ -163,7 +164,6 @@ namespace slurp {
         timer::tick(dt);
 
         game::update(dt);
-        // entity::updateAndRender(dt);
         scene::updateAndRenderEntities(dt);
         scene::updateScenes();
 

@@ -62,7 +62,7 @@ namespace turret {
         timer::delay(
             TurretSpawnTime,
             [this] {
-                // playAnimation(game::Assets->turretIdleAnim, TurretIdleAnimDuration, true);
+                // playAnimation(game::GameScene->turretIdleAnim, TurretIdleAnimDuration, true);
                 _finishedSpawn = true;
                 renderInfo.sprites[TurretPit].renderingEnabled = true;
                 renderInfo.sprites[TurretRangeIndicator].renderingEnabled = true;

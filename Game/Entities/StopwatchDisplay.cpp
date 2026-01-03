@@ -51,10 +51,10 @@ namespace ui {
                   true
               )
           ) {
-        scene::registerEntity(game::State, &_hoursDisplay);
-        scene::registerEntity(game::State, &_minutesDisplay);
-        scene::registerEntity(game::State, &_secondsDisplay);
-        scene::registerEntity(game::State, &_deciSecondsDisplay);
+        scene::registerEntity(game::GameScene, &_hoursDisplay);
+        scene::registerEntity(game::GameScene, &_minutesDisplay);
+        scene::registerEntity(game::GameScene, &_secondsDisplay);
+        scene::registerEntity(game::GameScene, &_deciSecondsDisplay);
     }
 
     void StopwatchDisplay::start() {

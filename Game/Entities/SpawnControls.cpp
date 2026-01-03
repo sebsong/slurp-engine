@@ -37,8 +37,8 @@ namespace ui {
                           WorkerBuildTime,
                           true,
                           [] {
-                              game::State->base.spend(WorkerBuildCost);
-                              game::State->base.spawnWorker();
+                              game::GameScene->base.spend(WorkerBuildCost);
+                              game::GameScene->base.spawnWorker();
                           }
                       );
                   },
@@ -48,7 +48,7 @@ namespace ui {
                       timer::cancel(_spawnWorkerTimerHandle);
                   },
                   [](UIButton* _) {
-                      audio::play(game::Assets->buttonHover);
+                      audio::play(game::Assets->buttonHoverSound);
                   }
               )
           ),
@@ -68,8 +68,8 @@ namespace ui {
                           MineSiteBuildTime,
                           true,
                           [] {
-                              game::State->base.spend(MineSiteBuildCost);
-                              game::State->mineSiteSpawner.spawnMineSite();
+                              game::GameScene->base.spend(MineSiteBuildCost);
+                              game::GameScene->mineSiteSpawner.spawnMineSite();
                           }
                       );
                   },
@@ -79,7 +79,7 @@ namespace ui {
                       timer::cancel(_spawnMineSiteTimerHandle);
                   },
                   [](UIButton* _) {
-                      audio::play(game::Assets->buttonHover);
+                      audio::play(game::Assets->buttonHoverSound);
                   }
               )
           ),
@@ -102,7 +102,7 @@ namespace ui {
                   [](UIButton* _) {},
                   [](UIButton* _) {},
                   [](UIButton* _) {
-                      audio::play(game::Assets->buttonHover);
+                      audio::play(game::Assets->buttonHoverSound);
                   }
               )
           ),
@@ -138,20 +138,20 @@ namespace ui {
         _turretPlacementGuide.enabled = false;
         _turretPlacementGuide.applyAlpha(0.5f);
 
-        scene::registerEntity(game::State, &_spawnWorkerButton);
-        scene::registerEntity(game::State, &_spawnMineSiteButton);
-        scene::registerEntity(game::State, &_spawnTurretButton);
-        scene::registerEntity(game::State, &_turretPlacementGuide);
+        scene::registerEntity(game::GameScene, &_spawnWorkerButton);
+        scene::registerEntity(game::GameScene, &_spawnMineSiteButton);
+        scene::registerEntity(game::GameScene, &_spawnTurretButton);
+        scene::registerEntity(game::GameScene, &_turretPlacementGuide);
     }
 
     void SpawnControls::refresh() {
-        game::State->base.canSpend(WorkerBuildCost)
+        game::GameScene->base.canSpend(WorkerBuildCost)
             ? _spawnWorkerButton.enableButton()
             : _spawnWorkerButton.disableButton();
-        game::State->base.canSpend(MineSiteBuildCost)
+        game::GameScene->base.canSpend(MineSiteBuildCost)
             ? _spawnMineSiteButton.enableButton()
             : _spawnMineSiteButton.disableButton();
-        if (game::State->base.canSpend(TurretBuildCost)) {
+        if (game::GameScene->base.canSpend(TurretBuildCost)) {
             _spawnTurretButton.enableButton();
         } else {
             stopTurretPlacement();
@@ -179,10 +179,10 @@ namespace ui {
             _turretPlacementGuide.enable();
             if (mouseState.justPressed(slurp::MouseCode::LeftClick)) {
                 stopTurretPlacement();
-                game::State->base.spend(TurretBuildCost);
-                turret::Turret* turret = game::State->turrets.nextInstance();
+                game::GameScene->base.spend(TurretBuildCost);
+                turret::Turret* turret = game::GameScene->turrets.nextInstance();
                 turret->physicsInfo.position = _turretPlacementGuide.physicsInfo.position;
-                game::State->turrets.enableInstance(turret);
+                game::GameScene->turrets.enableInstance(turret);
             }
         }
     }

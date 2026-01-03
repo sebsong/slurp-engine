@@ -22,7 +22,9 @@ namespace scene {
     void registerEntity(Scene* scene, entity::Entity* entity) {
         scene->entities.push_back(entity);
         if (scene->isActive) {
-            entity->initialize();
+            if (!entity->initialized) {
+                entity->initialize();
+            }
         }
     }
 
@@ -182,14 +184,16 @@ namespace scene {
     static void load(Scene* scene) {
         scene->load();
         for (entity::Entity* entity: scene->entities) {
-            entity->initialize();
+            if (!entity->initialized) {
+                entity->initialize();
+            }
         }
         scene->isActive = true;
     }
 
     static void unload(Scene* scene) {
         scene->unload();
-        entity::clearAll();
+        scene->entities.clear();
         scene->isActive = false;
     }
 

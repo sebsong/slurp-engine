@@ -27,7 +27,7 @@ namespace mine_site {
     void MineSite::initialize() {
         Entity::initialize();
         for (slurp::Vec2 offset: MineSpotOffsets) {
-            game::State->mineSpots.push_back(physicsInfo.position + offset);
+            game::GameScene->mineSpots.push_back(physicsInfo.position + offset);
         }
     }
 

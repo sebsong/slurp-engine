@@ -34,12 +34,11 @@ namespace audio {
 }
 
 namespace game {
-    struct PauseMenuState;
-    struct PauseMenuAssets;
-    struct MainMenuState;
-    struct MainMenuAssets;
-    struct GameState;
     struct GameAssets;
+    struct Global;
+    struct PauseMenu;
+    struct MainMenu;
+    struct Game;
 }
 
 #define GLOBAL(decl) \
@@ -63,12 +62,11 @@ namespace slurp {
         audio::AudioPlayer* AudioPlayer;
 
         // TODO: should these live in the game module to give the game module full ownership
-        game::MainMenuAssets* MenuAssets;
-        game::MainMenuState* MenuState;
-        game::GameAssets* GameAssets;
-        game::GameState* GameState;
-        game::PauseMenuAssets* PauseAssets;
-        game::PauseMenuState* PauseState;
+        game::GameAssets* Assets;
+        game::Global* GlobalScene;
+        game::MainMenu* MainMenuScene;
+        game::Game* GameScene;
+        game::PauseMenu* PauseMenuScene;
     };
 
     GLOBAL(Global* Globals)

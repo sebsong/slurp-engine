@@ -33,19 +33,20 @@ namespace game {
     static constexpr int NumInitialCorruptedWorkers = 1;
 
     static void loadAssets() {
-        MenuAssets->backgroundSprite = asset::loadSprite("main_menu.bmp");
-        MenuAssets->titleTextSprite = asset::loadSprite("title_text.bmp");
-        MenuAssets->slurpEngineTextSprite = asset::loadSprite("made_with_slurp_engine.bmp");
-        MenuAssets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
-        MenuAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
-        MenuAssets->buttonSprite = asset::loadSprite("button_big.bmp");
-        MenuAssets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
-        MenuAssets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
-        MenuAssets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
+        Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
-        MenuAssets->bgmIntro = asset::loadSound("bgm_chord_intro.wav", AUDIO_SOUND_GROUP_BGM);
-        MenuAssets->bgmMain = asset::loadSound("bgm_main.wav", AUDIO_SOUND_GROUP_BGM);
-        MenuAssets->buttonHover = asset::loadSound("button_hover.wav");
+        Assets->backgroundSprite = asset::loadSprite("main_menu.bmp");
+        Assets->titleTextSprite = asset::loadSprite("title_text.bmp");
+        Assets->slurpEngineTextSprite = asset::loadSprite("made_with_slurp_engine.bmp");
+        Assets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        Assets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
+        Assets->buttonSprite = asset::loadSprite("button_big.bmp");
+        Assets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
+        Assets->buttonPressSprite = asset::loadSprite("button_big_press.bmp");
+
+        Assets->bgmIntro = asset::loadSound("bgm_chord_intro.wav", AUDIO_SOUND_GROUP_BGM);
+        Assets->bgmMain = asset::loadSound("bgm_main.wav", AUDIO_SOUND_GROUP_BGM);
+        Assets->buttonHoverSound = asset::loadSound("button_hover.wav");
 
         Assets->backgroundSprite = asset::loadSprite("background.bmp");
         Assets->borderSprite = asset::loadSprite("border.bmp");
@@ -70,7 +71,7 @@ namespace game {
         Assets->turretIdleAnim = asset::loadSpriteAnimation("turret_idle_anim.bmp", 6);
         Assets->turretShootAnim = asset::loadSpriteAnimation("turret_orb_absorb_anim.bmp", 8);
 
-        Assets->resourcesCollectedFill = asset::loadSprite("resources_collected_bar_fill.bmp");
+        Assets->resourcesCollectedFillSprite = asset::loadSprite("resources_collected_bar_fill.bmp");
 
         Assets->buttonSprite = asset::loadSprite("button.bmp");
         Assets->buttonHoverSprite = asset::loadSprite("button_hover.bmp");
@@ -86,12 +87,7 @@ namespace game {
         }
         Assets->stopwatchPunctuationSprite = asset::loadSprite("stopwatch.bmp");
 
-        Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
-
-        Assets->overlaySprite = asset::loadSprite("overlay.bmp", "overlay.glsl", "overlay.glsl");
-
-        Assets->backgroundMusic = asset::loadSound("bgm_chords.wav", AUDIO_SOUND_GROUP_BGM);
-        Assets->buttonHover = asset::loadSound("button_hover.wav");
+        Assets->bgmChords = asset::loadSound("bgm_chords.wav", AUDIO_SOUND_GROUP_BGM);
         Assets->resourceCollected = asset::loadSound("resource_collected.wav");
         Assets->resourceCollectedLow = asset::loadSound("resource_collected_low.wav");
         Assets->collect[0] = asset::loadSound("collect_1_1.wav");
@@ -105,15 +101,13 @@ namespace game {
         Assets->spawnMineSite = asset::loadSound("spawn_mine_site.wav");
         Assets->turretShoot = asset::loadSound("turret_shoot.wav");
 
-        PauseAssets->screenCoverSprite = asset::loadSprite("screen_cover.bmp");
-        PauseAssets->pauseMenuSprite = asset::loadSprite("pause_menu.bmp");
-        PauseAssets->resumeButtonTextSprite = asset::loadSprite("play_button_text.bmp");
-        PauseAssets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
-        PauseAssets->bigButtonSprite = asset::loadSprite("button_big.bmp");
-        PauseAssets->bigButtonHoverSprite = asset::loadSprite("button_big_hover.bmp");
-        PauseAssets->bigButtonPressSprite = asset::loadSprite("button_big_press.bmp");
+        Assets->screenCoverSprite = asset::loadSprite("screen_cover.bmp");
+        Assets->pauseMenuSprite = asset::loadSprite("pause_menu.bmp");
+        Assets->bigButtonSprite = asset::loadSprite("button_big.bmp");
+        Assets->bigButtonHoverSprite = asset::loadSprite("button_big_hover.bmp");
+        Assets->bigButtonPressSprite = asset::loadSprite("button_big_press.bmp");
 
-        PauseAssets->buttonHover = asset::loadSound("button_hover.wav");
+        Assets->buttonHoverSound = asset::loadSound("button_hover.wav");
     }
 
     void initialize(bool isInitialized) {
@@ -121,40 +115,46 @@ namespace game {
             sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
         }
         GameSystems* gameSystems = sceneMemory.allocate<GameSystems>();
-        MenuAssets = slurp::Globals->MenuAssets = &gameSystems->menuAssets;
-        MenuState = slurp::Globals->MenuState = new(&gameSystems->menuState) MainMenuState();
-        Assets = slurp::Globals->GameAssets = &gameSystems->assets;
-        State = slurp::Globals->GameState = new(&gameSystems->state) GameState();
-        PauseAssets = slurp::Globals->PauseAssets = &gameSystems->pauseMenuAssets;
-        PauseState = slurp::Globals->PauseState = new(&gameSystems->pauseMenuState) PauseMenuState();
+        Assets = slurp::Globals->Assets = &gameSystems->assets;
+        GlobalScene = slurp::Globals->GlobalScene = new(&gameSystems->globalScene) Global();
+        MainMenuScene = slurp::Globals->MainMenuScene = new(&gameSystems->mainMenuScene) MainMenu();
+        GameScene = slurp::Globals->GameScene = new(&gameSystems->gameScene) Game();
+        PauseMenuScene = slurp::Globals->PauseMenuScene = new(&gameSystems->pauseMenuScene) PauseMenu();
         loadAssets();
 
         audio::setGlobalVolume(GlobalVolume);
 
-        State->randomSeed = static_cast<uint32_t>(time(nullptr));
-        rnd::setRandomSeed(State->randomSeed);
+        GameScene->randomSeed = static_cast<uint32_t>(time(nullptr));
+        rnd::setRandomSeed(GameScene->randomSeed);
 
         slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
 
-        scene::registerScene(MenuState);
-        scene::registerScene(State);
-        scene::registerScene(PauseState);
+        scene::registerScene(GlobalScene);
+        scene::registerScene(MainMenuScene);
+        scene::registerScene(GameScene);
+        scene::registerScene(PauseMenuScene);
 
-        scene::start(MenuState);
+        scene::start(GlobalScene);
+        scene::start(MainMenuScene);
     }
 
-    void MainMenuState::load() {
+    void Global::load() {
+        new(&mouseCursor) mouse_cursor::MouseCursor(Assets->mouseCursorSprite);
+        scene::registerEntity(this, &mouseCursor);
+    }
+
+    void MainMenu::load() {
         bgm = audio::play(
-            MenuAssets->bgmIntro,
+            Assets->bgmIntro,
             0.6,
             false,
             [this] {
-                bgm = audio::play(MenuAssets->bgmMain, 0.6, true);
+                bgm = audio::play(Assets->bgmMain, 0.6, true);
             }
         );
         new(&background) entity::Entity(
             "Background",
-            render::RenderInfo(render::SpriteInstance(MenuAssets->backgroundSprite, BACKGROUND_Z)),
+            render::RenderInfo(render::SpriteInstance(Assets->backgroundSprite, BACKGROUND_Z)),
             physics::PhysicsInfo(),
             collision::CollisionInfo()
         );
@@ -162,7 +162,7 @@ namespace game {
 
         new(&titleText) entity::Entity(
             "Title Text",
-            render::RenderInfo(render::SpriteInstance(MenuAssets->titleTextSprite, UI_Z)),
+            render::RenderInfo(render::SpriteInstance(Assets->titleTextSprite, UI_Z)),
             physics::PhysicsInfo({0, 100}),
             collision::CollisionInfo()
         );
@@ -170,7 +170,7 @@ namespace game {
 
         new(&slurpEngineText) entity::Entity(
             "Slurp Engine Text",
-            render::RenderInfo(render::SpriteInstance(MenuAssets->slurpEngineTextSprite, MOUSE_Z)),
+            render::RenderInfo(render::SpriteInstance(Assets->slurpEngineTextSprite, MOUSE_Z)),
             physics::PhysicsInfo({275, -150}),
             collision::CollisionInfo()
         );
@@ -178,30 +178,30 @@ namespace game {
 
         const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
         new(&playButton) ui::UIButton(
-            MenuAssets->playButtonTextSprite,
-            MenuAssets->buttonSprite,
-            MenuAssets->buttonHoverSprite,
-            MenuAssets->buttonPressSprite,
+            Assets->playButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
             buttonShape,
             {0, -25},
             std::nullopt,
             [](ui::UIButton* _) {},
             [](ui::UIButton* _) {
-                scene::transition(MenuState, State);
+                scene::transition(MainMenuScene, GameScene);
             },
             [](ui::UIButton* _) {},
             [](ui::UIButton* _) {
-                audio::play(Assets->buttonHover);
+                audio::play(Assets->buttonHoverSound);
             },
             -2
         );
         scene::registerEntity(this, &playButton);
 
         new(&exitButton) ui::UIButton(
-            MenuAssets->exitButtonTextSprite,
-            MenuAssets->buttonSprite,
-            MenuAssets->buttonHoverSprite,
-            MenuAssets->buttonPressSprite,
+            Assets->exitButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
             buttonShape,
             {0, -75},
             std::nullopt,
@@ -211,24 +211,21 @@ namespace game {
             },
             [](ui::UIButton* _) {},
             [](ui::UIButton* _) {
-                audio::play(Assets->buttonHover);
+                audio::play(Assets->buttonHoverSound);
             },
             -2
         );
         scene::registerEntity(this, &exitButton);
-
-        new(&mouseCursor) mouse_cursor::MouseCursor(MenuAssets->mouseCursorSprite);
-        scene::registerEntity(this, &mouseCursor);
     }
 
-    void MainMenuState::unload() {
+    void MainMenu::unload() {
         if (bgm) {
             audio::stop(bgm);
         }
     }
 
-    void GameState::load() {
-        bgm = audio::play(Assets->backgroundMusic, 0.6, true);
+    void Game::load() {
+        bgm = audio::play(Assets->bgmChords, 0.6, true);
 
         new(&background) entity::Entity(
             "Background",
@@ -277,7 +274,7 @@ namespace game {
                     0,
                     false,
                     nullptr,
-                    Assets->resourcesCollectedFill,
+                    Assets->resourcesCollectedFillSprite,
                     PROGRESS_BAR_Z
                 );
         scene::registerEntity(this, &goldProgressBar);
@@ -294,18 +291,15 @@ namespace game {
                     false
                 );
         scene::registerEntity(this, &resourcesCollectedDisplay);
-
-        new(&mouseCursor) mouse_cursor::MouseCursor(Assets->mouseCursorSprite);
-        scene::registerEntity(this, &mouseCursor);
     }
 
-    void GameState::unload() {
+    void Game::unload() {
         if (bgm) {
             audio::stop(bgm);
         }
     }
 
-    void PauseMenuState::load() {
+    void PauseMenu::load() {
         new(&pauseMenu) ui::PauseMenu();
         scene::registerEntity(this, &pauseMenu);
     }
@@ -316,20 +310,20 @@ namespace game {
         }
 
         if (keyboardState.justPressed(slurp::KeyboardCode::TAB)) {
-            if (MenuState->isActive) {
-                scene::transition(MenuState, State);
+            if (MainMenuScene->isActive) {
+                scene::transition(MainMenuScene, GameScene);
             } else {
-                scene::transition(State, MenuState);
+                scene::transition(GameScene, MainMenuScene);
             }
         }
 
-        if (State->isActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
-            if (!State->isPaused) {
-                scene::pause(State);
-                scene::start(PauseState);
+        if (GameScene->isActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
+            if (!GameScene->isPaused) {
+                scene::pause(GameScene);
+                scene::start(PauseMenuScene);
             } else {
-                scene::end(PauseState);
-                scene::resume(State);
+                scene::end(PauseMenuScene);
+                scene::resume(GameScene);
             }
         }
     }
@@ -341,7 +335,7 @@ namespace game {
     }
 
     void update(float dt) {
-        State->goldProgressBar.progress = State->base.getProgress();
+        GameScene->goldProgressBar.progress = GameScene->base.getProgress();
     }
 
     void frameEnd() {}
@@ -351,13 +345,13 @@ namespace game {
     }
 
     void corruptWorkers(int numWorkers) {
-        if (State->corruptibleWorkers.empty()) {
+        if (GameScene->corruptibleWorkers.empty()) {
             return;
         }
-        rnd::shuffle(State->corruptibleWorkers);
+        rnd::shuffle(GameScene->corruptibleWorkers);
         std::vector targetWorkers = std::vector(
-            State->corruptibleWorkers.begin(),
-            State->corruptibleWorkers.begin() + numWorkers
+            GameScene->corruptibleWorkers.begin(),
+            GameScene->corruptibleWorkers.begin() + numWorkers
         );
         for (worker::Worker* target: targetWorkers) {
             target->corrupt();
@@ -365,9 +359,9 @@ namespace game {
     }
 
     void removeCorruptibleWorker(worker::Worker* worker) {
-        auto position = std::ranges::find(State->corruptibleWorkers, worker);
-        if (position != State->corruptibleWorkers.end()) {
-            game::State->corruptibleWorkers.erase(position);
+        auto position = std::ranges::find(GameScene->corruptibleWorkers, worker);
+        if (position != GameScene->corruptibleWorkers.end()) {
+            game::GameScene->corruptibleWorkers.erase(position);
         }
     }
 }

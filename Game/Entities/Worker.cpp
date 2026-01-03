@@ -49,7 +49,7 @@ namespace worker {
 
     void Worker::initialize() {
         Entity::initialize();
-        game::State->corruptibleWorkers.push_back(this);
+        game::GameScene->corruptibleWorkers.push_back(this);
         findNewMiningLocation();
     }
 
@@ -124,29 +124,29 @@ namespace worker {
             return;
         }
 
-        if (!game::State->base.isSpawnLocation(_targetLocation)) {
+        if (!game::GameScene->base.isSpawnLocation(_targetLocation)) {
             occupyMiningLocation(_targetLocation);
         }
     }
 
     void Worker::occupyMiningLocation(slurp::Vec2<float> location) {
-        for (auto it = game::State->mineSpots.begin(); it != game::State->mineSpots.end(); it++) {
+        for (auto it = game::GameScene->mineSpots.begin(); it != game::GameScene->mineSpots.end(); it++) {
             if (*it == location) {
-                game::State->mineSpots.erase(it);
+                game::GameScene->mineSpots.erase(it);
                 break;
             }
         }
     }
 
     void Worker::leaveMiningLocation() {
-        if (!_targetLocation.isZero() && !game::State->base.isSpawnLocation(_targetLocation)) {
-            game::State->mineSpots.push_back(_targetLocation);
+        if (!_targetLocation.isZero() && !game::GameScene->base.isSpawnLocation(_targetLocation)) {
+            game::GameScene->mineSpots.push_back(_targetLocation);
             _targetLocation = slurp::Vec2<float>::Zero;
         }
     }
 
     static slurp::Vec2<float> getAvailableMiningLocation() {
-        return rnd::pickRandom(game::State->mineSpots, slurp::Vec2<float>::Zero);
+        return rnd::pickRandom(game::GameScene->mineSpots, slurp::Vec2<float>::Zero);
     }
 
     void Worker::findNewMiningLocation() {
@@ -167,7 +167,7 @@ namespace worker {
 
     void Worker::dropOff() {
         _isLoaded = false;
-        game::State->base.dropOff();
+        game::GameScene->base.dropOff();
         setTexture(game::Assets->workerSprite);
         findNewMiningLocation();
     }
@@ -190,7 +190,7 @@ namespace worker {
     }
 
     static bool rollCorruption() {
-        if (!game::State->corruptionEnabled) {
+        if (!game::GameScene->corruptionEnabled) {
             return false;
         }
 
@@ -210,7 +210,7 @@ namespace worker {
         } else {
             _isLoaded = true;
             leaveMiningLocation();
-            setTargetLocation(game::State->base.getRandomSpawnLocation());
+            setTargetLocation(game::GameScene->base.getRandomSpawnLocation());
             setTexture(game::Assets->workerLoadedSprite);
         }
     }
@@ -222,7 +222,7 @@ namespace worker {
     void Worker::purify() {
         _isCorrupted = false;
         setTexture(game::Assets->workerSprite);
-        game::State->corruptibleWorkers.push_back(this);
+        game::GameScene->corruptibleWorkers.push_back(this);
     }
 
     void Worker::erupt() {

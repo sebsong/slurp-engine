@@ -21,55 +21,31 @@
 #define MAX_NUM_MINE_SITES 1000
 
 namespace game {
-    struct MainMenuAssets {
+    struct GameAssets {
         asset::Sprite* backgroundSprite;
+        asset::Sprite* mouseCursorSprite;
+
         asset::Sprite* titleTextSprite;
         asset::Sprite* slurpEngineTextSprite;
         asset::Sprite* playButtonTextSprite;
         asset::Sprite* exitButtonTextSprite;
-        asset::Sprite* buttonSprite;
-        asset::Sprite* buttonHoverSprite;
-        asset::Sprite* buttonPressSprite;
-        asset::Sprite* mouseCursorSprite;
+        asset::Sprite* bigButtonSprite;
+        asset::Sprite* bigButtonHoverSprite;
+        asset::Sprite* bigButtonPressSprite;
 
         asset::Sound* bgmIntro;
         asset::Sound* bgmMain;
-        asset::Sound* buttonHover;
-    };
+        asset::Sound* buttonHoverSound;
 
-    struct MainMenuState : scene::Scene {
-        audio::PlayingSound* bgm;
-
-        entity::Entity background;
-        entity::Entity titleText;
-        entity::Entity slurpEngineText;
-        ui::UIButton playButton;
-        ui::UIButton exitButton;
-
-        mouse_cursor::MouseCursor mouseCursor;
-
-        void load() override;
-        void unload() override;
-        void pause() override {};
-        void resume() override {};
-    };
-
-    struct GameAssets {
-        asset::Sprite* backgroundSprite;
         asset::Sprite* borderSprite;
-
-
         asset::Sprite* baseSprite;
         asset::SpriteAnimation* baseIdleAnim;
-
         asset::Sprite* mineSiteSprite;
         asset::SpriteAnimation* mineSiteSpawnAnim;
-
         asset::Sprite* workerSprite;
         asset::SpriteAnimation* workerLoadingAnim;
         asset::Sprite* workerLoadedSprite;
         asset::Sprite* workerCorruptedSprite;
-
         asset::Sprite* turretSprite;
         asset::Sprite* turretOrbSprite;
         asset::Sprite* turretPitSprite;
@@ -77,27 +53,18 @@ namespace game {
         asset::SpriteAnimation* turretSpawnAnim;
         asset::SpriteAnimation* turretIdleAnim;
         asset::SpriteAnimation* turretShootAnim;
-
-        asset::Sprite* resourcesCollectedFill;
-
+        asset::Sprite* resourcesCollectedFillSprite;
         asset::Sprite* buttonSprite;
         asset::Sprite* buttonHoverSprite;
         asset::Sprite* buttonPressSprite;
         asset::SpriteAnimation* buttonPressAnim;
-
         asset::Sprite* workerButtonIcon;
         asset::Sprite* mineSiteButtonIcon;
         asset::Sprite* turretButtonIcon;
-
         asset::Sprite* digitSprites[10];
         asset::Sprite* stopwatchPunctuationSprite;
 
-        asset::Sprite* mouseCursorSprite;
-
-        asset::Sprite* overlaySprite;
-
-        asset::Sound* backgroundMusic;
-        asset::Sound* buttonHover;
+        asset::Sound* bgmChords;
         asset::Sound* resourceCollected;
         asset::Sound* resourceCollectedLow;
         asset::Sound* collect[3];
@@ -106,9 +73,39 @@ namespace game {
         asset::Sound* resourceDropOff;
         asset::Sound* spawnMineSite;
         asset::Sound* turretShoot;
+
+        asset::Sprite* screenCoverSprite;
+        asset::Sprite* pauseMenuSprite;
     };
 
-    struct GameState : scene::Scene {
+    struct Global : scene::Scene {
+        mouse_cursor::MouseCursor mouseCursor;
+
+        void load() override;
+
+        void unload() override {};
+        void pause() override {};
+        void resume() override {};
+    };
+
+    struct MainMenu : scene::Scene {
+        audio::PlayingSound* bgm;
+
+        entity::Entity background;
+        entity::Entity titleText;
+        entity::Entity slurpEngineText;
+        ui::UIButton playButton;
+        ui::UIButton exitButton;
+
+        void load() override;
+
+        void unload() override;
+
+        void pause() override {};
+        void resume() override {};
+    };
+
+    struct Game : scene::Scene {
         uint32_t randomSeed;
 
         audio::PlayingSound* bgm;
@@ -137,50 +134,39 @@ namespace game {
         ui::NumberDisplay resourcesCollectedDisplay;
         ui::StopwatchDisplay stopwatchDisplay;
 
-        mouse_cursor::MouseCursor mouseCursor;
         entity::Entity overlay;
 
         void load() override;
+
         void unload() override;
+
         void pause() override {};
         void resume() override {};
     };
 
-    struct PauseMenuAssets {
-        asset::Sprite* screenCoverSprite;
-        asset::Sprite* pauseMenuSprite;
-        asset::Sprite* resumeButtonTextSprite;
-        asset::Sprite* exitButtonTextSprite;
-        asset::Sprite* bigButtonSprite;
-        asset::Sprite* bigButtonHoverSprite;
-        asset::Sprite* bigButtonPressSprite;
-        asset::Sound* buttonHover;
-    };
-
-    struct PauseMenuState: scene::Scene {
+    struct PauseMenu : scene::Scene {
         ui::PauseMenu pauseMenu;
 
         void load() override;
+
         void unload() override {};
         void pause() override {};
         void resume() override {};
     };
 
     struct GameSystems {
-        MainMenuAssets menuAssets;
-        MainMenuState menuState;
         GameAssets assets;
-        GameState state;
-        PauseMenuAssets pauseMenuAssets;
-        PauseMenuState pauseMenuState;
+        Global globalScene;
+        MainMenu mainMenuScene;
+        Game gameScene;
+        PauseMenu pauseMenuScene;
     };
 
-    GLOBAL(MainMenuAssets* MenuAssets)
-    GLOBAL(MainMenuState* MenuState)
     GLOBAL(GameAssets* Assets)
-    GLOBAL(GameState* State)
-    GLOBAL(PauseMenuAssets* PauseAssets)
-    GLOBAL(PauseMenuState* PauseState)
+    GLOBAL(Global* GlobalScene)
+    GLOBAL(MainMenu* MainMenuScene)
+    GLOBAL(Game* GameScene)
+    GLOBAL(PauseMenu* PauseMenuScene)
 
     GLOBAL(bool mainMenuActive)
     GLOBAL(bool shouldTransitionScene)
