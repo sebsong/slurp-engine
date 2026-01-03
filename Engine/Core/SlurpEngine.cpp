@@ -120,14 +120,14 @@ namespace slurp {
         if (keyboardState.justPressed(KeyboardCode::P)) {
             Globals->PlatformDll->DEBUG_togglePause();
         }
-        if (keyboardState.justPressed(KeyboardCode::R) && !GlobalRecordingState.isPlayingBack) {
+        if (keyboardState.justPressed(KeyboardCode::I) && !GlobalRecordingState.isPlayingBack) {
             if (!GlobalRecordingState.isRecording) {
                 beginRecording(GlobalRecordingState);
             } else {
                 endRecording(GlobalRecordingState);
             }
         }
-        if (keyboardState.justPressed(KeyboardCode::T)) {
+        if (keyboardState.justPressed(KeyboardCode::O)) {
             beginPlayback(GlobalRecordingState);
         }
 

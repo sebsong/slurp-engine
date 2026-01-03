@@ -136,6 +136,8 @@ namespace game {
 
         entity::Entity overlay;
 
+        timer::timer_handle resetTimer;
+
         void load() override;
 
         void unload() override;

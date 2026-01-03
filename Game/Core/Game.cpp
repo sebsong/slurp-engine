@@ -31,6 +31,7 @@ namespace game {
 
     static constexpr float EnableCorruptionDelay = 45.f;
     static constexpr int NumInitialCorruptedWorkers = 1;
+    static constexpr float ResetHoldTime = 0.5f;
 
     static void loadAssets() {
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
@@ -115,11 +116,11 @@ namespace game {
             sceneMemory = memory::Permanent->allocateSubArena("Scene Memory", sizeof(GameSystems));
         }
         GameSystems* gameSystems = sceneMemory.allocate<GameSystems>();
-        Assets = slurp::Globals->Assets = &gameSystems->assets;
-        GlobalScene = slurp::Globals->GlobalScene = new(&gameSystems->globalScene) Global();
-        MainMenuScene = slurp::Globals->MainMenuScene = new(&gameSystems->mainMenuScene) MainMenu();
-        GameScene = slurp::Globals->GameScene = new(&gameSystems->gameScene) Game();
-        PauseMenuScene = slurp::Globals->PauseMenuScene = new(&gameSystems->pauseMenuScene) PauseMenu();
+        Assets = &gameSystems->assets;
+        GlobalScene = new(&gameSystems->globalScene) Global();
+        MainMenuScene = new(&gameSystems->mainMenuScene) MainMenu();
+        GameScene = new(&gameSystems->gameScene) Game();
+        PauseMenuScene = new(&gameSystems->pauseMenuScene) PauseMenu();
         loadAssets();
 
         audio::setGlobalVolume(GlobalVolume);
@@ -291,6 +292,8 @@ namespace game {
                     false
                 );
         scene::registerEntity(this, &resourcesCollectedDisplay);
+
+        resetTimer = timer::reserveHandle();
     }
 
     void Game::unload() {
@@ -317,13 +320,29 @@ namespace game {
             }
         }
 
-        if (GameScene->isActive && keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
-            if (!GameScene->isPaused) {
-                scene::pause(GameScene);
-                scene::start(PauseMenuScene);
-            } else {
-                scene::end(PauseMenuScene);
-                scene::resume(GameScene);
+        if (GameScene->isActive) {
+            if (keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
+                if (!GameScene->isPaused) {
+                    scene::pause(GameScene);
+                    scene::start(PauseMenuScene);
+                } else {
+                    scene::end(PauseMenuScene);
+                    scene::resume(GameScene);
+                }
+            }
+
+            if (keyboardState.justPressed(slurp::KeyboardCode::R)) {
+                timer::start(
+                    GameScene->resetTimer,
+                    ResetHoldTime,
+                    false,
+                    [] {
+                        scene::end(GameScene);
+                        scene::start(GameScene);
+                    }
+                );
+            } else if (!keyboardState.isDown(slurp::KeyboardCode::R)) {
+                timer::cancel(GameScene->resetTimer);
             }
         }
     }

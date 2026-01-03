@@ -60,13 +60,6 @@ namespace slurp {
         asset::AssetLoader* AssetLoader;
         entity::EntityPipeline* EntityPipeline;
         audio::AudioPlayer* AudioPlayer;
-
-        // TODO: should these live in the game module to give the game module full ownership
-        game::GameAssets* Assets;
-        game::Global* GlobalScene;
-        game::MainMenu* MainMenuScene;
-        game::Game* GameScene;
-        game::PauseMenu* PauseMenuScene;
     };
 
     GLOBAL(Global* Globals)

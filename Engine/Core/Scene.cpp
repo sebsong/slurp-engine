@@ -198,18 +198,12 @@ namespace scene {
     }
 
     void updateScenes() {
-        // TODO: don't need 2 pass if we target entities and audio to unload
         for (uint32_t i = 0; i < NumRegisteredScenes; i++) {
             Scene* scene = AllScenes[i];
-            ASSERT_LOG(!(scene->shouldLoad && scene->shouldUnload), "Trying to load and unload at the same time.");
             if (scene->shouldUnload) {
                 unload(scene);
                 scene->shouldUnload = false;
             }
-        }
-        for (uint32_t i = 0; i < NumRegisteredScenes; i++) {
-            Scene* scene = AllScenes[i];
-            ASSERT_LOG(!(scene->shouldLoad && scene->shouldUnload), "Trying to load and unload at the same time.");
             if (scene->shouldLoad) {
                 load(scene);
                 scene->shouldLoad = false;
