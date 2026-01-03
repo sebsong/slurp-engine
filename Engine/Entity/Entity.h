@@ -34,6 +34,7 @@ namespace entity {
             uint32_t id,
             std::string&& name,
             bool enabled,
+            bool initialized,
             const render::RenderInfo& renderInfo,
             const physics::PhysicsInfo& physicsInfo,
             const collision::CollisionInfo& collisionInfo,

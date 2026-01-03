@@ -66,8 +66,7 @@ namespace ui {
                   -2,
                   game::PAUSE_Z - 1
               )
-          ) {
-    }
+          ) {}
 
     void PauseMenu::initialize() {
         Entity::initialize();
