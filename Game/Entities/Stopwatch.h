@@ -3,11 +3,11 @@
 #include "NumberDisplay.h"
 
 namespace ui {
-    class StopwatchDisplay final : public entity::Entity {
+    class Stopwatch final : public entity::Entity {
     public:
-        StopwatchDisplay() = default;
+        Stopwatch() = default;
 
-        StopwatchDisplay(const slurp::Vec2<float>& position);
+        explicit Stopwatch(const slurp::Vec2<float>& position);
 
         void start();
 

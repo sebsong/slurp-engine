@@ -17,7 +17,7 @@
 #include "UIButton.cpp"
 #include "MouseCursor.cpp"
 #include "NumberDisplay.cpp"
-#include "StopwatchDisplay.cpp"
+#include "Stopwatch.cpp"
 #include "ProgressBar.cpp"
 #include "SpawnControls.cpp"
 #include "PauseMenu.cpp"
@@ -37,7 +37,7 @@ namespace game {
 
         Assets->backgroundSprite = asset::loadSprite("main_menu.bmp");
         Assets->titleTextSprite = asset::loadSprite("title_text.bmp");
-        Assets->slurpEngineTextSprite = asset::loadSprite("made_with_slurp_engine.bmp");
+        Assets->madeWithSlurpEngineSprite = asset::loadSprite("made_with_slurp_engine.bmp");
         Assets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
         Assets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
         Assets->buttonSprite = asset::loadSprite("button_big.bmp");
@@ -170,7 +170,7 @@ namespace game {
 
         new(&slurpEngineText) entity::Entity(
             "Slurp Engine Text",
-            render::RenderInfo(render::SpriteInstance(Assets->slurpEngineTextSprite, MOUSE_Z)),
+            render::RenderInfo(render::SpriteInstance(Assets->madeWithSlurpEngineSprite, UI_Z)),
             physics::PhysicsInfo({275, -150}),
             collision::CollisionInfo()
         );
@@ -280,8 +280,8 @@ namespace game {
         scene::registerEntity(this, &goldProgressBar);
 
 
-        new(&stopwatchDisplay) ui::StopwatchDisplay({280, 166});
-        scene::registerEntity(this, &stopwatchDisplay);
+        new(&stopwatch) ui::Stopwatch({280, 166});
+        scene::registerEntity(this, &stopwatch);
 
         new(&resourcesCollectedDisplay)
                 ui::NumberDisplay(

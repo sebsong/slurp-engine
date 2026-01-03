@@ -170,7 +170,7 @@ if (NOT UNITY_BUILD)
             Game/Entities/PauseMenu.cpp
             Game/Entities/ProgressBar.cpp
             Game/Entities/SpawnControls.cpp
-            Game/Entities/StopwatchDisplay.cpp
+            Game/Entities/Stopwatch.cpp
             Game/Entities/Turret.cpp
             Game/Entities/UIButton.cpp
             Game/Entities/Worker.cpp

@@ -8,7 +8,7 @@ namespace base {
     static slurp::Vec2<float> SpawnOffsets[NumSpawnLocations] = {{-15, -8}, {16, -8}};
 
     static constexpr uint32_t InitialGold = 100;
-    static constexpr uint32_t GoldGoal = 500;
+    static constexpr uint32_t GoldGoal = 200;
 
     Base::Base()
         : Entity(
@@ -39,6 +39,10 @@ namespace base {
     void Base::dropOff() {
         _gold++;
         game::GameScene->spawnControls.refresh();
+        if (_gold >= GoldGoal) {
+            game::GameScene->stopwatch.stop();
+            // TODO: transition to game over scene
+        }
     }
 
     float Base::getProgress() const {

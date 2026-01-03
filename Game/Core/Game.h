@@ -14,7 +14,7 @@
 #include "ProgressBar.h"
 #include "Scene.h"
 #include "SpawnControls.h"
-#include "StopwatchDisplay.h"
+#include "Stopwatch.h"
 
 #define MAX_NUM_WORKERS 10000
 #define MAX_NUM_TURRETS 1000
@@ -26,7 +26,7 @@ namespace game {
         asset::Sprite* mouseCursorSprite;
 
         asset::Sprite* titleTextSprite;
-        asset::Sprite* slurpEngineTextSprite;
+        asset::Sprite* madeWithSlurpEngineSprite;
         asset::Sprite* playButtonTextSprite;
         asset::Sprite* exitButtonTextSprite;
         asset::Sprite* bigButtonSprite;
@@ -132,7 +132,7 @@ namespace game {
         ui::ProgressBar goldProgressBar;
 
         ui::NumberDisplay resourcesCollectedDisplay;
-        ui::StopwatchDisplay stopwatchDisplay;
+        ui::Stopwatch stopwatch;
 
         entity::Entity overlay;
 

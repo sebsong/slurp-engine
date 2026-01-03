@@ -1,10 +1,10 @@
-#include "StopwatchDisplay.h"
+#include "Stopwatch.h"
 
 #include "Game.h"
 #include "NumberDisplay.h"
 
 namespace ui {
-    StopwatchDisplay::StopwatchDisplay(const slurp::Vec2<float>& position)
+    Stopwatch::Stopwatch(const slurp::Vec2<float>& position)
         : Entity(
               "TimeDisplay",
               render::RenderInfo(
@@ -57,24 +57,29 @@ namespace ui {
         scene::registerEntity(game::GameScene, &_deciSecondsDisplay);
     }
 
-    void StopwatchDisplay::start() {
+    void Stopwatch::start() {
         _isStopped = false;
     }
 
-    void StopwatchDisplay::stop() {
+    void Stopwatch::stop() {
         _isStopped = true;
     }
 
-    void StopwatchDisplay::reset() {
+    void Stopwatch::reset() {
         _secondsElapsed = 0;
     }
 
-    void StopwatchDisplay::initialize() {
+    void Stopwatch::initialize() {
         Entity::initialize();
+        start();
     }
 
-    void StopwatchDisplay::update(float dt) {
+    void Stopwatch::update(float dt) {
         Entity::update(dt);
+        if (_isStopped) {
+            return;
+        }
+
         _secondsElapsed += dt;
 
         uint32_t hours = _secondsElapsed / (60 * 60);
