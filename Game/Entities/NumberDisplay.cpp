@@ -7,7 +7,8 @@ namespace ui {
         slurp::Vec2<float> position,
         int initialNumber,
         uint8_t numDigits,
-        bool showLeadingZeroes
+        bool showLeadingZeroes,
+        int32_t zOrder
     )
         : Entity(
               "Number Display",
@@ -24,7 +25,7 @@ namespace ui {
         for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
             new(&renderInfo.sprites[i]) render::SpriteInstance(
                 game::Assets->digitSprites[0],
-                game::UI_Z,
+                zOrder,
                 {-i * 10.f, 0.f}
             );
             renderInfo.sprites[i].renderingEnabled = false;

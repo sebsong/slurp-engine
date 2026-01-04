@@ -5,11 +5,14 @@
 namespace ui {
     class Stopwatch final : public entity::Entity {
     public:
-        float secondsElapsed;
 
         Stopwatch() = default;
 
-        explicit Stopwatch(const slurp::Vec2<float>& position, float secondsElapsed = 0.f);
+        explicit Stopwatch(
+            const slurp::Vec2<float>& position,
+            int32_t zOrder = game::UI_Z,
+            float secondsElapsed = 0.f
+        );
 
         void start();
 
@@ -17,8 +20,13 @@ namespace ui {
 
         void reset();
 
+        float getSecondsElapsed();
+
+        void setSecondsElapsed(float secondsElapsed);
+
     private:
         bool _isStopped;
+        float _secondsElapsed;
 
         NumberDisplay _hoursDisplay;
         NumberDisplay _minutesDisplay;
@@ -28,5 +36,7 @@ namespace ui {
         void initialize() override;
 
         void update(float dt) override;
+
+        void updateDisplay();
     };
 }

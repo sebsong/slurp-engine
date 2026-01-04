@@ -319,8 +319,11 @@ namespace game {
         new(&gameOverScreen) ui::GameOverScreen();
         scene::registerEntity(this, &gameOverScreen);
 
-        new(&stopwatch) ui::Stopwatch({0, 0}, GameScene->stopwatch.secondsElapsed);
-        stopwatch.renderInfo.sprites[0].zOrder = MOUSE_Z;
+        new(&stopwatch) ui::Stopwatch(
+            {20, 0},
+            MENU_Z - 1,
+            GameScene->stopwatch.getSecondsElapsed()
+        );
         scene::registerEntity(this, &stopwatch);
 
         new(&resumeButton) ui::Button(

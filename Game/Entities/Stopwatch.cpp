@@ -4,53 +4,60 @@
 #include "NumberDisplay.h"
 
 namespace ui {
-    Stopwatch::Stopwatch(const slurp::Vec2<float>& position, float secondsElapsed)
-        : Entity(
-              "TimeDisplay",
-              render::RenderInfo(
-                  render::SpriteInstance(
-                      game::Assets->stopwatchPunctuationSprite,
-                      game::UI_Z,
-                      {-16, 0}
-                  )
-              ),
-              physics::PhysicsInfo(position),
-              collision::CollisionInfo()
-          ),
-          secondsElapsed(secondsElapsed),
-          _isStopped(true),
-          _hoursDisplay(
-              NumberDisplay(
-                  {position.x - 44, position.y},
-                  0,
-                  2,
-                  true
-              )
-          ),
-          _minutesDisplay(
-              NumberDisplay(
-                  {position.x - 22, position.y},
-                  0,
-                  2,
-                  true
-              )
-          ),
-          _secondsDisplay(
-              NumberDisplay(
-                  {position.x, position.y},
-                  0,
-                  2,
-                  true
-              )
-          ),
-          _deciSecondsDisplay(
-              NumberDisplay(
-                  {position.x + 12, position.y},
-                  0,
-                  1,
-                  true
-              )
-          ) {}
+    Stopwatch::Stopwatch(
+        const slurp::Vec2<float>& position,
+        int32_t zOrder,
+        float secondsElapsed
+    ): Entity(
+           "TimeDisplay",
+           render::RenderInfo(
+               render::SpriteInstance(
+                   game::Assets->stopwatchPunctuationSprite,
+                   zOrder,
+                   {-16, 0}
+               )
+           ),
+           physics::PhysicsInfo(position),
+           collision::CollisionInfo()
+       ),
+       _isStopped(true),
+       _secondsElapsed(secondsElapsed),
+       _hoursDisplay(
+           NumberDisplay(
+               {position.x - 44, position.y},
+               0,
+               2,
+               true,
+               zOrder
+           )
+       ),
+       _minutesDisplay(
+           NumberDisplay(
+               {position.x - 22, position.y},
+               0,
+               2,
+               true,
+               zOrder
+           )
+       ),
+       _secondsDisplay(
+           NumberDisplay(
+               {position.x, position.y},
+               0,
+               2,
+               true,
+               zOrder
+           )
+       ),
+       _deciSecondsDisplay(
+           NumberDisplay(
+               {position.x + 12, position.y},
+               0,
+               1,
+               true,
+               zOrder
+           )
+       ) {}
 
     void Stopwatch::initialize() {
         Entity::initialize();
@@ -58,6 +65,8 @@ namespace ui {
         scene::registerEntity(scene, &_minutesDisplay);
         scene::registerEntity(scene, &_secondsDisplay);
         scene::registerEntity(scene, &_deciSecondsDisplay);
+
+        updateDisplay();
     }
 
     void Stopwatch::start() {
@@ -69,7 +78,16 @@ namespace ui {
     }
 
     void Stopwatch::reset() {
-        secondsElapsed = 0;
+        _secondsElapsed = 0;
+    }
+
+    float Stopwatch::getSecondsElapsed() {
+        return _secondsElapsed;
+    }
+
+    void Stopwatch::setSecondsElapsed(float secondsElapsed) {
+        _secondsElapsed = secondsElapsed;
+        updateDisplay();
     }
 
     void Stopwatch::update(float dt) {
@@ -78,12 +96,15 @@ namespace ui {
             return;
         }
 
-        secondsElapsed += dt;
+        _secondsElapsed += dt;
+        updateDisplay();
+    }
 
-        uint32_t hours = secondsElapsed / (60 * 60);
-        uint32_t minutes = static_cast<uint32_t>(secondsElapsed / 60) % 60;
-        uint32_t seconds = static_cast<uint32_t>(secondsElapsed) % 60;
-        uint32_t deciSeconds = (secondsElapsed - static_cast<uint32_t>(secondsElapsed)) * 10;
+    void Stopwatch::updateDisplay() {
+        uint32_t hours = _secondsElapsed / (60 * 60);
+        uint32_t minutes = static_cast<uint32_t>(_secondsElapsed / 60) % 60;
+        uint32_t seconds = static_cast<uint32_t>(_secondsElapsed) % 60;
+        uint32_t deciSeconds = (_secondsElapsed - static_cast<uint32_t>(_secondsElapsed)) * 10;
         _hoursDisplay.number = hours;
         _minutesDisplay.number = minutes;
         _secondsDisplay.number = seconds;

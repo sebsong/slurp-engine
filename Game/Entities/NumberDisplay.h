@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "ZOrder.h"
 
 #define MAX_NUM_DIGITS 9
 
@@ -14,7 +15,8 @@ namespace ui {
             slurp::Vec2<float> position,
             int initialNumber,
             uint8_t numDigits,
-            bool showLeadingZeroes
+            bool showLeadingZeroes,
+            int32_t zOrder = game::UI_Z
         );
 
     private:
