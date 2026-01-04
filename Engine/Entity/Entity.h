@@ -4,10 +4,15 @@
 #include "Physics.h"
 #include "RenderInfo.h"
 
+namespace scene {
+    struct Scene;
+}
+
 namespace entity {
     struct Entity {
         uint32_t id;
         std::string name;
+        scene::Scene* scene;
         bool enabled;
         bool initialized;
         render::RenderInfo renderInfo;

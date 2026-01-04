@@ -9,7 +9,7 @@
 #include "MouseCursor.h"
 #include "Worker.h"
 #include "Turret.h"
-#include "UIButton.h"
+#include "Button.h"
 #include "NumberDisplay.h"
 #include "PauseMenu.h"
 #include "ProgressBar.h"
@@ -22,6 +22,8 @@
 #define MAX_NUM_MINE_SITES 1000
 
 namespace game {
+    static const geometry::Shape& BigButtonShape = geometry::Shape(geometry::Rect, {52, 34});
+
     struct GameAssets {
         asset::Sprite* backgroundSprite;
         asset::Sprite* mouseCursorSprite;
@@ -97,8 +99,8 @@ namespace game {
         entity::Entity background;
         entity::Entity titleText;
         entity::Entity slurpEngineText;
-        ui::UIButton playButton;
-        ui::UIButton exitButton;
+        ui::Button playButton;
+        ui::Button exitButton;
 
         void load() override;
 
@@ -141,6 +143,8 @@ namespace game {
 
         timer::timer_handle resetTimer;
 
+        bool ignoreGoal;
+
         void load() override;
 
         void unload() override;
@@ -161,6 +165,9 @@ namespace game {
 
     struct GameOver : scene::Scene {
         ui::GameOverScreen gameOverScreen;
+        ui::Stopwatch stopwatch;
+        ui::Button resumeButton;
+        ui::Button mainMenuButton;
 
         void load() override;
 

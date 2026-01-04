@@ -22,7 +22,7 @@ namespace ui {
     SpawnControls::SpawnControls(const slurp::Vec2<float>& position)
         : Entity("SpawnControls"),
           _spawnWorkerButton(
-              UIButton(
+              Button(
                   game::Assets->workerSprite,
                   game::Assets->buttonSprite,
                   game::Assets->buttonHoverSprite,
@@ -30,7 +30,7 @@ namespace ui {
                   buttonShape,
                   {position.x - 30, position.y},
                   slurp::KeyboardCode::NUM_1,
-                  [this](UIButton* button) {
+                  [this](Button* button) {
                       button->playAnimation(game::Assets->buttonPressAnim, WorkerBuildTime, true);
                       timer::start(
                           _spawnWorkerTimerHandle,
@@ -42,18 +42,18 @@ namespace ui {
                           }
                       );
                   },
-                  [](UIButton* _) {},
-                  [this](UIButton* button) {
+                  [](Button* _) {},
+                  [this](Button* button) {
                       button->stopAnimation();
                       timer::cancel(_spawnWorkerTimerHandle);
                   },
-                  [](UIButton* _) {
+                  [](Button* _) {
                       audio::play(game::Assets->buttonHoverSound);
                   }
               )
           ),
           _spawnMineSiteButton(
-              UIButton(
+              Button(
                   game::Assets->mineSiteButtonIcon,
                   game::Assets->buttonSprite,
                   game::Assets->buttonHoverSprite,
@@ -61,7 +61,7 @@ namespace ui {
                   buttonShape,
                   {position.x, position.y},
                   slurp::KeyboardCode::NUM_2,
-                  [this](UIButton* button) {
+                  [this](Button* button) {
                       button->playAnimation(game::Assets->buttonPressAnim, MineSiteBuildTime, true);
                       timer::start(
                           _spawnMineSiteTimerHandle,
@@ -73,18 +73,18 @@ namespace ui {
                           }
                       );
                   },
-                  [](UIButton* _) {},
-                  [this](UIButton* button) {
+                  [](Button* _) {},
+                  [this](Button* button) {
                       button->stopAnimation();
                       timer::cancel(_spawnMineSiteTimerHandle);
                   },
-                  [](UIButton* _) {
+                  [](Button* _) {
                       audio::play(game::Assets->buttonHoverSound);
                   }
               )
           ),
           _spawnTurretButton(
-              UIButton(
+              Button(
                   game::Assets->turretButtonIcon,
                   game::Assets->buttonSprite,
                   game::Assets->buttonHoverSprite,
@@ -92,20 +92,22 @@ namespace ui {
                   buttonShape,
                   {position.x + 30, position.y},
                   slurp::KeyboardCode::NUM_3,
-                  [this](UIButton* _) {
+                  [this](Button* _) {
                       if (!_isPlacingTurret) {
                           startTurretPlacement();
                       } else {
                           stopTurretPlacement();
                       }
                   },
-                  [](UIButton* _) {},
-                  [](UIButton* _) {},
-                  [](UIButton* _) {
+                  [](Button* _) {},
+                  [](Button* _) {},
+                  [](Button* _) {
                       audio::play(game::Assets->buttonHoverSound);
                   }
               )
           ),
+          _spawnWorkerTimerHandle(-1),
+          _spawnMineSiteTimerHandle(-1),
           _isPlacingTurret(false),
           _turretPlacementGuide(
               Entity(
@@ -138,10 +140,10 @@ namespace ui {
         _turretPlacementGuide.enabled = false;
         _turretPlacementGuide.applyAlpha(0.5f);
 
-        scene::registerEntity(game::GameScene, &_spawnWorkerButton);
-        scene::registerEntity(game::GameScene, &_spawnMineSiteButton);
-        scene::registerEntity(game::GameScene, &_spawnTurretButton);
-        scene::registerEntity(game::GameScene, &_turretPlacementGuide);
+        scene::registerEntity(scene, &_spawnWorkerButton);
+        scene::registerEntity(scene, &_spawnMineSiteButton);
+        scene::registerEntity(scene, &_spawnTurretButton);
+        scene::registerEntity(scene, &_turretPlacementGuide);
     }
 
     void SpawnControls::refresh() {

@@ -173,7 +173,7 @@ if (NOT UNITY_BUILD)
             Game/Entities/SpawnControls.cpp
             Game/Entities/Stopwatch.cpp
             Game/Entities/Turret.cpp
-            Game/Entities/UIButton.cpp
+            Game/Entities/Button.cpp
             Game/Entities/Worker.cpp
     )
 

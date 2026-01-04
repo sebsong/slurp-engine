@@ -78,6 +78,7 @@ namespace entity {
         bool shouldDestroy
     ): id(id),
        name(std::move(name)),
+       scene(nullptr),
        enabled(enabled),
        initialized(initialized),
        renderInfo(renderInfo),

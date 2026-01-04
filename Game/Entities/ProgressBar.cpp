@@ -46,8 +46,8 @@ namespace ui {
 
     void ProgressBar::initialize() {
         Entity::initialize();
-        scene::registerEntity(game::GameScene, &_bar);
-        scene::registerEntity(game::GameScene, &_fill);
+        scene::registerEntity(scene, &_bar);
+        scene::registerEntity(scene, &_fill);
     }
 
     void ProgressBar::update(float dt) {

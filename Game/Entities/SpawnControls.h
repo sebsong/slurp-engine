@@ -1,7 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "Timer.h"
-#include "UIButton.h"
+#include "Button.h"
 
 // TODO: include SpawnControls.cpp in Game.cpp
 // TODO: register this entity in game::initGame
@@ -23,9 +23,9 @@ namespace ui {
         void refresh();
 
     private:
-        UIButton _spawnWorkerButton;
-        UIButton _spawnMineSiteButton;
-        UIButton _spawnTurretButton;
+        Button _spawnWorkerButton;
+        Button _spawnMineSiteButton;
+        Button _spawnTurretButton;
         timer::timer_handle _spawnWorkerTimerHandle;
         timer::timer_handle _spawnMineSiteTimerHandle;
 

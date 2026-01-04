@@ -21,6 +21,7 @@ namespace scene {
 
     void registerEntity(Scene* scene, entity::Entity* entity) {
         scene->entities.push_back(entity);
+        entity->scene = scene;
         if (scene->isActive) {
             if (!entity->initialized) {
                 entity->initialize();
@@ -29,10 +30,18 @@ namespace scene {
     }
 
     void start(Scene* scene) {
+        if (scene->isActive) {
+            return;
+        }
+
         scene->shouldLoad = true;
     }
 
     void end(Scene* scene) {
+        if (!scene->isActive) {
+            return;
+        }
+
         scene->shouldUnload = true;
     }
 

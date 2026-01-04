@@ -1,9 +1,9 @@
-#include "UIButton.h"
+#include "Button.h"
 
 namespace ui {
     static const slurp::Vec2<float> buttonRenderOffset = {0, -0.75f};
 
-    UIButton::UIButton(
+    Button::Button(
         asset::Sprite* buttonIconSprite,
         asset::Sprite* buttonSprite,
         asset::Sprite* buttonHoverSprite,
@@ -11,10 +11,10 @@ namespace ui {
         const geometry::Shape& buttonShape,
         const slurp::Vec2<float>& position,
         std::optional<slurp::KeyboardCode> keyCode,
-        std::function<void(UIButton* button)>&& onPressFn,
-        std::function<void(UIButton* button)>&& releaseActionFn,
-        std::function<void(UIButton* button)>&& onReleaseFn,
-        std::function<void(UIButton* button)>&& onHoverFn,
+        std::function<void(Button* button)>&& onPressFn,
+        std::function<void(Button* button)>&& releaseActionFn,
+        std::function<void(Button* button)>&& onReleaseFn,
+        std::function<void(Button* button)>&& onHoverFn,
         float pressOffset,
         int zOrder
     ) : Entity(
@@ -55,18 +55,18 @@ namespace ui {
         _buttonPressedSprite(buttonPressSprite),
         _pressOffset(pressOffset) {}
 
-    void UIButton::enableButton() {
+    void Button::enableButton() {
         setAlpha(1.f);
         _buttonDisabled = false;
     }
 
-    void UIButton::disableButton() {
+    void Button::disableButton() {
         release();
         setAlpha(0.5f);
         _buttonDisabled = true;
     }
 
-    void UIButton::handleMouseAndKeyboardInput(
+    void Button::handleMouseAndKeyboardInput(
         const slurp::MouseState& mouseState,
         const slurp::KeyboardState& keyboardState
     ) {
@@ -102,7 +102,7 @@ namespace ui {
         }
     }
 
-    void UIButton::hover() {
+    void Button::hover() {
         setTexture(_buttonHoverSprite);
         if (_isHovered) {
             return;
@@ -111,7 +111,7 @@ namespace ui {
         _onHoverFn(this);
     }
 
-    void UIButton::press() {
+    void Button::press() {
         setTexture(_buttonPressedSprite);
         if (_isPressed) {
             return;
@@ -121,7 +121,7 @@ namespace ui {
         _onPressFn(this);
     }
 
-    void UIButton::release() {
+    void Button::release() {
         setTexture(_buttonSprite);
         _isHovered = false;
         if (!_isPressed) {

@@ -10,11 +10,11 @@ namespace ui {
                   (render::SpriteInstance[2]){
                       render::SpriteInstance(
                           game::Assets->screenCoverSprite,
-                          game::PAUSE_Z + 1
+                          game::MENU_Z + 1
                       ),
                       render::SpriteInstance(
                           game::Assets->gameOverScreenSprite,
-                          game::PAUSE_Z
+                          game::MENU_Z
                       )
                   }
               },

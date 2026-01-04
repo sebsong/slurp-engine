@@ -5,8 +5,6 @@
 #include "SpriteInstance.h"
 
 namespace ui {
-    const geometry::Shape& PauseButtonShape = geometry::Shape(geometry::Rect, {52, 34});
-
     PauseMenu::PauseMenu()
         : Entity(
               "PauseMenu",
@@ -14,11 +12,11 @@ namespace ui {
                   (render::SpriteInstance[2]){
                       render::SpriteInstance(
                           game::Assets->screenCoverSprite,
-                          game::PAUSE_Z + 1
+                          game::MENU_Z + 1
                       ),
                       render::SpriteInstance(
                           game::Assets->pauseMenuSprite,
-                          game::PAUSE_Z
+                          game::MENU_Z
                       )
                   }
               },
@@ -26,45 +24,45 @@ namespace ui {
               collision::CollisionInfo{}
           ),
           _resumeButton(
-              UIButton(
+              Button(
                   game::Assets->playButtonTextSprite,
                   game::Assets->bigButtonSprite,
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,
-                  PauseButtonShape,
+                  game::BigButtonShape,
                   {0, 25},
                   std::nullopt,
-                  [](UIButton* _) {},
-                  [this](UIButton* _) {
+                  [](Button* _) {},
+                  [this](Button* _) {
                       scene::end(game::PauseMenuScene);
                   },
-                  [](UIButton* _) {},
-                  [](UIButton* _) {
+                  [](Button* _) {},
+                  [](Button* _) {
                       audio::play(game::Assets->buttonHoverSound);
                   },
                   -2,
-                  game::PAUSE_Z - 1
+                  game::MENU_Z - 1
               )
           ),
           _exitButton(
-              UIButton(
+              Button(
                   game::Assets->exitButtonTextSprite,
                   game::Assets->bigButtonSprite,
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,
-                  PauseButtonShape,
+                  game::BigButtonShape,
                   {0, -25},
                   std::nullopt,
-                  [](UIButton* _) {},
-                  [](UIButton* _) {
+                  [](Button* _) {},
+                  [](Button* _) {
                       platform::exit();
                   },
-                  [](UIButton* _) {},
-                  [](UIButton* _) {
+                  [](Button* _) {},
+                  [](Button* _) {
                       audio::play(game::Assets->buttonHoverSound);
                   },
                   -2,
-                  game::PAUSE_Z - 1
+                  game::MENU_Z - 1
               )
           ) {}
 
@@ -73,7 +71,7 @@ namespace ui {
 
         setAlpha(0, .75);
 
-        scene::registerEntity(game::PauseMenuScene, &_resumeButton);
-        scene::registerEntity(game::PauseMenuScene, &_exitButton);
+        scene::registerEntity(scene, &_resumeButton);
+        scene::registerEntity(scene, &_exitButton);
     }
 }

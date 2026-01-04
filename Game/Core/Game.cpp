@@ -16,7 +16,7 @@
 #include "MineSiteSpawner.cpp"
 #include "Worker.cpp"
 #include "Turret.cpp"
-#include "UIButton.cpp"
+#include "Button.cpp"
 #include "MouseCursor.cpp"
 #include "NumberDisplay.cpp"
 #include "Stopwatch.cpp"
@@ -184,7 +184,7 @@ namespace game {
         scene::registerEntity(this, &slurpEngineText);
 
         const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
-        new(&playButton) ui::UIButton(
+        new(&playButton) ui::Button(
             Assets->playButtonTextSprite,
             Assets->bigButtonSprite,
             Assets->bigButtonHoverSprite,
@@ -192,19 +192,19 @@ namespace game {
             buttonShape,
             {0, -25},
             std::nullopt,
-            [](ui::UIButton* _) {},
-            [](ui::UIButton* _) {
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
                 scene::transition(MainMenuScene, GameScene);
             },
-            [](ui::UIButton* _) {},
-            [](ui::UIButton* _) {
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
                 audio::play(Assets->buttonHoverSound);
             },
             -2
         );
         scene::registerEntity(this, &playButton);
 
-        new(&exitButton) ui::UIButton(
+        new(&exitButton) ui::Button(
             Assets->exitButtonTextSprite,
             Assets->bigButtonSprite,
             Assets->bigButtonHoverSprite,
@@ -212,12 +212,12 @@ namespace game {
             buttonShape,
             {0, -75},
             std::nullopt,
-            [](ui::UIButton* _) {},
-            [](ui::UIButton* _) {
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
                 platform::exit();
             },
-            [](ui::UIButton* _) {},
-            [](ui::UIButton* _) {
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
                 audio::play(Assets->buttonHoverSound);
             },
             -2
@@ -233,6 +233,7 @@ namespace game {
 
     void Game::load() {
         bgm = audio::play(Assets->bgmChords, 0.6, true);
+        ignoreGoal = false;
 
         new(&background) entity::Entity(
             "Background",
@@ -289,6 +290,7 @@ namespace game {
 
         new(&stopwatch) ui::Stopwatch({280, 166});
         scene::registerEntity(this, &stopwatch);
+        stopwatch.start();
 
         new(&resourcesCollectedDisplay)
                 ui::NumberDisplay(
@@ -316,6 +318,34 @@ namespace game {
     void GameOver::load() {
         new(&gameOverScreen) ui::GameOverScreen();
         scene::registerEntity(this, &gameOverScreen);
+
+        new(&stopwatch) ui::Stopwatch({0, 0}, GameScene->stopwatch.secondsElapsed);
+        stopwatch.renderInfo.sprites[0].zOrder = MOUSE_Z;
+        scene::registerEntity(this, &stopwatch);
+
+        new(&resumeButton) ui::Button(
+            Assets->playButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
+            BigButtonShape,
+            {0, -75},
+            std::nullopt,
+            [](ui::Button* _) {},
+            [this](ui::Button* _) {
+                scene::end(GameOverScene);
+                GameScene->ignoreGoal = true;
+                GameScene->stopwatch.start();
+                scene::resume(GameScene);
+            },
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                audio::play(Assets->buttonHoverSound);
+            },
+            -2,
+            MENU_Z - 1
+        );
+        scene::registerEntity(this, &resumeButton);
     }
 
     static void endGame() {
@@ -338,7 +368,7 @@ namespace game {
             }
         }
 
-        if (GameScene->isActive) {
+        if (GameScene->isActive && !GameOverScene->isActive) {
             if (keyboardState.justPressed(slurp::KeyboardCode::ESCAPE)) {
                 if (!GameScene->isPaused) {
                     scene::pause(GameScene);
@@ -380,7 +410,7 @@ namespace game {
     void update(float dt) {
         float goldProgress = GameScene->base.getProgress();
         GameScene->goldProgressBar.progress = goldProgress;
-        if (goldProgress >= 1.f) {
+        if (!GameScene->ignoreGoal && goldProgress >= 1.f) {
             endGame();
         }
     }
