@@ -3,6 +3,7 @@
 #include "SlurpEngine.h"
 #include "RenderApi.h"
 #include "EntityPipeline.h"
+#include "GameOverScreen.h"
 #include "Scene.h"
 #include "Settings.h"
 
@@ -10,6 +11,7 @@
 
 #include "Obstacle.cpp"
 #include "Base.cpp"
+#include "GameOverScreen.cpp"
 #include "MineSite.cpp"
 #include "MineSiteSpawner.cpp"
 #include "Worker.cpp"
@@ -109,6 +111,8 @@ namespace game {
         Assets->bigButtonPressSprite = asset::loadSprite("button_big_press.bmp");
 
         Assets->buttonHoverSound = asset::loadSound("button_hover.wav");
+
+        Assets->gameOverScreenSprite = asset::loadSprite("game_over_screen.bmp");
     }
 
     void initialize(bool isInitialized) {
@@ -310,8 +314,15 @@ namespace game {
     }
 
     void GameOver::load() {
-        new(&pauseMenu) ui::PauseMenu();
-        scene::registerEntity(this, &pauseMenu);
+        new(&gameOverScreen) ui::GameOverScreen();
+        scene::registerEntity(this, &gameOverScreen);
+    }
+
+    static void endGame() {
+        GameScene->stopwatch.stop();
+        scene::pause(GameScene);
+        scene::end(PauseMenuScene);
+        scene::start(GameOverScene);
     }
 
     void handleMouseAndKeyboardInput(const slurp::MouseState& mouseState, const slurp::KeyboardState& keyboardState) {
@@ -351,6 +362,12 @@ namespace game {
             } else if (!keyboardState.isDown(slurp::KeyboardCode::R)) {
                 timer::cancel(GameScene->resetTimer);
             }
+
+#if DEBUG
+            if (keyboardState.justPressed(slurp::KeyboardCode::W)) {
+                endGame();
+            }
+#endif
         }
     }
 
@@ -364,10 +381,7 @@ namespace game {
         float goldProgress = GameScene->base.getProgress();
         GameScene->goldProgressBar.progress = goldProgress;
         if (goldProgress >= 1.f) {
-            GameScene->stopwatch.stop();
-            scene::pause(GameScene);
-            scene::end(PauseMenuScene);
-            scene::start(GameOverScene);
+            endGame();
         }
     }
 

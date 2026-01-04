@@ -2,6 +2,7 @@
 #include "AudioPlayer.h"
 #include "Base.h"
 #include "EntityPool.h"
+#include "GameOverScreen.h"
 #include "MineSite.h"
 #include "MineSiteSpawner.h"
 #include "Obstacle.h"
@@ -76,6 +77,8 @@ namespace game {
 
         asset::Sprite* screenCoverSprite;
         asset::Sprite* pauseMenuSprite;
+
+        asset::Sprite* gameOverScreenSprite;
     };
 
     struct Global : scene::Scene {
@@ -157,8 +160,7 @@ namespace game {
     };
 
     struct GameOver : scene::Scene {
-        // TODO: replace with a game over screen
-        ui::PauseMenu pauseMenu;
+        ui::GameOverScreen gameOverScreen;
 
         void load() override;
 

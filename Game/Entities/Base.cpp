@@ -8,7 +8,7 @@ namespace base {
     static slurp::Vec2<float> SpawnOffsets[NumSpawnLocations] = {{-15, -8}, {16, -8}};
 
     static constexpr uint32_t InitialGold = 100;
-    static constexpr uint32_t GoldGoal = 101;
+    static constexpr uint32_t GoldGoal = 200;
 
     Base::Base()
         : Entity(

@@ -162,6 +162,7 @@ if (NOT UNITY_BUILD)
 
             Game/Core/Game.cpp
             Game/Entities/Base.cpp
+            Game/Entities/GameOverScreen.cpp
             Game/Entities/MineSite.cpp
             Game/Entities/MineSiteSpawner.cpp
             Game/Entities/MouseCursor.cpp
