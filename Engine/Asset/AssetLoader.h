@@ -3,6 +3,7 @@
 
 #include "Asset.h"
 #include "CollectionTypes.h"
+#include "ColorPalette.h"
 
 struct MIX_Mixer;
 
@@ -35,6 +36,8 @@ namespace asset {
             const std::string& waveFileName,
             audio::sound_group_id groupId
         );
+
+        std::array<slurp::Vec3<float>, COLOR_PALETTE_SIZE> loadColorPalette(const std::string& hexFileName);
 
     private:
         types::unordered_map_arena<asset_id, Asset*> _assets;

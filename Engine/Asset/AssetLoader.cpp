@@ -196,6 +196,26 @@ namespace asset {
         return sound;
     }
 
+    std::array<slurp::Vec3<float>, 9> AssetLoader::loadColorPalette(const std::string& hexFileName) {
+        const std::string filePath = PalettesDirectory + hexFileName;
+        asset_id assetId = _getAssetId(filePath);
+        std::ifstream file(filePath);
+        ASSERT(file.good());
+
+        uint8_t colorPaletteIdx = 0;
+        std::string line;
+        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
+            render::Pixel color = std::stoi(line, nullptr, 16);
+            if (colorPaletteIdx != 0) {
+                color |= render::AlphaMask;
+            }
+            palette.colors[colorPaletteIdx] = color;
+            colorPaletteIdx++;
+        }
+
+        return palette;
+    }
+
     asset_id AssetLoader::_getAssetId(const std::string& assetFilePath) const {
         return _stringHasher(assetFilePath);
     }
