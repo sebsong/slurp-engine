@@ -1,4 +1,3 @@
-# ![slurp engine](https://github.com/sebsong/slurp-engine/raw/main/Assets/Brand/slurp_engine.png "slurp engine")
 
 slurp engine: 
 
