@@ -34,7 +34,9 @@ namespace scene {
             return;
         }
 
+        scene->isPaused = false;
         scene->shouldLoad = true;
+        scene->shouldUnload = false;
     }
 
     void end(Scene* scene) {

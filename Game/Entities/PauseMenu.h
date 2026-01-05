@@ -13,6 +13,7 @@ namespace ui {
 
     private:
         Button _resumeButton;
+        Button _mainMenuButton;
         Button _exitButton;
     };
 }

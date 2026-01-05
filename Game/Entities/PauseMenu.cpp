@@ -35,6 +35,31 @@ namespace ui {
                   [](Button* _) {},
                   [this](Button* _) {
                       scene::end(game::PauseMenuScene);
+                      scene::resume(game::GameScene);
+                  },
+                  [](Button* _) {},
+                  [](Button* _) {
+                      audio::play(game::Assets->buttonHoverSound);
+                  },
+                  -2,
+                  game::MENU_Z - 1
+              )
+          ),
+          _mainMenuButton(
+              Button(
+                  game::Assets->mainMenuButtonTextSprite,
+                  game::Assets->bigButtonSprite,
+                  game::Assets->bigButtonHoverSprite,
+                  game::Assets->bigButtonPressSprite,
+                  game::BigButtonShape,
+                  {0, -25},
+                  std::nullopt,
+                  [](Button* _) {},
+                  [this](Button* _) {
+                      scene::end(game::PauseMenuScene);
+                      scene::end(game::GameOverScene);
+                      scene::end(game::GameScene);
+                      scene::start(game::MainMenuScene);
                   },
                   [](Button* _) {},
                   [](Button* _) {
@@ -51,7 +76,7 @@ namespace ui {
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,
                   game::BigButtonShape,
-                  {0, -25},
+                  {0, -75},
                   std::nullopt,
                   [](Button* _) {},
                   [](Button* _) {
@@ -72,6 +97,7 @@ namespace ui {
         setAlpha(0, .75);
 
         scene::registerEntity(scene, &_resumeButton);
+        scene::registerEntity(scene, &_mainMenuButton);
         scene::registerEntity(scene, &_exitButton);
     }
 }

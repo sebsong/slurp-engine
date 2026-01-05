@@ -170,6 +170,7 @@ namespace game {
         ui::Stopwatch stopwatch;
         ui::Button resumeButton;
         ui::Button mainMenuButton;
+        ui::Button exitButton;
 
         void load() override;
 

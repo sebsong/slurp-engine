@@ -333,7 +333,7 @@ namespace game {
             Assets->bigButtonHoverSprite,
             Assets->bigButtonPressSprite,
             BigButtonShape,
-            {0, -75},
+            {-120, -75},
             std::nullopt,
             [](ui::Button* _) {},
             [this](ui::Button* _) {
@@ -350,6 +350,50 @@ namespace game {
             MENU_Z - 1
         );
         scene::registerEntity(this, &resumeButton);
+
+        new(&mainMenuButton) ui::Button(
+            Assets->mainMenuButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
+            BigButtonShape,
+            {0, -75},
+            std::nullopt,
+            [](ui::Button* _) {},
+            [this](ui::Button* _) {
+                scene::end(GameOverScene);
+                scene::end(GameScene);
+                scene::start(MainMenuScene);
+            },
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                audio::play(Assets->buttonHoverSound);
+            },
+            -2,
+            MENU_Z - 1
+        );
+        scene::registerEntity(this, &mainMenuButton);
+
+        new(&exitButton) ui::Button(
+            Assets->exitButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
+            BigButtonShape,
+            {120, -75},
+            std::nullopt,
+            [](ui::Button* _) {},
+            [this](ui::Button* _) {
+                platform::exit();
+            },
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                audio::play(Assets->buttonHoverSound);
+            },
+            -2,
+            MENU_Z - 1
+        );
+        scene::registerEntity(this, &exitButton);
     }
 
     static void endGame() {
