@@ -25,7 +25,7 @@ namespace ui {
           ),
           _resumeButton(
               Button(
-                  game::Assets->playButtonTextSprite,
+                  game::Assets->resumeButtonTextSprite,
                   game::Assets->bigButtonSprite,
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,

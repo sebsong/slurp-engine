@@ -22,7 +22,7 @@
 #define MAX_NUM_MINE_SITES 1000
 
 namespace game {
-    static const geometry::Shape& BigButtonShape = geometry::Shape(geometry::Rect, {52, 34});
+    static const geometry::Shape& BigButtonShape = geometry::Shape(geometry::Rect, {80, 34});
 
     struct GameAssets {
         asset::Sprite* backgroundSprite;
@@ -31,6 +31,8 @@ namespace game {
         asset::Sprite* titleTextSprite;
         asset::Sprite* madeWithSlurpEngineSprite;
         asset::Sprite* playButtonTextSprite;
+        asset::Sprite* resumeButtonTextSprite;
+        asset::Sprite* mainMenuButtonTextSprite;
         asset::Sprite* exitButtonTextSprite;
         asset::Sprite* bigButtonSprite;
         asset::Sprite* bigButtonHoverSprite;

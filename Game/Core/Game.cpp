@@ -42,6 +42,8 @@ namespace game {
         Assets->titleTextSprite = asset::loadSprite("title_text.bmp");
         Assets->madeWithSlurpEngineSprite = asset::loadSprite("made_with_slurp_engine.bmp");
         Assets->playButtonTextSprite = asset::loadSprite("play_button_text.bmp");
+        Assets->resumeButtonTextSprite = asset::loadSprite("resume_button_text.bmp");
+        Assets->mainMenuButtonTextSprite = asset::loadSprite("main_menu_button_text.bmp");
         Assets->exitButtonTextSprite = asset::loadSprite("exit_button_text.bmp");
         Assets->buttonSprite = asset::loadSprite("button_big.bmp");
         Assets->buttonHoverSprite = asset::loadSprite("button_big_hover.bmp");
@@ -183,13 +185,12 @@ namespace game {
         );
         scene::registerEntity(this, &slurpEngineText);
 
-        const geometry::Shape& buttonShape = geometry::Shape(geometry::Rect, {52, 34});
         new(&playButton) ui::Button(
             Assets->playButtonTextSprite,
             Assets->bigButtonSprite,
             Assets->bigButtonHoverSprite,
             Assets->bigButtonPressSprite,
-            buttonShape,
+            BigButtonShape,
             {0, -25},
             std::nullopt,
             [](ui::Button* _) {},
@@ -209,7 +210,7 @@ namespace game {
             Assets->bigButtonSprite,
             Assets->bigButtonHoverSprite,
             Assets->bigButtonPressSprite,
-            buttonShape,
+            BigButtonShape,
             {0, -75},
             std::nullopt,
             [](ui::Button* _) {},
@@ -327,7 +328,7 @@ namespace game {
         scene::registerEntity(this, &stopwatch);
 
         new(&resumeButton) ui::Button(
-            Assets->playButtonTextSprite,
+            Assets->resumeButtonTextSprite,
             Assets->bigButtonSprite,
             Assets->bigButtonHoverSprite,
             Assets->bigButtonPressSprite,
