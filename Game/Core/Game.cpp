@@ -336,7 +336,7 @@ namespace game {
             {-120, -75},
             std::nullopt,
             [](ui::Button* _) {},
-            [this](ui::Button* _) {
+            [](ui::Button* _) {
                 scene::end(GameOverScene);
                 GameScene->ignoreGoal = true;
                 GameScene->stopwatch.start();
@@ -360,7 +360,7 @@ namespace game {
             {0, -75},
             std::nullopt,
             [](ui::Button* _) {},
-            [this](ui::Button* _) {
+            [](ui::Button* _) {
                 scene::end(GameOverScene);
                 scene::end(GameScene);
                 scene::start(MainMenuScene);
@@ -383,7 +383,7 @@ namespace game {
             {120, -75},
             std::nullopt,
             [](ui::Button* _) {},
-            [this](ui::Button* _) {
+            [](ui::Button* _) {
                 platform::exit();
             },
             [](ui::Button* _) {},

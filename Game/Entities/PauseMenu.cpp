@@ -33,7 +33,7 @@ namespace ui {
                   {0, -15},
                   std::nullopt,
                   [](Button* _) {},
-                  [this](Button* _) {
+                  [](Button* _) {
                       scene::end(game::PauseMenuScene);
                       scene::resume(game::GameScene);
                   },
@@ -55,7 +55,7 @@ namespace ui {
                   {0, -55},
                   std::nullopt,
                   [](Button* _) {},
-                  [this](Button* _) {
+                  [](Button* _) {
                       scene::end(game::PauseMenuScene);
                       scene::end(game::GameOverScene);
                       scene::end(game::GameScene);
