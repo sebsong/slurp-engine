@@ -30,7 +30,7 @@ namespace ui {
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,
                   game::BigButtonShape,
-                  {0, 25},
+                  {0, -15},
                   std::nullopt,
                   [](Button* _) {},
                   [this](Button* _) {
@@ -52,7 +52,7 @@ namespace ui {
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,
                   game::BigButtonShape,
-                  {0, -25},
+                  {0, -55},
                   std::nullopt,
                   [](Button* _) {},
                   [this](Button* _) {
@@ -76,7 +76,7 @@ namespace ui {
                   game::Assets->bigButtonHoverSprite,
                   game::Assets->bigButtonPressSprite,
                   game::BigButtonShape,
-                  {0, -75},
+                  {0, -95},
                   std::nullopt,
                   [](Button* _) {},
                   [](Button* _) {
