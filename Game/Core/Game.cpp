@@ -418,6 +418,7 @@ namespace game {
             MENU_Z - 1,
             GameScene->stopwatch.getSecondsElapsed()
         );
+        stopwatch.setColor(Assets->colorPalette->at(2));
         scene::registerEntity(this, &stopwatch);
 
         new(&resumeButton) ui::Button(
