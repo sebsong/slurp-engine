@@ -56,11 +56,11 @@ namespace render {
        renderOffset(renderOffset) {}
 
     void SpriteInstance::bindShaderUniform(const char* uniformName, float value) const {
-        slurp::Globals->RenderApi->bindShaderUniformFloat(material.shaderProgramId, uniformName, value);
+        bindShaderUniformFloat(material.shaderProgramId, uniformName, value);
     }
 
     void SpriteInstance::bindShaderUniform(const char* uniformName, bool value) const {
-        slurp::Globals->RenderApi->bindShaderUniformBool(material.shaderProgramId, uniformName, value);
+        bindShaderUniformBool(material.shaderProgramId, uniformName, value);
     }
 
     void loadSpriteData(
@@ -90,13 +90,13 @@ namespace render {
             },
         };
 
-        render::object_id vertexArrayId = slurp::Globals->RenderApi->genElementArrayBuffer(
+        render::object_id vertexArrayId = genElementArrayBuffer(
             triangleVertices,
             SpriteMeshVertexCount,
             SpriteElements,
             SpriteMeshElementCount
         );
-        render::object_id textureId = slurp::Globals->RenderApi->createTexture(bitmap);
+        render::object_id textureId = createTexture(bitmap);
 
         sprite->dimensions = dimensions;
         sprite->mesh = asset::Mesh{vertexArrayId, SpriteMeshElementCount};

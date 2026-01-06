@@ -1,4 +1,5 @@
 #pragma once
+#include "AssetLoader.h"
 #include "AudioPlayer.h"
 #include "Base.h"
 #include "EntityPool.h"
@@ -25,6 +26,8 @@ namespace game {
     static const geometry::Shape& BigButtonShape = geometry::Shape(geometry::Rect, {80, 34});
 
     struct GameAssets {
+        asset::color_palette* colorPalette;
+
         asset::Sprite* backgroundSprite;
         asset::Sprite* mouseCursorSprite;
 

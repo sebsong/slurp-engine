@@ -36,6 +36,8 @@ namespace game {
     static constexpr float ResetHoldTime = 0.5f;
 
     static void loadAssets() {
+        Assets->colorPalette = asset::loadColorPalette("slso8.hex");
+
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         Assets->backgroundSprite = asset::loadSprite("main_menu.bmp");
@@ -135,7 +137,7 @@ namespace game {
         GameScene->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(GameScene->randomSeed);
 
-        slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
+        render::setBackgroundColor(0.1f, 1.f, 0.2f);
 
         scene::registerScene(GlobalScene);
         scene::registerScene(MainMenuScene);

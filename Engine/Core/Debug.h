@@ -26,18 +26,24 @@ inline void ASSERT_LOG(bool expression, const std::string&& message) {
 #if DEBUG
 
 namespace debug {
+    void drawPoint(
+        const slurp::Vec2<float>& point,
+        float size = 4.f,
+        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
+    );
+
     void drawLine(
         const slurp::Vec2<float>& start,
         const slurp::Vec2<float>& end,
-        float lineWidth,
-        const slurp::Vec4<float>& color
+        float lineWidth = 1.f,
+        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
     );
 
     void drawRectBorder(
         const slurp::Vec2<float>& startPoint,
         const slurp::Vec2<float>& endPoint,
-        float lineWidth,
-        const slurp::Vec4<float>& color
+        float lineWidth = 1.f,
+        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
     );
 }
 #endif

@@ -12,7 +12,7 @@ namespace render {
                                       ? animation.textureIds[animation.currentFrameIndex]
                                       : material.textureId;
             slurp::Vec2<float> positionTransform = *position + sprite->renderOffset;
-            slurp::Globals->RenderApi->drawElementArray(
+            drawElementArray(
                 mesh.vertexArrayId,
                 mesh.elementCount,
                 textureId,

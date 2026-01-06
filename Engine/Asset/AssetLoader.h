@@ -3,7 +3,6 @@
 
 #include "Asset.h"
 #include "CollectionTypes.h"
-#include "ColorPalette.h"
 
 #define COLOR_PALETTE_SIZE 9
 
@@ -13,7 +12,7 @@ namespace asset {
     struct Sprite;
     struct SpriteAnimation;
 
-    typedef std::array<slurp::Vec3<float>, COLOR_PALETTE_SIZE> color_palette;
+    typedef std::array<slurp::Vec4<float>, COLOR_PALETTE_SIZE> color_palette;
 
     class AssetLoader {
     public:
@@ -36,12 +35,12 @@ namespace asset {
 
         SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames);
 
+        color_palette* loadColorPalette(const std::string& hexFileName);
+
         Sound* loadSound(
             const std::string& waveFileName,
             audio::sound_group_id groupId
         );
-
-        color_palette* loadColorPalette(const std::string& hexFileName);
 
     private:
         types::unordered_map_arena<asset_id, Asset*> _assets;
@@ -86,6 +85,10 @@ namespace asset {
 
     inline SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames) {
         return slurp::Globals->AssetLoader->loadSpriteAnimation(bitmapFileName, numFrames);
+    }
+
+    inline color_palette* loadColorPalette(const std::string& hexFileName) {
+        return slurp::Globals->AssetLoader->loadColorPalette(hexFileName);
     }
 
     inline Sound* loadSound(const std::string& waveFileName, audio::sound_group_id groupId = AUDIO_SOUND_GROUP_OTHER) {

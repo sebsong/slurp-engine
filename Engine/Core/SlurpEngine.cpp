@@ -65,7 +65,6 @@ namespace slurp {
         memory::MemoryArena& permanentMemory,
         memory::MemoryArena& transientMemory,
         const platform::PlatformDll& platformDll,
-        const render::RenderApi& renderApi,
         MIX_Mixer* audioMixer,
         bool isInitialized
     ) {
@@ -94,7 +93,6 @@ namespace slurp {
             EngineSystems* engineSystems = memory::Permanent->allocate<EngineSystems>();
 
             Globals->PlatformDll = &platformDll;
-            Globals->RenderApi = &renderApi;
             Globals->Timer = new(&engineSystems->timer) timer::Timer();
             Globals->JobRunner = new(&engineSystems->jobRunner) job::JobRunner();
             Globals->AssetLoader = new(&engineSystems->assetLoader) asset::AssetLoader(audioMixer);

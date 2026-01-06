@@ -144,30 +144,12 @@ static platform::PlatformDll loadPlatformLib() {
     return platformLib;
 }
 
-static render::RenderApi loadRenderApi() {
-    render::RenderApi renderApi = {};
-    renderApi.setBackgroundColor = render::setBackgroundColor;
-    renderApi.createTexture = render::createTexture;
-    renderApi.createShaderProgram = render::createShaderProgram;
-    renderApi.bindShaderUniformFloat = render::bindShaderUniformFloat;
-    renderApi.bindShaderUniformBool = render::bindShaderUniformBool;
-    renderApi.genVertexArrayBuffer = render::genVertexArrayBuffer;
-    renderApi.genElementArrayBuffer = render::genElementArrayBuffer;
-    renderApi.drawVertexArray = render::drawVertexArray;
-    renderApi.drawElementArray = render::drawElementArray;
-    renderApi.drawPoint = render::drawPoint;
-    renderApi.drawLine = render::drawLine;
-    renderApi.deleteResources = render::deleteResources;
-    return renderApi;
-}
-
 int main(int argc, char* argv[]) {
     SDL_Window* window;
     MIX_Mixer* audioMixer;
     memory::MemoryArena permanentMemory;
     memory::MemoryArena transientMemory;
     platform::PlatformDll platformLib;
-    render::RenderApi renderApi;
     slurp::MouseState mouseState{};
     slurp::KeyboardState keyboardState{};
     std::unordered_map<SDL_JoystickID, uint8_t> sdlJoystickIdToGamepadIdx;
@@ -180,9 +162,8 @@ int main(int argc, char* argv[]) {
 
     /* load libraries and apis */
     platformLib = loadPlatformLib();
-    renderApi = loadRenderApi();
     allocateMemoryArenas(permanentMemory, transientMemory);
-    slurp::init(permanentMemory, transientMemory, platformLib, renderApi, audioMixer, false);
+    slurp::init(permanentMemory, transientMemory, platformLib, audioMixer, false);
 
 #if DEBUG
     uint32_t targetFramesPerSecond = DEBUG_MONITOR_REFRESH_RATE;
