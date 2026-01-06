@@ -12,7 +12,6 @@
 #include "Turret.h"
 #include "Button.h"
 #include "NumberDisplay.h"
-#include "PauseMenu.h"
 #include "ProgressBar.h"
 #include "Scene.h"
 #include "SpawnControls.h"
@@ -159,7 +158,10 @@ namespace game {
     };
 
     struct PauseMenu : scene::Scene {
-        ui::PauseMenu pauseMenu;
+        entity::Entity menu;
+        ui::Button resumeButton;
+        ui::Button mainMenuButton;
+        ui::Button exitButton;
 
         void load() override;
 

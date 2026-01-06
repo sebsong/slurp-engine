@@ -168,7 +168,6 @@ if (NOT UNITY_BUILD)
             Game/Entities/MouseCursor.cpp
             Game/Entities/NumberDisplay.cpp
             Game/Entities/Obstacle.cpp
-            Game/Entities/PauseMenu.cpp
             Game/Entities/ProgressBar.cpp
             Game/Entities/SpawnControls.cpp
             Game/Entities/Stopwatch.cpp

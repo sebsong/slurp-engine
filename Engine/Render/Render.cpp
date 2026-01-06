@@ -18,6 +18,8 @@ namespace render {
                 textureId,
                 material.shaderProgramId,
                 positionTransform,
+                material.srcColor,
+                material.dstColor,
                 material.alpha,
                 sprite->zOrder
             );

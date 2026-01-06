@@ -25,7 +25,7 @@ namespace render {
     static constexpr const char* TIME_UNIFORM_NAME = "time";
     static constexpr const char* POSITION_TRANSFORM_UNIFORM_NAME = "positionTransform";
     static constexpr const char* Z_ORDER_UNIFORM_NAME = "zOrder";
-    static constexpr const char* ALPHA_COORD_UNIFORM_NAME = "alpha";
+    static constexpr const char* ALPHA_UNIFORM_NAME = "alpha";
     static constexpr const char* SRC_COLOR_UNIFORM_NAME = "srcColor";
     static constexpr const char* DST_COLOR_UNIFORM_NAME = "dstColor";
     static constexpr const char* COLOR_UNIFORM_NAME = "color";
@@ -57,6 +57,8 @@ namespace render {
         object_id textureId,
         object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
         float alpha,
         int zOrder
     );
@@ -67,6 +69,8 @@ namespace render {
         object_id textureId,
         object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
         float alpha,
         int zOrder
     );

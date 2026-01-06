@@ -202,6 +202,8 @@ namespace render {
         object_id textureId,
         object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
         float alpha,
         int zOrder
     ) {
@@ -226,11 +228,16 @@ namespace render {
 
         int alphaUniformLoc = glGetUniformLocation(
             shaderProgramId,
-            ALPHA_COORD_UNIFORM_NAME
+            ALPHA_UNIFORM_NAME
         );
         if (alphaUniformLoc != INVALID_OBJECT_ID) {
             glUniform1f(alphaUniformLoc, alpha);
         }
+
+        bindShaderUniformVec4(shaderProgramId, SRC_COLOR_UNIFORM_NAME, srcColor);
+        bindShaderUniformVec4(shaderProgramId, SRC_COLOR_UNIFORM_NAME, dstColor);
+
+        bindShaderUniformFloat(shaderProgramId, ALPHA_UNIFORM_NAME, alpha);
 
         setZOrderUniform(shaderProgramId, zOrder);
     }
@@ -241,10 +248,12 @@ namespace render {
         object_id textureId,
         object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
         float alpha,
         int zOrder
     ) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, alpha, zOrder);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, srcColor, dstColor, alpha, zOrder);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
@@ -254,10 +263,12 @@ namespace render {
         object_id textureId,
         object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
         float alpha,
         int zOrder
     ) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, alpha, zOrder);
+        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, srcColor, dstColor, alpha, zOrder);
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
     }
 

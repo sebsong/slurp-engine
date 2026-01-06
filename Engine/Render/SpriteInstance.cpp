@@ -104,7 +104,7 @@ namespace render {
 
         sprite->dimensions = dimensions;
         sprite->mesh = asset::Mesh{vertexArrayId, SpriteMeshElementCount};
-        sprite->material = asset::Material{textureId, shaderProgramId, 1.f};
+        sprite->material = asset::Material{textureId, shaderProgramId, {}, {}, 1.f};
         sprite->isLoaded = true;
     }
 }
