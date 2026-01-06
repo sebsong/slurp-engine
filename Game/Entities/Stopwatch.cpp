@@ -90,6 +90,14 @@ namespace ui {
         updateDisplay();
     }
 
+    void Stopwatch::setColor(slurp::Vec4<float> color) {
+        renderInfo.sprites[0].material.colorOverride = color;
+        _hoursDisplay.setColor(color);
+        _minutesDisplay.setColor(color);
+        _secondsDisplay.setColor(color);
+        _deciSecondsDisplay.setColor(color);
+    }
+
     void Stopwatch::update(float dt) {
         Entity::update(dt);
         if (_isStopped) {

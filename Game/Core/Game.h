@@ -1,4 +1,5 @@
 #pragma once
+#include "AssetLoader.h"
 #include "AudioPlayer.h"
 #include "Base.h"
 #include "EntityPool.h"
@@ -11,7 +12,6 @@
 #include "Turret.h"
 #include "Button.h"
 #include "NumberDisplay.h"
-#include "PauseMenu.h"
 #include "ProgressBar.h"
 #include "Scene.h"
 #include "SpawnControls.h"
@@ -25,6 +25,8 @@ namespace game {
     static const geometry::Shape& BigButtonShape = geometry::Shape(geometry::Rect, {80, 34});
 
     struct GameAssets {
+        asset::color_palette* colorPalette;
+
         asset::Sprite* backgroundSprite;
         asset::Sprite* mouseCursorSprite;
 
@@ -156,7 +158,11 @@ namespace game {
     };
 
     struct PauseMenu : scene::Scene {
-        ui::PauseMenu pauseMenu;
+        entity::Entity menu;
+        ui::Stopwatch stopwatch;
+        ui::Button resumeButton;
+        ui::Button mainMenuButton;
+        ui::Button exitButton;
 
         void load() override;
 

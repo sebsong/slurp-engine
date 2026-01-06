@@ -19,11 +19,11 @@ namespace render {
         {0.f, 2.f / WORLD_HEIGHT}
     };
 
-    RENDER_SET_BACKGROUND_COLOR(setBackgroundColor) {
+    void setBackgroundColor(float red, float green, float blue) {
         glClearColor(red, green, blue, 1);
     }
 
-    RENDER_CREATE_TEXTURE(createTexture) {
+    object_id createTexture(const asset::Bitmap* bitmap) {
         uint32_t textureId;
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -72,7 +72,7 @@ namespace render {
         return success;
     }
 
-    RENDER_CREATE_SHADER_PROGRAM(createShaderProgram) {
+    object_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource) {
         uint32_t vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderId, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShaderId);
@@ -95,7 +95,7 @@ namespace render {
         return shaderProgramId;
     }
 
-    RENDER_BIND_SHADER_UNIFORM_FLOAT(bindShaderUniformFloat) {
+    void bindShaderUniformFloat(object_id shaderProgramId, const char* uniformName, float value) {
         glUseProgram(shaderProgramId);
         int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
         if (uniformLoc != INVALID_OBJECT_ID) {
@@ -103,7 +103,7 @@ namespace render {
         }
     }
 
-    RENDER_BIND_SHADER_UNIFORM_BOOL(bindShaderUniformBool) {
+    void bindShaderUniformBool(object_id shaderProgramId, const char* uniformName, bool value) {
         glUseProgram(shaderProgramId);
         int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
         if (uniformLoc != INVALID_OBJECT_ID) {
@@ -111,7 +111,15 @@ namespace render {
         }
     }
 
-    RENDER_GEN_VERTEX_ARRAY_BUFFER(genVertexArrayBuffer) {
+    void bindShaderUniformVec4(object_id shaderProgramId, const char* uniformName, slurp::Vec4<float> value) {
+        glUseProgram(shaderProgramId);
+        int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
+        if (uniformLoc != INVALID_OBJECT_ID) {
+            glUniform4fv(uniformLoc, 1, value.values);
+        }
+    }
+
+    object_id genVertexArrayBuffer(Vertex vertexArray[], int vertexCount) {
         object_id vertexArrayId;
         glGenVertexArrays(1, &vertexArrayId);
         glBindVertexArray(vertexArrayId);
@@ -151,7 +159,12 @@ namespace render {
         return vertexArrayId;
     }
 
-    RENDER_GEN_ELEMENT_ARRAY_BUFFER(genElementArrayBuffer) {
+    object_id genElementArrayBuffer(
+        Vertex vertexArray[],
+        int vertexCount,
+        const uint32_t elementArray[],
+        int elementCount
+    ) {
         object_id vertexArrayId = genVertexArrayBuffer(vertexArray, vertexCount);
 
         // TODO: return this back out for later resource cleanup
@@ -189,6 +202,9 @@ namespace render {
         object_id textureId,
         object_id shaderProgramId,
         const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
         float alpha,
         int zOrder
     ) {
@@ -213,26 +229,81 @@ namespace render {
 
         int alphaUniformLoc = glGetUniformLocation(
             shaderProgramId,
-            ALPHA_COORD_UNIFORM_NAME
+            ALPHA_UNIFORM_NAME
         );
         if (alphaUniformLoc != INVALID_OBJECT_ID) {
             glUniform1f(alphaUniformLoc, alpha);
         }
 
+        bindShaderUniformVec4(shaderProgramId, SRC_COLOR_UNIFORM_NAME, srcColor);
+        bindShaderUniformVec4(shaderProgramId, SRC_COLOR_UNIFORM_NAME, dstColor);
+
+        bindShaderUniformVec4(shaderProgramId, COLOR_OVERRIDE_UNIFORM_NAME, colorOverride);
+
+        bindShaderUniformFloat(shaderProgramId, ALPHA_UNIFORM_NAME, alpha);
+
         setZOrderUniform(shaderProgramId, zOrder);
     }
 
-    RENDER_DRAW_VERTEX_ARRAY(drawVertexArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, alpha, zOrder);
+    void drawVertexArray(
+        object_id vertexArrayId,
+        int vertexCount,
+        object_id textureId,
+        object_id shaderProgramId,
+        const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
+        float alpha,
+        int zOrder
+    ) {
+        prepareDraw(
+            vertexArrayId,
+            textureId,
+            shaderProgramId,
+            positionTransform,
+            srcColor,
+            dstColor,
+            colorOverride,
+            alpha,
+            zOrder
+        );
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
-    RENDER_DRAW_ELEMENT_ARRAY(drawElementArray) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, alpha, zOrder);
+    void drawElementArray(
+        object_id vertexArrayId,
+        int elementCount,
+        object_id textureId,
+        object_id shaderProgramId,
+        const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
+        float alpha,
+        int zOrder
+    ) {
+        prepareDraw(
+            vertexArrayId,
+            textureId,
+            shaderProgramId,
+            positionTransform,
+            srcColor,
+            dstColor,
+            colorOverride,
+            alpha,
+            zOrder
+        );
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
     }
 
-    RENDER_DRAW_POINT(drawPoint) {
+    void drawPoint(
+        object_id vertexArrayId,
+        int vertexCount,
+        object_id shaderProgramId,
+        float size,
+        const slurp::Vec4<float>& color
+    ) {
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         setColorUniform(shaderProgramId, color);
@@ -241,7 +312,13 @@ namespace render {
         glDrawArrays(GL_POINTS, 0, vertexCount);
     }
 
-    RENDER_DRAW_LINE(drawLine) {
+    void drawLine(
+        object_id vertexArrayId,
+        int vertexCount,
+        object_id shaderProgramId,
+        float width,
+        const slurp::Vec4<float>& color
+    ) {
         glBindVertexArray(vertexArrayId);
         glUseProgram(shaderProgramId);
         setColorUniform(shaderProgramId, color);
@@ -250,7 +327,13 @@ namespace render {
         glDrawArrays(GL_LINES, 0, vertexCount);
     }
 
-    RENDER_DELETE_RESOURCES(deleteResources) {
+    void deleteResources(
+        object_id vertexArrayId,
+        object_id vertexBufferId,
+        object_id elementBufferId,
+        object_id shaderProgramId,
+        object_id textureId
+    ) {
         glDeleteVertexArrays(1, &vertexArrayId);
         glDeleteBuffers(1, &vertexBufferId);
         glDeleteBuffers(1, &elementBufferId);

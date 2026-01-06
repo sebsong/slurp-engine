@@ -38,7 +38,6 @@ namespace slurp {
         memory::MemoryArena& permanentMemory,
         memory::MemoryArena& transientMemory,
         const platform::PlatformDll& platformDll,
-        const render::RenderApi& renderApi,
         MIX_Mixer* audioMixer,
         bool isInitialized
     );

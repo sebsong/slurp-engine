@@ -25,106 +25,80 @@ namespace render {
     static constexpr const char* TIME_UNIFORM_NAME = "time";
     static constexpr const char* POSITION_TRANSFORM_UNIFORM_NAME = "positionTransform";
     static constexpr const char* Z_ORDER_UNIFORM_NAME = "zOrder";
-    static constexpr const char* ALPHA_COORD_UNIFORM_NAME = "alpha";
+    static constexpr const char* ALPHA_UNIFORM_NAME = "alpha";
+    static constexpr const char* SRC_COLOR_UNIFORM_NAME = "srcColor";
+    static constexpr const char* DST_COLOR_UNIFORM_NAME = "dstColor";
+    static constexpr const char* COLOR_OVERRIDE_UNIFORM_NAME = "colorOverride";
     static constexpr const char* COLOR_UNIFORM_NAME = "color";
 
-#define RENDER_SET_BACKGROUND_COLOR(fnName) void fnName(float red, float green, float blue)
-#define RENDER_CREATE_TEXTURE(fnName) render::object_id fnName(const asset::Bitmap* bitmap)
-#define RENDER_CREATE_SHADER_PROGRAM(fnName) render::object_id fnName(const char* vertexShaderSource, const char* fragmentShaderSource)
-#define RENDER_BIND_SHADER_UNIFORM_FLOAT(fnName) void fnName(render::object_id shaderProgramId, const char* uniformName, float value)
-#define RENDER_BIND_SHADER_UNIFORM_BOOL(fnName) void fnName(render::object_id shaderProgramId, const char* uniformName, bool value)
-#define RENDER_GEN_VERTEX_ARRAY_BUFFER(fnName) render::object_id fnName(render::Vertex vertexArray[], int vertexCount)
-#define RENDER_GEN_ELEMENT_ARRAY_BUFFER(fnName) \
-    render::object_id fnName( \
-        render::Vertex vertexArray[], \
-        int vertexCount, \
-        const uint32_t elementArray[], \
-        int elementCount \
-    )
-#define RENDER_DRAW_VERTEX_ARRAY(fnName) \
-    void fnName( \
-        render::object_id vertexArrayId, \
-        int vertexCount, \
-        render::object_id textureId, \
-        render::object_id shaderProgramId, \
-        const slurp::Vec2<float>& positionTransform, \
-        float alpha, \
-        int zOrder \
-    )
-#define RENDER_DRAW_ELEMENT_ARRAY(fnName) \
-    void fnName( \
-        render::object_id vertexArrayId, \
-        int elementCount, \
-        render::object_id textureId, \
-        render::object_id shaderProgramId, \
-        const slurp::Vec2<float>& positionTransform, \
-        float alpha, \
-        int zOrder \
-    )
+    void setBackgroundColor(float red, float green, float blue);
 
-#define RENDER_DRAW_POINT(fnName) \
-        void fnName( \
-        render::object_id vertexArrayId, \
-        int vertexCount, \
-        render::object_id shaderProgramId, \
-        float size, \
-        const slurp::Vec4<float>& color \
-    )
+    object_id createTexture(const asset::Bitmap* bitmap);
 
-#define RENDER_DRAW_LINE(fnName) \
-    void fnName( \
-        render::object_id vertexArrayId, \
-        int vertexCount, \
-        render::object_id shaderProgramId, \
-        float width, \
-        const slurp::Vec4<float>& color \
-    )
+    object_id createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 
-#define RENDER_DELETE_RESOURCES(fnName) \
-    void fnName( \
-        render::object_id vertexArrayId, \
-        render::object_id vertexBufferId, \
-        render::object_id elementBufferId, \
-        render::object_id shaderProgramId, \
-        render::object_id textureId \
-    )
+    void bindShaderUniformFloat(object_id shaderProgramId, const char* uniformName, float value);
 
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_SET_BACKGROUND_COLOR, setBackgroundColor)
+    void bindShaderUniformBool(object_id shaderProgramId, const char* uniformName, bool value);
 
-    SLURP_DECLARE_DYNAMIC_RETURN(RENDER_CREATE_TEXTURE, createTexture, render::INVALID_OBJECT_ID)
+    void bindShaderUniformVec4(object_id shaderProgramId, const char* uniformName, slurp::Vec4<float> value);
 
-    SLURP_DECLARE_DYNAMIC_RETURN(RENDER_CREATE_SHADER_PROGRAM, createShaderProgram, render::INVALID_OBJECT_ID)
+    object_id genVertexArrayBuffer(Vertex vertexArray[], int vertexCount);
 
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_BIND_SHADER_UNIFORM_FLOAT, bindShaderUniformFloat)
+    object_id genElementArrayBuffer(
+        Vertex vertexArray[],
+        int vertexCount,
+        const uint32_t elementArray[],
+        int elementCount
+    );
 
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_BIND_SHADER_UNIFORM_BOOL, bindShaderUniformBool)
+    void drawVertexArray(
+        object_id vertexArrayId,
+        int vertexCount,
+        object_id textureId,
+        object_id shaderProgramId,
+        const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
+        float alpha,
+        int zOrder
+    );
 
-    SLURP_DECLARE_DYNAMIC_RETURN(RENDER_GEN_VERTEX_ARRAY_BUFFER, genVertexArrayBuffer, render::INVALID_OBJECT_ID)
+    void drawElementArray(
+        object_id vertexArrayId,
+        int elementCount,
+        object_id textureId,
+        object_id shaderProgramId,
+        const slurp::Vec2<float>& positionTransform,
+        const slurp::Vec4<float>& srcColor,
+        const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
+        float alpha,
+        int zOrder
+    );
 
-    SLURP_DECLARE_DYNAMIC_RETURN(RENDER_GEN_ELEMENT_ARRAY_BUFFER, genElementArrayBuffer, render::INVALID_OBJECT_ID)
+    void drawPoint(
+        object_id vertexArrayId,
+        int vertexCount,
+        object_id shaderProgramId,
+        float size,
+        const slurp::Vec4<float>& color
+    );
 
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_VERTEX_ARRAY, drawVertexArray)
+    void drawLine(
+        object_id vertexArrayId,
+        int vertexCount,
+        object_id shaderProgramId,
+        float width,
+        const slurp::Vec4<float>& color
+    );
 
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_ELEMENT_ARRAY, drawElementArray)
-
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_POINT, drawPoint)
-
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_DRAW_LINE, drawLine)
-
-    SLURP_DECLARE_DYNAMIC_VOID(RENDER_DELETE_RESOURCES, deleteResources)
-
-    struct RenderApi {
-        dyn_setBackgroundColor* setBackgroundColor = stub_setBackgroundColor;
-        dyn_createTexture* createTexture = stub_createTexture;
-        dyn_createShaderProgram* createShaderProgram = stub_createShaderProgram;
-        dyn_bindShaderUniformFloat* bindShaderUniformFloat = stub_bindShaderUniformFloat;
-        dyn_bindShaderUniformBool* bindShaderUniformBool = stub_bindShaderUniformBool;
-        dyn_genVertexArrayBuffer* genVertexArrayBuffer = stub_genVertexArrayBuffer;
-        dyn_genElementArrayBuffer* genElementArrayBuffer = stub_genElementArrayBuffer;
-        dyn_drawVertexArray* drawVertexArray = stub_drawVertexArray;
-        dyn_drawElementArray* drawElementArray = stub_drawElementArray;
-        dyn_drawPoint* drawPoint = stub_drawPoint;
-        dyn_drawLine* drawLine = stub_drawLine;
-        dyn_deleteResources* deleteResources = stub_deleteResources;
-    };
+    void deleteResources(
+        object_id vertexArrayId,
+        object_id vertexBufferId,
+        object_id elementBufferId,
+        object_id shaderProgramId,
+        object_id textureId
+    );
 }

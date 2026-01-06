@@ -19,6 +19,8 @@ namespace ui {
             int32_t zOrder = game::UI_Z
         );
 
+        void setColor(const slurp::Vec4<float>& color);
+
     private:
         uint8_t _numDigits;
         bool _showLeadingZeroes;

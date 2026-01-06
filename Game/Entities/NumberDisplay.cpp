@@ -32,6 +32,12 @@ namespace ui {
         }
     }
 
+    void NumberDisplay::setColor(const slurp::Vec4<float>& color) {
+        for (int i = 0; i < MAX_NUM_DIGITS; ++i) {
+            renderInfo.sprites[i].material.colorOverride = color;
+        }
+    }
+
     void NumberDisplay::initialize() {
         Entity::initialize();
     }

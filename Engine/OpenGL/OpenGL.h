@@ -4,7 +4,7 @@
 
 struct SDL_Window;
 
-namespace open_gl {
+namespace render {
 
     class OpenGLRenderWindow {
     public:
@@ -28,9 +28,9 @@ namespace open_gl {
     };
 
     struct OpenGLRenderInfo {
-        render::object_id vertexArrayObjectId;
+        object_id vertexArrayObjectId;
         uint32_t elementCount;
-        render::object_id textureId;
-        render::object_id shaderProgramId;
+        object_id textureId;
+        object_id shaderProgramId;
     };
 }

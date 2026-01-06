@@ -22,7 +22,6 @@
 #include "Stopwatch.cpp"
 #include "ProgressBar.cpp"
 #include "SpawnControls.cpp"
-#include "PauseMenu.cpp"
 
 #endif
 
@@ -36,6 +35,8 @@ namespace game {
     static constexpr float ResetHoldTime = 0.5f;
 
     static void loadAssets() {
+        Assets->colorPalette = asset::loadColorPalette("slso8.hex");
+
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
         Assets->backgroundSprite = asset::loadSprite("main_menu.bmp");
@@ -135,7 +136,7 @@ namespace game {
         GameScene->randomSeed = static_cast<uint32_t>(time(nullptr));
         rnd::setRandomSeed(GameScene->randomSeed);
 
-        slurp::Globals->RenderApi->setBackgroundColor(0.1f, 1.f, 0.2f);
+        render::setBackgroundColor(0.1f, 1.f, 0.2f);
 
         scene::registerScene(GlobalScene);
         scene::registerScene(MainMenuScene);
@@ -312,8 +313,100 @@ namespace game {
     }
 
     void PauseMenu::load() {
-        new(&pauseMenu) ui::PauseMenu();
-        scene::registerEntity(this, &pauseMenu);
+        new(&menu) entity::Entity(
+            "PauseMenu",
+            render::RenderInfo{
+                (render::SpriteInstance[2]){
+                    render::SpriteInstance(
+                        Assets->screenCoverSprite,
+                        MENU_Z + 1
+                    ),
+                    render::SpriteInstance(
+                        Assets->pauseMenuSprite,
+                        MENU_Z
+                    )
+                }
+            },
+            physics::PhysicsInfo{},
+            collision::CollisionInfo{}
+        );
+        menu.setAlpha(0, .75);
+        scene::registerEntity(this, &menu);
+
+        new(&stopwatch) ui::Stopwatch(
+            {20, 25},
+            MENU_Z - 1,
+            GameScene->stopwatch.getSecondsElapsed()
+        );
+        stopwatch.setColor(Assets->colorPalette->at(2));
+        scene::registerEntity(this, &stopwatch);
+
+        new(&resumeButton) ui::Button(
+            Assets->resumeButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
+            BigButtonShape,
+            {0, -15},
+            std::nullopt,
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                scene::end(PauseMenuScene);
+                scene::resume(GameScene);
+            },
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                audio::play(Assets->buttonHoverSound);
+            },
+            -2,
+            MENU_Z - 1
+        );
+        scene::registerEntity(this, &resumeButton);
+
+        new(&mainMenuButton) ui::Button(
+            Assets->mainMenuButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
+            BigButtonShape,
+            {0, -55},
+            std::nullopt,
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                scene::end(PauseMenuScene);
+                scene::end(GameOverScene);
+                scene::end(GameScene);
+                scene::start(MainMenuScene);
+            },
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                audio::play(Assets->buttonHoverSound);
+            },
+            -2,
+            MENU_Z - 1
+        );
+        scene::registerEntity(this, &mainMenuButton);
+
+        new(&exitButton) ui::Button(
+            Assets->exitButtonTextSprite,
+            Assets->bigButtonSprite,
+            Assets->bigButtonHoverSprite,
+            Assets->bigButtonPressSprite,
+            BigButtonShape,
+            {0, -95},
+            std::nullopt,
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                platform::exit();
+            },
+            [](ui::Button* _) {},
+            [](ui::Button* _) {
+                audio::play(Assets->buttonHoverSound);
+            },
+            -2,
+            MENU_Z - 1
+        );
+        scene::registerEntity(this, &exitButton);
     }
 
     void GameOver::load() {
@@ -325,6 +418,7 @@ namespace game {
             MENU_Z - 1,
             GameScene->stopwatch.getSecondsElapsed()
         );
+        stopwatch.setColor(Assets->colorPalette->at(2));
         scene::registerEntity(this, &stopwatch);
 
         new(&resumeButton) ui::Button(
@@ -486,7 +580,7 @@ namespace game {
     void removeCorruptibleWorker(worker::Worker* worker) {
         auto position = std::ranges::find(GameScene->corruptibleWorkers, worker);
         if (position != GameScene->corruptibleWorkers.end()) {
-            game::GameScene->corruptibleWorkers.erase(position);
+            GameScene->corruptibleWorkers.erase(position);
         }
     }
 }

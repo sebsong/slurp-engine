@@ -10,23 +10,23 @@ static constexpr uint32_t LineVertexCount = 2;
 namespace debug {
     void drawPoint(
         const slurp::Vec2<float>& point,
-        float size = 4.f,
-        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
+        float size,
+        const slurp::Vec4<float>& color
     ) {
         render::Vertex vertexArray[PointVertexCount] = {
             {point, {}},
         };
-        render::object_id vertexArrayId = slurp::Globals->RenderApi->
+        render::object_id vertexArrayId =
                 genVertexArrayBuffer(vertexArray, PointVertexCount);
         render::object_id shaderProgramId = asset::loadShaderProgram("basic.glsl", "basic.glsl")->programId;
-        slurp::Globals->RenderApi->drawPoint(
+        render::drawPoint(
             vertexArrayId,
             PointVertexCount,
             shaderProgramId,
             size,
             color
         );
-        slurp::Globals->RenderApi->deleteResources(
+        render::deleteResources(
             vertexArrayId,
             render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID,
@@ -38,23 +38,23 @@ namespace debug {
     void drawLine(
         const slurp::Vec2<float>& start,
         const slurp::Vec2<float>& end,
-        float lineWidth = 1.f,
-        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
+        float lineWidth,
+        const slurp::Vec4<float>& color
     ) {
         render::Vertex vertexArray[LineVertexCount] = {
             {start, {}},
             {end, {}}
         };
-        render::object_id vertexArrayId = slurp::Globals->RenderApi->genVertexArrayBuffer(vertexArray, LineVertexCount);
+        render::object_id vertexArrayId = genVertexArrayBuffer(vertexArray, LineVertexCount);
         render::object_id shaderProgramId = asset::loadShaderProgram("basic.glsl", "basic.glsl")->programId;
-        slurp::Globals->RenderApi->drawLine(
+        render::drawLine(
             vertexArrayId,
             LineVertexCount,
             shaderProgramId,
             lineWidth,
             color
         );
-        slurp::Globals->RenderApi->deleteResources(
+        render::deleteResources(
             vertexArrayId,
             render::INVALID_OBJECT_ID,
             render::INVALID_OBJECT_ID,
@@ -66,8 +66,8 @@ namespace debug {
     void drawRectBorder(
         const slurp::Vec2<float>& startPoint,
         const slurp::Vec2<float>& endPoint,
-        float lineWidth = 1.f,
-        const slurp::Vec4<float>& color = DEBUG_GREEN_COLOR
+        float lineWidth,
+        const slurp::Vec4<float>& color
     ) {
         drawLine(
             startPoint,

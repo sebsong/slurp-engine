@@ -93,7 +93,7 @@ namespace asset {
         std::string fragmentShaderSource = _loadShaderSource(fragmentFilePath)->source;
 
         shaderProgram->isLoaded = true;
-        shaderProgram->programId = slurp::Globals->RenderApi->createShaderProgram(
+        shaderProgram->programId = render::createShaderProgram(
             vertexShaderSource.c_str(),
             fragmentShaderSource.c_str()
         );
@@ -170,6 +170,35 @@ namespace asset {
         loadSpriteAnimationData(animation, bitmap, numFrames);
 
         return animation;
+    }
+
+    color_palette* AssetLoader::loadColorPalette(const std::string& hexFileName) {
+        const std::string filePath = PalettesDirectory + hexFileName;
+        asset_id assetId = _getAssetId(filePath);
+
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<color_palette*>(existingAsset);
+        }
+
+        std::ifstream file(filePath);
+        ASSERT(file.good());
+
+        uint8_t colorPaletteIdx = 0;
+        std::string line;
+
+        color_palette* colorPalette = memory::Permanent->allocate<color_palette>();
+        while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
+            uint32_t color = std::stoi(line, nullptr, 16);
+            colorPalette->at(colorPaletteIdx) = slurp::Vec4{
+                static_cast<float>((color & render::RedMask) >> render::RedShift) / 255,
+                static_cast<float>((color & render::GreenMask) >> render::GreenShift) / 255,
+                static_cast<float>((color & render::BlueMask) >> render::BlueShift) / 255,
+                colorPaletteIdx == 0 ? 0.f : 1.f // NOTE: 0-index color represents full transparency
+            };
+            colorPaletteIdx++;
+        }
+
+        return colorPalette;
     }
 
     Sound* AssetLoader::loadSound(const std::string& waveFileName, audio::sound_group_id groupId) {

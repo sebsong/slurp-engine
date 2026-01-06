@@ -56,7 +56,7 @@ namespace asset {
         BitmapSheet sheet = sliceBitmap(bitmap, numFrames);
         render::object_id* textureIds = memory::AssetLoader->allocateN<render::object_id>(numFrames);
         for (int i = 0; i < numFrames; i++) {
-            textureIds[i] = slurp::Globals->RenderApi->createTexture(&sheet.bitmaps[i]);
+            textureIds[i] = render::createTexture(&sheet.bitmaps[i]);
         }
 
         animation->textureIds = textureIds;

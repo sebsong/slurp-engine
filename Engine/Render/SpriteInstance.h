@@ -42,6 +42,8 @@ namespace render {
         void bindShaderUniform(const char* uniformName, float value) const;
 
         void bindShaderUniform(const char* uniformName, bool value) const;
+
+        void bindShaderUniform(const char* uniformName, slurp::Vec4<float> value) const;
     };
 
     void loadSpriteData(
