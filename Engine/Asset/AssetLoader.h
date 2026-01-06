@@ -5,11 +5,15 @@
 #include "CollectionTypes.h"
 #include "ColorPalette.h"
 
+#define COLOR_PALETTE_SIZE 9
+
 struct MIX_Mixer;
 
 namespace asset {
     struct Sprite;
     struct SpriteAnimation;
+
+    typedef std::array<slurp::Vec3<float>, COLOR_PALETTE_SIZE> color_palette;
 
     class AssetLoader {
     public:
@@ -37,7 +41,7 @@ namespace asset {
             audio::sound_group_id groupId
         );
 
-        std::array<slurp::Vec3<float>, COLOR_PALETTE_SIZE> loadColorPalette(const std::string& hexFileName);
+        color_palette* loadColorPalette(const std::string& hexFileName);
 
     private:
         types::unordered_map_arena<asset_id, Asset*> _assets;

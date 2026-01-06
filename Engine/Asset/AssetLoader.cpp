@@ -196,20 +196,33 @@ namespace asset {
         return sound;
     }
 
-    std::array<slurp::Vec3<float>, 9> AssetLoader::loadColorPalette(const std::string& hexFileName) {
+    color_palette* AssetLoader::loadColorPalette(const std::string& hexFileName) {
         const std::string filePath = PalettesDirectory + hexFileName;
         asset_id assetId = _getAssetId(filePath);
+
+        if (Asset* existingAsset = _getAsset(assetId)) {
+            return reinterpret_cast<color_palette*>(existingAsset);
+        }
+
         std::ifstream file(filePath);
         ASSERT(file.good());
 
         uint8_t colorPaletteIdx = 0;
         std::string line;
+
+        color_palette* colorPalette = memory::Permanent->allocate<color_palette>();
         while (std::getline(file, line) && colorPaletteIdx < COLOR_PALETTE_SIZE) {
-            render::Pixel color = std::stoi(line, nullptr, 16);
+            uint32_t color = std::stoi(line, nullptr, 16);
+
+            // NOTE: the 0-index color is always completely transparent
             if (colorPaletteIdx != 0) {
                 color |= render::AlphaMask;
             }
-            palette.colors[colorPaletteIdx] = color;
+            colorPalette[colorPaletteIdx] = {
+                (color & render::RedMask) / 255.f,
+                (color & render::GreenMask) / 255.f,
+                (color & render::BlueMask) / 255.f
+            };
             colorPaletteIdx++;
         }
 
