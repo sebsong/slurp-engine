@@ -333,6 +333,14 @@ namespace game {
         menu.setAlpha(0, .75);
         scene::registerEntity(this, &menu);
 
+        new(&stopwatch) ui::Stopwatch(
+            {20, 25},
+            MENU_Z - 1,
+            GameScene->stopwatch.getSecondsElapsed()
+        );
+        stopwatch.setColor(Assets->colorPalette->at(2));
+        scene::registerEntity(this, &stopwatch);
+
         new(&resumeButton) ui::Button(
             Assets->resumeButtonTextSprite,
             Assets->bigButtonSprite,

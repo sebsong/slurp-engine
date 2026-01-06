@@ -28,6 +28,7 @@ namespace render {
     static constexpr const char* ALPHA_UNIFORM_NAME = "alpha";
     static constexpr const char* SRC_COLOR_UNIFORM_NAME = "srcColor";
     static constexpr const char* DST_COLOR_UNIFORM_NAME = "dstColor";
+    static constexpr const char* COLOR_OVERRIDE_UNIFORM_NAME = "colorOverride";
     static constexpr const char* COLOR_UNIFORM_NAME = "color";
 
     void setBackgroundColor(float red, float green, float blue);
@@ -59,6 +60,7 @@ namespace render {
         const slurp::Vec2<float>& positionTransform,
         const slurp::Vec4<float>& srcColor,
         const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
         float alpha,
         int zOrder
     );
@@ -71,6 +73,7 @@ namespace render {
         const slurp::Vec2<float>& positionTransform,
         const slurp::Vec4<float>& srcColor,
         const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
         float alpha,
         int zOrder
     );

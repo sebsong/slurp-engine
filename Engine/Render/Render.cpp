@@ -20,6 +20,7 @@ namespace render {
                 positionTransform,
                 material.srcColor,
                 material.dstColor,
+                material.colorOverride,
                 material.alpha,
                 sprite->zOrder
             );

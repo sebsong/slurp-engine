@@ -204,6 +204,7 @@ namespace render {
         const slurp::Vec2<float>& positionTransform,
         const slurp::Vec4<float>& srcColor,
         const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
         float alpha,
         int zOrder
     ) {
@@ -237,6 +238,8 @@ namespace render {
         bindShaderUniformVec4(shaderProgramId, SRC_COLOR_UNIFORM_NAME, srcColor);
         bindShaderUniformVec4(shaderProgramId, SRC_COLOR_UNIFORM_NAME, dstColor);
 
+        bindShaderUniformVec4(shaderProgramId, COLOR_OVERRIDE_UNIFORM_NAME, colorOverride);
+
         bindShaderUniformFloat(shaderProgramId, ALPHA_UNIFORM_NAME, alpha);
 
         setZOrderUniform(shaderProgramId, zOrder);
@@ -250,10 +253,21 @@ namespace render {
         const slurp::Vec2<float>& positionTransform,
         const slurp::Vec4<float>& srcColor,
         const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
         float alpha,
         int zOrder
     ) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, srcColor, dstColor, alpha, zOrder);
+        prepareDraw(
+            vertexArrayId,
+            textureId,
+            shaderProgramId,
+            positionTransform,
+            srcColor,
+            dstColor,
+            colorOverride,
+            alpha,
+            zOrder
+        );
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
@@ -265,10 +279,21 @@ namespace render {
         const slurp::Vec2<float>& positionTransform,
         const slurp::Vec4<float>& srcColor,
         const slurp::Vec4<float>& dstColor,
+        const slurp::Vec4<float>& colorOverride,
         float alpha,
         int zOrder
     ) {
-        prepareDraw(vertexArrayId, textureId, shaderProgramId, positionTransform, srcColor, dstColor, alpha, zOrder);
+        prepareDraw(
+            vertexArrayId,
+            textureId,
+            shaderProgramId,
+            positionTransform,
+            srcColor,
+            dstColor,
+            colorOverride,
+            alpha,
+            zOrder
+        );
         glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
     }
 

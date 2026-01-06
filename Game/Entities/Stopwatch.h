@@ -5,7 +5,6 @@
 namespace ui {
     class Stopwatch final : public entity::Entity {
     public:
-
         Stopwatch() = default;
 
         explicit Stopwatch(
@@ -23,6 +22,8 @@ namespace ui {
         float getSecondsElapsed();
 
         void setSecondsElapsed(float secondsElapsed);
+
+        void setColor(slurp::Vec4<float> color);
 
     private:
         bool _isStopped;
