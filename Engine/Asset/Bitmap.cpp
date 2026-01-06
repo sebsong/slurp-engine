@@ -111,7 +111,7 @@ namespace asset {
         const types::byte* bitmapBytes = bitmapFileBytes + header->fileHeader.bfOffBits;
         int width = static_cast<int>(header->infoHeader.biWidth);
         int height = static_cast<int>(header->infoHeader.biHeight);
-        render::Pixel* map = memory::AssetLoader->allocateN<render::Pixel>(width * height);
+        render::Pixel* pixels = memory::AssetLoader->allocateN<render::Pixel>(width * height);
 
         if (header->infoHeader.biCompression == BI_RGB && header->infoHeader.biBitCount <= 8) {
             loadBitmapColorPalette(
@@ -121,7 +121,7 @@ namespace asset {
                 height,
                 static_cast<int>(header->infoHeader.biClrUsed),
                 header->infoHeader.biBitCount,
-                map
+                pixels
             );
         } else if (header->infoHeader.biCompression == BI_BITFIELDS) {
             loadBitmapBitFields(
@@ -129,7 +129,7 @@ namespace asset {
                 width,
                 height,
                 header->infoHeader.biBitCount,
-                map
+                pixels
             );
         } else {
             // TODO: unsupported compression type
@@ -137,7 +137,7 @@ namespace asset {
         }
 
         bitmap->dimensions = {width, height};
-        bitmap->map = map;
+        bitmap->pixels = pixels;
         bitmap->isLoaded = true;
     }
 
@@ -147,14 +147,14 @@ namespace asset {
         for (uint8_t sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
             Bitmap& bitmapSlice = bitmaps[sliceIdx];
             bitmapSlice.dimensions = sliceDimensions;
-            bitmapSlice.map = memory::AssetLoader->allocateN<render::Pixel>(
+            bitmapSlice.pixels = memory::AssetLoader->allocateN<render::Pixel>(
                 sliceDimensions.width * sliceDimensions.height
             );
             int xOffset = sliceDimensions.width * sliceIdx;
             for (int y = 0; y < sliceDimensions.height; y++) {
                 for (int x = 0; x < sliceDimensions.width; x++) {
-                    bitmapSlice.map[x + (y * sliceDimensions.width)] =
-                            bitmap->map[x + xOffset + (y * bitmap->dimensions.width)];
+                    bitmapSlice.pixels[x + (y * sliceDimensions.width)] =
+                            bitmap->pixels[x + xOffset + (y * bitmap->dimensions.width)];
                 }
             }
         }

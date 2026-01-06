@@ -36,7 +36,7 @@ namespace asset {
 
     struct Bitmap : Asset {
         slurp::Vec2<int> dimensions;
-        render::Pixel* map;
+        render::Pixel* pixels;
     };
 
     struct BitmapSheet {

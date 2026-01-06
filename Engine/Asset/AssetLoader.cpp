@@ -118,6 +118,13 @@ namespace asset {
         }
         loadBitmapData(bitmap, fileBytes);
 
+        // TODO: use SDL to load bitmaps, loads in an indexed format which is more compressed
+        // SDL_Surface* surface = SDL_LoadBMP(filePath.c_str());
+        // bitmap->dimensions = {surface->w, surface->h};
+        // bitmap->pixels = reinterpret_cast<render::Pixel*>(surface->pixels);
+        // bitmap->isLoaded = true;
+        // bitmap->sourceFileName = bitmapFileName;
+
         return bitmap;
     }
 
@@ -145,7 +152,7 @@ namespace asset {
         sprite->sourceFileName = bitmapFileName;
         _registerAsset(assetId, sprite);
 
-        Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
+        Bitmap* bitmap = loadBitmap(bitmapFileName);
 
         render::object_id shaderProgramId = loadShaderProgram(vertexShaderFileName, fragmentShaderFileName)->programId;
         render::loadSpriteData(sprite, bitmap, shaderProgramId);
@@ -165,7 +172,7 @@ namespace asset {
         animation->sourceFileName = bitmapFileName;
         _registerAsset(assetId, animation);
 
-        Bitmap* bitmap = asset::loadBitmap(bitmapFileName);
+        Bitmap* bitmap = loadBitmap(bitmapFileName);
 
         loadSpriteAnimationData(animation, bitmap, numFrames);
 

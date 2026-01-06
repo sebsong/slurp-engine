@@ -63,10 +63,6 @@ namespace asset {
         return slurp::Globals->AssetLoader->loadShaderProgram(vertexShaderFileName, fragmentShaderFileName);
     }
 
-    inline Bitmap* loadBitmap(const std::string& bitmapFileName) {
-        return slurp::Globals->AssetLoader->loadBitmap(bitmapFileName);
-    }
-
     inline Sprite* loadSprite(const std::string& bitmapFileName) {
         return slurp::Globals->AssetLoader->loadSprite(bitmapFileName);
     }

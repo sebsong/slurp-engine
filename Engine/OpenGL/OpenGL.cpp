@@ -43,7 +43,7 @@ namespace render {
             0,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            bitmap->map
+            bitmap->pixels
         );
         // glGenerateMipmap(GL_TEXTURE_2D);
 
