@@ -63,6 +63,10 @@ namespace render {
         bindShaderUniformBool(material.shaderProgramId, uniformName, value);
     }
 
+    void SpriteInstance::bindShaderUniform(const char* uniformName, slurp::Vec4<float> value) const {
+        bindShaderUniformVec4(material.shaderProgramId, uniformName, value);
+    }
+
     void loadSpriteData(
         asset::Sprite* sprite,
         const asset::Bitmap* bitmap,

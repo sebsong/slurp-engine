@@ -40,6 +40,8 @@ namespace render {
 
     void bindShaderUniformBool(object_id shaderProgramId, const char* uniformName, bool value);
 
+    void bindShaderUniformVec4(object_id shaderProgramId, const char* uniformName, slurp::Vec4<float> value);
+
     object_id genVertexArrayBuffer(Vertex vertexArray[], int vertexCount);
 
     object_id genElementArrayBuffer(

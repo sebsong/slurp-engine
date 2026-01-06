@@ -111,6 +111,14 @@ namespace render {
         }
     }
 
+    void bindShaderUniformVec4(object_id shaderProgramId, const char* uniformName, slurp::Vec4<float> value) {
+        glUseProgram(shaderProgramId);
+        int uniformLoc = glGetUniformLocation(shaderProgramId, uniformName);
+        if (uniformLoc != INVALID_OBJECT_ID) {
+            glUniform4fv(uniformLoc, 1, value.values);
+        }
+    }
+
     object_id genVertexArrayBuffer(Vertex vertexArray[], int vertexCount) {
         object_id vertexArrayId;
         glGenVertexArrays(1, &vertexArrayId);
