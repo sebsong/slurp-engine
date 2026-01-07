@@ -127,6 +127,17 @@ namespace entity {
         renderInfo.sprites[spriteIndex].material.textureId = sprite->material.textureId;
     }
 
+    void Entity::setColor(const slurp::Vec4<float>& color) {
+        for (uint8_t i = 0; i < renderInfo.numSprites; i++) {
+            setColor(i, color);
+        }
+    }
+
+    void Entity::setColor(uint8_t spriteIndex, const slurp::Vec4<float>& color) {
+        ASSERT_LOG(renderInfo.numSprites > spriteIndex, "Sprite index out of range");
+        renderInfo.sprites[spriteIndex].material.colorOverride = color;
+    }
+
     void Entity::setAlpha(float alpha) {
         for (uint8_t i = 0; i < renderInfo.numSprites; i++) {
             setAlpha(i, alpha);

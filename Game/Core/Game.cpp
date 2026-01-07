@@ -227,7 +227,7 @@ namespace game {
         );
         scene::registerEntity(this, &exitButton);
 
-        testText = font::createText(Assets->fontSmall, "this is a test", {-75, 25}, UI_Z);
+        testText = font::createText(Assets->fontSmall, "the quick brown fox jumps over the lazy dog 1234567890", {-315, 25}, UI_Z);
         scene::registerEntity(this, &testText);
     }
 

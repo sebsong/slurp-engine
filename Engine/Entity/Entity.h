@@ -73,6 +73,10 @@ namespace entity {
 
         void setTexture(uint8_t spriteIndex, const asset::Sprite* sprite);
 
+        void setColor(const slurp::Vec4<float>& color);
+
+        void setColor(uint8_t spriteIndex, const slurp::Vec4<float>& color);
+
         void setAlpha(float alpha);
 
         void setAlpha(uint8_t spriteIndex, float alpha);
