@@ -145,10 +145,11 @@ namespace asset {
         uint8_t numBitmaps = numRows * numColumns;
         Bitmap* bitmaps = memory::AssetLoader->allocateN<Bitmap>(numBitmaps);
         slurp::Vec2 sliceDimensions = {bitmap->dimensions.width / numColumns, bitmap->dimensions.height / numRows};
-        for (uint8_t rowIdx = 0; rowIdx < numRows; rowIdx++) {
+        int bitmapIdx = 0;
+        for (int8_t rowIdx = numRows - 1; rowIdx >= 0; rowIdx--) {
             int yOffset = sliceDimensions.y * rowIdx;
-            for (uint8_t colIdx = 0; colIdx < numColumns; colIdx++) {
-                Bitmap& bitmapSlice = bitmaps[colIdx];
+            for (int8_t colIdx = 0; colIdx < numColumns; colIdx++) {
+                Bitmap& bitmapSlice = bitmaps[bitmapIdx];
                 bitmapSlice.dimensions = sliceDimensions;
                 bitmapSlice.pixels = memory::AssetLoader->allocateN<render::Pixel>(
                     sliceDimensions.width * sliceDimensions.height
@@ -160,6 +161,7 @@ namespace asset {
                                 bitmap->pixels[((yOffset + y) * bitmap->dimensions.width) + (xOffset + x)];
                     }
                 }
+                bitmapIdx++;
             }
         }
 

@@ -42,17 +42,21 @@ namespace font {
 
     Text createText(Font* font, const std::string& textString, const slurp::Vec2<float>& position, int32_t zOrder) {
         render::SpriteInstance* characterSprites = memory::Permanent->allocateN<render::SpriteInstance>(
-            textString.size(),
-            true
+            textString.size()
         );
+        float xOffset = 0.f;
         for (size_t i = 0; i < textString.size(); i++) {
             uint8_t c = textString[i] - ASCII_PRINTABLE_INDEX_OFFSET;
 
-            new(&characterSprites[i]) render::SpriteInstance(
+            render::SpriteInstance* characterSprite = &characterSprites[i];
+            new(characterSprite) render::SpriteInstance(
                 font->sprites[c],
                 zOrder,
-                {static_cast<float>(font->postSpacing), 0.f}
+                {xOffset, 0.f}
             );
+
+            // TODO: allow for per character postSpacing
+            xOffset += characterSprite->dimensions.x + font->postSpacing;
         }
 
         return Text(textString, characterSprites, position);;
