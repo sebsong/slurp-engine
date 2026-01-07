@@ -4,7 +4,7 @@
 #include "Entity.h"
 
 #define ASCII_PRINTABLE_ATLAS_SIZE 96
-#define ASCII_PRINTABLE_INDEX_OFF 32
+#define ASCII_PRINTABLE_INDEX_OFFSET 32
 
 #define FONT_ATLAS_COLUMNS 16
 #define FONT_ATLAS_ROWS 6
@@ -20,10 +20,12 @@ namespace font {
         int8_t postSpacing;
     };
 
-    class Text : entity::Entity {
+    class Text : public entity::Entity {
     public:
+        Text() = default;
+
         Text(
-            std::string&& textString,
+            const std::string& textString,
             const render::SpriteInstance* characterSprites,
             const slurp::Vec2<float>& position
         );

@@ -226,6 +226,12 @@ namespace game {
             -2
         );
         scene::registerEntity(this, &exitButton);
+
+        testText = font::createText(Assets->fontSmall, "this is a test", {0, 25}, UI_Z);
+        scene::registerEntity(this, &testText);
+        for (int i = 0; i < testText.renderInfo.numSprites; i++) {
+            testText.renderInfo.sprites[i].dimensions = {12, 12};
+        }
     }
 
     void MainMenu::unload() {

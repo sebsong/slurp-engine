@@ -39,10 +39,10 @@ namespace entity {
             std::move(other.shouldDestroy)
         ) {}
 
-    Entity::Entity(std::string&& name)
+    Entity::Entity(const std::string& name)
         : Entity(
             INVALID_ENTITY_ID,
-            std::move(name),
+            name,
             true,
             false,
             {},
@@ -52,13 +52,13 @@ namespace entity {
         ) {}
 
     Entity::Entity(
-        std::string&& name,
+        const std::string& name,
         const render::RenderInfo& renderInfo,
         const physics::PhysicsInfo& physicsInfo,
         const collision::CollisionInfo& collisionInfo
     ): Entity(
         INVALID_ENTITY_ID,
-        std::move(name),
+        name,
         true,
         false,
         renderInfo,
@@ -69,7 +69,7 @@ namespace entity {
 
     Entity::Entity(
         uint32_t id,
-        std::string&& name,
+        const std::string& name,
         bool enabled,
         bool initialized,
         const render::RenderInfo& renderInfo,

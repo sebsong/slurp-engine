@@ -26,10 +26,10 @@ namespace entity {
 
         Entity(Entity&& other) noexcept;
 
-        Entity(std::string&& name);
+        Entity(const std::string& name);
 
         Entity(
-            std::string&& name,
+            const std::string& name,
             const render::RenderInfo& renderInfo,
             const physics::PhysicsInfo& physicsInfo,
             const collision::CollisionInfo& collisionInfo
@@ -37,7 +37,7 @@ namespace entity {
 
         Entity(
             uint32_t id,
-            std::string&& name,
+            const std::string& name,
             bool enabled,
             bool initialized,
             const render::RenderInfo& renderInfo,

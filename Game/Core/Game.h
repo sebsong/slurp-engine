@@ -11,6 +11,7 @@
 #include "Worker.h"
 #include "Turret.h"
 #include "Button.h"
+#include "Font.h"
 #include "NumberDisplay.h"
 #include "ProgressBar.h"
 #include "Scene.h"
@@ -106,6 +107,8 @@ namespace game {
         entity::Entity slurpEngineText;
         ui::Button playButton;
         ui::Button exitButton;
+
+        font::Text testText;
 
         void load() override;
 

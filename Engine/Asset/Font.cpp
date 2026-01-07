@@ -1,16 +1,18 @@
 #include "Font.h"
 
+#include <cstring>
+
 #include "AssetLoader.h"
 #include "Bitmap.h"
 #include "SpriteInstance.h"
 
 namespace font {
     Text::Text(
-        std::string&& textString,
+        const std::string& textString,
         const render::SpriteInstance* characterSprites,
         const slurp::Vec2<float>& position
     ): Entity(
-        std::move(textString),
+        textString,
         render::RenderInfo(
             textString.size(),
             characterSprites
@@ -31,10 +33,7 @@ namespace font {
         for (int i = 0; i < ASCII_PRINTABLE_ATLAS_SIZE; i++) {
             asset::Sprite* sprite = &sprites[i];
             render::loadSpriteData(sprite, &sheet.bitmaps[i], shaderProgramId);
-            font->characters[i] = Character{
-                sprite,
-                0
-            };
+            font->sprites[i] = sprite;
         }
 
         font->postSpacing = 0;
@@ -42,14 +41,20 @@ namespace font {
     }
 
     Text createText(Font* font, const std::string& textString, const slurp::Vec2<float>& position, int32_t zOrder) {
+        render::SpriteInstance* characterSprites = memory::Permanent->allocateN<render::SpriteInstance>(
+            textString.size(),
+            true
+        );
+        for (size_t i = 0; i < textString.size(); i++) {
+            uint8_t c = textString[i] - ASCII_PRINTABLE_INDEX_OFFSET;
 
-        for (int i = 0; i < textString.size(); i++) {
-            char c = textString[i];
-            Character character = font->characters[c];
-            character.postSpacing = font->postSpacing;
-            text.characters[i] = character;
+            new(&characterSprites[i]) render::SpriteInstance(
+                font->sprites[c],
+                zOrder,
+                {static_cast<float>(font->postSpacing), 0.f}
+            );
         }
 
-        return Text(textString);;
+        return Text(textString, characterSprites, position);;
     }
 }
