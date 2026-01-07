@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Asset.h"
+#include "Entity.h"
 
 #define ASCII_PRINTABLE_ATLAS_SIZE 96
 #define ASCII_PRINTABLE_INDEX_OFF 32
@@ -9,19 +10,31 @@
 #define FONT_ATLAS_ROWS 6
 
 namespace font {
-    struct Character {
-        asset::Sprite* sprite;
-        int postSpacing;
-    };
-
     struct Font : asset::Asset {
-        Character characters[ASCII_PRINTABLE_ATLAS_SIZE];
-        int postSpacing;
+        asset::Sprite* sprites[ASCII_PRINTABLE_ATLAS_SIZE];
+        int8_t postSpacing;
     };
 
-    struct Text {
-        types::vector_arena<Character> characters;
+    struct Character {
+        render::SpriteInstance* spriteInstance;
+        int8_t postSpacing;
+    };
+
+    class Text : entity::Entity {
+    public:
+        Text(
+            std::string&& textString,
+            const render::SpriteInstance* characterSprites,
+            const slurp::Vec2<float>& position
+        );
     };
 
     void loadFontData(Font* font, const asset::Bitmap* bitmap);
+
+    Text createText(
+        Font* font,
+        const std::string& textString,
+        const slurp::Vec2<float>& position,
+        int32_t zOrder
+    );
 }
