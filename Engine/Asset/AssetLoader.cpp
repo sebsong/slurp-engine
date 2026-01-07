@@ -5,6 +5,7 @@
 #include "Bitmap.h"
 #include "JobRunner.h"
 #include "SpriteInstance.h"
+#include "Font.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
 //TODO: need to package this with the build
@@ -20,12 +21,13 @@ static const std::string AssetsDirectory = "../../../../Assets/";
 #endif
 
 namespace asset {
-    static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
     static const std::string SpritesDirectory = AssetsDirectory + "Sprites/";
-    static const std::string SoundsDirectory = AssetsDirectory + "Sounds/";
+    static const std::string FontsDirectory = AssetsDirectory + "Fonts/";
+    static const std::string PalettesDirectory = AssetsDirectory + "Palettes/";
     static const std::string ShadersDirectory = AssetsDirectory + "Shaders/";
     static const std::string VertexShadersDirectory = ShadersDirectory + "1_Vertex/";
     static const std::string FragmentShadersDirectory = ShadersDirectory + "2_Fragment/";
+    static const std::string SoundsDirectory = AssetsDirectory + "Sounds/";
 
     AssetLoader::AssetLoader(MIX_Mixer* audioMixer)
         : _assets(types::unordered_map_arena<asset_id, Asset*>()),
@@ -144,9 +146,9 @@ namespace asset {
         std::string filePath = SpritesDirectory + bitmapFileName;
         asset_id assetId = _getAssetId(filePath + vertexShaderFileName + fragmentShaderFileName);
 
-        // if (Asset* existingSprite = _getAsset(assetId)) {
-        //     return reinterpret_cast<Sprite*>(existingSprite);
-        // }
+        if (Asset* existingSprite = _getAsset(assetId)) {
+            return reinterpret_cast<Sprite*>(existingSprite);
+        }
 
         Sprite* sprite = memory::Permanent->allocate<Sprite>();
         sprite->sourceFileName = bitmapFileName;
@@ -164,9 +166,9 @@ namespace asset {
         std::string filePath = SpritesDirectory + bitmapFileName;
         asset_id assetId = _getAssetId(filePath);
 
-        // if (Asset* existingSpriteAnimation = _getAsset(assetId)) {
-        //     return reinterpret_cast<SpriteAnimation*>(existingSprite);
-        // }
+        if (Asset* existingSpriteAnimation = _getAsset(assetId)) {
+            return reinterpret_cast<SpriteAnimation*>(existingSpriteAnimation);
+        }
 
         SpriteAnimation* animation = memory::Permanent->allocate<SpriteAnimation>();
         animation->sourceFileName = bitmapFileName;
@@ -177,6 +179,25 @@ namespace asset {
         loadSpriteAnimationData(animation, bitmap, numFrames);
 
         return animation;
+    }
+
+    font::Font* AssetLoader::loadFont(const std::string& bitmapFileName) {
+        std::string filePath = FontsDirectory + bitmapFileName;
+        asset_id assetId = _getAssetId(filePath);
+
+        if (Asset* existingFont = _getAsset(assetId)) {
+            return reinterpret_cast<font::Font*>(existingFont);
+        }
+
+        font::Font* font = memory::Permanent->allocate<font::Font>();
+        _registerAsset(assetId, font);
+
+        Bitmap* bitmap = loadBitmap(bitmapFileName);
+
+        font->sourceFileName = bitmapFileName;
+        font::loadFontData(font, bitmap);
+
+        return font;
     }
 
     color_palette* AssetLoader::loadColorPalette(const std::string& hexFileName) {

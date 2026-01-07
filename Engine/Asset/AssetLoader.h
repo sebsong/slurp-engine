@@ -8,6 +8,10 @@
 
 struct MIX_Mixer;
 
+namespace font {
+    struct Font;
+}
+
 namespace asset {
     struct Sprite;
     struct SpriteAnimation;
@@ -34,6 +38,8 @@ namespace asset {
         );
 
         SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames);
+
+        font::Font* loadFont(const std::string& bitmapFileName);
 
         color_palette* loadColorPalette(const std::string& hexFileName);
 
@@ -81,6 +87,10 @@ namespace asset {
 
     inline SpriteAnimation* loadSpriteAnimation(const std::string& bitmapFileName, uint8_t numFrames) {
         return slurp::Globals->AssetLoader->loadSpriteAnimation(bitmapFileName, numFrames);
+    }
+
+    inline font::Font* loadFont(const std::string& bitmapFileName) {
+        return slurp::Globals->AssetLoader->loadFont(bitmapFileName);
     }
 
     inline color_palette* loadColorPalette(const std::string& hexFileName) {

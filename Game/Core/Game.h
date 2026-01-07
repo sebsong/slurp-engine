@@ -26,6 +26,7 @@ namespace game {
 
     struct GameAssets {
         asset::color_palette* colorPalette;
+        font::Font* fontSmall;
 
         asset::Sprite* backgroundSprite;
         asset::Sprite* mouseCursorSprite;

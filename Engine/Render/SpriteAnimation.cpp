@@ -60,5 +60,6 @@ namespace asset {
         }
 
         animation->textureIds = textureIds;
+        animation->isLoaded = true;
     }
 }

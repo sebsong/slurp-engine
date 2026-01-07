@@ -141,24 +141,28 @@ namespace asset {
         bitmap->isLoaded = true;
     }
 
-    BitmapSheet sliceBitmap(const Bitmap* bitmap, uint8_t numSlices) {
-        Bitmap* bitmaps = memory::AssetLoader->allocateN<Bitmap>(numSlices);
-        slurp::Vec2 sliceDimensions = {bitmap->dimensions.width / numSlices, bitmap->dimensions.height};
-        for (uint8_t sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
-            Bitmap& bitmapSlice = bitmaps[sliceIdx];
-            bitmapSlice.dimensions = sliceDimensions;
-            bitmapSlice.pixels = memory::AssetLoader->allocateN<render::Pixel>(
-                sliceDimensions.width * sliceDimensions.height
-            );
-            int xOffset = sliceDimensions.width * sliceIdx;
-            for (int y = 0; y < sliceDimensions.height; y++) {
-                for (int x = 0; x < sliceDimensions.width; x++) {
-                    bitmapSlice.pixels[x + (y * sliceDimensions.width)] =
-                            bitmap->pixels[x + xOffset + (y * bitmap->dimensions.width)];
+    BitmapSheet sliceBitmap(const Bitmap* bitmap, uint8_t numColumns, uint8_t numRows) {
+        uint8_t numBitmaps = numRows * numColumns;
+        Bitmap* bitmaps = memory::AssetLoader->allocateN<Bitmap>(numBitmaps);
+        slurp::Vec2 sliceDimensions = {bitmap->dimensions.width / numColumns, bitmap->dimensions.height / numRows};
+        for (uint8_t rowIdx = 0; rowIdx < numRows; rowIdx++) {
+            int yOffset = sliceDimensions.y * rowIdx;
+            for (uint8_t colIdx = 0; colIdx < numColumns; colIdx++) {
+                Bitmap& bitmapSlice = bitmaps[colIdx];
+                bitmapSlice.dimensions = sliceDimensions;
+                bitmapSlice.pixels = memory::AssetLoader->allocateN<render::Pixel>(
+                    sliceDimensions.width * sliceDimensions.height
+                );
+                int xOffset = sliceDimensions.width * colIdx;
+                for (int y = 0; y < sliceDimensions.height; y++) {
+                    for (int x = 0; x < sliceDimensions.width; x++) {
+                        bitmapSlice.pixels[(y * sliceDimensions.width) + x] =
+                                bitmap->pixels[((yOffset + y) * bitmap->dimensions.width) + (xOffset + x)];
+                    }
                 }
             }
         }
 
-        return BitmapSheet{numSlices, bitmaps};
+        return BitmapSheet{numBitmaps, bitmaps};
     }
 }

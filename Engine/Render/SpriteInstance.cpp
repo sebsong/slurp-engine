@@ -70,37 +70,37 @@ namespace render {
     void loadSpriteData(
         asset::Sprite* sprite,
         const asset::Bitmap* bitmap,
-        render::object_id shaderProgramId
+        object_id shaderProgramId
     ) {
         // TODO: specify scale factor on entity that also applies to collision shapes
         float scale = 1.f;
         slurp::Vec2<float> dimensions = bitmap->dimensions * scale;
-        render::Vertex triangleVertices[SpriteMeshVertexCount] = {
-            render::Vertex{
+        Vertex triangleVertices[SpriteMeshVertexCount] = {
+            Vertex{
                 {dimensions.width, dimensions.height},
                 {1, 1}
             },
-            render::Vertex{
+            Vertex{
                 {0, dimensions.height},
                 {0, 1}
             },
-            render::Vertex{
+            Vertex{
                 {0, 0},
                 {0, 0}
             },
-            render::Vertex{
+            Vertex{
                 {dimensions.width, 0},
                 {1, 0}
             },
         };
 
-        render::object_id vertexArrayId = genElementArrayBuffer(
+        object_id vertexArrayId = genElementArrayBuffer(
             triangleVertices,
             SpriteMeshVertexCount,
             SpriteElements,
             SpriteMeshElementCount
         );
-        render::object_id textureId = createTexture(bitmap);
+        object_id textureId = createTexture(bitmap);
 
         sprite->dimensions = dimensions;
         sprite->mesh = asset::Mesh{vertexArrayId, SpriteMeshElementCount};

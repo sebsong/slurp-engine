@@ -36,6 +36,7 @@ namespace game {
 
     static void loadAssets() {
         Assets->colorPalette = asset::loadColorPalette("slso8.hex");
+        Assets->fontSmall = asset::loadFont("font_small.bmp");
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
