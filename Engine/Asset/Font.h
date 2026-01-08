@@ -23,10 +23,18 @@ namespace font {
         Text() = default;
 
         Text(
+            Font* font,
             const std::string& textString,
             const render::SpriteInstance* characterSprites,
-            const slurp::Vec2<float>& position
+            const slurp::Vec2<float>& position,
+            int32_t zOrder
         );
+
+        void setText(const std::string& textString);
+
+    private:
+        Font* _font;
+        int32_t _zOrder;
     };
 
     void loadFontData(Font* font, const asset::Bitmap* bitmap);

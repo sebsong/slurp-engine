@@ -113,6 +113,7 @@ namespace ui {
         uint32_t minutes = static_cast<uint32_t>(_secondsElapsed / 60) % 60;
         uint32_t seconds = static_cast<uint32_t>(_secondsElapsed) % 60;
         uint32_t deciSeconds = (_secondsElapsed - static_cast<uint32_t>(_secondsElapsed)) * 10;
+
         _hoursDisplay.number = hours;
         _minutesDisplay.number = minutes;
         _secondsDisplay.number = seconds;

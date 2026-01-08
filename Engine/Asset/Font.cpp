@@ -16,18 +16,51 @@ namespace font {
     }
 
     Text::Text(
+        Font* font,
         const std::string& textString,
         const render::SpriteInstance* characterSprites,
-        const slurp::Vec2<float>& position
+        const slurp::Vec2<float>& position,
+        int32_t zOrder
     ): Entity(
-        textString,
-        render::RenderInfo(
-            textString.size(),
-            characterSprites
-        ),
-        physics::PhysicsInfo(position),
-        collision::CollisionInfo()
-    ) {}
+           textString,
+           render::RenderInfo(
+               textString.size(),
+               characterSprites
+           ),
+           physics::PhysicsInfo(position),
+           collision::CollisionInfo()
+       ),
+       _font(font),
+       _zOrder(zOrder) {}
+
+    static render::SpriteInstance* getCharacterSprites(Font* font, const std::string& textString, int32_t zOrder) {
+        render::SpriteInstance* characterSprites = memory::Permanent->allocateN<render::SpriteInstance>(
+            textString.size()
+        );
+
+        float xOffset = 0.f;
+        for (size_t i = 0; i < textString.size(); i++) {
+            uint8_t c = getCharacterIndex(textString[i]);
+
+            render::SpriteInstance* characterSprite = &characterSprites[i];
+            new(characterSprite) render::SpriteInstance(
+                font->sprites[c],
+                zOrder,
+                {xOffset, 0.f}
+            );
+
+            xOffset += characterSprite->dimensions.x + font->postSpacing + font->characterPostSpacing[c];
+        }
+
+        return characterSprites;
+    }
+
+    void Text::setText(const std::string& textString) {
+        render::SpriteInstance* characterSprites = getCharacterSprites(_font, textString, _zOrder);
+        // TODO: clean up old sprites
+        renderInfo.sprites = characterSprites;
+        renderInfo.numSprites = textString.size();
+    }
 
     void loadFontData(Font* font, const asset::Bitmap* bitmap) {
         asset::BitmapSheet sheet = sliceBitmap(bitmap, FONT_ATLAS_COLUMNS, FONT_ATLAS_ROWS);
@@ -48,24 +81,7 @@ namespace font {
     }
 
     Text createText(Font* font, const std::string& textString, const slurp::Vec2<float>& position, int32_t zOrder) {
-        render::SpriteInstance* characterSprites = memory::Permanent->allocateN<render::SpriteInstance>(
-            textString.size()
-        );
-        float xOffset = 0.f;
-        for (size_t i = 0; i < textString.size(); i++) {
-            uint8_t c = getCharacterIndex(textString[i]);
-
-            render::SpriteInstance* characterSprite = &characterSprites[i];
-            new(characterSprite) render::SpriteInstance(
-                font->sprites[c],
-                zOrder,
-                {xOffset, 0.f}
-            );
-
-            // TODO: allow for per character postSpacing
-            xOffset += characterSprite->dimensions.x + font->postSpacing + font->characterPostSpacing[c];
-        }
-
-        return Text(textString, characterSprites, position);;
+        render::SpriteInstance* characterSprites = getCharacterSprites(font, textString, zOrder);
+        return Text(font, textString, characterSprites, position, zOrder);;
     }
 }
