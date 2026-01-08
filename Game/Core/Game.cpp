@@ -37,6 +37,14 @@ namespace game {
     static void loadAssets() {
         Assets->colorPalette = asset::loadColorPalette("slso8.hex");
         Assets->fontSmall = asset::loadFont("font_small.bmp");
+        Assets->fontSmall->setCharacterPostSpacing('1', -6);
+        Assets->fontSmall->setCharacterPostSpacing('f', -1);
+        Assets->fontSmall->setCharacterPostSpacing('i', -7);
+        Assets->fontSmall->setCharacterPostSpacing('j', -2);
+        Assets->fontSmall->setCharacterPostSpacing('l', -7);
+        Assets->fontSmall->setCharacterPostSpacing('m', 3);
+        Assets->fontSmall->setCharacterPostSpacing('t', -1);
+        Assets->fontSmall->setCharacterPostSpacing('w', 3);
 
         Assets->mouseCursorSprite = asset::loadSprite("mouse_cursor.bmp");
 
@@ -227,7 +235,12 @@ namespace game {
         );
         scene::registerEntity(this, &exitButton);
 
-        testText = font::createText(Assets->fontSmall, "the quick brown fox jumps over the lazy dog 1234567890", {-315, 25}, UI_Z);
+        testText = font::createText(
+            Assets->fontSmall,
+            "the quick brown fox jumps over the lazy dog 1234567890",
+            {-315, 25},
+            UI_Z
+        );
         scene::registerEntity(this, &testText);
     }
 

@@ -7,6 +7,14 @@
 #include "SpriteInstance.h"
 
 namespace font {
+    static uint8_t getCharacterIndex(char character) {
+        return static_cast<uint8_t>(character) - ASCII_PRINTABLE_INDEX_OFFSET;
+    }
+
+    void Font::setCharacterPostSpacing(char character, int8_t postSpacing) {
+        characterPostSpacing[getCharacterIndex(character)] = postSpacing;
+    }
+
     Text::Text(
         const std::string& textString,
         const render::SpriteInstance* characterSprites,
@@ -36,7 +44,6 @@ namespace font {
             font->sprites[i] = sprite;
         }
 
-        font->postSpacing = 0;
         font->isLoaded = true;
     }
 
@@ -46,7 +53,7 @@ namespace font {
         );
         float xOffset = 0.f;
         for (size_t i = 0; i < textString.size(); i++) {
-            uint8_t c = textString[i] - ASCII_PRINTABLE_INDEX_OFFSET;
+            uint8_t c = getCharacterIndex(textString[i]);
 
             render::SpriteInstance* characterSprite = &characterSprites[i];
             new(characterSprite) render::SpriteInstance(
@@ -56,7 +63,7 @@ namespace font {
             );
 
             // TODO: allow for per character postSpacing
-            xOffset += characterSprite->dimensions.x + font->postSpacing;
+            xOffset += characterSprite->dimensions.x + font->postSpacing + font->characterPostSpacing[c];
         }
 
         return Text(textString, characterSprites, position);;

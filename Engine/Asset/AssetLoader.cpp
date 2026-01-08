@@ -189,7 +189,7 @@ namespace asset {
             return reinterpret_cast<font::Font*>(existingFont);
         }
 
-        font::Font* font = memory::Permanent->allocate<font::Font>();
+        font::Font* font = memory::Permanent->allocate<font::Font>(true);
         _registerAsset(assetId, font);
 
         Bitmap* bitmap = loadBitmap(bitmapFileName);

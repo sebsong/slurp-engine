@@ -12,12 +12,10 @@
 namespace font {
     struct Font : asset::Asset {
         asset::Sprite* sprites[ASCII_PRINTABLE_ATLAS_SIZE];
+        int8_t characterPostSpacing[ASCII_PRINTABLE_ATLAS_SIZE];
         int8_t postSpacing;
-    };
 
-    struct Character {
-        render::SpriteInstance* spriteInstance;
-        int8_t postSpacing;
+        void setCharacterPostSpacing(char character, int8_t postSpacing);
     };
 
     class Text : public entity::Entity {
