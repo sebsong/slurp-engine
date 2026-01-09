@@ -1,6 +1,7 @@
 #include "AssetLoader.h"
 
 #include <filesystem>
+#include <fstream>
 
 #include "Bitmap.h"
 #include "JobRunner.h"
@@ -9,6 +10,7 @@
 #include "SDL3_mixer/SDL_mixer.h"
 
 //TODO: need to package this with the build
+#if DEBUG
 #ifdef ASSETS_DIR
 static const std::string AssetsDirectory = ASSETS_DIR;
 #else
@@ -17,7 +19,9 @@ static const std::string AssetsDirectory = "../Assets/";
 #elif PLATFORM_MAC
 static const std::string AssetsDirectory = "../../../../Assets/";
 #endif
-
+#endif
+#else
+static const std::string AssetsDirectory = "Assets/";
 #endif
 
 namespace asset {

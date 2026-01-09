@@ -14,6 +14,7 @@ namespace scene {
 
     void registerScene(Scene* scene) {
         AllScenes[NumRegisteredScenes++] = scene;
+        scene->isActive = false;
         scene->isPaused = false;
         scene->shouldLoad = false;
         scene->shouldUnload = false;

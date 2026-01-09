@@ -30,6 +30,8 @@
 #include "Render.cpp"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "RenderInfo.cpp"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "Font.cpp"
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Physics.cpp"
