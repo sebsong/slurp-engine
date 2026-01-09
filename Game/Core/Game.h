@@ -108,7 +108,8 @@ namespace game {
         ui::Button playButton;
         ui::Button exitButton;
 
-        font::Text testText;
+        font::Text highScoreText;
+        ui::Stopwatch highScoreStopwatch;
 
         void load() override;
 

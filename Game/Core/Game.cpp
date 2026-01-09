@@ -37,6 +37,7 @@ namespace game {
     static void loadAssets() {
         Assets->colorPalette = asset::loadColorPalette("slso8.hex");
         Assets->fontSmall = asset::loadFont("font_small.bmp");
+        Assets->fontSmall->setCharacterPostSpacing(' ', -6);
         Assets->fontSmall->setCharacterPostSpacing('1', -6);
         Assets->fontSmall->setCharacterPostSpacing(':', -6);
         Assets->fontSmall->setCharacterPostSpacing('f', -1);
@@ -158,6 +159,31 @@ namespace game {
         scene::start(MainMenuScene);
     }
 
+    static bool hasSavedTime() {
+        std::ifstream in;
+        in.open("save.slurp", std::ios::in | std::ios::binary);
+        bool hasSave = in.is_open();
+        in.close();
+        return hasSave;
+    }
+
+    static float getSavedTime() {
+        std::ifstream in;
+        in.open("save.slurp", std::ios::in | std::ios::binary);
+        float savedTime;
+        in >> savedTime;
+        in.close();
+        return savedTime;
+    }
+
+    static void saveNewTime(float secondsElapsed) {
+        std::ofstream out;
+        out.open("save.slurp", std::ios::out | std::ios::binary);
+        out << secondsElapsed;
+        out.close();
+    }
+
+
     void Global::load() {
         new(&mouseCursor) mouse_cursor::MouseCursor(Assets->mouseCursorSprite);
         scene::registerEntity(this, &mouseCursor);
@@ -235,6 +261,15 @@ namespace game {
             -2
         );
         scene::registerEntity(this, &exitButton);
+
+        if (hasSavedTime()) {
+            highScoreText = font::createText(Assets->fontSmall, "best time:", {-300, -145}, UI_Z);
+            scene::registerEntity(this, &highScoreText);
+
+            new(&highScoreStopwatch) ui::Stopwatch({-248, -165}, UI_Z, getSavedTime());
+            highScoreStopwatch.setColor(Assets->colorPalette->at(2));
+            scene::registerEntity(this, &highScoreStopwatch);
+        }
     }
 
     void MainMenu::unload() {
@@ -502,6 +537,9 @@ namespace game {
 
     static void endGame() {
         GameScene->stopwatch.stop();
+        if (!hasSavedTime() || (GameScene->stopwatch.getSecondsElapsed() < getSavedTime())) {
+            saveNewTime(GameScene->stopwatch.getSecondsElapsed());
+        }
         scene::pause(GameScene);
         scene::end(PauseMenuScene);
         scene::start(GameOverScene);
