@@ -7,7 +7,7 @@
 namespace ui {
     static constexpr uint32_t WorkerBuildCost = 5;
     static constexpr uint32_t MineSiteBuildCost = 20;
-    static constexpr uint32_t TurretBuildCost = 0;
+    static constexpr uint32_t TurretBuildCost = 10;
 
     static constexpr float WorkerBuildTime = 1.f;
     static constexpr float MineSiteBuildTime = 2.f;
