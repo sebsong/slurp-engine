@@ -23,7 +23,7 @@ namespace ui {
         : Entity("SpawnControls"),
           _spawnWorkerButton(
               Button(
-                  game::Assets->workerSprite,
+                  game::Assets->workerButtonIcon,
                   game::Assets->buttonSprite,
                   game::Assets->buttonHoverSprite,
                   game::Assets->buttonPressSprite,

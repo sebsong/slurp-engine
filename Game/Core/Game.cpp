@@ -320,7 +320,7 @@ namespace game {
 
         new(&turrets) entity::EntityPool<turret::Turret, MAX_NUM_TURRETS>(this, turret::Turret());
 
-        new(&spawnControls) ui::SpawnControls({0, -160});
+        new(&spawnControls) ui::SpawnControls({0, -158});
         scene::registerEntity(this, &spawnControls);
 
         new(&goldProgressBar)
