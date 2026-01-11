@@ -31,20 +31,12 @@ namespace scene {
     }
 
     void start(Scene* scene) {
-        if (scene->isActive) {
-            return;
-        }
-
         scene->isPaused = false;
         scene->shouldLoad = true;
         scene->shouldUnload = false;
     }
 
     void end(Scene* scene) {
-        if (!scene->isActive) {
-            return;
-        }
-
         scene->shouldUnload = true;
     }
 
