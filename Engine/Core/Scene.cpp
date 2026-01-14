@@ -33,7 +33,6 @@ namespace scene {
     void start(Scene* scene) {
         scene->isPaused = false;
         scene->shouldLoad = true;
-        scene->shouldUnload = false;
     }
 
     void end(Scene* scene) {
