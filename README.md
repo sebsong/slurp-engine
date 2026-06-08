@@ -4,6 +4,8 @@ slurp engine:
 
 A souped up C++ game engine. Delicious and homecooked.
 
+https://sebsong.itch.io/abyssal
+
 December 9, 2025
 <img width="2556" height="1437" alt="image" src="https://github.com/user-attachments/assets/ac2b02f5-9cfe-4ac1-b18c-606eb35a79b8" />
 
